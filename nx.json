@@ -1,0 +1,64 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s",
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/test-setup.[jt]s"
+    ],
+    "sharedGlobals": [
+      "{workspaceRoot}/.github/workflows/ci.yml"
+    ]
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "test": {
+      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
+    },
+    "lint": {
+      "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
+    }
+  },
+  "generators": {
+    "@nx/next:application": {
+      "style": "tailwind",
+      "linter": "eslint"
+    },
+    "@nx/node:application": {
+      "linter": "eslint"
+    },
+    "@nx/react:application": {
+      "style": "tailwind",
+      "linter": "eslint",
+      "bundler": "vite"
+    },
+    "@nx/react:component": {
+      "style": "tailwind"
+    },
+    "@nx/react:library": {
+      "linter": "eslint"
+    }
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": ["build", "lint", "test", "type-check"]
+      }
+    }
+  },
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
+  }
+}

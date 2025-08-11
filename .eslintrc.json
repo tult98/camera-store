@@ -1,0 +1,65 @@
+{
+  "root": true,
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nx"],
+  "extends": ["@nx/eslint-plugin/base"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [
+              {
+                "sourceTag": "*",
+                "onlyDependOnLibsWithTags": ["*"]
+              },
+              {
+                "sourceTag": "scope:frontend",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:frontend"]
+              },
+              {
+                "sourceTag": "scope:backend",
+                "onlyDependOnLibsWithTags": ["scope:shared", "scope:backend"]
+              },
+              {
+                "sourceTag": "type:app",
+                "onlyDependOnLibsWithTags": ["type:lib", "type:util", "type:types", "type:client"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["@nx/typescript"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "argsIgnorePattern": "^_",
+            "varsIgnorePattern": "^_"
+          }
+        ],
+        "@typescript-eslint/no-explicit-any": "warn"
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["@nx/javascript"],
+      "rules": {}
+    },
+    {
+      "files": ["apps/frontend/**/*.{ts,tsx,js,jsx}"],
+      "extends": ["next/core-web-vitals"],
+      "rules": {
+        "react/no-unescaped-entities": "off",
+        "@next/next/no-page-custom-font": "off"
+      }
+    }
+  ]
+}

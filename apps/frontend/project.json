@@ -1,0 +1,90 @@
+{
+  "name": "frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/frontend/src",
+  "projectType": "application",
+  "tags": ["scope:frontend", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/.next"],
+      "defaultConfiguration": "production",
+      "options": {
+        "command": "next build",
+        "cwd": "apps/frontend"
+      },
+      "configurations": {
+        "development": {
+          "command": "next build"
+        },
+        "production": {
+          "command": "next build"
+        }
+      },
+      "dependsOn": ["^build"]
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "defaultConfiguration": "development",
+      "options": {
+        "command": "next dev --turbopack -p 8000",
+        "cwd": "apps/frontend"
+      },
+      "configurations": {
+        "development": {
+          "command": "next dev --turbopack -p 8000"
+        },
+        "production": {
+          "command": "next start -p 8000"
+        }
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "next start -p 8000",
+        "cwd": "apps/frontend"
+      },
+      "dependsOn": ["build"]
+    },
+    "export": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "next export",
+        "cwd": "apps/frontend"
+      },
+      "dependsOn": ["build"]
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/coverage"],
+      "options": {
+        "command": "jest",
+        "cwd": "apps/frontend"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "command": "next lint",
+        "cwd": "apps/frontend"
+      }
+    },
+    "type-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit",
+        "cwd": "apps/frontend"
+      }
+    },
+    "analyze": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ANALYZE=true next build",
+        "cwd": "apps/frontend"
+      }
+    }
+  },
+  "implicitDependencies": ["shared-types", "api-client"]
+}

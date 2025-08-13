@@ -1,6 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { Heading, Text } from "@medusajs/ui"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Link from "next/link"
+import ProductPrice from "@modules/products/components/product-price"
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct
@@ -9,29 +10,42 @@ type ProductInfoProps = {
 const ProductInfo = ({ product }: ProductInfoProps) => {
   return (
     <div id="product-info">
-      <div className="flex flex-col gap-y-4 lg:max-w-[500px] mx-auto">
+      <div className="flex flex-col gap-y-6">
         {product.collection && (
-          <LocalizedClientLink
-            href={`/collections/${product.collection.handle}`}
-            className="text-medium text-ui-fg-muted hover:text-ui-fg-subtle"
-          >
-            {product.collection.title}
-          </LocalizedClientLink>
+          <nav className="text-sm breadcrumbs">
+            <ul className="text-base-content/60">
+              <li>
+                <Link 
+                  href="/" 
+                  className="hover:text-primary transition-colors"
+                >
+                  Trang chủ
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/collections/${product.collection.handle}`}
+                  className="hover:text-primary transition-colors"
+                >
+                  {product.collection.title}
+                </Link>
+              </li>
+              <li className="text-base-content font-semibold cursor-default">{product.title}</li>
+            </ul>
+          </nav>
         )}
+        
         <Heading
-          level="h2"
-          className="text-3xl leading-10 text-ui-fg-base"
+          level="h1"
+          className="text-2xl lg:text-3xl font-bold text-base-content leading-tight"
           data-testid="product-title"
         >
           {product.title}
         </Heading>
-
-        <Text
-          className="text-medium text-ui-fg-subtle whitespace-pre-line"
-          data-testid="product-description"
-        >
-          {product.description}
-        </Text>
+        
+        <div className="bg-base-100/80 rounded-lg p-3">
+          <ProductPrice product={product} mode="range" />
+        </div>
       </div>
     </div>
   )

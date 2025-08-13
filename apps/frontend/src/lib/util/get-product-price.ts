@@ -27,6 +27,66 @@ export const getPricesForVariant = (variant: any) => {
   }
 }
 
+export function getPriceRange(product: HttpTypes.StoreProduct) {
+  if (!product || !product.variants?.length) {
+    return null
+  }
+
+  const variantsWithPrices = product.variants
+    .filter((v: any) => !!v.calculated_price)
+    .map((v: any) => getPricesForVariant(v))
+    .filter(Boolean)
+
+  if (variantsWithPrices.length === 0) {
+    return null
+  }
+
+  const prices = variantsWithPrices.map(v => v.calculated_price_number)
+  const originalPrices = variantsWithPrices.map(v => v.original_price_number)
+  
+  const minPrice = Math.min(...prices)
+  const maxPrice = Math.max(...prices)
+  const minOriginalPrice = Math.min(...originalPrices)
+  const maxOriginalPrice = Math.max(...originalPrices)
+
+  const currencyCode = variantsWithPrices[0].currency_code
+  const hasRange = minPrice !== maxPrice
+
+  // Check if any variants have sale pricing
+  const hasSalePrice = variantsWithPrices.some(v => v.price_type === "sale")
+
+  return {
+    hasRange,
+    minPrice: {
+      calculated_price_number: minPrice,
+      calculated_price: convertToLocale({
+        amount: minPrice,
+        currency_code: currencyCode,
+      }),
+      original_price_number: minOriginalPrice,
+      original_price: convertToLocale({
+        amount: minOriginalPrice,
+        currency_code: currencyCode,
+      }),
+    },
+    maxPrice: {
+      calculated_price_number: maxPrice,
+      calculated_price: convertToLocale({
+        amount: maxPrice,
+        currency_code: currencyCode,
+      }),
+      original_price_number: maxOriginalPrice,
+      original_price: convertToLocale({
+        amount: maxOriginalPrice,
+        currency_code: currencyCode,
+      }),
+    },
+    currency_code: currencyCode,
+    hasSalePrice,
+    percentage_diff: hasSalePrice ? getPercentageDiff(minOriginalPrice, minPrice) : null,
+  }
+}
+
 export function getProductPrice({
   product,
   variantId,

@@ -9,7 +9,7 @@ import OptionSelect from "@modules/products/components/product-actions/option-se
 import { isEqual } from "lodash"
 import { useParams } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
-import ProductPrice from "../product-price"
+import { ShoppingCartIcon, BoltIcon } from "@heroicons/react/24/outline"
 import MobileActions from "./mobile-actions"
 
 type ProductActionsProps = {
@@ -33,6 +33,7 @@ export default function ProductActions({
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
+  const [quantity, setQuantity] = useState(1)
   const countryCode = useParams().countryCode as string
 
   // If there is only 1 variant, preselect the options
@@ -106,11 +107,17 @@ export default function ProductActions({
 
     await addToCart({
       variantId: selectedVariant.id,
-      quantity: 1,
+      quantity: quantity,
       countryCode,
     })
 
     setIsAdding(false)
+  }
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1) {
+      setQuantity(newQuantity)
+    }
   }
 
   return (
@@ -138,28 +145,97 @@ export default function ProductActions({
           )}
         </div>
 
-        <ProductPrice product={product} variant={selectedVariant} />
-
-        <Button
-          onClick={handleAddToCart}
-          disabled={
-            !inStock ||
-            !selectedVariant ||
-            !!disabled ||
-            isAdding ||
-            !isValidVariant
-          }
-          variant="primary"
-          className="w-full h-10"
-          isLoading={isAdding}
-          data-testid="add-product-button"
-        >
-          {!selectedVariant && !options
-            ? "Select variant"
-            : !inStock || !isValidVariant
-            ? "Out of stock"
-            : "Add to cart"}
-        </Button>
+        {/* Quantity Selector */}
+        <div className="flex flex-col gap-y-3">
+          <span className="text-sm font-medium text-base-content">Số lượng</span>
+          
+          <div className="flex items-center gap-3">
+            <div className="join w-fit">
+              <button 
+                className="btn btn-sm join-item"
+                onClick={() => handleQuantityChange(quantity - 1)}
+                disabled={quantity <= 1}
+              >
+                -
+              </button>
+              <input 
+                type="number" 
+                value={quantity}
+                onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                className="input input-sm input-bordered join-item w-16 text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] focus:outline-none"
+                min="1"
+              />
+              <button 
+                className="btn btn-sm join-item"
+                onClick={() => handleQuantityChange(quantity + 1)}
+              >
+                +
+              </button>
+            </div>
+            
+            {selectedVariant && (
+              <span className="text-sm text-base-content/60">
+                {selectedVariant.manage_inventory && selectedVariant.inventory_quantity !== undefined
+                  ? `${selectedVariant.inventory_quantity} sản phẩm có sẵn`
+                  : selectedVariant.allow_backorder
+                  ? "Có thể đặt trước"
+                  : "Có sẵn"
+                }
+              </span>
+            )}
+          </div>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-3 mt-2">
+            <button
+              onClick={handleAddToCart}
+              disabled={
+                !selectedVariant ||
+                !!disabled ||
+                isAdding ||
+                !isValidVariant ||
+                !inStock
+              }
+              className="btn btn-outline h-12 px-6"
+              data-testid="add-product-button"
+            >
+              {isAdding ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : !inStock && selectedVariant && isValidVariant ? (
+                "Hết hàng"
+              ) : (
+                <>
+                  <ShoppingCartIcon className="w-5 h-5" />
+                  Thêm vào giỏ
+                </>
+              )}
+            </button>
+            
+            <button
+              onClick={handleAddToCart}
+              disabled={
+                !selectedVariant ||
+                !!disabled ||
+                isAdding ||
+                !isValidVariant ||
+                !inStock
+              }
+              className="btn btn-primary h-12 px-6"
+              data-testid="buy-now-button"
+            >
+              {isAdding ? (
+                <span className="loading loading-spinner loading-sm"></span>
+              ) : !inStock && selectedVariant && isValidVariant ? (
+                "Hết hàng"
+              ) : (
+                <>
+                  <BoltIcon className="w-5 h-5" />
+                  Mua ngay
+                </>
+              )}
+            </button>
+          </div>
+        </div>
         <MobileActions
           product={product}
           variant={selectedVariant}

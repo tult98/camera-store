@@ -1,10 +1,6 @@
 "use client"
 
-import Back from "@modules/common/icons/back"
-import FastDelivery from "@modules/common/icons/fast-delivery"
-import Refresh from "@modules/common/icons/refresh"
-
-import Accordion from "./accordion"
+import { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 
 type ProductTabsProps = {
@@ -12,107 +8,118 @@ type ProductTabsProps = {
 }
 
 const ProductTabs = ({ product }: ProductTabsProps) => {
-  const tabs = [
-    {
-      label: "Product Information",
-      component: <ProductInfoTab product={product} />,
-    },
-    {
-      label: "Shipping & Returns",
-      component: <ShippingInfoTab />,
-    },
-  ]
+  const [activeTab, setActiveTab] = useState("description")
+
+  // Extract technical specifications from metadata
+  const getTechnicalSpecs = (metadata?: Record<string, any>) => {
+    if (!metadata) return null
+    
+    const specs = []
+    
+    // Common camera specifications
+    if (metadata.sensor_type) specs.push({ label: "Loại cảm biến", value: metadata.sensor_type })
+    if (metadata.megapixels) specs.push({ label: "Độ phân giải", value: `${metadata.megapixels} MP` })
+    if (metadata.iso_range) specs.push({ label: "Dải ISO", value: metadata.iso_range })
+    if (metadata.video_recording) specs.push({ label: "Quay video", value: metadata.video_recording })
+    if (metadata.lens_mount) specs.push({ label: "Ngàm ống kính", value: metadata.lens_mount })
+    if (metadata.screen_size) specs.push({ label: "Kích thước màn hình", value: metadata.screen_size })
+    if (metadata.battery_life) specs.push({ label: "Thời lượng pin", value: metadata.battery_life })
+    if (metadata.weight) specs.push({ label: "Trọng lượng", value: metadata.weight })
+    if (metadata.dimensions) specs.push({ label: "Kích thước", value: metadata.dimensions })
+    if (metadata.connectivity) specs.push({ label: "Kết nối", value: metadata.connectivity })
+    if (metadata.storage) specs.push({ label: "Lưu trữ", value: metadata.storage })
+    if (metadata.viewfinder) specs.push({ label: "Kính ngắm", value: metadata.viewfinder })
+    
+    // Fallback to basic product properties if no metadata specs
+    if (specs.length === 0) {
+      if (product.weight) specs.push({ label: "Trọng lượng", value: `${product.weight} g` })
+      if (product.length && product.width && product.height) {
+        specs.push({ 
+          label: "Kích thước", 
+          value: `${product.length}L x ${product.width}W x ${product.height}H` 
+        })
+      }
+      if (product.material) specs.push({ label: "Chất liệu", value: product.material })
+      if (product.origin_country) specs.push({ label: "Xuất xứ", value: product.origin_country })
+      if (product.type?.value) specs.push({ label: "Loại", value: product.type.value })
+    }
+    
+    return specs.length > 0 ? specs : null
+  }
+
+  const technicalSpecs = getTechnicalSpecs(product.metadata)
+  const specsCount = technicalSpecs ? technicalSpecs.length : 0
 
   return (
     <div className="w-full">
-      <Accordion type="multiple">
-        {tabs.map((tab, i) => (
-          <Accordion.Item
-            key={i}
-            title={tab.label}
-            headingSize="medium"
-            value={tab.label}
-          >
-            {tab.component}
-          </Accordion.Item>
-        ))}
-      </Accordion>
-    </div>
-  )
-}
-
-const ProductInfoTab = ({ product }: ProductTabsProps) => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
-          </div>
-        </div>
+      <div className="flex gap-0 mb-6 border-b border-base-300">
+        <button
+          className={`px-6 py-3 text-sm font-bold transition-colors ${
+            activeTab === "description" 
+              ? "text-base-content border-b-2 border-base-content" 
+              : "text-base-content/50 hover:text-base-content/80"
+          }`}
+          onClick={() => setActiveTab("description")}
+        >
+          MÔ TẢ
+        </button>
+        <button
+          className={`px-6 py-3 text-sm font-bold transition-colors ${
+            activeTab === "specs" 
+              ? "text-base-content border-b-2 border-base-content" 
+              : "text-base-content/50 hover:text-base-content/80"
+          }`}
+          onClick={() => setActiveTab("specs")}
+        >
+          THÔNG SỐ KỸ THUẬT ({specsCount})
+        </button>
       </div>
-    </div>
-  )
-}
 
-const ShippingInfoTab = () => {
-  return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-1 gap-y-8">
-        <div className="flex items-start gap-x-2">
-          <FastDelivery />
-          <div>
-            <span className="font-semibold">Fast delivery</span>
-            <p className="max-w-sm">
-              Your package will arrive in 3-5 business days at your pick up
-              location or in the comfort of your home.
-            </p>
+      <div className="min-h-[300px]">
+        {activeTab === "description" && (
+          <div className="prose prose-lg max-w-none">
+            {product.description ? (
+              <div 
+                className="text-base-content/80 leading-relaxed"
+                dangerouslySetInnerHTML={{ 
+                  __html: product.description 
+                }}
+              />
+            ) : (
+              <div className="text-base-content/60 text-center py-12">
+                <p>Chưa có mô tả sản phẩm.</p>
+              </div>
+            )}
           </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Refresh />
+        )}
+
+        {activeTab === "specs" && (
           <div>
-            <span className="font-semibold">Simple exchanges</span>
-            <p className="max-w-sm">
-              Is the fit not quite right? No worries - we&apos;ll exchange your
-              product for a new one.
-            </p>
+            {technicalSpecs && technicalSpecs.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="table table-zebra w-full">
+                  <tbody>
+                    {technicalSpecs.map((spec, index) => (
+                      <tr key={index}>
+                        <td className="font-semibold text-base-content w-1/3">
+                          {spec.label}
+                        </td>
+                        <td className="text-base-content/80">
+                          {spec.value}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-base-content/60 text-center py-12">
+                <p>Chưa có thông số kỹ thuật chi tiết.</p>
+                <p className="text-sm mt-2">Thông tin sẽ được cập nhật sớm.</p>
+              </div>
+            )}
           </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Back />
-          <div>
-            <span className="font-semibold">Easy returns</span>
-            <p className="max-w-sm">
-              Just return your product and we&apos;ll refund your money. No
-              questions asked – we&apos;ll do our best to make sure your return
-              is hassle-free.
-            </p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   )

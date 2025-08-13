@@ -115,3 +115,24 @@ export const listProductsWithSort = async ({
     ...(queryParams && { queryParams }),
   }
 }
+
+export const retrieveProduct = async (
+  handle: string
+): Promise<HttpTypes.StoreProduct | null> => {
+  try {
+    // Use handle-based API to fetch product directly
+    const { response } = await listProducts({
+      queryParams: {
+        handle, // Filter by handle on the API level
+        fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags,+images",
+        limit: 1, // We only expect one product with this handle
+      },
+    })
+
+    // Return the first (and should be only) product from the results
+    return response.products.length > 0 ? response.products[0] : null
+  } catch (error) {
+    console.error(`Failed to retrieve product with handle ${handle}:`, error)
+    return null
+  }
+}

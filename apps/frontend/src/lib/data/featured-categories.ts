@@ -31,8 +31,11 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
  */
 export async function getCachedFeaturedCategories(): Promise<FeaturedCategory[]> {
   try {
+    // Get backend URL from environment or use default
+    const backendUrl = process.env['MEDUSA_BACKEND_URL'] || 'http://localhost:9000'
+    
     // Use Next.js cache with 5 minute revalidation
-    const featuredCategories = await fetch('/store/featured-categories', {
+    const featuredCategories = await fetch(`${backendUrl}/store/featured-categories`, {
       headers: {
         'x-publishable-api-key': process.env['NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY'] || '',
       },

@@ -52,7 +52,11 @@ export default async function PaginatedProducts({
   const region = await getRegion(countryCode)
 
   if (!region) {
-    return null
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">Unable to load products. No region found.</p>
+      </div>
+    )
   }
 
   let {

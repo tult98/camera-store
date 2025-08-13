@@ -50,7 +50,10 @@ const ImageOrPlaceholder = ({
   image,
   size,
 }: Pick<ThumbnailProps, "size"> & { image?: string }) => {
-  return image ? (
+  // Check for valid image URL (not empty string, null, or undefined)
+  const hasValidImage = image && image.trim() !== ""
+  
+  return hasValidImage ? (
     <Image
       src={image}
       alt="Thumbnail"

@@ -1,30 +1,32 @@
+'use client'
+
 import { ChevronRightIcon, HeartIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { FeaturedCategory } from '@camera-store/shared-types'
 
-interface MockProduct {
+interface ProductVariant {
   id: string
-  name: string
-  price: string
-  originalPrice?: string
-  image: string
-  badge?: {
-    text: string
-    type: 'sale' | 'preorder' | 'new'
-  }
+  title: string
+  prices: Array<{
+    id: string
+    amount: number
+    currency_code: string
+  }>
+}
+
+interface Product {
+  id: string
+  title: string
+  handle: string
+  thumbnail: string
+  variants: ProductVariant[]
 }
 
 interface FeaturedCategorySectionProps {
   title: string
   heroImage: string
-  products: MockProduct[]
+  products: Product[]
   categoryLink: string
-}
-
-// Updated interface for real data
-interface FeaturedCategorySectionV2Props {
-  category: FeaturedCategory
 }
 
 export default function FeaturedCategorySection({
@@ -68,59 +70,60 @@ export default function FeaturedCategorySection({
 
       {/* Products Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="group">
-            <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-              <figure className="relative aspect-square overflow-hidden">
-                {/* Product Badges */}
-                {product.badge && (
-                  <div className="absolute top-3 left-3 z-10">
-                    <div
-                      className={`badge text-white text-xs font-medium px-2 py-1 ${
-                        product.badge.type === 'sale'
-                          ? 'bg-red-500'
-                          : product.badge.type === 'preorder'
-                          ? 'bg-pink-500'
-                          : 'bg-green-500'
-                      }`}
+        {products.map((product) => {
+          // Get the price from the first variant's first price
+          const firstVariant = product.variants?.[0]
+          const price = firstVariant?.prices?.[0]?.amount
+          const formattedPrice = price 
+            ? new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND',
+                minimumFractionDigits: 0
+              }).format(price) // Price is already in VND
+            : 'N/A'
+
+          return (
+            <div key={product.id} className="group">
+              <Link href={`/products/${product.handle}`}>
+                <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <figure className="relative aspect-square overflow-hidden">
+                    {/* Wishlist Button */}
+                    <button 
+                      className="absolute top-3 right-3 z-10 btn btn-ghost btn-circle btn-sm bg-white/80 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        // Handle wishlist logic here
+                      }}
                     >
-                      {product.badge.text}
+                      <HeartIcon className="w-4 h-4" />
+                    </button>
+
+                    {product.thumbnail && (
+                      <Image
+                        src={product.thumbnail}
+                        alt={product.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    )}
+                  </figure>
+
+                  <div className="card-body p-4">
+                    <h3 className="font-medium text-sm lg:text-base text-gray-800 line-clamp-2 mb-2">
+                      {product.title}
+                    </h3>
+                    
+                    <div className="flex items-center gap-2 mt-auto">
+                      <span className="text-red-500 font-bold text-lg">
+                        {formattedPrice}
+                      </span>
                     </div>
                   </div>
-                )}
-
-                {/* Wishlist Button */}
-                <button className="absolute top-3 right-3 z-10 btn btn-ghost btn-circle btn-sm bg-white/80 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity">
-                  <HeartIcon className="w-4 h-4" />
-                </button>
-
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </figure>
-
-              <div className="card-body p-4">
-                <h3 className="font-medium text-sm lg:text-base text-gray-800 line-clamp-2 mb-2">
-                  {product.name}
-                </h3>
-                
-                <div className="flex items-center gap-2 mt-auto">
-                  <span className="text-red-500 font-bold text-lg">
-                    {product.price}
-                  </span>
-                  {product.originalPrice && (
-                    <span className="text-gray-400 line-through text-sm">
-                      {product.originalPrice}
-                    </span>
-                  )}
                 </div>
-              </div>
+              </Link>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </section>
   )

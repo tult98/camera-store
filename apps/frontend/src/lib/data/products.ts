@@ -5,7 +5,7 @@ import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
-import { getRegion, retrieveRegion, getDefaultRegion } from "./regions"
+import { getRegion, getDefaultRegion } from "./regions"
 
 export const listProducts = async ({
   pageParam = 1,

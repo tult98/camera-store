@@ -69,13 +69,13 @@ export interface Product {
      * @type {Array<ProductImage>}
      * @memberof Product
      */
-    images?: Array<ProductImage>;
+    images?: Array<ProductImage> | undefined;
     /**
      * Product variants
      * @type {Array<ProductVariant>}
      * @memberof Product
      */
-    variants?: Array<ProductVariant>;
+    variants?: Array<ProductVariant> | undefined;
     /**
      * Product status
      * @type {string}

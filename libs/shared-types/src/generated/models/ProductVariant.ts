@@ -50,7 +50,7 @@ export interface ProductVariant {
      * @type {Array<ProductPrice>}
      * @memberof ProductVariant
      */
-    prices?: Array<ProductPrice>;
+    prices?: Array<ProductPrice> | undefined;
     /**
      * Available inventory quantity
      * @type {number}

@@ -145,7 +145,7 @@ export const defaultConfigs = {
 
 // Utility function for Next.js apps
 export function createNextApiClient(): CameraStoreApiClient {
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = process.env['NODE_ENV'] === 'development';
   const baseConfig = isDevelopment
     ? defaultConfigs.development
     : defaultConfigs.production;

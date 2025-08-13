@@ -43,7 +43,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
               <ProductActions
                 disabled={true}
                 product={product}
-                region={region}
               />
             }
           >

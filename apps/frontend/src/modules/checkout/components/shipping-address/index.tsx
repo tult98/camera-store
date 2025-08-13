@@ -198,7 +198,7 @@ const ShippingAddress = ({
           type="email"
           title="Enter a valid email address."
           autoComplete="email"
-          value={formData.email}
+          value={formData['email']}
           onChange={handleChange}
           required
           data-testid="shipping-email-input"

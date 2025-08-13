@@ -45,7 +45,7 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
   }
 
   if (billingAddress) {
-    initialState.addressId = billingAddress.id
+    initialState['addressId'] = billingAddress.id
   }
 
   const [state, formAction] = useActionState(

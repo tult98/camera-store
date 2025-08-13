@@ -17,18 +17,18 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     const specs = []
     
     // Common camera specifications
-    if (metadata.sensor_type) specs.push({ label: "Loại cảm biến", value: metadata.sensor_type })
-    if (metadata.megapixels) specs.push({ label: "Độ phân giải", value: `${metadata.megapixels} MP` })
-    if (metadata.iso_range) specs.push({ label: "Dải ISO", value: metadata.iso_range })
-    if (metadata.video_recording) specs.push({ label: "Quay video", value: metadata.video_recording })
-    if (metadata.lens_mount) specs.push({ label: "Ngàm ống kính", value: metadata.lens_mount })
-    if (metadata.screen_size) specs.push({ label: "Kích thước màn hình", value: metadata.screen_size })
-    if (metadata.battery_life) specs.push({ label: "Thời lượng pin", value: metadata.battery_life })
-    if (metadata.weight) specs.push({ label: "Trọng lượng", value: metadata.weight })
-    if (metadata.dimensions) specs.push({ label: "Kích thước", value: metadata.dimensions })
-    if (metadata.connectivity) specs.push({ label: "Kết nối", value: metadata.connectivity })
-    if (metadata.storage) specs.push({ label: "Lưu trữ", value: metadata.storage })
-    if (metadata.viewfinder) specs.push({ label: "Kính ngắm", value: metadata.viewfinder })
+    if (metadata['sensor_type']) specs.push({ label: "Loại cảm biến", value: metadata['sensor_type'] })
+    if (metadata['megapixels']) specs.push({ label: "Độ phân giải", value: `${metadata['megapixels']} MP` })
+    if (metadata['iso_range']) specs.push({ label: "Dải ISO", value: metadata['iso_range'] })
+    if (metadata['video_recording']) specs.push({ label: "Quay video", value: metadata['video_recording'] })
+    if (metadata['lens_mount']) specs.push({ label: "Ngàm ống kính", value: metadata['lens_mount'] })
+    if (metadata['screen_size']) specs.push({ label: "Kích thước màn hình", value: metadata['screen_size'] })
+    if (metadata['battery_life']) specs.push({ label: "Thời lượng pin", value: metadata['battery_life'] })
+    if (metadata['weight']) specs.push({ label: "Trọng lượng", value: metadata['weight'] })
+    if (metadata['dimensions']) specs.push({ label: "Kích thước", value: metadata['dimensions'] })
+    if (metadata['connectivity']) specs.push({ label: "Kết nối", value: metadata['connectivity'] })
+    if (metadata['storage']) specs.push({ label: "Lưu trữ", value: metadata['storage'] })
+    if (metadata['viewfinder']) specs.push({ label: "Kính ngắm", value: metadata['viewfinder'] })
     
     // Fallback to basic product properties if no metadata specs
     if (specs.length === 0) {
@@ -47,7 +47,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     return specs.length > 0 ? specs : null
   }
 
-  const technicalSpecs = getTechnicalSpecs(product.metadata)
+  const technicalSpecs = getTechnicalSpecs(product.metadata || {})
   const specsCount = technicalSpecs ? technicalSpecs.length : 0
 
   return (

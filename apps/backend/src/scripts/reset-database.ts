@@ -32,8 +32,14 @@ export default async function resetDatabase({ container }: ExecArgs) {
     execSync('npx medusa user --email admin@example.com --password Admin@123', { stdio: 'inherit' })
     logger.info('Admin user created successfully.')
     
+    // Run seeding process
+    logger.info('Seeding database with demo data...')
+    execSync('npx medusa exec ./src/scripts/seed.ts', { stdio: 'inherit' })
+    logger.info('Database seeding completed successfully.')
+    
     logger.info('Database reset process completed successfully!')
     logger.info('Admin credentials: admin@example.com / Admin@123')
+    logger.info('You can now start the development server with: yarn dev')
     
   } catch (error) {
     logger.error('Database reset failed:', error as Error)

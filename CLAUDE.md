@@ -20,6 +20,10 @@ This is a **general camera store** e-commerce platform consisting of:
 - `npx medusa db:generate <module>` - Generate migrations for specific module
 - `npx medusa db:migrate` - Run database migrations
 - `yarn seed` - Seed database with demo data (runs `src/scripts/seed.ts`)
+- `yarn reset-database` - **Complete database reset**: drops database, recreates, runs migrations, creates admin user, and seeds demo data with consistent publishable API key (`pk_camera_store_dev_static_key_123456789`)
+
+**Root-Level Commands (run from project root):**
+- `yarn reset-database` - Complete database reset (can be run from anywhere in the project)
 
 **Testing:**
 - `yarn test:unit` - Run unit tests

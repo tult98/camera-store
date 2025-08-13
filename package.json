@@ -20,7 +20,8 @@
     "lint": "nx run-many --targets=lint --all",
     "type-check": "nx run-many --targets=type-check --all",
     "generate:types": "nx run backend:generate-openapi && nx run shared-types:build",
-    "clean": "nx reset"
+    "clean": "nx reset",
+    "reset-database": "cd apps/backend && npx medusa exec ./src/scripts/reset-database.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

@@ -86,5 +86,5 @@
       }
     }
   },
-  "implicitDependencies": ["shared-types", "api-client"]
+  "implicitDependencies": ["api-client"]
 }

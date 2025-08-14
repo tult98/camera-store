@@ -76,6 +76,5 @@
         "cwd": "apps/backend"
       }
     }
-  },
-  "implicitDependencies": ["shared-types"]
+  }
 }

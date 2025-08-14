@@ -9,12 +9,12 @@
       "executor": "nx:run-commands",
       "outputs": ["{projectRoot}/.medusa"],
       "options": {
-        "command": "medusa build",
+        "command": "medusa build && ln -sf .medusa/server/public/ public",
         "cwd": "apps/backend"
       },
       "configurations": {
         "production": {
-          "command": "medusa build"
+          "command": "medusa build && ln -sf .medusa/server/public/ public"
         }
       },
       "dependsOn": ["^build"]
@@ -35,17 +35,10 @@
         }
       }
     },
-    "dev": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "medusa develop",
-        "cwd": "apps/backend"
-      }
-    },
     "start": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "medusa start",
+        "command": "npx medusa start",
         "cwd": "apps/backend"
       },
       "dependsOn": ["build"]
@@ -55,24 +48,6 @@
       "options": {
         "commands": [
           "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
-          "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-          "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit"
-        ],
-        "cwd": "apps/backend",
-        "parallel": false
-      }
-    },
-    "test-unit": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
-        "cwd": "apps/backend"
-      }
-    },
-    "test-integration": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
           "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
           "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit"
         ],
@@ -94,10 +69,10 @@
         "cwd": "apps/backend"
       }
     },
-    "generate-openapi": {
+    "migrate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cp ../../tools/openapi/schema.json ../../tools/openapi/schema.json",
+        "command": "npx medusa db:migrate",
         "cwd": "apps/backend"
       }
     }

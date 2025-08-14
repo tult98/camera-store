@@ -55,8 +55,8 @@ yarn generate:types
 yarn dev
 
 # Or start applications individually:
-yarn dev:frontend  # Next.js on http://localhost:8000
-yarn dev:backend   # MedusaJS on http://localhost:9000
+nx serve frontend  # Next.js on http://localhost:8000
+nx serve backend   # MedusaJS on http://localhost:9000
 ```
 
 ### Production
@@ -65,8 +65,16 @@ yarn dev:backend   # MedusaJS on http://localhost:9000
 # Build all applications
 yarn build
 
+# Or build individually:
+nx build frontend
+nx build backend
+
 # Start production servers
 yarn start
+
+# Or start individually:
+nx start frontend
+nx start backend
 ```
 
 ## 📱 Applications
@@ -133,51 +141,51 @@ COOKIE_SECRET=your_cookie_secret_here
 ```bash
 # Development
 yarn dev                 # Start both apps in parallel
-yarn dev:frontend        # Start only frontend
-yarn dev:backend         # Start only backend
+nx serve frontend        # Start only frontend
+nx serve backend         # Start only backend
 
 # Building
 yarn build              # Build all applications
-yarn build:frontend     # Build only frontend
-yarn build:backend      # Build only backend
+nx build frontend       # Build only frontend
+nx build backend        # Build only backend
 
 # Production
 yarn start              # Start both apps in production mode
-yarn start:frontend     # Start only frontend in production
-yarn start:backend      # Start only backend in production
+nx start frontend       # Start only frontend in production
+nx start backend        # Start only backend in production
 
 # Testing
 yarn test               # Run all tests
-yarn test:frontend      # Run frontend tests
-yarn test:backend       # Run backend tests (unit + integration)
+nx test frontend        # Run frontend tests
+nx test backend         # Run backend tests (unit + integration)
 
 # Quality Assurance
-yarn lint               # Lint all projects
-yarn type-check         # TypeScript checking across workspace
+nx lint frontend        # Lint frontend project
+nx lint backend         # Lint backend project
+nx run-many --target=lint --all  # Lint all projects
+nx run-many --target=type-check --all  # TypeScript checking across workspace
 
 # Type Generation
 yarn generate:types     # Generate TypeScript types from OpenAPI schema
 
 # Utilities
-yarn clean              # Clean NX cache
+nx reset                # Clean NX cache
 ```
 
 ### Backend Specific Commands
 
 ```bash
-# Database operations (run from apps/backend/)
-yarn seed               # Seed database with demo data
-yarn reset-database     # Reset database to clean state
-npx medusa db:generate <module>  # Generate migrations for module
-npx medusa db:migrate   # Run database migrations
+# Database operations (nx commands)
+nx seed backend                   # Seed database with demo data
+nx reset-database backend         # Reset database to clean state
+nx migrate backend                # Run database migrations
+npx medusa db:generate <module>   # Generate migrations for module (run from apps/backend/)
 
-# Testing (run from apps/backend/)
-yarn test:unit                    # Unit tests only
-yarn test:integration:http        # HTTP integration tests
-yarn test:integration:modules     # Module integration tests
+# Testing (nx commands)
+nx test backend                   # All tests (unit + integration HTTP + integration modules)
 
 # Custom scripts
-npx medusa exec ./src/scripts/<script-name>.ts  # Execute custom CLI scripts
+npx medusa exec ./src/scripts/<script-name>.ts  # Execute custom CLI scripts (run from apps/backend/)
 ```
 
 ## 🎯 Backend Architecture & Customizations
@@ -519,6 +527,12 @@ nx show project frontend --web
 
 # Run specific target for all projects
 nx run-many --target=build --all
+
+# Run tests for all projects
+nx run-many --target=test --all
+
+# Lint all projects
+nx run-many --target=lint --all
 ```
 
 ## 🎨 Frontend Architecture

@@ -12,18 +12,6 @@
     "headless",
     "medusa"
   ],
-  "scripts": {
-    "dev": "medusa develop",
-    "build": "npx medusa build && ln -s .medusa/server/public/ public",
-    "start": "npx medusa start",
-    "seed": "npx medusa exec ./src/scripts/seed.ts",
-    "migrate": "npx medusa db:migrate",
-    "reset-database": "npx medusa exec ./src/scripts/reset-database.ts",
-    "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
-    "generate:openapi": "cp ../../tools/openapi/schema.json ../../tools/openapi/schema.json"
-  },
   "dependencies": {
     "@medusajs/admin-sdk": "2.8.8",
     "@medusajs/cli": "2.8.8",

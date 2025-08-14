@@ -10,25 +10,23 @@ This is a **general camera store** e-commerce platform consisting of:
 
 ## Development Commands
 
-### Backend (MedusaJS)
+### Backend (MedusaJS) - Nx Commands
 **Core Development:**
-- `yarn dev` - Start development server
-- `yarn build` - Build the application for production
-- `yarn start` - Start production server
+- `nx serve backend` - Start development server
+- `nx run backend:build` - Build the application for production
+- `nx run backend:start` - Start production server
 
 **Database Operations:**
-- `npx medusa db:generate <module>` - Generate migrations for specific module
-- `npx medusa db:migrate` - Run database migrations
-- `yarn seed` - Seed database with demo data (runs `src/scripts/seed.ts`)
-- `yarn reset-database` - **Complete database reset**: drops database, recreates, runs migrations, creates admin user, and seeds demo data with consistent publishable API key (`pk_camera_store_dev_static_key_123456789`)
+- `npx medusa db:generate <module>` - Generate migrations for specific module (run from apps/backend)
+- `nx run backend:migrate` - Run database migrations
+- `nx run backend:seed` - Seed database with demo data (runs `src/scripts/seed.ts`)
+- `nx run backend:reset-database` - **Complete database reset**: drops database, recreates, runs migrations, creates admin user, and seeds demo data with consistent publishable API key (`pk_camera_store_dev_static_key_123456789`)
 
 **Testing:**
-- `yarn test:unit` - Run unit tests
-- `yarn test:integration:http` - Run HTTP integration tests  
-- `yarn test:integration:modules` - Run module integration tests
+- `nx run backend:test` - Run all tests (unit + integration HTTP + integration modules)
 
 **Custom Scripts:**
-- `npx medusa exec ./src/scripts/<script-name>.ts` - Execute custom CLI scripts
+- `npx medusa exec ./src/scripts/<script-name>.ts` - Execute custom CLI scripts (run from apps/backend)
 
 ### Frontend (Next.js)
 ```bash
@@ -385,7 +383,7 @@ The project uses daisyUI v5.0.50 with a custom camera theme:
 - If not set or `"false"`, migrations will be skipped
 
 **Script Behavior:**
-- Conditionally runs `npx medusa db:migrate` based on `RUN_MIGRATIONS` environment variable
+- Conditionally runs `nx run backend:migrate` based on `RUN_MIGRATIONS` environment variable
 - Exits with error code if migration fails
 - Provides clear logging for migration status
 
@@ -417,7 +415,7 @@ The project uses daisyUI v5.0.50 with a custom camera theme:
 - **Backend Not Running**: Ensure Medusa backend is running on port 9000
 - **Environment Variables**: Check `.env.local` has required Medusa keys
 - **Port Conflicts**: Development server uses port 8000, ensure it's available
-- **TypeScript Errors**: Run `yarn build` to see full type checking results
+- **TypeScript Errors**: Run `nx run backend:build` or `nx build frontend` to see full type checking results
 
 ### Debug Tools
 - **Medusa SDK Debug**: Enable debug mode in `apps/frontend/src/lib/config.ts`
@@ -426,7 +424,7 @@ The project uses daisyUI v5.0.50 with a custom camera theme:
 - **Next.js DevTools**: Available in development mode
 
 ### Performance Monitoring
-- **Bundle Analyzer**: Use `yarn analyze` to inspect bundle size
+- **Bundle Analyzer**: Use `nx run frontend:analyze` to inspect bundle size
 - **Server Components**: Verify RSC usage to minimize client JavaScript
 - **Image Optimization**: Ensure Next.js Image component is used
 - **Caching**: Monitor cache hit rates for product data

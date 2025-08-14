@@ -72,14 +72,20 @@ MEDUSA_BACKEND_URL=https://your-app.railway.app
 
 **Run Migrations:**
 ```bash
-# In Railway console or via Railway CLI
+# Using nx command (requires workspace context)
+nx migrate backend
+
+# Or directly with medusa (in Railway console)
 npx medusa db:migrate
 ```
 
 **Seed Database (one-time):**
 ```bash
-# In Railway console or via Railway CLI  
-yarn seed
+# Using nx command (requires workspace context)
+nx seed backend
+
+# Or directly with medusa (in Railway console)
+npx medusa exec ./src/scripts/seed.ts
 ```
 
 ### Monitoring

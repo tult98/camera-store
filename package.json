@@ -6,22 +6,13 @@
   "packageManager": "yarn@3.2.3",
   "scripts": {
     "dev": "nx run-many --targets=serve --projects=frontend,backend --parallel",
-    "dev:frontend": "nx serve frontend",
-    "dev:backend": "nx serve backend",
     "build": "nx run-many --targets=build --projects=frontend,backend",
-    "build:frontend": "nx build frontend",
-    "build:backend": "nx build backend",
     "start": "nx run-many --targets=start --projects=frontend,backend --parallel",
-    "start:frontend": "nx start frontend",
-    "start:backend": "nx start backend",
     "test": "nx run-many --targets=test --projects=frontend,backend",
-    "test:frontend": "nx test frontend",
-    "test:backend": "nx test backend",
     "lint": "nx run-many --targets=lint --all",
     "type-check": "nx run-many --targets=type-check --all",
     "generate:types": "nx run backend:generate-openapi && nx run shared-types:build",
-    "clean": "nx reset",
-    "reset-database": "cd apps/backend && npx medusa exec ./src/scripts/reset-database.ts"
+    "clean": "nx reset"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",

@@ -33,7 +33,7 @@ For other platforms (Heroku, DigitalOcean, etc.):
 npx medusa db:migrate
 
 # Seed database (optional, for development/demo)
-yarn seed
+nx seed backend
 ```
 
 ### 3. Production Deployment (Existing Database)
@@ -51,7 +51,7 @@ For local development complete reset:
 
 ```bash
 # Complete database reset (drops and recreates)
-yarn reset-database
+nx reset-database backend
 ```
 
 ## Available Scripts
@@ -59,8 +59,8 @@ yarn reset-database
 | Script | Purpose | When to Use |
 |--------|---------|-------------|
 | `npx medusa db:migrate` | Run database migrations only | Always safe to run |
-| `yarn seed` | Seed database with demo data | First time or data refresh |
-| `yarn reset-database` | Complete database reset | Development only |
+| `nx seed backend` | Seed database with demo data | First time or data refresh |
+| `nx reset-database backend` | Complete database reset | Development only |
 
 ## How deploy.sh Gets Executed
 

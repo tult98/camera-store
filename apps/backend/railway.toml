@@ -5,6 +5,7 @@ builder = "nixpacks"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
+startCommand = "chmod +x deploy.sh && ./deploy.sh && yarn start"
 
 [env]
 NODE_ENV = "production"

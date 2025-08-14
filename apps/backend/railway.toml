@@ -1,0 +1,24 @@
+[build]
+builder = "nixpacks"
+buildCommand = "yarn build"
+
+[deploy]
+startCommand = "yarn start"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[env]
+NODE_ENV = "production"
+PORT = { default = "9000" }
+
+[[services]]
+name = "backend"
+
+[services.variables]
+DATABASE_URL = "${{Postgres.DATABASE_URL}}"
+JWT_SECRET = { generate = true }
+COOKIE_SECRET = { generate = true }
+STORE_CORS = "*"
+ADMIN_CORS = "*"
+AUTH_CORS = "*"

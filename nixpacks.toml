@@ -1,7 +1,5 @@
 [phases.build]
-cmds = [
-  'DATABASE_URL=postgresql://build:build@localhost:5432/builddb yarn build:backend'
-]
+cmds = ['yarn build:backend']
 
 [start]
 cmd = 'yarn start:backend'

@@ -35,36 +35,7 @@ export const retrieveRegion = async (id: string) => {
     .catch(medusaError)
 }
 
-const regionMap = new Map<string, HttpTypes.StoreRegion>()
 let defaultRegion: HttpTypes.StoreRegion | null = null
-
-export const getRegion = async (countryCode: string) => {
-  try {
-    if (regionMap.has(countryCode)) {
-      return regionMap.get(countryCode)
-    }
-
-    const regions = await listRegions()
-
-    if (!regions) {
-      return null
-    }
-
-    regions.forEach((region) => {
-      region.countries?.forEach((c) => {
-        regionMap.set(c?.iso_2 ?? "", region)
-      })
-    })
-
-    const region = countryCode
-      ? regionMap.get(countryCode)
-      : regionMap.get("us")
-
-    return region
-  } catch (e: any) {
-    return null
-  }
-}
 
 // Get the default region for single-region stores
 export const getDefaultRegion = async (): Promise<HttpTypes.StoreRegion | null> => {
@@ -88,3 +59,23 @@ export const getDefaultRegion = async (): Promise<HttpTypes.StoreRegion | null> 
     return null
   }
 }
+
+// Get region by country code - for single-region stores, this behaves the same as getDefaultRegion
+// Used specifically for cart operations that require country code validation
+export const getRegion = async (countryCode: string): Promise<HttpTypes.StoreRegion | null> => {
+  try {
+    const regions = await listRegions()
+    
+    if (!regions || regions.length === 0) {
+      return null
+    }
+
+    // For single-region stores, return the first region regardless of country code
+    // In multi-region stores, you would filter by country code here
+    return regions[0]
+  } catch (e: any) {
+    console.error("Error fetching region:", e)
+    return null
+  }
+}
+

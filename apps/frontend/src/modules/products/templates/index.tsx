@@ -11,13 +11,11 @@ import { HttpTypes } from "@medusajs/types"
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
-  countryCode: string
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   region,
-  countryCode,
 }) => {
   if (!product || !product.id) {
     return notFound()

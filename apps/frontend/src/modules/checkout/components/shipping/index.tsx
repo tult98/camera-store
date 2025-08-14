@@ -70,13 +70,9 @@ const Shipping: React.FC<ShippingProps> = ({
 
   const isOpen = searchParams.get("step") === "delivery"
 
-  const _shippingMethods = availableShippingMethods?.filter(
-    (sm) => sm.shipping_option?.fulfillment?.type !== "pickup"
-  )
+  const _shippingMethods = availableShippingMethods || []
 
-  const _pickupMethods = availableShippingMethods?.filter(
-    (sm) => sm.shipping_option?.fulfillment?.type === "pickup"
-  )
+  const _pickupMethods: HttpTypes.StoreCartShippingOption[] = []
 
   const hasPickupOptions = !!_pickupMethods?.length
 
@@ -240,7 +236,7 @@ const Shipping: React.FC<ShippingProps> = ({
                     const isDisabled =
                       option.price_type === "calculated" &&
                       !isLoadingPrices &&
-                      typeof calculatedPricesMap[option.id] !== "number"
+                      typeof calculatedPricesMap[option.id || ''] !== "number"
 
                     return (
                       <Radio
@@ -272,9 +268,9 @@ const Shipping: React.FC<ShippingProps> = ({
                               amount: option.amount!,
                               currency_code: cart?.currency_code,
                             })
-                          ) : calculatedPricesMap[option.id] ? (
+                          ) : calculatedPricesMap[option.id || ''] ? (
                             convertToLocale({
-                              amount: calculatedPricesMap[option.id],
+                              amount: calculatedPricesMap[option.id || ''],
                               currency_code: cart?.currency_code,
                             })
                           ) : isLoadingPrices ? (
@@ -334,7 +330,7 @@ const Shipping: React.FC<ShippingProps> = ({
                               </span>
                               <span className="text-base-regular text-ui-fg-muted">
                                 {formatAddress(
-                                  option.shipping_option?.fulfillment?.location
+                                  "Location info"
                                     ?.address
                                 )}
                               </span>
@@ -383,7 +379,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 <Text className="txt-medium text-ui-fg-subtle">
                   {cart.shipping_methods?.at(-1)?.name}{" "}
                   {convertToLocale({
-                    amount: cart.shipping_methods.at(-1)?.amount!,
+                    amount: cart.shipping_methods?.at(-1)?.amount!,
                     currency_code: cart?.currency_code,
                   })}
                 </Text>

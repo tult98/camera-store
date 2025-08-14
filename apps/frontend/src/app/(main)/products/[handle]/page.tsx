@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { listProducts, retrieveProduct } from "@lib/data/products"
-import { getRegion } from "@lib/data/regions"
+import { getDefaultRegion } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 
 type Props = {
@@ -52,9 +52,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function ProductPage(props: Props) {
   const params = await props.params
-  // Use default country code for Vietnam region
-  const defaultCountryCode = "vn"
-  const region = await getRegion(defaultCountryCode)
+  const region = await getDefaultRegion()
 
   if (!region) {
     notFound()
@@ -66,11 +64,5 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  return (
-    <ProductTemplate
-      product={product}
-      region={region}
-      countryCode={defaultCountryCode}
-    />
-  )
+  return <ProductTemplate product={product} region={region} />
 }

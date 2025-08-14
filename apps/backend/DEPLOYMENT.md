@@ -40,11 +40,11 @@ ADMIN_CORS=https://your-admin-domain.com
 AUTH_CORS=https://your-frontend-domain.vercel.app
 ```
 
-**Optional for first deployment:**
+**Migration Control:**
 ```
-RAILWAY_SEED_DB=true
+RUN_MIGRATIONS=true
 ```
-Set this to `true` only for initial deployment to seed the database with demo data.
+Set this to `true` to run database migrations during deployment. If not set, migrations will be skipped.
 
 ### 4. Deploy
 
@@ -73,13 +73,13 @@ MEDUSA_BACKEND_URL=https://your-app.railway.app
 **Run Migrations:**
 ```bash
 # In Railway console or via Railway CLI
-yarn deploy:migrate
+npx medusa db:migrate
 ```
 
 **Seed Database (one-time):**
 ```bash
 # In Railway console or via Railway CLI  
-yarn deploy:seed
+yarn seed
 ```
 
 ### Monitoring

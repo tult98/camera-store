@@ -22,9 +22,6 @@ This is a **general camera store** e-commerce platform consisting of:
 - `yarn seed` - Seed database with demo data (runs `src/scripts/seed.ts`)
 - `yarn reset-database` - **Complete database reset**: drops database, recreates, runs migrations, creates admin user, and seeds demo data with consistent publishable API key (`pk_camera_store_dev_static_key_123456789`)
 
-**Root-Level Commands (run from project root):**
-- `yarn reset-database` - Complete database reset (can be run from anywhere in the project)
-
 **Testing:**
 - `yarn test:unit` - Run unit tests
 - `yarn test:integration:http` - Run HTTP integration tests  
@@ -375,6 +372,22 @@ The project uses daisyUI v5.0.50 with a custom camera theme:
 - Backend static files served from `apps/backend/static/` directory
 - Frontend images optimized through Next.js Image component
 - Example: Camera product images (e.g., `1753805150027-x100vi-bac.webp`)
+
+## Deployment
+
+### Backend Deployment Script
+- **Location**: `apps/backend/deploy.sh`
+- **Purpose**: Railway post-build script for database migrations
+- **Usage**: Automatically runs during deployment process
+
+**Environment Variables:**
+- `RUN_MIGRATIONS` - Set to `"true"` to run database migrations during deployment
+- If not set or `"false"`, migrations will be skipped
+
+**Script Behavior:**
+- Conditionally runs `npx medusa db:migrate` based on `RUN_MIGRATIONS` environment variable
+- Exits with error code if migration fails
+- Provides clear logging for migration status
 
 ## Testing and Validation
 

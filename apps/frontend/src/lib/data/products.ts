@@ -20,13 +20,15 @@ export const listProducts = async ({
 }> => {
   const limit = queryParams?.limit || 12
   const _pageParam = Math.max(pageParam, 1)
-  const offset = (_pageParam === 1) ? 0 : (_pageParam - 1) * limit;
+  const offset = _pageParam === 1 ? 0 : (_pageParam - 1) * limit
 
   // Get default region for single-region store
   const region = await getDefaultRegion()
 
   if (!region) {
-    console.warn("No default region found, products may not have proper pricing")
+    console.warn(
+      "No default region found, products may not have proper pricing"
+    )
   }
 
   const headers = {
@@ -120,16 +122,8 @@ export const retrieveProduct = async (
   handle: string
 ): Promise<HttpTypes.StoreProduct | null> => {
   try {
-    // Use handle-based API to fetch product directly
-    const { response } = await listProducts({
-      queryParams: {
-        handle, // Filter by handle on the API level
-        fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags,+images",
-        limit: 1, // We only expect one product with this handle
-      },
-    })
+    const response = await sdk.store.product.list({ handle })
 
-    // Return the first (and should be only) product from the results
     return response.products.length > 0 ? response.products[0] : null
   } catch (error) {
     console.error(`Failed to retrieve product with handle ${handle}:`, error)

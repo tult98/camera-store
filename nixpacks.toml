@@ -1,5 +1,5 @@
 [phases.build]
-cmds = ['yarn build:backend']
+cmds = ['yarn install', 'cd apps/backend && yarn build']
 
 [start]
-cmd = 'cd apps/backend && chmod +x deploy.sh && ./deploy.sh && cd ../.. && yarn start:backend'
+cmd = 'cd apps/backend && chmod +x deploy.sh && ./deploy.sh && yarn start'

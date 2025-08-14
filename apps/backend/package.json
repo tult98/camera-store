@@ -13,11 +13,12 @@
     "medusa"
   ],
   "scripts": {
-    "build": "medusa build",
-    "seed": "medusa exec ./src/scripts/seed.ts",
-    "reset-database": "medusa exec ./src/scripts/reset-database.ts",
-    "start": "medusa start",
     "dev": "medusa develop",
+    "build": "medusa build",
+    "start": "medusa start",
+    "seed": "medusa exec ./src/scripts/seed.ts",
+    "migrate": "medusa db:migrate",
+    "reset-database": "medusa exec ./src/scripts/reset-database.ts",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",

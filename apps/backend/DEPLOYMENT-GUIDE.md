@@ -91,10 +91,10 @@ yarn reset-database
 ## How deploy.sh Gets Executed
 
 ### Automatic Execution (Railway)
-The `deploy.sh` script is automatically executed through the `railway.toml` configuration:
+The `deploy.sh` script is automatically executed through the `nixpacks.toml` configuration:
 ```toml
-[deploy]
-startCommand = "chmod +x deploy.sh && ./deploy.sh && yarn start"
+[start]
+cmd = 'cd apps/backend && chmod +x deploy.sh && ./deploy.sh && cd ../.. && yarn start:backend'
 ```
 
 ### Manual Execution

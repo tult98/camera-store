@@ -2,4 +2,4 @@
 cmds = ['yarn build:backend']
 
 [start]
-cmd = 'yarn start:backend'
+cmd = 'cd apps/backend && chmod +x deploy.sh && ./deploy.sh && cd ../.. && yarn start:backend'

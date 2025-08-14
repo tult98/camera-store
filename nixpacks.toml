@@ -2,4 +2,4 @@
 cmds = ['yarn build:backend']
 
 [start]
-cmd = 'cd apps/backend && npx medusa start'
+cmd = 'yarn start:backend'

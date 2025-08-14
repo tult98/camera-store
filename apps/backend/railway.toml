@@ -10,10 +10,7 @@ restartPolicyType = "on_failure"
 NODE_ENV = "production"
 PORT = { default = "9000" }
 
-[[services]]
-name = "backend"
-
-[services.variables]
+[variables]
 DATABASE_URL = "${{Postgres.DATABASE_URL}}"
 JWT_SECRET = { generate = true }
 COOKIE_SECRET = { generate = true }

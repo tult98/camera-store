@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = ['nodejs_20', 'yarn']
+
+[phases.install]
+cmds = [
+  'yarn install --frozen-lockfile'
+]
+
+[phases.build]
+cmds = [
+  'yarn nx build backend'
+]
+
+[start]
+cmd = 'cd apps/backend && npx medusa start'
+
+[variables]
+NODE_ENV = 'production'

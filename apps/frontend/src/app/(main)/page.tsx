@@ -1,5 +1,5 @@
 import FeaturedCategorySection from "@modules/home/components/featured-category-section"
-import { getCachedFeaturedCategories } from "@lib/data/featured-categories"
+import { getFeaturedCategories } from "@lib/data/featured-categories"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
-  const featuredCategories = await getCachedFeaturedCategories()
+  const featuredCategories = await getFeaturedCategories()
 
   return (
     <div className="min-h-screen">

@@ -12,40 +12,30 @@ interface FeaturedCategory {
 }
 
 /**
- * Fetch featured categories from the backend API
- * This uses the custom Camera Store API client for type safety
+ * Fetch featured categories with caching and type safety
+ * Uses the Camera Store API client for type safety with Next.js caching for performance
  */
 export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
   try {
-    const featuredCategories = await cameraStoreApi.getFeaturedCategories()
+    // Use unstable_cache for server-side caching with 5 minute revalidation
+    const { unstable_cache } = await import('next/cache')
+    
+    const getCachedCategories = unstable_cache(
+      async () => {
+        return await cameraStoreApi.getFeaturedCategories()
+      },
+      ['featured-categories'],
+      {
+        revalidate: 300, // 5 minutes
+        tags: ['featured-categories'],
+      }
+    )
+
+    const featuredCategories = await getCachedCategories()
     return featuredCategories
   } catch (error) {
     console.error("Error fetching featured categories:", error)
     // Return empty array on error to prevent page crashes
     return []
-  }
-}
-
-/**
- * Fetch featured categories with caching for better performance
- */
-export async function getCachedFeaturedCategories(): Promise<FeaturedCategory[]> {
-  try {
-    // Get backend URL from environment or use default
-    const backendUrl = process.env['MEDUSA_BACKEND_URL'] || 'http://localhost:9000'
-    
-    // Use Next.js cache with 5 minute revalidation
-    const featuredCategories = await fetch(`${backendUrl}/store/featured-categories`, {
-      headers: {
-        'x-publishable-api-key': process.env['NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY'] || '',
-      },
-      next: { revalidate: 300 }, // 5 minutes
-    }).then(res => res.json()).then(data => data.featured_categories)
-    
-    return featuredCategories || []
-  } catch (error) {
-    console.error("Error fetching cached featured categories:", error)
-    // Fallback to direct API call
-    return getFeaturedCategories()
   }
 }

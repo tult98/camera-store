@@ -183,7 +183,7 @@ apps/frontend/src/
 ### Frontend Features
 - **Server Components First**: Leverages RSC for optimal performance
 - **E-commerce Complete**: Cart, checkout, user accounts, order management
-- **Multi-theme Support**: Custom camera theme + light/dark variants
+- **Multi-theme Support**: Light/dark theme variants with daisyUI
 - **Payment Integration**: Stripe payment processing
 - **Responsive Design**: Mobile-first approach with Tailwind breakpoints
 - **SEO Optimized**: Proper metadata and static generation
@@ -193,7 +193,7 @@ apps/frontend/src/
 ### Layout System
 - `apps/frontend/src/app/layout.tsx` - Root layout with minimal wrapper
 - `apps/frontend/src/app/(main)/layout.tsx` - Main storefront layout with navigation/footer
-- Uses daisyUI theme system with `data-theme="camera"` as default
+- Uses daisyUI theme system with `data-theme="light"` as default
 
 ### Data Fetching Patterns
 - **Server Actions**: Located in `apps/frontend/src/lib/data/` for backend integration
@@ -205,7 +205,7 @@ apps/frontend/src/
 - **Primary**: daisyUI components (`btn`, `card`, `navbar`, etc.)
 - **Secondary**: Tailwind utilities for custom styling
 - **Theme Colors**: Use semantic color classes (`btn-primary`, `text-base-content`)
-- **Custom Theme**: Camera store brand colors defined in `apps/frontend/tailwind.config.js`
+- **Theme System**: Uses daisyUI's built-in light and dark themes
 
 ### Icon System - Heroicons Integration
 - **Library**: `@heroicons/react` for consistent SVG icons
@@ -268,12 +268,12 @@ apps/frontend/src/
 
 ## daisyUI Integration
 
-The project uses daisyUI v5.0.50 with a custom camera theme:
+The project uses daisyUI v5.0.50 with built-in themes:
 
 ### Theme Usage
 ```tsx
 // Apply theme at layout level
-<div data-theme="camera">
+<div data-theme="light">
   {/* Components inherit theme */}
 </div>
 ```

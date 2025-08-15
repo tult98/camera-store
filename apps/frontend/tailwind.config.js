@@ -160,7 +160,7 @@ module.exports = {
   },
   plugins: [
     require("tailwindcss-radix")(),
-    require("daisyui")
+    require("daisyui"),
   ],
   daisyui: {
     themes: [

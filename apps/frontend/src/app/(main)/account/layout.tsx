@@ -1,20 +1,19 @@
-import { retrieveCustomer } from "@lib/data/customer"
 import { Toaster } from "@medusajs/ui"
-import AccountLayout from "@modules/account/templates/account-layout"
 
-export default async function AccountPageLayout({
+export default function AccountPageLayout({
   dashboard,
   login,
 }: {
   dashboard?: React.ReactNode
   login?: React.ReactNode
 }) {
-  const customer = await retrieveCustomer().catch(() => null)
-
   return (
-    <AccountLayout customer={customer}>
-      {customer ? dashboard : login}
+    <div className="min-h-screen p-8 text-center">
+      <h1 className="text-2xl font-bold mb-4">Account Section</h1>
+      <p className="text-base-content/70">
+        Account pages are not yet implemented. Please check back later.
+      </p>
       <Toaster />
-    </AccountLayout>
+    </div>
   )
 }

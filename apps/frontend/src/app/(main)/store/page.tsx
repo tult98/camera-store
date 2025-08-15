@@ -1,32 +1,30 @@
-import { Metadata } from "next"
+// Store page temporarily disabled - not implemented yet
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+// import { Metadata } from "next"
 
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import StoreTemplate from "@modules/store/templates"
+// import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+// import StoreTemplate from "@modules/store/templates"
 
-export const metadata: Metadata = {
-  title: "Store",
-  description: "Explore all of our products.",
-}
+// export const metadata: Metadata = {
+//   title: "Store",
+//   description: "Explore all of our products.",
+// }
 
-type Params = {
-  searchParams: Promise<{
-    sortBy?: SortOptions
-    page?: string
-  }>
-}
+// type Params = {
+//   searchParams: Promise<{
+//     sortBy?: SortOptions
+//     page?: string
+//   }>
+// }
 
-export default async function StorePage(props: Params) {
-  const searchParams = await props.searchParams;
-  const { sortBy, page } = searchParams
-
-  // For single-region store, use Vietnam country code (matching the region)
-  const defaultCountryCode = "vn"
-
+export default function StorePage() {
   return (
-    <StoreTemplate
-      {...(sortBy && { sortBy })}
-      {...(page && { page })}
-      countryCode={defaultCountryCode}
-    />
+    <div className="w-full p-8 text-center">
+      <h1 className="text-2xl font-bold mb-4">Store Page</h1>
+      <p className="text-base-content/70">
+        This page is not yet implemented. Please check back later.
+      </p>
+    </div>
   )
 }

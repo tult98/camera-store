@@ -1,5 +1,5 @@
 [phases.build]
-cmd = 'yarn nx build backend && cd apps/backend && chmod +x deploy.sh'
+cmds = ['yarn nx build backend', 'cd apps/backend', 'chmod +x deploy.sh']
 
 [start]
 cmd = 'yarn nx start backend'

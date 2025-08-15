@@ -85,6 +85,5 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "cacheDirectories": ["node_modules"]
+  }
 }

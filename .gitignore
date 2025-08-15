@@ -163,3 +163,5 @@ Thumbs.db
 
 # Sentry
 .sentryclirc
+
+apps/backend/public/

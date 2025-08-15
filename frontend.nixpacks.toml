@@ -1,0 +1,8 @@
+[phases.install]
+cacheDirectories = ['node_modules']
+
+[phases.build]
+cmds = ['nx run frontend:build']
+
+[start]
+cmd = 'nx run frontend:start'

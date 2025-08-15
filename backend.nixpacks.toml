@@ -1,3 +1,6 @@
+[phases.install]
+cacheDirectories = ['node_modules']
+
 [phases.build]
 cmds = ['yarn nx build backend', 'cd apps/backend', 'chmod +x deploy.sh']
 

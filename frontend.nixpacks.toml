@@ -2,7 +2,7 @@
 cacheDirectories = ['node_modules']
 
 [phases.build]
-cmds = ['nx run frontend:build']
+cmds = ['yarn nx build frontend']
 
 [start]
-cmd = 'nx run frontend:start'
+cmd = 'yarn nx start frontend'

@@ -428,3 +428,4 @@ The project uses daisyUI v5.0.50 with built-in themes:
 - **Server Components**: Verify RSC usage to minimize client JavaScript
 - **Image Optimization**: Ensure Next.js Image component is used
 - **Caching**: Monitor cache hit rates for product data
+- Do not run yarn dev to verify after changes. Let's me verify it myself

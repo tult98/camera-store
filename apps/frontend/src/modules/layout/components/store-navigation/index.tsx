@@ -8,7 +8,7 @@ const StoreNavigation = async () => {
   const categories = await getCategoriesForNavigation()
 
   return (
-    <div className="navbar bg-base-100 border-b px-6">
+    <div className="navbar bg-base-100 shadow-sm px-6">
       <div className="navbar-start">
         <Link href="/" className="flex items-center text-xl font-bold">
           <img 

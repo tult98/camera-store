@@ -32,7 +32,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+      <div className="content-container py-8">
         {featuredCategories.length > 0 ? (
           featuredCategories.map((category, index) => (
             <FeaturedCategorySection

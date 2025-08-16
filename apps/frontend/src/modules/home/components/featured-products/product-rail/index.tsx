@@ -1,4 +1,4 @@
-import { listProducts } from "@lib/data/products"
+import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
 
@@ -12,14 +12,10 @@ export default async function ProductRail({
   collection: HttpTypes.StoreCollection
   region: HttpTypes.StoreRegion
 }) {
-  const {
-    response: { products: pricedProducts },
-  } = await listProducts({
-    regionId: region.id,
-    queryParams: {
-      collection_id: collection.id,
-      fields: "*variants.calculated_price",
-    },
+  const { products: pricedProducts } = await sdk.store.product.list({
+    collection_id: [collection.id],
+    fields: "*variants.calculated_price",
+    region_id: region.id,
   })
 
   if (!pricedProducts) {

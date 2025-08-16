@@ -12,7 +12,7 @@ export default function ProductCard({
   product: HttpTypes.StoreProduct
   region: HttpTypes.StoreRegion
 }) {
-  const { cheapestPrice, compareAtPrice } = getProductPrice({
+  const { cheapestPrice } = getProductPrice({
     product,
   })
 
@@ -22,7 +22,7 @@ export default function ProductCard({
     : false
 
   // Check if product has a sale price
-  const isOnSale = compareAtPrice && cheapestPrice && compareAtPrice.amount > cheapestPrice.amount
+  const isOnSale = cheapestPrice && cheapestPrice.original_price_number > cheapestPrice.calculated_price_number
 
   // Check inventory status
   const totalInventory = product.variants?.reduce((total, variant) => {
@@ -82,12 +82,12 @@ export default function ProductCard({
           <div className="flex items-center gap-2">
             {cheapestPrice && (
               <Text className="font-semibold text-ui-fg-base">
-                {cheapestPrice.currency_code.toUpperCase()} {(cheapestPrice.amount / 100).toFixed(2)}
+                {cheapestPrice.currency_code.toUpperCase()} {(cheapestPrice.calculated_price_number / 100).toFixed(2)}
               </Text>
             )}
-            {isOnSale && compareAtPrice && (
+            {isOnSale && (
               <Text className="text-sm text-ui-fg-muted line-through">
-                {compareAtPrice.currency_code.toUpperCase()} {(compareAtPrice.amount / 100).toFixed(2)}
+                {cheapestPrice.currency_code.toUpperCase()} {(cheapestPrice.original_price_number / 100).toFixed(2)}
               </Text>
             )}
           </div>

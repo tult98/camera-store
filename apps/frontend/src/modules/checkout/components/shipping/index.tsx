@@ -230,7 +230,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 )}
                 <RadioGroup
                   value={shippingMethodId}
-                  onChange={(v) => handleSetShippingMethod(v, "shipping")}
+                  onChange={(v) => handleSetShippingMethod(v || '', "shipping")}
                 >
                   {_shippingMethods?.map((option) => {
                     const isDisabled =
@@ -301,7 +301,7 @@ const Shipping: React.FC<ShippingProps> = ({
                 <div className="pb-8 md:pt-0 pt-2">
                   <RadioGroup
                     value={shippingMethodId}
-                    onChange={(v) => handleSetShippingMethod(v, "pickup")}
+                    onChange={(v) => handleSetShippingMethod(v || '', "pickup")}
                   >
                     {_pickupMethods?.map((option) => {
                       return (
@@ -329,10 +329,7 @@ const Shipping: React.FC<ShippingProps> = ({
                                 {option.name}
                               </span>
                               <span className="text-base-regular text-ui-fg-muted">
-                                {formatAddress(
-                                  "Location info"
-                                    ?.address
-                                )}
+                                {"Location info"}
                               </span>
                             </div>
                           </div>

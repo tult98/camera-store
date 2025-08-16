@@ -32,6 +32,7 @@ jobs:
 
       - name: Cache dependencies
         uses: actions/cache@v4
+        id: cache-deps
         with:
           path: |
             ~/.yarn/cache
@@ -41,6 +42,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
       - name: Run ESLint
@@ -128,6 +130,7 @@ jobs:
 
       - name: Cache dependencies
         uses: actions/cache@v4
+        id: cache-deps-security
         with:
           path: |
             ~/.yarn/cache
@@ -137,6 +140,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
+        if: steps.cache-deps-security.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
       - name: Run security audit

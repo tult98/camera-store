@@ -34,6 +34,7 @@ jobs:
 
       - name: Cache dependencies
         uses: actions/cache@v4
+        id: cache-deps-setup
         with:
           path: |
             ~/.yarn/cache
@@ -43,6 +44,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
+        if: steps.cache-deps-setup.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
       - name: Check affected projects
@@ -104,6 +106,7 @@ jobs:
 
       - name: Cache dependencies
         uses: actions/cache@v4
+        id: cache-deps-backend
         with:
           path: |
             ~/.yarn/cache
@@ -113,6 +116,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
+        if: steps.cache-deps-backend.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
         working-directory: .
 
@@ -168,6 +172,7 @@ jobs:
 
       - name: Cache dependencies
         uses: actions/cache@v4
+        id: cache-deps-frontend
         with:
           path: |
             ~/.yarn/cache
@@ -177,6 +182,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
+        if: steps.cache-deps-frontend.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
         working-directory: .
 

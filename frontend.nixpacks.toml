@@ -1,5 +1,5 @@
 [phases.build]
-cmds = ['yarn nx build frontend']
+cmds = ['yarn nx print-affected --target=build --base=HEAD~1 | grep -q "frontend" && yarn nx build frontend || echo "Frontend not affected, skipping build"']
 
 [start]
 cmd = 'yarn nx start frontend'

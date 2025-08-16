@@ -31,7 +31,7 @@ jobs:
           cache: 'yarn'
 
       - name: Enable Corepack
-        run: corepack enable
+        run: sudo corepack enable
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -92,7 +92,7 @@ jobs:
           cache: 'yarn'
 
       - name: Enable Corepack
-        run: corepack enable
+        run: sudo corepack enable
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -147,7 +147,7 @@ jobs:
           cache: 'yarn'
 
       - name: Enable Corepack
-        run: corepack enable
+        run: sudo corepack enable
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile

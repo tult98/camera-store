@@ -34,8 +34,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.yarn/cache
-            node_modules
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
@@ -99,8 +100,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.yarn/cache
-            node_modules
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
@@ -110,9 +112,13 @@ jobs:
 
       - name: Run linting
         run: yarn lint
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
 
       - name: Run type checking
         run: yarn type-check
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
 
 
   deploy-backend:
@@ -136,8 +142,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.yarn/cache
-            node_modules
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
@@ -176,8 +183,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.yarn/cache
-            node_modules
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-

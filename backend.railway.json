@@ -3,19 +3,7 @@
   "build": {
     "nixpacksConfigPath": "backend.nixpacks.toml",
     "watchPaths": [
-      "apps/backend/**",
-      "libs/**",
-      "tools/**",
-      "package.json",
-      "yarn.lock",
-      "nx.json",
-      "tsconfig.base.json",
-      "openapitools.json",
-      ".eslintrc.json",
-      ".yarnrc.yml",
-      ".editorconfig",
-      "backend.railway.json",
-      "backend.nixpacks.toml"
+      "apps/backend/**"
     ]
   }
 }

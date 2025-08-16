@@ -122,7 +122,20 @@ export const retrieveProduct = async (
   handle: string
 ): Promise<HttpTypes.StoreProduct | null> => {
   try {
-    const response = await sdk.store.product.list({ handle })
+    // Get default region for pricing calculations
+    const region = await getDefaultRegion()
+
+    if (!region) {
+      console.warn(
+        "No default region found, product may not have proper pricing"
+      )
+    }
+
+    const response = await sdk.store.product.list({ 
+      handle,
+      region_id: region?.id,
+      fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags,+images"
+    })
 
     return response.products.length > 0 ? response.products[0] : null
   } catch (error) {

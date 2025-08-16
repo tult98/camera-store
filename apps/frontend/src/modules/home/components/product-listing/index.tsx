@@ -29,7 +29,7 @@ export default async function ProductListing({
 
   if (!products || products.length === 0) {
     return (
-      <div className="content-container py-12">
+      <div className="py-12">
         <div className="text-center py-12">
           <div className="max-w-md mx-auto">
             <div className="text-gray-400 mb-4">
@@ -46,7 +46,7 @@ export default async function ProductListing({
   }
 
   return (
-    <div className="content-container py-12">
+    <div className="py-12">
       <div className="mb-8">
         <Heading level="h2" className="text-3xl font-bold text-ui-fg-base mb-2">
           {title}

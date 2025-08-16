@@ -24,7 +24,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   return (
     <>
       <div
-        className="content-container flex flex-col lg:flex-row lg:gap-12 py-6 relative"
+        className="flex flex-col lg:flex-row lg:gap-12 py-6 relative"
         data-testid="product-container"
       >
         {/* Left Side - Image Gallery */}
@@ -50,7 +50,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       </div>
 
       {/* Product Description and Technical Specifications */}
-      <div className="content-container py-8 lg:py-12">
+      <div className="py-8 lg:py-12">
         <ProductTabs product={product} />
       </div>
     </>

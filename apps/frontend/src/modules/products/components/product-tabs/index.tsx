@@ -75,36 +75,44 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
         </button>
       </div>
 
-      <div className="min-h-[300px]">
-        {activeTab === "description" && (
-          <div className="prose prose-lg max-w-none">
+      <div className="grid grid-cols-1 min-h-[400px] w-full">
+        <div 
+          className={`col-start-1 row-start-1 w-full transition-opacity duration-200 ${
+            activeTab === "description" ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+          }`}
+        >
+          <div className="prose prose-lg max-w-none w-full">
             {product.description ? (
               <div 
-                className="text-base-content/80 leading-relaxed"
+                className="text-base-content/80 leading-relaxed w-full"
                 dangerouslySetInnerHTML={{ 
                   __html: product.description 
                 }}
               />
             ) : (
-              <div className="text-base-content/60 text-center py-12">
+              <div className="text-base-content/60 text-center py-12 w-full">
                 <p>Chưa có mô tả sản phẩm.</p>
               </div>
             )}
           </div>
-        )}
+        </div>
 
-        {activeTab === "specs" && (
-          <div>
+        <div 
+          className={`col-start-1 row-start-1 w-full transition-opacity duration-200 ${
+            activeTab === "specs" ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+          }`}
+        >
+          <div className="w-full">
             {technicalSpecs && technicalSpecs.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="table table-zebra w-full">
+              <div className="w-full">
+                <table className="table table-zebra w-full table-fixed">
                   <tbody>
                     {technicalSpecs.map((spec, index) => (
                       <tr key={index}>
-                        <td className="font-semibold text-base-content w-1/3">
+                        <td className="font-semibold text-base-content w-2/5">
                           {spec.label}
                         </td>
-                        <td className="text-base-content/80">
+                        <td className="text-base-content/80 w-3/5 break-words">
                           {spec.value}
                         </td>
                       </tr>
@@ -113,13 +121,13 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
                 </table>
               </div>
             ) : (
-              <div className="text-base-content/60 text-center py-12">
+              <div className="text-base-content/60 text-center py-12 w-full">
                 <p>Chưa có thông số kỹ thuật chi tiết.</p>
                 <p className="text-sm mt-2">Thông tin sẽ được cập nhật sớm.</p>
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

@@ -93,12 +93,12 @@ jobs:
           cache-prefix: 'test'
 
       - name: Run linting
-        run: yarn lint
+        run: nx affected -t lint
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
 
       - name: Run type checking
-        run: yarn type-check
+        run: nx affected -t type-check
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
 

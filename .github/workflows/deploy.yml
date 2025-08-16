@@ -30,21 +30,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-setup
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            .yarn/cache
-            .yarn/unplugged
-            .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-setup.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+          cache-prefix: 'setup'
 
       - name: Check affected projects
         id: affected
@@ -98,21 +87,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-test
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            .yarn/cache
-            .yarn/unplugged
-            .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-test.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+          cache-prefix: 'test'
 
       - name: Run linting
         run: yarn lint
@@ -142,21 +120,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-deploy-backend
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            .yarn/cache
-            .yarn/unplugged
-            .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-deploy-backend.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+          cache-prefix: 'deploy-backend'
 
       - name: Build backend
         run: nx run backend:build
@@ -185,21 +152,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-deploy-frontend
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            .yarn/cache
-            .yarn/unplugged
-            .yarn/install-state.gz
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-deploy-frontend.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+          cache-prefix: 'deploy-frontend'
 
       - name: Build frontend
         run: nx run frontend:build

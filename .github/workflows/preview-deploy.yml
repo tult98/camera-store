@@ -32,20 +32,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-setup
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            ~/.yarn/cache
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-setup.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+          cache-prefix: 'preview-setup'
 
       - name: Check affected projects
         id: affected
@@ -104,21 +94,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-backend
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            ~/.yarn/cache
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-backend.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
-        working-directory: .
+          cache-prefix: 'preview-backend'
 
       - name: Build backend
         run: nx run backend:build
@@ -170,21 +149,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-frontend
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            ~/.yarn/cache
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-frontend.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
-        working-directory: .
+          cache-prefix: 'preview-frontend'
 
       - name: Build frontend
         env:

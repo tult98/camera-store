@@ -1,0 +1,52 @@
+name: 'Setup Yarn Cache'
+description: 'Sets up yarn cache with restore and save operations'
+
+inputs:
+  cache-version:
+    description: 'Cache version for cache invalidation'
+    required: false
+    default: 'v1'
+  cache-prefix:
+    description: 'Prefix for cache key (e.g., frontend, backend)'
+    required: true
+  lookup-cache-only:
+    description: 'Only lookup cache, do not restore'
+    required: false
+    default: 'false'
+
+outputs:
+  cache-hit:
+    description: 'Whether cache was hit'
+    value: ${{ steps.restore-cache.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get yarn cache directory path
+      id: yarn-cache-dir-path
+      shell: bash
+      run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+    - name: Restore yarn cache
+      id: restore-cache
+      uses: actions/cache/restore@v4
+      with:
+        lookup-only: ${{ inputs.lookup-cache-only == 'true' }}
+        path: |
+          ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          **/node_modules
+        key: ${{ runner.os }}-${{ inputs.cache-version }}-${{ inputs.cache-prefix }}-core-${{ hashFiles('yarn.lock') }}
+
+    - name: Run yarn install
+      shell: bash
+      run: |
+        yarn install --immutable
+
+    - name: Save yarn cache
+      if: ${{ steps.restore-cache.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: |
+          ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          **/node_modules
+        key: ${{ runner.os }}-${{ inputs.cache-version }}-${{ inputs.cache-prefix }}-core-${{ hashFiles('yarn.lock') }}

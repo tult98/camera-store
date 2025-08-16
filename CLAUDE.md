@@ -429,3 +429,5 @@ The project uses daisyUI v5.0.50 with built-in themes:
 - **Image Optimization**: Ensure Next.js Image component is used
 - **Caching**: Monitor cache hit rates for product data
 - Do not run yarn dev to verify after changes. Let's me verify it myself
+- Do not commit & push the code until I told you to do it
+- do not commit & push changes if I do not told you

@@ -30,20 +30,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            ~/.yarn/cache
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+          cache-prefix: 'quality'
 
       - name: Run ESLint
         run: |
@@ -128,20 +118,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        id: cache-deps-security
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
         with:
-          path: |
-            ~/.yarn/cache
-            node_modules
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install dependencies
-        if: steps.cache-deps-security.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+          cache-prefix: 'security'
 
       - name: Run security audit
         run: |

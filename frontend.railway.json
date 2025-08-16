@@ -1,6 +1,21 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "nixpacksConfigPath": "frontend.nixpacks.toml"
+    "nixpacksConfigPath": "frontend.nixpacks.toml",
+    "watchPaths": [
+      "apps/frontend/**",
+      "libs/**",
+      "tools/**",
+      "package.json",
+      "yarn.lock",
+      "nx.json",
+      "tsconfig.base.json",
+      "openapitools.json",
+      ".eslintrc.json",
+      ".yarnrc.yml",
+      ".editorconfig",
+      "frontend.railway.json",
+      "frontend.nixpacks.toml"
+    ]
   }
 }

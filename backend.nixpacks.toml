@@ -1,5 +1,5 @@
 [phases.build]
-cmds = ['yarn nx print-affected --target=build --base=HEAD~1 | grep -q "backend" && (yarn nx build backend && chmod +x apps/backend/deploy.sh) || echo "Backend not affected, skipping build"']
+cmds = ['yarn nx build backend', 'chmod +x apps/backend/deploy.sh']
 
 [start]
 cmd = 'yarn nx start backend'

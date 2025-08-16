@@ -1,33 +1,36 @@
-import { Github } from "@medusajs/icons"
+import { CameraIcon, ShoppingBagIcon } from "@heroicons/react/24/outline"
 import { Button, Heading } from "@medusajs/ui"
 
 const Hero = () => {
   return (
-    <div className="h-[75vh] w-full border-b border-ui-border-base relative bg-ui-bg-subtle">
-      <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center small:p-32 gap-6">
-        <span>
+    <div className="hero min-h-screen bg-gradient-to-br from-base-200 to-base-300">
+      <div className="hero-content text-center">
+        <div className="max-w-md">
+          <div className="flex justify-center mb-6">
+            <CameraIcon className="w-20 h-20 text-primary" />
+          </div>
           <Heading
             level="h1"
-            className="text-3xl leading-10 text-ui-fg-base font-normal"
+            className="text-5xl font-bold text-base-content mb-4"
           >
-            Ecommerce Starter Template
+            Professional Camera Store
           </Heading>
           <Heading
             level="h2"
-            className="text-3xl leading-10 text-ui-fg-subtle font-normal"
+            className="text-xl text-base-content/70 mb-8"
           >
-            Powered by Medusa and Next.js
+            Capture life's moments with our premium camera collection. From DSLRs to mirrorless cameras, find your perfect shot.
           </Heading>
-        </span>
-        <a
-          href="https://github.com/medusajs/nextjs-starter-medusa"
-          target="_blank"
-        >
-          <Button variant="secondary">
-            View on GitHub
-            <Github />
-          </Button>
-        </a>
+          <div className="flex gap-4 justify-center">
+            <Button className="btn btn-primary">
+              <ShoppingBagIcon className="w-5 h-5" />
+              Shop Now
+            </Button>
+            <Button variant="secondary" className="btn btn-outline">
+              Browse Cameras
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   )

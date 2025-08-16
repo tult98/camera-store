@@ -142,46 +142,56 @@ function FreeShippingInline({
   }
 }) {
   return (
-    <div className="bg-neutral-100 p-2 rounded-lg border">
-      <div className="space-y-1.5">
-        <div className="flex justify-between text-xs text-neutral-600">
-          <div>
+    <div className="alert alert-info shadow-lg rounded-lg">
+      <div className="w-full space-y-3">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-2">
             {price.target_reached ? (
-              <div className="flex items-center gap-1.5">
-                <CheckCircleSolid className="text-green-500 inline-block" />{" "}
-                Free Shipping unlocked!
-              </div>
+              <>
+                <CheckCircleSolid className="text-success w-5 h-5" />
+                <span className="font-semibold">Free Shipping unlocked!</span>
+              </>
             ) : (
-              `Unlock Free Shipping`
+              <>
+                <svg className="w-5 h-5 text-info-content" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <span className="font-semibold">Free Shipping Available</span>
+              </>
             )}
           </div>
 
-          <div
-            className={clx("visible", {
-              "opacity-0 invisible": price.target_reached,
-            })}
-          >
-            Only{" "}
-            <span className="text-neutral-950">
-              {convertToLocale({
-                amount: price.target_remaining,
-                currency_code: cart.currency_code,
-              })}
-            </span>{" "}
-            away
-          </div>
+          {!price.target_reached && (
+            <div className="text-sm">
+              Add{" "}
+              <span className="font-bold text-primary">
+                {convertToLocale({
+                  amount: price.target_remaining,
+                  currency_code: cart.currency_code,
+                })}
+              </span>{" "}
+              more
+            </div>
+          )}
         </div>
-        <div className="flex justify-between gap-1">
-          <div
-            className={clx(
-              "bg-gradient-to-r from-zinc-400 to-zinc-500 h-1 rounded-full max-w-full duration-500 ease-in-out",
-              {
-                "from-green-400 to-green-500": price.target_reached,
-              }
-            )}
-            style={{ width: `${price.remaining_percentage}%` }}
-          ></div>
-          <div className="bg-neutral-300 h-1 rounded-full w-fit flex-grow"></div>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Progress to free shipping</span>
+            <span className="font-medium">{Math.min(100, price.remaining_percentage).toFixed(0)}%</span>
+          </div>
+          <div className="w-full bg-base-300 rounded-full h-2.5">
+            <div
+              className={clx(
+                "h-2.5 rounded-full transition-all duration-700 ease-out",
+                {
+                  "bg-gradient-to-r from-success to-success": price.target_reached,
+                  "bg-gradient-to-r from-primary to-info": !price.target_reached,
+                }
+              )}
+              style={{ width: `${Math.min(100, price.remaining_percentage)}%` }}
+            ></div>
+          </div>
         </div>
       </div>
     </div>

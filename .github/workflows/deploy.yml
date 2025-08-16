@@ -1,0 +1,179 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NX_CLOUD_DISTRIBUTED_EXECUTION: false
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      affected-backend: ${{ steps.affected.outputs.backend }}
+      affected-frontend: ${{ steps.affected.outputs.frontend }}
+      is-main: ${{ steps.branch.outputs.is-main }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check affected projects
+        id: affected
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA="HEAD~1"
+          fi
+          
+          AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,frontend)
+          
+          echo "Affected apps: $AFFECTED_APPS"
+          
+          if echo "$AFFECTED_APPS" | grep -q "backend"; then
+            echo "backend=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if echo "$AFFECTED_APPS" | grep -q "frontend"; then
+            echo "frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "frontend=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check branch
+        id: branch
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "is-main=true" >> $GITHUB_OUTPUT
+          else
+            echo "is-main=false" >> $GITHUB_OUTPUT
+          fi
+
+  test:
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.affected-backend == 'true' || needs.setup.outputs.affected-frontend == 'true'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run linting
+        run: yarn lint
+
+      - name: Run type checking
+        run: yarn type-check
+
+      - name: Run tests
+        run: yarn test
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: [setup, test]
+    if: needs.setup.outputs.affected-backend == 'true' && always() && needs.test.result == 'success'
+    environment: ${{ needs.setup.outputs.is-main == 'true' && 'production' || 'staging' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build backend
+        run: nx run backend:build
+
+      - name: Deploy to Railway
+        uses: bervProject/railway-deploy@main
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        with:
+          service: ${{ needs.setup.outputs.is-main == 'true' && vars.RAILWAY_BACKEND_SERVICE_PROD || vars.RAILWAY_BACKEND_SERVICE_STAGING }}
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: [setup, test]
+    if: needs.setup.outputs.affected-frontend == 'true' && always() && needs.test.result == 'success'
+    environment: ${{ needs.setup.outputs.is-main == 'true' && 'production' || 'staging' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build frontend
+        run: nx run frontend:build
+
+      - name: Deploy to Railway
+        uses: bervProject/railway-deploy@main
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        with:
+          service: ${{ needs.setup.outputs.is-main == 'true' && vars.RAILWAY_FRONTEND_SERVICE_PROD || vars.RAILWAY_FRONTEND_SERVICE_STAGING }}
+
+  deploy-status:
+    runs-on: ubuntu-latest
+    needs: [setup, deploy-backend, deploy-frontend]
+    if: always()
+    steps:
+      - name: Deployment Status
+        run: |
+          echo "🚀 Deployment Summary:"
+          echo "Backend affected: ${{ needs.setup.outputs.affected-backend }}"
+          echo "Frontend affected: ${{ needs.setup.outputs.affected-frontend }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Environment: ${{ needs.setup.outputs.is-main == 'true' && 'production' || 'staging' }}"
+          
+          if [ "${{ needs.deploy-backend.result }}" = "success" ]; then
+            echo "✅ Backend deployment successful"
+          elif [ "${{ needs.setup.outputs.affected-backend }}" = "true" ]; then
+            echo "❌ Backend deployment failed"
+          else
+            echo "⏭️ Backend deployment skipped (not affected)"
+          fi
+          
+          if [ "${{ needs.deploy-frontend.result }}" = "success" ]; then
+            echo "✅ Frontend deployment successful"
+          elif [ "${{ needs.setup.outputs.affected-frontend }}" = "true" ]; then
+            echo "❌ Frontend deployment failed"
+          else
+            echo "⏭️ Frontend deployment skipped (not affected)"
+          fi

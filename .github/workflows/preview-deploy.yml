@@ -100,7 +100,7 @@ jobs:
           cache-prefix: 'preview-backend'
 
       - name: Build backend
-        run: nx run backend:build
+        run: yarn nx run backend:build
         working-directory: .
 
       - name: Install Railway CLI

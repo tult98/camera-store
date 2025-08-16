@@ -93,12 +93,12 @@ jobs:
           cache-prefix: 'test'
 
       - name: Run linting
-        run: nx affected -t lint
+        run: yarn nx affected -t lint
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
 
       - name: Run type checking
-        run: nx affected -t type-check
+        run: yarn nx affected -t type-check
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
 
@@ -126,7 +126,7 @@ jobs:
           cache-prefix: 'deploy-backend'
 
       - name: Build backend
-        run: nx run backend:build
+        run: yarn nx run backend:build
 
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main
@@ -158,7 +158,7 @@ jobs:
           cache-prefix: 'deploy-frontend'
 
       - name: Build frontend
-        run: nx run frontend:build
+        run: yarn nx run frontend:build
 
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main

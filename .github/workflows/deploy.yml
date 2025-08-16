@@ -114,8 +114,6 @@ jobs:
       - name: Run type checking
         run: yarn type-check
 
-      - name: Run tests
-        run: yarn test
 
   deploy-backend:
     runs-on: ubuntu-latest

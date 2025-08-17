@@ -92,6 +92,11 @@ jobs:
     if: needs.setup.outputs.affected-backend == 'true' && always() && needs.quality-checks.result == 'success'
     environment: staging
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main
         env:
@@ -105,6 +110,11 @@ jobs:
     if: needs.setup.outputs.affected-frontend == 'true' && always() && needs.quality-checks.result == 'success'
     environment: staging
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main
         env:

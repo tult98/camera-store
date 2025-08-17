@@ -92,25 +92,6 @@ jobs:
     if: needs.setup.outputs.affected-backend == 'true' && always() && needs.quality-checks.result == 'success'
     environment: staging
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build backend
-        run: yarn nx build backend
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main
         env:
@@ -124,25 +105,6 @@ jobs:
     if: needs.setup.outputs.affected-frontend == 'true' && always() && needs.quality-checks.result == 'success'
     environment: staging
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Build frontend
-        run: yarn nx build frontend
-        env:
-          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
-
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main
         env:

@@ -73,8 +73,8 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Setup Yarn Cache
-        uses: ./.github/actions/setup-yarn-cache
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
       - name: Run linting
         run: yarn nx affected -t lint
@@ -103,8 +103,8 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Setup Yarn Cache
-        uses: ./.github/actions/setup-yarn-cache
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
       - name: Build backend
         run: yarn nx build backend
@@ -135,8 +135,8 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Setup Yarn Cache
-        uses: ./.github/actions/setup-yarn-cache
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
       - name: Build frontend
         run: yarn nx build frontend

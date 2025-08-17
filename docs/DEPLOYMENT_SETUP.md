@@ -7,8 +7,8 @@ This guide helps you set up Railway deployment with GitHub Actions for the Camer
 ### 1. Railway Project Setup
 
 - [ ] Create Railway project
-- [ ] Create backend service (root: `apps/backend`)
-- [ ] Create frontend service (root: `apps/frontend`)
+- [ ] Create backend service (configure root directory as needed)
+- [ ] Create frontend service (configure root directory as needed)
 - [ ] Add PostgreSQL database
 - [ ] Note down service IDs
 
@@ -17,24 +17,18 @@ This guide helps you set up Railway deployment with GitHub Actions for the Camer
 #### Secrets (Settings > Secrets and variables > Actions > Secrets)
 ```
 RAILWAY_TOKEN=rwy_xxx...
+DATABASE_URL=postgresql://...
 MEDUSA_PUBLISHABLE_KEY=pk_xxx...
-MEDUSA_PUBLISHABLE_KEY_PREVIEW=pk_staging_xxx...
-STRIPE_PUBLIC_KEY=pk_test_xxx...
-REVALIDATE_SECRET=supersecret123
 ```
 
 #### Variables (Settings > Secrets and variables > Actions > Variables)
 ```
-RAILWAY_BACKEND_SERVICE_PROD=backend-service-id
-RAILWAY_BACKEND_SERVICE_STAGING=backend-staging-id
-RAILWAY_FRONTEND_SERVICE_PROD=frontend-service-id
-RAILWAY_FRONTEND_SERVICE_STAGING=frontend-staging-id
+RAILWAY_BACKEND_SERVICE_NAME=your-backend-service-name
+RAILWAY_FRONTEND_SERVICE_NAME=your-frontend-service-name
 ```
 
 #### Environments (Settings > Environments)
-- [ ] `production` (with protection rules)
-- [ ] `staging`
-- [ ] `preview`
+- [ ] `staging` (with protection rules if desired)
 
 ### 3. Railway Service Configuration
 
@@ -61,20 +55,20 @@ NEXT_PUBLIC_STRIPE_KEY=pk_test_your_stripe_key
 REVALIDATE_SECRET=your-revalidation-secret
 ```
 
-## 🛠️ Getting Railway Service IDs
+## 🛠️ Getting Railway Service Names
 
 ### Method 1: Railway CLI
 ```bash
 npm install -g @railway/cli
 railway login
-railway list
+railway status
 ```
 
 ### Method 2: Railway Dashboard
 1. Go to Railway dashboard
 2. Select your project
-3. Click on service
-4. Copy service ID from URL: `railway.app/project/{project-id}/service/{service-id}`
+3. Note the service names displayed (e.g., "backend", "frontend")
+4. Use these exact names in GitHub variables
 
 ## 🔑 Getting Railway Token
 
@@ -97,11 +91,9 @@ railway list
 - `MEDUSA_BACKEND_URL` - Backend service URL
 - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` - From Medusa admin
 - `NEXT_PUBLIC_BASE_URL` - Frontend domain
-- `NEXT_PUBLIC_STRIPE_KEY` - Stripe publishable key
 
 ### Optional
 - `NEXT_PUBLIC_DEFAULT_REGION` - Default to 'us'
-- `REVALIDATE_SECRET` - For Next.js revalidation
 - `RUN_MIGRATIONS` - Set to 'true' for auto-migrations
 
 ## 🧪 Testing the Setup
@@ -115,13 +107,9 @@ git commit -m "test: deployment workflow"
 git push origin test-deployment
 ```
 
-### 2. Create Pull Request
-- GitHub Actions should run quality checks
-- Preview deployment should be created (if applicable)
-- Check PR comments for preview URLs
-
-### 3. Merge to Main
-- Production deployment should trigger
+### 2. Push to Main
+- GitHub Actions should run quality checks on affected projects
+- Deployment should trigger for affected services
 - Monitor workflow in GitHub Actions
 - Verify services are accessible
 
@@ -166,10 +154,11 @@ railway logs --filter migration
 ### Issue: CORS errors in frontend
 **Solution:** Update `STORE_CORS` in backend environment variables
 
-### Issue: Preview deployment not created
+### Issue: Service not deployed when expected
 **Solution:** 
 - Verify affected detection in workflow logs
-- Check if changes are in `apps/backend` or `apps/frontend`
+- Check if changes are in your backend or frontend directories
+- Review Nx affected output in setup job
 
 ## 📚 Additional Resources
 

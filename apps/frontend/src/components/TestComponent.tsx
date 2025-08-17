@@ -6,7 +6,7 @@ interface TestComponentProps {
 
 export const TestComponent: React.FC<TestComponentProps> = ({ message = 'Test deployment workflow' }) => {
   return (
-    <div className="card bg-base-100 shadow-xl">
+    <div className="card bg-base-100 shadow-xl m-4">
       <div className="card-body">
         <h2 className="card-title">🧪 Test Component</h2>
         <p className="text-base-content/70">{message}</p>

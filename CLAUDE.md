@@ -373,19 +373,55 @@ The project uses daisyUI v5.0.50 with built-in themes:
 
 ## Deployment
 
-### Backend Deployment Script
-- **Location**: `apps/backend/deploy.sh`
-- **Purpose**: Railway post-build script for database migrations
-- **Usage**: Automatically runs during deployment process
+### GitHub Actions CI/CD Pipeline
+- **Location**: `.github/workflows/deploy.yml`
+- **Purpose**: Automated deployment to Railway on main branch pushes
+- **Strategy**: Nx-powered affected project detection with quality gates
 
-**Environment Variables:**
-- `RUN_MIGRATIONS` - Set to `"true"` to run database migrations during deployment
-- If not set or `"false"`, migrations will be skipped
+### Deployment Workflow
 
-**Script Behavior:**
-- Conditionally runs `nx run backend:migrate` based on `RUN_MIGRATIONS` environment variable
-- Exits with error code if migration fails
-- Provides clear logging for migration status
+**1. Setup & Affected Detection:**
+- Detects which projects (backend/frontend) are affected by changes
+- Uses Nx to analyze changed files and their dependencies
+- Outputs affected status for conditional deployment
+
+**2. Quality Checks:**
+- Runs ESLint and TypeScript checks on affected projects
+- Must pass before deployment proceeds
+- Uses `yarn nx affected -t lint` and `yarn nx affected -t type-check`
+
+**3. Backend Deployment:**
+- Triggers when backend is affected or manually forced
+- Builds backend with `yarn nx build backend`
+- Deploys to Railway using `bervProject/railway-deploy@main`
+- Uses `RAILWAY_BACKEND_SERVICE_NAME` variable for service targeting
+
+**4. Frontend Deployment:**
+- Triggers when frontend is affected
+- Builds frontend with `yarn nx build frontend`
+- Deploys to Railway using same deployment action
+- Uses `RAILWAY_FRONTEND_SERVICE_NAME` variable for service targeting
+
+**5. Deployment Status:**
+- Reports deployment results for both services
+- Shows affected project status and deployment outcomes
+
+### Required Secrets & Variables
+
+**GitHub Secrets:**
+- `RAILWAY_TOKEN` - Railway API token for deployments
+- `DATABASE_URL` - PostgreSQL connection string for backend builds
+- `MEDUSA_PUBLISHABLE_KEY` - Frontend environment variable
+
+**GitHub Variables:**
+- `RAILWAY_BACKEND_SERVICE_NAME` - Railway service name for backend
+- `RAILWAY_FRONTEND_SERVICE_NAME` - Railway service name for frontend
+
+### Environment Configuration
+- **Environment**: `staging` - GitHub environment for deployment protection
+- **Node.js**: Version 20 with Corepack enabled
+- **Package Manager**: Yarn with caching optimization
+- **Build Strategy**: Nx affected builds to minimize unnecessary deployments
 
 ## Testing and Validation
 

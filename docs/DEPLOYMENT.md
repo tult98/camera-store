@@ -16,14 +16,11 @@ The deployment system uses:
 ```
 GitHub Repository
     ├── .github/workflows/
-    │   ├── deploy.yml              # Main deployment workflow
-    │   ├── deploy-backend.yml      # Backend-specific deployment
-    │   ├── deploy-frontend.yml     # Frontend-specific deployment
-    │   ├── quality-checks.yml      # Reusable quality checks
-    │   └── preview-deploy.yml      # PR preview environments
-    ├── apps/backend/railway.json   # Backend Railway config
-    ├── apps/frontend/railway.json  # Frontend Railway config
-    └── railway.json                # Root Railway config
+    │   └── deploy.yml              # Main deployment workflow
+    ├── .github/actions/
+    │   └── install-dependencies/   # Shared dependency installation with caching
+    ├── backend/                    # MedusaJS backend (or apps/backend)
+    └── frontend/                   # Next.js frontend (or apps/frontend)
 ```
 
 ## Prerequisites
@@ -37,7 +34,7 @@ GitHub Repository
    - **Database** (PostgreSQL)
 
 3. Configure service settings:
-   - Set root directories: `apps/backend` and `apps/frontend`
+   - Configure root directories as needed for your project structure
    - Enable auto-deployments from GitHub (optional)
 
 ### 2. Environment Configuration
@@ -80,11 +77,9 @@ Add these secrets to your GitHub repository (`Settings > Secrets and variables >
 
 **Repository Secrets:**
 ```
-RAILWAY_TOKEN                    # Railway project token
-MEDUSA_PUBLISHABLE_KEY          # Production Medusa publishable key
-MEDUSA_PUBLISHABLE_KEY_PREVIEW  # Preview/staging Medusa publishable key
-STRIPE_PUBLIC_KEY               # Stripe public key
-REVALIDATE_SECRET               # Next.js revalidation secret
+RAILWAY_TOKEN                    # Railway API token for deployments
+DATABASE_URL                     # PostgreSQL connection string for builds
+MEDUSA_PUBLISHABLE_KEY          # Medusa publishable key for frontend
 ```
 
 #### Required Variables
@@ -93,117 +88,85 @@ Add these variables to your GitHub repository (`Settings > Secrets and variables
 
 **Repository Variables:**
 ```
-RAILWAY_BACKEND_SERVICE_PROD     # Production backend service ID
-RAILWAY_BACKEND_SERVICE_STAGING  # Staging backend service ID
-RAILWAY_FRONTEND_SERVICE_PROD    # Production frontend service ID
-RAILWAY_FRONTEND_SERVICE_STAGING # Staging frontend service ID
+RAILWAY_BACKEND_SERVICE_NAME     # Railway backend service name
+RAILWAY_FRONTEND_SERVICE_NAME    # Railway frontend service name
 ```
 
 #### GitHub Environments
 
-Create these environments in your repository (`Settings > Environments`):
+Create this environment in your repository (`Settings > Environments`):
 
-1. **production** - Protected environment requiring review
-2. **staging** - Auto-deploy environment
-3. **preview** - For PR preview deployments
+1. **staging** - Deployment environment with protection rules
 
 ## Deployment Workflows
 
 ### 1. Main Deployment (`deploy.yml`)
 
 **Triggers:**
-- Push to `main` branch → Production deployment
-- Pull request to `main` → Staging deployment
+- Push to `main` branch → Staging deployment
 
 **Features:**
-- Nx affected detection (only deploys changed services)
-- Quality checks (linting, type checking, tests)
-- Parallel backend and frontend deployment
+- Nx affected detection (only deploys changed projects)
+- Quality checks (ESLint and TypeScript checking)
+- Conditional backend and frontend deployment
 - Deployment status reporting
 
 **Workflow:**
 ```
-Setup → Quality Checks → Deploy Backend → Deploy Frontend → Status Report
+Setup & Affected Detection → Quality Checks → Deploy Backend (if affected) → Deploy Frontend (if affected) → Status Report
 ```
 
-### 2. Preview Deployments (`preview-deploy.yml`)
-
-**Triggers:**
-- Pull request opened/updated → Create/update preview
-- Pull request closed → Cleanup preview
+### 2. Quality Checks Job
 
 **Features:**
-- Automatic preview environment creation
-- PR comment with preview URLs
-- Automatic cleanup on PR close
-- Isolated preview databases
+- ESLint linting on affected projects
+- TypeScript checking on affected projects
+- Runs only when projects are affected
+- Gates deployment process
 
-### 3. Backend Deployment (`deploy-backend.yml`)
-
-**Features:**
-- Database migration support
-- Health check validation
-- Post-deployment verification
-- Migration status monitoring
-
-### 4. Frontend Deployment (`deploy-frontend.yml`)
+### 3. Backend Deployment Job
 
 **Features:**
-- Environment-specific builds
-- Bundle size analysis
-- Performance monitoring
-- Health check validation
+- Conditional deployment based on affected detection
+- Build with `yarn nx build backend`
+- Deploy to Railway using `bervProject/railway-deploy@main`
+- Environment variable injection
 
-### 5. Quality Checks (`quality-checks.yml`)
+### 4. Frontend Deployment Job
 
 **Features:**
-- ESLint linting
-- TypeScript checking
-- Unit testing
-- Security audits
-- Dependency validation
+- Conditional deployment based on affected detection
+- Build with `yarn nx build frontend`
+- Deploy to Railway using same deployment action
+- Frontend-specific environment variables
 
 ## Usage
 
 ### Standard Development Flow
 
-1. **Create Feature Branch**
-   ```bash
-   git checkout -b feature/new-feature
-   ```
-
-2. **Make Changes**
+1. **Make Changes**
    - Modify backend or frontend code
    - Nx will detect affected projects automatically
 
-3. **Create Pull Request**
-   - Quality checks run automatically
-   - Preview environment created if services affected
-   - Review preview URLs in PR comments
+2. **Commit and Push to Main**
+   ```bash
+   git add .
+   git commit -m "your changes"
+   git push origin main
+   ```
 
-4. **Merge to Main**
-   - Production deployment triggered
-   - Only affected services deployed
-   - Migration runs automatically if backend changed
+3. **Automatic Deployment**
+   - Deployment workflow triggered automatically
+   - Quality checks run on affected projects
+   - Only affected services are deployed
 
 ### Manual Deployment
 
-You can trigger deployments manually using GitHub Actions:
-
-1. Go to `Actions` tab in GitHub
-2. Select workflow (e.g., "Deploy to Railway")
-3. Click "Run workflow"
-4. Choose branch and options
+Manual deployment triggers are not currently configured in the workflow. Deployments are automatically triggered on pushes to the main branch.
 
 ### Database Migrations
 
-Migrations run automatically when:
-- Backend code changes are deployed
-- `RUN_MIGRATIONS=true` environment variable is set
-
-To skip migrations:
-- Set `RUN_MIGRATIONS=false` in Railway environment
-- Or modify the workflow input
+Database migrations are not currently configured in the deployment workflow. Manual database management is handled through Railway console or CLI as needed.
 
 ### Rollback Strategy
 
@@ -224,8 +187,8 @@ To skip migrations:
 
 1. **GitHub Actions:**
    - View workflow logs in `Actions` tab
-   - Check individual job outputs
-   - Monitor deployment status
+   - Check individual job outputs for setup, quality-checks, deploy-backend, deploy-frontend
+   - Monitor deployment status in final status report
 
 2. **Railway Logs:**
    ```bash
@@ -312,29 +275,16 @@ on:
         default: false
 ```
 
-### Multi-Region Deployment
+### Custom Deployment Conditions
 
-Update `railway.json` for multiple regions:
+Modify affected detection or force deployments by editing the workflow:
 
-```json
-{
-  "regions": ["us-west1", "eu-west1"],
-  "deploy": {
-    "strategy": "blue-green"
-  }
-}
-```
-
-### Custom Build Commands
-
-Modify build commands in Railway configuration:
-
-```json
-{
-  "build": {
-    "buildCommand": "yarn install && nx run-many --target=build --projects=backend,frontend"
-  }
-}
+```yaml
+# In .github/workflows/deploy.yml
+deploy-backend:
+  # Uncomment to force backend deployment on every run
+  # if: always() && needs.quality-checks.result == 'success'
+  if: needs.setup.outputs.affected-backend == 'true' && always() && needs.quality-checks.result == 'success'
 ```
 
 ## Troubleshooting

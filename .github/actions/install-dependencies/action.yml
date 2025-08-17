@@ -1,23 +1,19 @@
-name: 'Setup Yarn Cache'
-description: 'Sets up yarn cache with restore and save operations'
+name: "Install dependencies"
+description: "Install dependencies with cache"
 
 inputs:
-  cache-version:
-    description: 'Cache version for cache invalidation'
-    required: false
-    default: 'v1'
   lookup-cache-only:
-    description: 'Only lookup cache, do not restore'
+    description: "Only lookup cache, do not restore"
     required: false
-    default: 'false'
+    default: "false"
 
 outputs:
   cache-hit:
-    description: 'Whether cache was hit'
+    description: "Whether cache was hit"
     value: ${{ steps.restore-cache.outputs.cache-hit }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
@@ -32,7 +28,7 @@ runs:
         path: |
           ${{ steps.yarn-cache-dir-path.outputs.dir }}
           **/node_modules
-        key: ${{ runner.os }}-${{ inputs.cache-version }}-${{ inputs.cache-prefix }}-core-${{ hashFiles('yarn.lock') }}
+        key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
     - name: Run yarn install
       shell: bash
@@ -46,4 +42,4 @@ runs:
         path: |
           ${{ steps.yarn-cache-dir-path.outputs.dir }}
           **/node_modules
-        key: ${{ runner.os }}-${{ inputs.cache-version }}-${{ inputs.cache-prefix }}-core-${{ hashFiles('yarn.lock') }}
+        key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}

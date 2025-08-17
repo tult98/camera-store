@@ -27,8 +27,8 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Setup Yarn Cache
-        uses: ./.github/actions/setup-yarn-cache
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
       - name: Check affected projects
         id: affected

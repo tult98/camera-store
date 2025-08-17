@@ -1,0 +1,159 @@
+name: Manual Deploy to Railway
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_backend:
+        description: 'Deploy Backend'
+        required: true
+        default: true
+        type: boolean
+      deploy_frontend:
+        description: 'Deploy Frontend'
+        required: true
+        default: true
+        type: boolean
+      run_quality_checks:
+        description: 'Run quality checks before deployment'
+        required: true
+        default: true
+        type: boolean
+
+env:
+  NX_CLOUD_DISTRIBUTED_EXECUTION: false
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    if: inputs.run_quality_checks
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Run linting on backend
+        if: inputs.deploy_backend
+        run: yarn nx lint backend
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
+
+      - name: Run type checking on backend
+        if: inputs.deploy_backend
+        run: yarn nx type-check backend
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
+
+      - name: Run linting on frontend
+        if: inputs.deploy_frontend
+        run: yarn nx lint frontend
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
+
+      - name: Run type checking on frontend
+        if: inputs.deploy_frontend
+        run: yarn nx type-check frontend
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    if: inputs.deploy_backend && (always() && (needs.quality-checks.result == 'success' || needs.quality-checks.result == 'skipped'))
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy Backend to Railway
+        uses: bervProject/railway-deploy@main
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        with:
+          service: ${{ vars.RAILWAY_BACKEND_SERVICE_NAME }}
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    if: inputs.deploy_frontend && (always() && (needs.quality-checks.result == 'success' || needs.quality-checks.result == 'skipped'))
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy Frontend to Railway
+        uses: bervProject/railway-deploy@main
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        with:
+          service: ${{ vars.RAILWAY_FRONTEND_SERVICE_NAME }}
+
+  deploy-status:
+    runs-on: ubuntu-latest
+    needs: [quality-checks, deploy-backend, deploy-frontend]
+    if: always()
+    steps:
+      - name: Manual Deployment Status
+        run: |
+          echo "🚀 Manual Deployment Summary:"
+          echo "Backend deployment requested: ${{ inputs.deploy_backend }}"
+          echo "Frontend deployment requested: ${{ inputs.deploy_frontend }}"
+          echo "Quality checks enabled: ${{ inputs.run_quality_checks }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Environment: staging"
+          echo "Triggered by: ${{ github.actor }}"
+
+          if [ "${{ inputs.deploy_backend }}" = "true" ]; then
+            if [ "${{ needs.deploy-backend.result }}" = "success" ]; then
+              echo "✅ Backend deployment successful"
+            elif [ "${{ needs.deploy-backend.result }}" = "failure" ]; then
+              echo "❌ Backend deployment failed"
+            elif [ "${{ needs.deploy-backend.result }}" = "cancelled" ]; then
+              echo "🟡 Backend deployment cancelled"
+            else
+              echo "⏭️ Backend deployment skipped"
+            fi
+          else
+            echo "⏭️ Backend deployment not requested"
+          fi
+
+          if [ "${{ inputs.deploy_frontend }}" = "true" ]; then
+            if [ "${{ needs.deploy-frontend.result }}" = "success" ]; then
+              echo "✅ Frontend deployment successful"
+            elif [ "${{ needs.deploy-frontend.result }}" = "failure" ]; then
+              echo "❌ Frontend deployment failed"
+            elif [ "${{ needs.deploy-frontend.result }}" = "cancelled" ]; then
+              echo "🟡 Frontend deployment cancelled"
+            else
+              echo "⏭️ Frontend deployment skipped"
+            fi
+          else
+            echo "⏭️ Frontend deployment not requested"
+          fi
+
+          if [ "${{ inputs.run_quality_checks }}" = "true" ]; then
+            if [ "${{ needs.quality-checks.result }}" = "success" ]; then
+              echo "✅ Quality checks passed"
+            elif [ "${{ needs.quality-checks.result }}" = "failure" ]; then
+              echo "❌ Quality checks failed"
+            else
+              echo "⏭️ Quality checks skipped"
+            fi
+          else
+            echo "⏭️ Quality checks disabled"
+          fi

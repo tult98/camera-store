@@ -4,5 +4,5 @@ export async function GET(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  res.sendStatus(200);
+  res.json({ message: "Backend deployment test", timestamp: new Date().toISOString() });
 }

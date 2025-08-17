@@ -2571,6 +2571,7 @@ __metadata:
     react-country-flag: ^3.1.0
     react-dom: ^18.2.0
     server-only: ^0.0.1
+    swiper: ^11.2.10
     tailwindcss: ^4.1.12
     ts-node: ^10.9.2
     typescript: ^5.6.2
@@ -26328,6 +26329,13 @@ __metadata:
   dependencies:
     tslib: ^2.0.3
   checksum: 6e21c9e1b3cd5735eb2af679a99ec3efc78a14e3d4d5e3fd594e254b91cfd37185b3d1c6e41b22f53a2cdf5d1b963ce30c0fe8b78337e3fd43d0137084670a5f
+  languageName: node
+  linkType: hard
+
+"swiper@npm:^11.2.10":
+  version: 11.2.10
+  resolution: "swiper@npm:11.2.10"
+  checksum: a40ee5e252670d5b674f46517a2b6cb9477dff15cfccaa2dfdaf797a2de373e1c488302d1daeebe1b237c4bccc20238c3aed2c4a15f06db02be63e7936e94be5
   languageName: node
   linkType: hard
 

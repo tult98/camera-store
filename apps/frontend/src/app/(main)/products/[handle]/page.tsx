@@ -11,28 +11,6 @@ type Props = {
   params: Promise<{ handle: string }>
 }
 
-// Commented out generateStaticParams to prevent build-time API calls
-// export async function generateStaticParams() {
-//   try {
-//     const { response } = await listProducts({
-//       queryParams: { limit: 100, fields: "handle" },
-//     })
-
-//     return response.products
-//       .map((product) => ({
-//         handle: product.handle,
-//       }))
-//       .filter((param) => param.handle)
-//   } catch (error) {
-//     console.error(
-//       `Failed to generate static paths for product pages: ${
-//         error instanceof Error ? error.message : "Unknown error"
-//       }.`
-//     )
-//     return []
-//   }
-// }
-
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { handle } = params

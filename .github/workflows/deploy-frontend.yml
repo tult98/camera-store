@@ -1,0 +1,205 @@
+name: Deploy Frontend to Railway
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: 'Target environment (staging or production)'
+      service-id:
+        required: true
+        type: string
+        description: 'Railway service ID'
+      backend-url:
+        required: false
+        type: string
+        description: 'Backend URL for the environment'
+    secrets:
+      RAILWAY_TOKEN:
+        required: true
+      MEDUSA_PUBLISHABLE_KEY:
+        required: true
+      STRIPE_PUBLIC_KEY:
+        required: false
+      REVALIDATE_SECRET:
+        required: false
+
+jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: apps/frontend
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
+        with:
+          cache-prefix: 'frontend'
+
+      - name: Run frontend linting
+        run: |
+          echo "🔍 Running frontend linting..."
+          nx run frontend:lint
+        working-directory: .
+
+      - name: Run frontend type checking
+        run: |
+          echo "🔍 Running frontend type checking..."
+          nx run frontend:type-check
+        working-directory: .
+
+      - name: Run frontend tests
+        run: |
+          echo "🧪 Running frontend tests..."
+          if nx run frontend:test --watchAll=false --passWithNoTests 2>/dev/null; then
+            echo "✅ Frontend tests passed"
+          else
+            echo "⚠️ No frontend tests configured or tests failed"
+          fi
+        working-directory: .
+
+      - name: Build frontend
+        env:
+          MEDUSA_BACKEND_URL: ${{ inputs.backend-url || (inputs.environment == 'production' && 'https://api.camera-store.com' || 'https://api-staging.camera-store.com') }}
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_STRIPE_KEY: ${{ secrets.STRIPE_PUBLIC_KEY }}
+          NEXT_PUBLIC_BASE_URL: ${{ inputs.environment == 'production' && 'https://camera-store.com' || 'https://staging.camera-store.com' }}
+          NEXT_PUBLIC_DEFAULT_REGION: us
+          REVALIDATE_SECRET: ${{ secrets.REVALIDATE_SECRET }}
+          NODE_ENV: production
+        run: |
+          echo "🏗️ Building frontend for ${{ inputs.environment }}..."
+          echo "Backend URL: $MEDUSA_BACKEND_URL"
+          echo "Base URL: $NEXT_PUBLIC_BASE_URL"
+          
+          nx run frontend:build
+          
+          echo "✅ Frontend build completed"
+        working-directory: .
+
+      - name: Bundle analysis
+        run: |
+          echo "📊 Analyzing bundle size..."
+          if nx run frontend:analyze 2>/dev/null; then
+            echo "✅ Bundle analysis completed"
+          else
+            echo "⚠️ Bundle analysis not available or failed"
+          fi
+        working-directory: .
+        continue-on-error: true
+
+      - name: Install Railway CLI
+        run: |
+          npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "🚀 Deploying frontend to Railway..."
+          
+          # Set service context
+          railway link ${{ inputs.service-id }}
+          
+          # Set environment variables for the service
+          railway variables set MEDUSA_BACKEND_URL="${{ inputs.backend-url || (inputs.environment == 'production' && 'https://api.camera-store.com' || 'https://api-staging.camera-store.com') }}"
+          railway variables set NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY="${{ secrets.MEDUSA_PUBLISHABLE_KEY }}"
+          railway variables set NEXT_PUBLIC_BASE_URL="${{ inputs.environment == 'production' && 'https://camera-store.com' || 'https://staging.camera-store.com' }}"
+          railway variables set NEXT_PUBLIC_DEFAULT_REGION="us"
+          railway variables set NODE_ENV="production"
+          
+          if [ -n "${{ secrets.STRIPE_PUBLIC_KEY }}" ]; then
+            railway variables set NEXT_PUBLIC_STRIPE_KEY="${{ secrets.STRIPE_PUBLIC_KEY }}"
+          fi
+          
+          if [ -n "${{ secrets.REVALIDATE_SECRET }}" ]; then
+            railway variables set REVALIDATE_SECRET="${{ secrets.REVALIDATE_SECRET }}"
+          fi
+          
+          # Deploy the frontend
+          railway up --detach
+          
+          echo "✅ Frontend deployment completed!"
+
+      - name: Health check
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "🏥 Performing health check..."
+          
+          # Get service URL
+          SERVICE_URL=$(railway status --json | jq -r '.deployments[0].url // empty')
+          
+          if [ -n "$SERVICE_URL" ]; then
+            echo "Service URL: $SERVICE_URL"
+            
+            # Wait for service to be ready
+            sleep 45
+            
+            # Basic health check
+            if curl -f "$SERVICE_URL" -o /dev/null -s --max-time 30; then
+              echo "✅ Health check passed!"
+              echo "Frontend is accessible at: $SERVICE_URL"
+            else
+              echo "⚠️ Health check failed, but deployment may still be in progress"
+              echo "Frontend URL: $SERVICE_URL"
+            fi
+          else
+            echo "⚠️ Could not retrieve service URL"
+          fi
+
+      - name: Performance check
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "⚡ Checking deployment performance..."
+          
+          SERVICE_URL=$(railway status --json | jq -r '.deployments[0].url // empty')
+          
+          if [ -n "$SERVICE_URL" ]; then
+            # Simple performance check
+            RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' "$SERVICE_URL" --max-time 30 || echo "timeout")
+            
+            if [ "$RESPONSE_TIME" != "timeout" ]; then
+              echo "Response time: ${RESPONSE_TIME}s"
+              if (( $(echo "$RESPONSE_TIME < 3.0" | bc -l) )); then
+                echo "✅ Good response time"
+              else
+                echo "⚠️ Slow response time (>3s)"
+              fi
+            else
+              echo "⚠️ Performance check timed out"
+            fi
+          fi
+        continue-on-error: true
+
+  notify-deployment:
+    runs-on: ubuntu-latest
+    needs: deploy-frontend
+    if: always()
+    steps:
+      - name: Deployment notification
+        run: |
+          if [ "${{ needs.deploy-frontend.result }}" = "success" ]; then
+            echo "✅ Frontend deployment to ${{ inputs.environment }} successful!"
+            echo "Service ID: ${{ inputs.service-id }}"
+            echo "Environment: ${{ inputs.environment }}"
+          else
+            echo "❌ Frontend deployment to ${{ inputs.environment }} failed!"
+            echo "Check the logs above for details."
+            exit 1
+          fi

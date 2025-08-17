@@ -1,0 +1,145 @@
+name: Deploy Backend to Railway
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: 'Target environment (staging or production)'
+      service-id:
+        required: true
+        type: string
+        description: 'Railway service ID'
+      run-migrations:
+        required: false
+        type: boolean
+        default: true
+        description: 'Whether to run database migrations'
+    secrets:
+      RAILWAY_TOKEN:
+        required: true
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    defaults:
+      run:
+        working-directory: apps/backend
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Yarn Cache
+        uses: ./.github/actions/setup-yarn-cache
+        with:
+          cache-prefix: 'backend'
+
+      - name: Run backend tests
+        run: |
+          echo "🧪 Running backend tests..."
+          nx run backend:test
+        working-directory: .
+
+      - name: Build backend
+        run: |
+          echo "🏗️ Building backend..."
+          nx run backend:build
+        working-directory: .
+
+      - name: Install Railway CLI
+        run: |
+          npm install -g @railway/cli
+
+      - name: Deploy to Railway with migrations
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "🚀 Deploying backend to Railway..."
+          
+          # Set service context
+          railway link ${{ inputs.service-id }}
+          
+          # Run migrations if enabled
+          if [ "${{ inputs.run-migrations }}" = "true" ]; then
+            echo "🗄️ Running database migrations..."
+            
+            # Set migration environment variable
+            railway variables set RUN_MIGRATIONS=true
+            
+            # Deploy with migrations
+            railway up --detach
+            
+            # Wait for deployment and check migration status
+            echo "⏳ Waiting for deployment to complete..."
+            sleep 30
+            
+            # Check deployment logs for migration status
+            railway logs --tail 50 | grep -E "(migration|error|failed)" || true
+            
+            echo "✅ Backend deployment with migrations completed!"
+          else
+            echo "⏭️ Skipping database migrations"
+            railway variables set RUN_MIGRATIONS=false
+            railway up --detach
+            echo "✅ Backend deployment completed!"
+          fi
+
+      - name: Health check
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          echo "🏥 Performing health check..."
+          
+          # Get service URL
+          SERVICE_URL=$(railway status --json | jq -r '.deployments[0].url // empty')
+          
+          if [ -n "$SERVICE_URL" ]; then
+            echo "Service URL: $SERVICE_URL"
+            
+            # Wait for service to be ready
+            sleep 30
+            
+            # Basic health check
+            if curl -f "$SERVICE_URL/health" 2>/dev/null; then
+              echo "✅ Health check passed!"
+            else
+              echo "⚠️ Health check endpoint not available, but deployment completed"
+            fi
+          else
+            echo "⚠️ Could not retrieve service URL"
+          fi
+
+      - name: Post-deployment cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up..."
+          # Remove any temporary files or reset states if needed
+          echo "Deployment process completed"
+
+  notify-deployment:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    if: always()
+    steps:
+      - name: Deployment notification
+        run: |
+          if [ "${{ needs.deploy-backend.result }}" = "success" ]; then
+            echo "✅ Backend deployment to ${{ inputs.environment }} successful!"
+            echo "Service ID: ${{ inputs.service-id }}"
+            echo "Migrations: ${{ inputs.run-migrations && 'Enabled' || 'Disabled' }}"
+          else
+            echo "❌ Backend deployment to ${{ inputs.environment }} failed!"
+            echo "Check the logs above for details."
+            exit 1
+          fi

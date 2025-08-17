@@ -79,12 +79,12 @@ jobs:
       - name: Run linting
         run: yarn nx affected -t lint
         env:
-          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
       - name: Run type checking
         run: yarn nx affected -t type-check
         env:
-          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: pk_camera_store_dev_static_key_123456789
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -140,6 +140,8 @@ jobs:
 
       - name: Build frontend
         run: yarn nx build frontend
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
       - name: Deploy to Railway
         uses: bervProject/railway-deploy@main

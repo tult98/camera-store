@@ -1,6 +1,64 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  color-scheme: light;
+
+  --color-primary: oklch(68% 0.22 30);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(55% 0.15 200);
+  --color-secondary-content: oklch(98% 0.01 200);
+  --color-accent: oklch(75% 0.15 70);
+  --color-accent-content: oklch(20% 0.02 70);
+  --color-neutral: oklch(45% 0.02 250);
+  --color-neutral-content: oklch(98% 0.01 250);
+  
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(98% 0.01 250);
+  --color-base-300: oklch(96% 0.015 250);
+  --color-base-content: oklch(20% 0.02 250);
+  
+  --color-info: oklch(70% 0.18 220);
+  --color-info-content: oklch(98% 0.01 220);
+  --color-success: oklch(65% 0.22 140);
+  --color-success-content: oklch(98% 0.01 140);
+  --color-warning: oklch(75% 0.18 80);
+  --color-warning-content: oklch(20% 0.02 80);
+  --color-error: oklch(65% 0.25 25);
+  --color-error-content: oklch(98% 0.01 25);
+}
+
+@plugin "daisyui/theme" {
+  name: "dark";
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-primary: oklch(68% 0.22 30);
+  --color-primary-content: oklch(15% 0.01 30);
+  --color-secondary: oklch(65% 0.15 200);
+  --color-secondary-content: oklch(15% 0.01 200);
+  --color-accent: oklch(80% 0.18 70);
+  --color-accent-content: oklch(15% 0.01 70);
+  --color-neutral: oklch(70% 0.02 250);
+  --color-neutral-content: oklch(20% 0.01 250);
+  
+  --color-base-100: oklch(18% 0.02 250);
+  --color-base-200: oklch(15% 0.02 250);
+  --color-base-300: oklch(12% 0.02 250);
+  --color-base-content: oklch(90% 0.01 250);
+  
+  --color-info: oklch(70% 0.18 220);
+  --color-info-content: oklch(15% 0.01 220);
+  --color-success: oklch(65% 0.22 140);
+  --color-success-content: oklch(15% 0.01 140);
+  --color-warning: oklch(75% 0.18 80);
+  --color-warning-content: oklch(15% 0.01 80);
+  --color-error: oklch(65% 0.25 25);
+  --color-error-content: oklch(15% 0.01 25);
+}
+
 .content-container {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }

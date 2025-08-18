@@ -24,7 +24,7 @@ export const LIGHTBOX_SWIPER_CONFIG = {
   },
 }
 
-export const BUTTON_BASE_CLASSES = 'w-10 h-10 rounded-full shadow-lg backdrop-blur-sm border transition-all z-10 focus:outline-none flex items-center justify-center'
+export const BUTTON_BASE_CLASSES = 'w-10 h-10 rounded-full shadow-lg backdrop-blur-sm border transition-all focus:outline-none flex items-center justify-center z-1'
 
 export const BUTTON_STYLES = {
   active: 'bg-white/90 hover:bg-white border-gray-200 cursor-pointer',
@@ -33,5 +33,6 @@ export const BUTTON_STYLES = {
 
 export const ICON_STYLES = {
   active: 'text-gray-700',
-  disabled: 'text-gray-400',
+  disabled: 'text-gray-600',
 }
+

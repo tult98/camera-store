@@ -42,7 +42,7 @@ export const MainImageSwiper = ({
                   alt={`Product image ${index + 1}`}
                   fill
                   priority={index <= 2}
-                  className="object-cover"
+                  className="object-cover!"
                   sizes="(max-width: 576px) 100vw, (max-width: 768px) 80vw, 600px"
                 />
               )}
@@ -57,10 +57,12 @@ export const MainImageSwiper = ({
           <NavigationButton
             direction="prev"
             isDisabled={currentSlide === 0}
+            onClick={() => swiperRef.current?.slidePrev()}
           />
           <NavigationButton
             direction="next"
             isDisabled={currentSlide === images.length - 1}
+            onClick={() => swiperRef.current?.slideNext()}
           />
         </>
       )}

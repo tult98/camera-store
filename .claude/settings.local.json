@@ -2,13 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(yarn install)",
-      "Bash(yarn dev)", 
+      "Bash(yarn dev)",
       "Bash(node:*)",
       "Bash(git add:*)",
       "mcp__medusa__ask_medusa_question",
       "mcp__medusa__search_medusa_sources",
       "WebFetch(domain:docs.medusajs.com)",
-      "Bash(npx medusa:*)"
+      "Bash(npx medusa:*)",
+      "mcp__context7__get-library-docs",
+      "mcp__context7__resolve-library-id"
     ],
     "deny": []
   }

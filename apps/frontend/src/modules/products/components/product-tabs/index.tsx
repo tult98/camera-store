@@ -54,7 +54,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     <div className="w-full">
       <div className="flex gap-0 mb-6 border-b border-base-300">
         <button
-          className={`px-6 py-3 text-sm font-bold transition-colors ${
+          className={`px-6 py-3 text-sm font-bold transition-colors cursor-pointer ${
             activeTab === "description" 
               ? "text-base-content border-b-2 border-base-content" 
               : "text-base-content/50 hover:text-base-content/80"
@@ -64,7 +64,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
           MÔ TẢ
         </button>
         <button
-          className={`px-6 py-3 text-sm font-bold transition-colors ${
+          className={`px-6 py-3 text-sm font-bold transition-colors cursor-pointer ${
             activeTab === "specs" 
               ? "text-base-content border-b-2 border-base-content" 
               : "text-base-content/50 hover:text-base-content/80"

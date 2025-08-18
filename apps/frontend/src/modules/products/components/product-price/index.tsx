@@ -74,40 +74,43 @@ export default function ProductPrice({
   const selectedPrice = variant ? variantPrice : cheapestPrice
 
   if (!selectedPrice) {
-    return <div className="block w-32 h-9 bg-gray-100 animate-pulse" />
+    return <div className="block w-32 h-9 bg-base-300 animate-pulse rounded" />
   }
 
   return (
-    <div className="flex flex-col text-ui-fg-base">
-      <span
-        className={clx("text-xl-semi", {
-          "text-ui-fg-interactive": selectedPrice.price_type === "sale",
-        })}
-      >
-        {!variant && "From "}
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-2">
         <span
-          data-testid="product-price"
-          data-value={selectedPrice.calculated_price_number}
+          className={clx("text-xl font-semibold", {
+            "text-primary": selectedPrice.price_type === "sale",
+            "text-base-content": selectedPrice.price_type !== "sale",
+          })}
         >
-          {selectedPrice.calculated_price}
+          {!variant && "Từ "}
+          <span
+            data-testid="product-price"
+            data-value={selectedPrice.calculated_price_number}
+          >
+            {selectedPrice.calculated_price}
+          </span>
         </span>
-      </span>
-      {selectedPrice.price_type === "sale" && (
-        <>
-          <p>
-            <span className="text-ui-fg-subtle">Original: </span>
-            <span
-              className="line-through"
-              data-testid="original-product-price"
-              data-value={selectedPrice.original_price_number}
-            >
-              {selectedPrice.original_price}
-            </span>
-          </p>
-          <span className="text-ui-fg-interactive">
+        {selectedPrice.price_type === "sale" && (
+          <span className="badge badge-secondary text-xs">
             -{selectedPrice.percentage_diff}%
           </span>
-        </>
+        )}
+      </div>
+      {selectedPrice.price_type === "sale" && (
+        <div className="flex items-center gap-2 text-base-content/60">
+          <span className="text-sm">Giá gốc:</span>
+          <span
+            className="text-sm line-through"
+            data-testid="original-product-price"
+            data-value={selectedPrice.original_price_number}
+          >
+            {selectedPrice.original_price}
+          </span>
+        </div>
       )}
     </div>
   )

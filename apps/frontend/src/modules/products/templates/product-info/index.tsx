@@ -1,5 +1,4 @@
 import { HttpTypes } from "@medusajs/types"
-import { Heading, Text } from "@medusajs/ui"
 import Link from "next/link"
 import ProductPrice from "@modules/products/components/product-price"
 
@@ -35,13 +34,12 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           </nav>
         )}
         
-        <Heading
-          level="h1"
+        <h1
           className="text-2xl lg:text-3xl font-bold text-base-content leading-tight"
           data-testid="product-title"
         >
           {product.title}
-        </Heading>
+        </h1>
         
         <div className="bg-base-100/80 rounded-lg p-3">
           <ProductPrice product={product} mode="range" />

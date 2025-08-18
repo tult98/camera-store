@@ -58,10 +58,10 @@ export default function FeaturedCategorySection({
             <div className="flex-shrink-0">
               <Link
                 href={categoryLink}
-                className="flex items-center bg-white/90 hover:bg-white text-red-500 hover:text-red-600 font-semibold px-6 py-3 rounded-full transition-all duration-200 hover:shadow-lg"
+                className="btn btn-primary btn-outline rounded-full bg-white font-semibold transition-all duration-200 hover:shadow-lg hover:bg-primary"
               >
                 Xem thêm
-                <ChevronRightIcon className="w-5 h-5 ml-2" />
+                <ChevronRightIcon className="w-5 h-5" />
               </Link>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function FeaturedCategorySection({
                   <figure className="relative aspect-square overflow-hidden">
                     {/* Wishlist Button */}
                     <button 
-                      className="absolute top-3 right-3 z-10 btn btn-ghost btn-circle btn-sm bg-white/80 hover:bg-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-3 right-3 z-10 btn btn-circle btn-sm bg-base-100/90 hover:bg-primary hover:text-primary-content opacity-0 group-hover:opacity-100 transition-opacity"
                       onClick={(e) => {
                         e.preventDefault()
                         // Handle wishlist logic here
@@ -109,12 +109,12 @@ export default function FeaturedCategorySection({
                   </figure>
 
                   <div className="card-body p-4">
-                    <h3 className="font-medium text-sm lg:text-base text-gray-800 line-clamp-2 mb-2">
+                    <h3 className="font-medium text-sm lg:text-base text-base-content line-clamp-2 mb-2">
                       {product.title}
                     </h3>
                     
                     <div className="flex items-center gap-2 mt-auto">
-                      <span className="text-red-500 font-bold text-lg">
+                      <span className="text-primary font-bold text-lg">
                         {formattedPrice}
                       </span>
                     </div>

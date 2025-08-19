@@ -3,7 +3,9 @@ import { Navigation, Pagination, Zoom, Keyboard } from 'swiper/modules'
 export const SWIPER_MODULES = [Navigation, Pagination, Zoom, Keyboard]
 
 export const MAIN_SWIPER_CONFIG = {
+  slidesPerView: 1,
   spaceBetween: 10,
+  initialSlide: 0,
   zoom: {
     maxRatio: 2,
     minRatio: 1,
@@ -14,7 +16,9 @@ export const MAIN_SWIPER_CONFIG = {
 }
 
 export const LIGHTBOX_SWIPER_CONFIG = {
+  slidesPerView: 1,
   spaceBetween: 10,
+  initialSlide: 0,
   zoom: {
     maxRatio: 3,
     minRatio: 1,

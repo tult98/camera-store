@@ -17,11 +17,6 @@ export const MainImageSwiper = ({
       <Swiper
         modules={SWIPER_MODULES}
         {...MAIN_SWIPER_CONFIG}
-        navigation={{
-          enabled: images.length > 1,
-          prevEl: '.swiper-button-prev-custom',
-          nextEl: '.swiper-button-next-custom',
-        }}
         pagination={{
           enabled: images.length > 1,
           clickable: true,

@@ -1,8 +1,7 @@
+import { EyeIcon } from "@heroicons/react/24/outline"
 import { HttpTypes } from "@medusajs/types"
 import ProductCard from "@modules/common/components/product-card"
 import ViewToggle from "./view-toggle"
-import { EyeIcon } from "@heroicons/react/24/outline"
-import { Squares2X2Icon, ListBulletIcon } from "@heroicons/react/24/outline"
 
 export type ViewMode = "grid" | "list"
 

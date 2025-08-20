@@ -1,7 +1,5 @@
 "use client"
 
-import FilterRadioGroup from "@modules/common/components/filter-radio-group"
-
 export type SortOptions = "price_asc" | "price_desc" | "created_at"
 
 type SortProductsProps = {
@@ -35,13 +33,31 @@ const SortProducts = ({
   }
 
   return (
-    <FilterRadioGroup
-      title="Sort by"
-      items={sortOptions}
-      value={sortBy}
-      handleChange={handleChange}
-      {...(dataTestId && { "data-testid": dataTestId })}
-    />
+    <div className="collapse collapse-arrow bg-base-200">
+      <input type="checkbox" defaultChecked />
+      <div className="collapse-title font-medium">
+        Sort by
+      </div>
+      <div className="collapse-content">
+        <div className="space-y-2" {...(dataTestId && { "data-testid": dataTestId })}>
+          {sortOptions.map((option) => (
+            <label 
+              key={option.value} 
+              className="flex items-center gap-2 cursor-pointer hover:bg-base-300 p-1 rounded"
+            >
+              <input
+                type="radio"
+                name="sortBy"
+                className="radio radio-sm radio-primary"
+                checked={sortBy === option.value}
+                onChange={() => handleChange(option.value as SortOptions)}
+              />
+              <span className="text-sm flex-1">{option.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </div>
   )
 }
 

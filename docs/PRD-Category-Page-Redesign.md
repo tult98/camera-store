@@ -279,7 +279,7 @@ interface ProductCard {
 ├─────────────────────────────────────────────────────┤
 │ Home > Cameras > Digital Cameras                    │
 ├─────────────────────────────────────────────────────┤
-│ [Category Hero Banner with Title & Description]     │
+│ [Category Hero Banner - Optional]                   │
 ├─────────────────────────────────────────────────────┤
 │ [DSLR] [Mirrorless] [Point & Shoot] [Action Cams]  │
 └─────────────────────────────────────────────────────┘

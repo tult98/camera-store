@@ -1,31 +1,14 @@
 'use client'
 
-import { ChevronRightIcon, HeartIcon } from '@heroicons/react/24/outline'
-import Image from 'next/image'
+import { ChevronRightIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
-
-interface ProductVariant {
-  id: string
-  title: string
-  prices: Array<{
-    id: string
-    amount: number
-    currency_code: string
-  }>
-}
-
-interface Product {
-  id: string
-  title: string
-  handle: string
-  thumbnail: string
-  variants: ProductVariant[]
-}
+import ProductCard from '@modules/common/components/product-card'
+import { HttpTypes } from "@medusajs/types"
 
 interface FeaturedCategorySectionProps {
   title: string
   heroImage: string
-  products: Product[]
+  products: HttpTypes.StoreProduct[]
   categoryLink: string
 }
 
@@ -70,60 +53,9 @@ export default function FeaturedCategorySection({
 
       {/* Products Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-        {products.map((product) => {
-          // Get the price from the first variant's first price
-          const firstVariant = product.variants?.[0]
-          const price = firstVariant?.prices?.[0]?.amount
-          const formattedPrice = price 
-            ? new Intl.NumberFormat('vi-VN', {
-                style: 'currency',
-                currency: 'VND',
-                minimumFractionDigits: 0
-              }).format(price) // Price is already in VND
-            : 'N/A'
-
-          return (
-            <div key={product.id} className="group">
-              <Link href={`/products/${product.handle}`}>
-                <div className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  <figure className="relative aspect-square overflow-hidden">
-                    {/* Wishlist Button */}
-                    <button 
-                      className="absolute top-3 right-3 z-10 btn btn-circle btn-sm bg-base-100/90 hover:bg-primary hover:text-primary-content opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        // Handle wishlist logic here
-                      }}
-                    >
-                      <HeartIcon className="w-4 h-4" />
-                    </button>
-
-                    {product.thumbnail && (
-                      <Image
-                        src={product.thumbnail}
-                        alt={product.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    )}
-                  </figure>
-
-                  <div className="card-body p-4">
-                    <h3 className="font-medium text-sm lg:text-base text-base-content line-clamp-2 mb-2">
-                      {product.title}
-                    </h3>
-                    
-                    <div className="flex items-center gap-2 mt-auto">
-                      <span className="text-primary font-bold text-lg">
-                        {formattedPrice}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </div>
-          )
-        })}
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product as HttpTypes.StoreProduct} />
+        ))}
       </div>
     </section>
   )

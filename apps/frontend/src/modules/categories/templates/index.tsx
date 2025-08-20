@@ -8,7 +8,6 @@ import { SortOptions } from "@modules/store/components/refinement-list/sort-prod
 import PaginatedProducts from "@modules/store/templates/paginated-products"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import ActiveFilters from "@modules/store/components/filters/active-filters"
-import MobileFilterControls from "../components/mobile-filter-controls"
 import { HttpTypes } from "@medusajs/types"
 
 export default function CategoryTemplate({
@@ -77,59 +76,44 @@ export default function CategoryTemplate({
         />
       </aside>
       <div className="flex-1">
-        <div className="flex flex-row mb-8 text-2xl-semi gap-4">
-          {parents &&
-            parents.map((parent) => (
-              <span key={parent.id} className="text-ui-fg-subtle">
-                <LocalizedClientLink
-                  className="mr-4 hover:text-black"
-                  href={`/categories/${parent.handle}`}
-                  data-testid="sort-by-link"
-                >
-                  {parent.name}
-                </LocalizedClientLink>
-                /
-              </span>
-            ))}
-          <h1 data-testid="category-page-title">{category.name}</h1>
+        <div className="mb-12">
+          {/* Breadcrumb */}
+          <div className="flex flex-row mb-6 text-sm text-ui-fg-subtle gap-2">
+            {parents &&
+              parents.map((parent) => (
+                <span key={parent.id} className="flex items-center gap-2">
+                  <LocalizedClientLink
+                    className="hover:text-black transition-colors"
+                    href={`/categories/${parent.handle}`}
+                    data-testid="sort-by-link"
+                  >
+                    {parent.name}
+                  </LocalizedClientLink>
+                  <span>/</span>
+                </span>
+              ))}
+          </div>
+          
+          {/* Main Title */}
+          <h1 
+            data-testid="category-page-title" 
+            className="text-5xl lg:text-6xl font-black text-gray-900 mb-6 tracking-tight leading-tight"
+          >
+            {category.name}
+          </h1>
         </div>
         {category.description && (
-          <div className="mb-8 text-base-regular">
-            <p>{category.description}</p>
+          <div className="mb-12 max-w-3xl">
+            <p className="text-xl lg:text-2xl text-gray-600 font-light leading-relaxed">
+              {category.description}
+            </p>
           </div>
         )}
         
-        {/* Mobile Filter Controls */}
-        <MobileFilterControls 
-          availableBrands={availableBrands}
-          categoryType={categoryType}
-        />
         
         {/* Active Filters Display */}
         <ActiveFilters />
         
-        {/* Subcategory Navigation */}
-        {category.category_children && (
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-4">Browse by Category</h2>
-            <div className="grid grid-cols-2 small:grid-cols-4 gap-4">
-              {category.category_children?.map((c) => (
-                <LocalizedClientLink key={c.id} href={`/categories/${c.handle}`}>
-                  <div className="card bg-base-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full">
-                    <div className="card-body p-4 text-center">
-                      <h3 className="font-semibold text-sm">{c.name}</h3>
-                      {c.description && (
-                        <p className="text-xs text-base-content/60 mt-1 line-clamp-2">
-                          {c.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </LocalizedClientLink>
-              ))}
-            </div>
-          </div>
-        )}
         
         <Suspense
           fallback={

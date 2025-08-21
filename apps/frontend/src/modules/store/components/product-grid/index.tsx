@@ -1,7 +1,7 @@
 import { EyeIcon } from "@heroicons/react/24/outline"
 import { ProductData } from "@lib/hooks/useCategoryData"
 import { ViewMode } from "@modules/store/store/category-filter-store"
-import ProductCard from "@modules/common/components/product-card"
+import CategoryProductCard from "@modules/store/components/category-product-card"
 
 interface ProductGridProps {
   products: ProductData[]
@@ -35,7 +35,7 @@ export default function ProductGrid({
   return (
     <div className={gridClasses}>
       {products.map((product) => (
-        <ProductCard
+        <CategoryProductCard
           key={product.id}
           product={product}
           viewMode={viewMode}

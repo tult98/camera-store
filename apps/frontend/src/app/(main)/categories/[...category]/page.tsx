@@ -1,15 +1,15 @@
 
 import { notFound } from "next/navigation"
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-import CategoryTemplate from "@modules/categories/templates"
+import { Suspense } from "react"
+import CategoryPageClient from "@modules/store/components/category-page-client"
+import { CategoryProductsResponse, CategoryFacetsResponse, CategoryProductsRequest, CategoryFacetsRequest } from "@lib/hooks/useCategoryData"
+import { sdk } from "@lib/config"
 
 type Props = {
-  params: Promise<{ category: string[]; countryCode: string }>
-  searchParams: Promise<{
-    sortBy?: SortOptions
-    page?: string
-  }>
+  params: Promise<{ category: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
+
 
 // Mock category data for demo purposes
 const getMockCategory = (categoryHandle: string) => {
@@ -103,12 +103,46 @@ const getMockCategory = (categoryHandle: string) => {
   return categories[categoryHandle as keyof typeof categories] || null
 }
 
-export default async function CategoryPage(props: Props) {
-  const searchParams = await props.searchParams
-  const params = await props.params
-  const { sortBy, page } = searchParams
+async function fetchCategoryData(categoryId: string): Promise<{
+  products: CategoryProductsResponse | null
+  facets: CategoryFacetsResponse | null
+}> {
+  try {
+    const productsRequest: CategoryProductsRequest = {
+      category_id: categoryId,
+      page: 1,
+      page_size: 24,
+      sort_by: 'created_at',
+      sort_direction: 'desc',
+      filters: {}
+    }
 
-  // For demo purposes, use the first category handle
+    const facetsRequest: CategoryFacetsRequest = {
+      category_id: categoryId,
+      filters: {}
+    }
+
+    const productsResponse = await sdk.client.fetch<CategoryProductsResponse>('/store/category-products', {
+      method: 'POST',
+      body: JSON.stringify(productsRequest),
+      next: { revalidate: 300 }
+    })
+
+    const facetsResponse = await sdk.client.fetch<CategoryFacetsResponse>('/store/category-facets', {
+      method: 'POST',
+      body: JSON.stringify(facetsRequest),
+      next: { revalidate: 300 }
+    })
+
+    return { products: productsResponse, facets: facetsResponse }
+  } catch (error) {
+    console.error('Error fetching category data:', error)
+    return { products: null, facets: null }
+  }
+}
+
+export default async function CategoryPage(props: Props) {
+  const params = await props.params
   const categoryHandle = params.category[0]
   const productCategory = getMockCategory(categoryHandle)
 
@@ -116,12 +150,53 @@ export default async function CategoryPage(props: Props) {
     notFound()
   }
 
+  const { products: initialProductsData, facets: initialFacetsData } = await fetchCategoryData(productCategory.id)
+
+  const fallbackProducts: CategoryProductsResponse = {
+    pagination: {
+      total: 0,
+      limit: 24,
+      offset: 0,
+      totalPages: 0,
+      currentPage: 1
+    },
+    products: []
+  }
+
+  const fallbackFacets: CategoryFacetsResponse = {
+    facets: []
+  }
+
   return (
-    <CategoryTemplate
-      category={productCategory as any}
-      {...(sortBy && { sortBy })}
-      {...(page && { page })}
-      countryCode="us" // Mock country code
-    />
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8">
+        <div className="skeleton h-8 w-48 mb-4"></div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className="lg:w-80">
+            <div className="skeleton h-96 w-full"></div>
+          </aside>
+          <main className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="card bg-base-100 shadow">
+                  <div className="skeleton h-48 w-full"></div>
+                  <div className="card-body">
+                    <div className="skeleton h-4 w-3/4 mb-2"></div>
+                    <div className="skeleton h-4 w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </main>
+        </div>
+      </div>
+    }>
+      <CategoryPageClient
+        categoryId={productCategory.id}
+        categoryName={productCategory.name}
+        initialProductsData={initialProductsData || fallbackProducts}
+        initialFacetsData={initialFacetsData || fallbackFacets}
+      />
+    </Suspense>
   )
 }

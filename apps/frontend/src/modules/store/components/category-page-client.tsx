@@ -1,7 +1,6 @@
 'use client'
 
 import { CategoryFacetsResponse, CategoryProductsResponse, useCategoryDataWithInitial } from '@lib/hooks/useCategoryData'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import { useCategoryFilterStore } from '../store/category-filter-store'
@@ -9,16 +8,13 @@ import { FilterSidebar } from './filters'
 import ActiveFilters from './filters/active-filters'
 import { Pagination } from './pagination'
 import ProductGrid from './product-grid'
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      gcTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
+import ViewToggle from './product-grid/view-toggle'
+import SortDropdown from './sort-dropdown'
+import SkeletonProductGrid from '@modules/skeletons/templates/skeleton-product-grid'
+import SkeletonProductList from '@modules/skeletons/templates/skeleton-product-list'
+import SkeletonFilterSidebar from '@modules/skeletons/templates/skeleton-filter-sidebar'
+import SkeletonProductControls from '@modules/skeletons/components/skeleton-product-controls'
+import SkeletonActiveFilters from '@modules/skeletons/components/skeleton-active-filters'
 
 interface CategoryPageClientProps {
   categoryId: string
@@ -27,7 +23,7 @@ interface CategoryPageClientProps {
   initialFacetsData?: CategoryFacetsResponse
 }
 
-function CategoryPageContent({ 
+export default function CategoryPageClient({ 
   categoryId, 
   categoryName,
   initialProductsData,
@@ -47,7 +43,9 @@ function CategoryPageContent({
     initStateFromUrl,
     getUrlSearchParams,
     getApiRequestBody,
-    setPage
+    setPage,
+    setSortBy,
+    setViewMode
   } = useCategoryFilterStore()
 
   useEffect(() => {
@@ -73,9 +71,11 @@ function CategoryPageContent({
     }
   }, [filters, sortBy, page, pageSize, viewMode, searchQuery, pathname])
 
-  const products = productsQuery.data?.products || []
-  const pagination = productsQuery.data?.pagination
-  const facets = facetsQuery.data?.facets || []
+  const productsData = productsQuery.data as CategoryProductsResponse || { products: [], pagination: { total: 0, limit: 24, offset: 0, totalPages: 0, currentPage: 1 } }
+  const products = productsData.products
+  const pagination = productsData.pagination
+  const facetsData = facetsQuery.data as CategoryFacetsResponse || { facets: [] }
+  const facets = facetsData.facets
 
   const hasActiveFilters = (
     (filters.tags && filters.tags.length > 0) ||
@@ -100,32 +100,57 @@ function CategoryPageContent({
 
       <div className="flex flex-col lg:flex-row gap-8">
         <aside className="lg:w-80">
-          <FilterSidebar 
-            facets={facets}
-            loading={facetsQuery.isLoading}
-            refetch={facetsQuery.refetch}
-          />
+          {facetsQuery.isLoading ? (
+            <SkeletonFilterSidebar />
+          ) : (
+            <FilterSidebar 
+              facets={facets}
+              loading={facetsQuery.isLoading}
+              refetch={facetsQuery.refetch}
+            />
+          )}
         </aside>
 
         <main className="flex-1">
-          {hasActiveFilters && (
+          {isLoading ? (
+            <SkeletonProductControls />
+          ) : (
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-4">
+                {pagination && (
+                  <p className="text-sm text-base-content/70">
+                    Showing {(pagination.currentPage - 1) * pagination.limit + 1} to {Math.min(pagination.currentPage * pagination.limit, pagination.total)} of {pagination.total} products
+                  </p>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <SortDropdown 
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                />
+                <ViewToggle 
+                  viewMode={viewMode} 
+                  onViewModeChange={setViewMode} 
+                />
+              </div>
+            </div>
+          )}
+          
+          {isLoading ? (
+            <SkeletonActiveFilters />
+          ) : hasActiveFilters && (
             <div className="mb-4">
               <ActiveFilters />
             </div>
           )}
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="card bg-base-100 shadow">
-                  <div className="skeleton h-48 w-full"></div>
-                  <div className="card-body">
-                    <div className="skeleton h-4 w-3/4 mb-2"></div>
-                    <div className="skeleton h-4 w-1/2"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            viewMode === 'grid' ? (
+              <SkeletonProductGrid numberOfProducts={pageSize} />
+            ) : (
+              <SkeletonProductList numberOfProducts={Math.min(pageSize, 6)} />
+            )
           ) : products.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-lg text-base-content/70 mb-4">
@@ -161,13 +186,5 @@ function CategoryPageContent({
         </main>
       </div>
     </div>
-  )
-}
-
-export default function CategoryPageClient(props: CategoryPageClientProps) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <CategoryPageContent {...props} />
-    </QueryClientProvider>
   )
 }

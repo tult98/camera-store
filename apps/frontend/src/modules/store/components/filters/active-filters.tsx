@@ -1,182 +1,117 @@
 "use client"
 
-import { useCallback } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { XMarkIcon } from "@heroicons/react/24/outline"
+import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
 
 interface ActiveFilter {
   key: string
   label: string
   value: string
   displayValue: string
+  filterType: 'tags' | 'availability' | 'metadata' | 'price' | 'search'
 }
 
 export default function ActiveFilters() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const { filters, searchQuery, removeFilter, clearAllFilters, setSearchQuery } = useCategoryFilterStore()
 
-  const createQueryString = useCallback(
-    (filterKey: string, filterValue?: string) => {
-      const newSearchParams = new URLSearchParams(searchParams)
-      
-      // Handle multi-value filters (brands, sensor_size, video_capability, mount_type)
-      const multiValueFilters = ["brands", "sensor_size", "video_capability", "mount_type"]
-      
-      if (multiValueFilters.includes(filterKey) && filterValue) {
-        const currentValues = newSearchParams.getAll(filterKey)
-        newSearchParams.delete(filterKey)
-        currentValues
-          .filter(value => value !== filterValue)
-          .forEach(value => newSearchParams.append(filterKey, value))
-      } else {
-        newSearchParams.delete(filterKey)
-      }
-      
-      newSearchParams.delete("page")
-      
-      return newSearchParams.toString()
-    },
-    [searchParams]
-  )
-
-  const removeFilter = (filterKey: string, filterValue?: string) => {
-    const query = createQueryString(filterKey, filterValue)
-    router.push(`${pathname}?${query}`)
+  const handleRemoveFilter = (filter: ActiveFilter) => {
+    if (filter.filterType === 'search') {
+      setSearchQuery('')
+    } else if (filter.filterType === 'price') {
+      removeFilter('price', '')
+    } else if (filter.filterType === 'tags' || filter.filterType === 'availability') {
+      removeFilter(filter.filterType, filter.value)
+    } else if (filter.filterType === 'metadata') {
+      removeFilter('metadata', filter.key, filter.value)
+    }
   }
 
-  const clearAllFilters = () => {
-    const newSearchParams = new URLSearchParams(searchParams)
-    
-    // Clear existing filters
-    newSearchParams.delete("min_price")
-    newSearchParams.delete("max_price")
-    newSearchParams.delete("brands")
-    newSearchParams.delete("in_stock")
-    
-    // Clear new camera-specific filters
-    newSearchParams.delete("sensor_size")
-    newSearchParams.delete("video_capability")
-    newSearchParams.delete("mount_type")
-    newSearchParams.delete("min_megapixels")
-    newSearchParams.delete("max_megapixels")
-    
-    newSearchParams.delete("page")
-    
-    router.push(`${pathname}?${newSearchParams.toString()}`)
-  }
-
-  const formatCurrency = (value: string) => {
-    const num = parseInt(value)
-    if (isNaN(num)) return value
-    return new Intl.NumberFormat("vi-VN").format(num) + " ₫"
+  const formatPrice = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount)
   }
 
   const getActiveFilters = (): ActiveFilter[] => {
-    const filters: ActiveFilter[] = []
+    const activeFilters: ActiveFilter[] = []
+
+    // Search query
+    if (searchQuery) {
+      activeFilters.push({
+        key: 'search',
+        label: 'Search',
+        value: searchQuery,
+        displayValue: `Search: "${searchQuery}"`,
+        filterType: 'search'
+      })
+    }
 
     // Price filter
-    const minPrice = searchParams.get("min_price")
-    const maxPrice = searchParams.get("max_price")
-    
-    if (minPrice || maxPrice) {
-      let priceLabel = "Price: "
-      if (minPrice && maxPrice) {
-        priceLabel += `${formatCurrency(minPrice)} - ${formatCurrency(maxPrice)}`
-      } else if (minPrice) {
-        priceLabel += `From ${formatCurrency(minPrice)}`
-      } else if (maxPrice) {
-        priceLabel += `Up to ${formatCurrency(maxPrice)}`
+    if (filters.price) {
+      let priceLabel = 'Price: '
+      if (filters.price.min && filters.price.max) {
+        priceLabel += `${formatPrice(filters.price.min)} - ${formatPrice(filters.price.max)}`
+      } else if (filters.price.min) {
+        priceLabel += `From ${formatPrice(filters.price.min)}`
+      } else if (filters.price.max) {
+        priceLabel += `Up to ${formatPrice(filters.price.max)}`
       }
       
-      filters.push({
-        key: "price",
-        label: "Price",
-        value: "price_range",
-        displayValue: priceLabel
+      activeFilters.push({
+        key: 'price',
+        label: 'Price',
+        value: 'price_range',
+        displayValue: priceLabel,
+        filterType: 'price'
       })
     }
 
-    // Megapixels filter
-    const minMegapixels = searchParams.get("min_megapixels")
-    const maxMegapixels = searchParams.get("max_megapixels")
-    
-    if (minMegapixels || maxMegapixels) {
-      let megapixelLabel = "Megapixels: "
-      if (minMegapixels && maxMegapixels) {
-        megapixelLabel += `${minMegapixels} - ${maxMegapixels} MP`
-      } else if (minMegapixels) {
-        megapixelLabel += `From ${minMegapixels} MP`
-      } else if (maxMegapixels) {
-        megapixelLabel += `Up to ${maxMegapixels} MP`
-      }
-      
-      filters.push({
-        key: "megapixels",
-        label: "Megapixels",
-        value: "megapixel_range",
-        displayValue: megapixelLabel
+    // Tags filter
+    if (filters.tags) {
+      filters.tags.forEach(tag => {
+        activeFilters.push({
+          key: 'tags',
+          label: 'Use Case',
+          value: tag,
+          displayValue: tag.charAt(0).toUpperCase() + tag.slice(1),
+          filterType: 'tags'
+        })
       })
     }
 
-    // Brand filter
-    const brands = searchParams.getAll("brands")
-    brands.forEach(brand => {
-      filters.push({
-        key: "brands",
-        label: "Brand",
-        value: brand,
-        displayValue: brand
-      })
-    })
-
-    // Sensor size filter
-    const sensorSizes = searchParams.getAll("sensor_size")
-    sensorSizes.forEach(size => {
-      const formattedSize = size.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-      filters.push({
-        key: "sensor_size",
-        label: "Sensor",
-        value: size,
-        displayValue: formattedSize
-      })
-    })
-
-    // Video capability filter
-    const videoCapabilities = searchParams.getAll("video_capability")
-    videoCapabilities.forEach(capability => {
-      filters.push({
-        key: "video_capability",
-        label: "Video",
-        value: capability,
-        displayValue: capability.toUpperCase()
-      })
-    })
-
-    // Mount type filter
-    const mountTypes = searchParams.getAll("mount_type")
-    mountTypes.forEach(mount => {
-      const formattedMount = mount.replace(/-/g, ' ').toUpperCase()
-      filters.push({
-        key: "mount_type",
-        label: "Mount",
-        value: mount,
-        displayValue: formattedMount
-      })
-    })
-
-    // In stock filter
-    const inStock = searchParams.get("in_stock")
-    if (inStock === "true") {
-      filters.push({
-        key: "in_stock",
-        label: "Status",
-        value: "true",
-        displayValue: "In Stock"
+    // Availability filter
+    if (filters.availability) {
+      filters.availability.forEach(availability => {
+        activeFilters.push({
+          key: 'availability',
+          label: 'Availability',
+          value: availability,
+          displayValue: availability === 'in-stock' ? 'In Stock' : availability === 'pre-order' ? 'Pre-Order' : 'Used',
+          filterType: 'availability'
+        })
       })
     }
 
-    return filters
+    // Metadata filters
+    if (filters.metadata) {
+      Object.entries(filters.metadata).forEach(([key, values]) => {
+        values.forEach(value => {
+          const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          const formattedValue = value.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+          
+          activeFilters.push({
+            key,
+            label: formattedKey,
+            value,
+            displayValue: formattedValue,
+            filterType: 'metadata'
+          })
+        })
+      })
+    }
+
+    return activeFilters
   }
 
   const activeFilters = getActiveFilters()
@@ -188,15 +123,12 @@ export default function ActiveFilters() {
   return (
     <div className="mb-6">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-base-content/70">Bộ lọc đang áp dụng:</span>
+        <span className="text-sm font-medium text-base-content/70">Active filters:</span>
         {activeFilters.map((filter, index) => (
           <div key={`${filter.key}-${filter.value}-${index}`} className="badge badge-primary gap-1">
             <span className="text-xs">{filter.displayValue}</span>
             <button
-              onClick={() => {
-                const multiValueFilters = ["brands", "sensor_size", "video_capability", "mount_type"]
-                removeFilter(filter.key, multiValueFilters.includes(filter.key) ? filter.value : undefined)
-              }}
+              onClick={() => handleRemoveFilter(filter)}
               className="btn btn-ghost btn-circle btn-xs hover:bg-primary-focus"
             >
               <XMarkIcon className="w-3 h-3" />
@@ -208,7 +140,7 @@ export default function ActiveFilters() {
             onClick={clearAllFilters}
             className="btn btn-ghost btn-sm text-xs"
           >
-            Xóa tất cả
+            Clear All
           </button>
         )}
       </div>

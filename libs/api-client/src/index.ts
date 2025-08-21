@@ -126,6 +126,41 @@ export class CameraStoreApiClient {
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     return this.fetchWithConfig<T>(endpoint, options);
   }
+
+  // Convenience methods for common HTTP verbs
+  async get<T>(endpoint: string, options: RequestInit = {}): Promise<{ data: T }> {
+    const data = await this.fetchWithConfig<T>(endpoint, {
+      ...options,
+      method: 'GET',
+    });
+    return { data };
+  }
+
+  async post<T>(endpoint: string, body?: any, options: RequestInit = {}): Promise<{ data: T }> {
+    const data = await this.fetchWithConfig<T>(endpoint, {
+      ...options,
+      method: 'POST',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { data };
+  }
+
+  async put<T>(endpoint: string, body?: any, options: RequestInit = {}): Promise<{ data: T }> {
+    const data = await this.fetchWithConfig<T>(endpoint, {
+      ...options,
+      method: 'PUT',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { data };
+  }
+
+  async delete<T>(endpoint: string, options: RequestInit = {}): Promise<{ data: T }> {
+    const data = await this.fetchWithConfig<T>(endpoint, {
+      ...options,
+      method: 'DELETE',
+    });
+    return { data };
+  }
 }
 
 // Factory function for easier instantiation

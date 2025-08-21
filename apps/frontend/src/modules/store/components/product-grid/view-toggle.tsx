@@ -1,7 +1,7 @@
 "use client"
 
 import { Squares2X2Icon, ListBulletIcon } from "@heroicons/react/24/outline"
-import { ViewMode } from "./index"
+import { ViewMode } from "@modules/store/store/category-filter-store"
 
 interface ViewToggleProps {
   viewMode: ViewMode

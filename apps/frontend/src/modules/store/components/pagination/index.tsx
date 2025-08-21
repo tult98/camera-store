@@ -3,18 +3,19 @@
 import { clx } from "@medusajs/ui"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
+interface PaginationProps {
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
+  'data-testid'?: string
+}
+
 export function Pagination({
   page,
   totalPages,
+  onPageChange,
   'data-testid': dataTestid
-}: {
-  page: number
-  totalPages: number
-  'data-testid'?: string
-}) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+}: PaginationProps) {
 
   // Helper function to generate an array of numbers within a range
   const arrayRange = (start: number, stop: number) =>
@@ -22,9 +23,7 @@ export function Pagination({
 
   // Function to handle page changes
   const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams)
-    params.set("page", newPage.toString())
-    router.push(`${pathname}?${params.toString()}`)
+    onPageChange(newPage)
   }
 
   // Function to render a page button
@@ -35,8 +34,9 @@ export function Pagination({
   ) => (
     <button
       key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
-        "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
+      className={clx("btn btn-sm", {
+        "btn-primary": isCurrent,
+        "btn-ghost": !isCurrent,
       })}
       disabled={isCurrent}
       onClick={() => handlePageChange(p)}

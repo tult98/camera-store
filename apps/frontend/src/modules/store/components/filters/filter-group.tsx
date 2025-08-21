@@ -1,91 +1,63 @@
 "use client"
 
-import { useCallback } from "react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { FilterOption } from "../../types/filters"
+import { Facet, FacetOption } from "@lib/hooks/useCategoryData"
+import { useCategoryFilterStore, ApiFilters } from "@modules/store/store/category-filter-store"
+import { useState } from "react"
 
 interface FilterGroupProps {
-  filterKey: string
-  title: string
-  options: FilterOption[]
-  type?: 'single' | 'multiple'
-  showCount?: boolean
-  maxHeight?: string
-  searchable?: boolean
+  facet: Facet
 }
 
-export default function FilterGroup({
-  filterKey,
-  title,
-  options,
-  type = 'multiple',
-  showCount = true,
-  maxHeight = 'max-h-48',
-  searchable = false
-}: FilterGroupProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+export default function FilterGroup({ facet }: FilterGroupProps) {
+  const { filters, toggleFilter, removeFilter, setPriceRange } = useCategoryFilterStore()
+  const [priceMin, setPriceMin] = useState('')
+  const [priceMax, setPriceMax] = useState('')
 
-  const getSelectedValues = () => {
-    if (type === 'single') {
-      const value = searchParams.get(filterKey)
-      return value ? [value] : []
+  const getSelectedValues = (): string[] => {
+    if (facet.id === 'tags') {
+      return filters.tags || []
+    } else if (facet.id === 'availability') {
+      return filters.availability || []
+    } else if (facet.id === 'price') {
+      return []
     } else {
-      return searchParams.getAll(filterKey)
+      return filters.metadata?.[facet.id] || []
     }
   }
 
   const selectedValues = getSelectedValues()
 
-  const createQueryString = useCallback(
-    (values: string[]) => {
-      const newSearchParams = new URLSearchParams(searchParams)
-      
-      newSearchParams.delete(filterKey)
-      
-      if (values.length > 0) {
-        if (type === 'single') {
-          newSearchParams.set(filterKey, values[0])
-        } else {
-          values.forEach(value => {
-            newSearchParams.append(filterKey, value)
-          })
-        }
-      }
-      
-      newSearchParams.delete("page")
-      
-      return newSearchParams.toString()
-    },
-    [searchParams, filterKey, type]
-  )
-
   const handleValueToggle = (value: string) => {
-    let newValues: string[]
-    
-    if (type === 'single') {
-      newValues = selectedValues.includes(value) ? [] : [value]
-    } else {
-      if (selectedValues.includes(value)) {
-        newValues = selectedValues.filter(v => v !== value)
-      } else {
-        newValues = [...selectedValues, value]
-      }
+    if (facet.id === 'tags' || facet.id === 'availability') {
+      toggleFilter(facet.id as keyof ApiFilters, value)
+    } else if (facet.id !== 'price') {
+      toggleFilter('metadata', facet.id, value)
     }
-    
-    const query = createQueryString(newValues)
-    router.push(`${pathname}?${query}`)
+  }
+
+  const handlePriceSubmit = () => {
+    const min = priceMin ? parseFloat(priceMin) : undefined
+    const max = priceMax ? parseFloat(priceMax) : undefined
+    setPriceRange({ min, max })
   }
 
   const clearFilter = () => {
-    const query = createQueryString([])
-    router.push(`${pathname}?${query}`)
+    if (facet.id === 'tags' || facet.id === 'availability') {
+      removeFilter(facet.id as keyof ApiFilters, '')
+    } else if (facet.id === 'price') {
+      removeFilter('price', '')
+      setPriceMin('')
+      setPriceMax('')
+    } else {
+      removeFilter('metadata', facet.id)
+    }
   }
 
-  const hasActiveFilter = selectedValues.length > 0
+  const hasActiveFilter = facet.type === 'range' 
+    ? (filters.price?.min !== undefined || filters.price?.max !== undefined)
+    : selectedValues.length > 0
 
-  if (options.length === 0) {
+  if (facet.type === 'checkbox' && Array.isArray(facet.options) && facet.options.length === 0) {
     return null
   }
 
@@ -93,43 +65,83 @@ export default function FilterGroup({
     <div className="collapse collapse-arrow bg-base-200">
       <input type="checkbox" defaultChecked />
       <div className="collapse-title font-medium">
-        {title}
+        {facet.label}
         {hasActiveFilter && (
           <span className="ml-2 badge badge-primary badge-sm">
-            {selectedValues.length}
+            {facet.type === 'range' ? '✓' : selectedValues.length}
           </span>
         )}
       </div>
       <div className="collapse-content">
         <div className="space-y-2">
-          <div className={`${maxHeight} overflow-y-auto space-y-2`}>
-            {options.map((option) => (
-              <label 
-                key={option.value} 
-                className="flex items-center gap-2 cursor-pointer hover:bg-base-300 p-1 rounded"
+          {facet.type === 'range' && typeof facet.options === 'object' && 'min' in facet.options ? (
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="label label-text-sm">Min Price</label>
+                  <input
+                    type="number"
+                    placeholder={facet.options.min.toString()}
+                    className="input input-bordered input-sm w-full"
+                    value={priceMin}
+                    onChange={(e) => setPriceMin(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="label label-text-sm">Max Price</label>
+                  <input
+                    type="number"
+                    placeholder={facet.options.max.toString()}
+                    className="input input-bordered input-sm w-full"
+                    value={priceMax}
+                    onChange={(e) => setPriceMax(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button
+                onClick={handlePriceSubmit}
+                className="btn btn-primary btn-sm btn-block"
               >
-                <input
-                  type={type === 'single' ? 'radio' : 'checkbox'}
-                  name={type === 'single' ? filterKey : undefined}
-                  className={`${type === 'single' ? 'radio radio-sm radio-primary' : 'checkbox checkbox-sm checkbox-primary'}`}
-                  checked={selectedValues.includes(option.value)}
-                  onChange={() => handleValueToggle(option.value)}
-                />
-                <span className="text-sm flex-1">{option.label}</span>
-                {showCount && option.count !== undefined && (
-                  <span className="text-xs text-base-content/60">({option.count})</span>
-                )}
-              </label>
-            ))}
-          </div>
-          
-          {hasActiveFilter && (
-            <button
-              onClick={clearFilter}
-              className="btn btn-ghost btn-sm btn-block"
-            >
-              Clear
-            </button>
+                Apply Price Range
+              </button>
+              {hasActiveFilter && (
+                <button
+                  onClick={clearFilter}
+                  className="btn btn-ghost btn-sm btn-block"
+                >
+                  Clear Price Filter
+                </button>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="max-h-48 overflow-y-auto space-y-2">
+                {Array.isArray(facet.options) && facet.options.map((option: FacetOption) => (
+                  <label 
+                    key={option.value} 
+                    className="flex items-center gap-2 cursor-pointer hover:bg-base-300 p-1 rounded"
+                  >
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm checkbox-primary"
+                      checked={selectedValues.includes(option.value)}
+                      onChange={() => handleValueToggle(option.value)}
+                    />
+                    <span className="text-sm flex-1">{option.label}</span>
+                    <span className="text-xs text-base-content/60">({option.count})</span>
+                  </label>
+                ))}
+              </div>
+              
+              {hasActiveFilter && (
+                <button
+                  onClick={clearFilter}
+                  className="btn btn-ghost btn-sm btn-block"
+                >
+                  Clear
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

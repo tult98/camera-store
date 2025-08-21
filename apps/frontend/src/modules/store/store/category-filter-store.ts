@@ -3,89 +3,155 @@ import { create } from 'zustand'
 export type ViewMode = 'grid' | 'list'
 export type SortOption = 'popularity' | 'price_asc' | 'price_desc' | 'newest' | 'name_asc' | 'name_desc' | 'rating'
 
+export interface ApiFilters {
+  tags?: string[]
+  availability?: string[]
+  price?: { min?: number; max?: number }
+  metadata?: Record<string, string[]>
+}
+
 export interface CategoryFilterState {
-  filters: Record<string, string[]>
+  filters: ApiFilters
   sortBy: SortOption
   page: number
+  pageSize: number
   viewMode: ViewMode
   searchQuery: string
-  priceRange: { min?: number; max?: number }
   
-  setFilters: (filters: Record<string, string[]>) => void
-  toggleFilter: (filterKey: string, value: string) => void
-  removeFilter: (filterKey: string, value?: string) => void
+  setFilters: (filters: ApiFilters) => void
+  toggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  removeFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
   clearAllFilters: () => void
   setSortBy: (sortBy: SortOption) => void
   setPage: (page: number) => void
+  setPageSize: (pageSize: number) => void
   setViewMode: (viewMode: ViewMode) => void
   setSearchQuery: (query: string) => void
   setPriceRange: (range: { min?: number; max?: number }) => void
   initStateFromUrl: (searchParams: URLSearchParams) => void
   getUrlSearchParams: () => URLSearchParams
+  getApiRequestBody: (categoryId: string) => any
 }
 
 export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => ({
   filters: {},
   sortBy: 'popularity',
   page: 1,
+  pageSize: 24,
   viewMode: 'grid',
   searchQuery: '',
-  priceRange: {},
 
   setFilters: (filters) => set({ filters, page: 1 }),
 
-  toggleFilter: (filterKey, value) => {
+  toggleFilter: (filterType, key, value) => {
     const currentFilters = get().filters
-    const filterValues = currentFilters[filterKey] || []
     
-    const newFilterValues = filterValues.includes(value)
-      ? filterValues.filter(v => v !== value)
-      : [...filterValues, value]
-    
-    const newFilters = {
-      ...currentFilters,
-      [filterKey]: newFilterValues.length > 0 ? newFilterValues : undefined
-    }
-    
-    const cleanedFilters = Object.entries(newFilters).reduce((acc, [key, val]) => {
-      if (val !== undefined) {
-        acc[key] = val
+    if (filterType === 'tags' || filterType === 'availability') {
+      const currentValues = currentFilters[filterType] || []
+      const newValues = currentValues.includes(key)
+        ? currentValues.filter(v => v !== key)
+        : [...currentValues, key]
+      
+      set({
+        filters: {
+          ...currentFilters,
+          [filterType]: newValues.length > 0 ? newValues : undefined
+        },
+        page: 1
+      })
+    } else if (filterType === 'metadata' && value) {
+      const metadata = currentFilters.metadata || {}
+      const currentValues = metadata[key] || []
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter(v => v !== value)
+        : [...currentValues, value]
+      
+      const newMetadata = {
+        ...metadata,
+        [key]: newValues.length > 0 ? newValues : undefined
       }
-      return acc
-    }, {} as Record<string, string[]>)
-    
-    set({ filters: cleanedFilters, page: 1 })
+      
+      const cleanedMetadata = Object.entries(newMetadata).reduce((acc, [k, v]) => {
+        if (v !== undefined) {
+          acc[k] = v
+        }
+        return acc
+      }, {} as Record<string, string[]>)
+      
+      set({
+        filters: {
+          ...currentFilters,
+          metadata: Object.keys(cleanedMetadata).length > 0 ? cleanedMetadata : undefined
+        },
+        page: 1
+      })
+    }
   },
 
-  removeFilter: (filterKey, value) => {
+  removeFilter: (filterType, key, value) => {
     const currentFilters = get().filters
     
-    if (value) {
-      const filterValues = currentFilters[filterKey] || []
-      const newFilterValues = filterValues.filter(v => v !== value)
+    if (filterType === 'tags' || filterType === 'availability') {
+      const currentValues = currentFilters[filterType] || []
+      const newValues = currentValues.filter(v => v !== key)
       
-      if (newFilterValues.length === 0) {
-        const { [filterKey]: _, ...restFilters } = currentFilters
-        set({ filters: restFilters, page: 1 })
-      } else {
+      set({
+        filters: {
+          ...currentFilters,
+          [filterType]: newValues.length > 0 ? newValues : undefined
+        },
+        page: 1
+      })
+    } else if (filterType === 'metadata') {
+      const metadata = currentFilters.metadata || {}
+      
+      if (value) {
+        const currentValues = metadata[key] || []
+        const newValues = currentValues.filter(v => v !== value)
+        
+        const newMetadata = {
+          ...metadata,
+          [key]: newValues.length > 0 ? newValues : undefined
+        }
+        
+        const cleanedMetadata = Object.entries(newMetadata).reduce((acc, [k, v]) => {
+          if (v !== undefined) {
+            acc[k] = v
+          }
+          return acc
+        }, {} as Record<string, string[]>)
+        
         set({
           filters: {
             ...currentFilters,
-            [filterKey]: newFilterValues
+            metadata: Object.keys(cleanedMetadata).length > 0 ? cleanedMetadata : undefined
+          },
+          page: 1
+        })
+      } else {
+        const { [key]: _, ...restMetadata } = metadata
+        set({
+          filters: {
+            ...currentFilters,
+            metadata: Object.keys(restMetadata).length > 0 ? restMetadata : undefined
           },
           page: 1
         })
       }
-    } else {
-      const { [filterKey]: _, ...restFilters } = currentFilters
-      set({ filters: restFilters, page: 1 })
+    } else if (filterType === 'price') {
+      set({
+        filters: {
+          ...currentFilters,
+          price: undefined
+        },
+        page: 1
+      })
     }
   },
 
   clearAllFilters: () => {
     set({ 
       filters: {}, 
-      priceRange: {}, 
       searchQuery: '', 
       page: 1 
     })
@@ -94,6 +160,8 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
   setSortBy: (sortBy) => set({ sortBy }),
 
   setPage: (page) => set({ page }),
+
+  setPageSize: (pageSize) => set({ pageSize }),
 
   setViewMode: (viewMode) => {
     if (typeof window !== 'undefined') {
@@ -104,17 +172,28 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
 
   setSearchQuery: (searchQuery) => set({ searchQuery, page: 1 }),
 
-  setPriceRange: (priceRange) => set({ priceRange, page: 1 }),
+  setPriceRange: (priceRange) => set({ 
+    filters: {
+      ...get().filters,
+      price: priceRange
+    },
+    page: 1 
+  }),
 
   initStateFromUrl: (searchParams) => {
-    const filters: Record<string, string[]> = {}
+    const filters: ApiFilters = {}
     const priceRange: { min?: number; max?: number } = {}
+    let tags: string[] = []
+    let availability: string[] = []
+    const metadata: Record<string, string[]> = {}
     
     searchParams.forEach((value, key) => {
       if (key === 'sortBy') {
         set({ sortBy: value as SortOption })
       } else if (key === 'page') {
         set({ page: parseInt(value, 10) || 1 })
+      } else if (key === 'pageSize') {
+        set({ pageSize: parseInt(value, 10) || 24 })
       } else if (key === 'view') {
         set({ viewMode: value as ViewMode })
       } else if (key === 'q') {
@@ -123,18 +202,33 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
         priceRange.min = parseFloat(value)
       } else if (key === 'price_max') {
         priceRange.max = parseFloat(value)
-      } else {
-        filters[key] = value.split(',')
+      } else if (key === 'tags') {
+        tags = value.split(',')
+      } else if (key === 'availability') {
+        availability = value.split(',')
+      } else if (key.startsWith('meta_')) {
+        const metaKey = key.substring(5)
+        metadata[metaKey] = value.split(',')
       }
     })
     
-    if (Object.keys(priceRange).length > 0) {
-      set({ priceRange })
+    if (tags.length > 0) {
+      filters.tags = tags
     }
     
-    if (Object.keys(filters).length > 0) {
-      set({ filters })
+    if (availability.length > 0) {
+      filters.availability = availability
     }
+    
+    if (Object.keys(metadata).length > 0) {
+      filters.metadata = metadata
+    }
+    
+    if (Object.keys(priceRange).length > 0) {
+      filters.price = priceRange
+    }
+    
+    set({ filters })
     
     if (typeof window !== 'undefined') {
       const savedViewMode = localStorage.getItem('categoryViewMode') as ViewMode
@@ -148,11 +242,29 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
     const state = get()
     const params = new URLSearchParams()
     
-    Object.entries(state.filters).forEach(([key, values]) => {
-      if (values && values.length > 0) {
-        params.set(key, values.join(','))
-      }
-    })
+    if (state.filters.tags && state.filters.tags.length > 0) {
+      params.set('tags', state.filters.tags.join(','))
+    }
+    
+    if (state.filters.availability && state.filters.availability.length > 0) {
+      params.set('availability', state.filters.availability.join(','))
+    }
+    
+    if (state.filters.metadata) {
+      Object.entries(state.filters.metadata).forEach(([key, values]) => {
+        if (values && values.length > 0) {
+          params.set(`meta_${key}`, values.join(','))
+        }
+      })
+    }
+    
+    if (state.filters.price?.min !== undefined) {
+      params.set('price_min', state.filters.price.min.toString())
+    }
+    
+    if (state.filters.price?.max !== undefined) {
+      params.set('price_max', state.filters.price.max.toString())
+    }
     
     if (state.sortBy !== 'popularity') {
       params.set('sortBy', state.sortBy)
@@ -160,6 +272,10 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
     
     if (state.page > 1) {
       params.set('page', state.page.toString())
+    }
+    
+    if (state.pageSize !== 24) {
+      params.set('pageSize', state.pageSize.toString())
     }
     
     if (state.viewMode !== 'grid') {
@@ -170,14 +286,31 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
       params.set('q', state.searchQuery)
     }
     
-    if (state.priceRange.min !== undefined) {
-      params.set('price_min', state.priceRange.min.toString())
-    }
-    
-    if (state.priceRange.max !== undefined) {
-      params.set('price_max', state.priceRange.max.toString())
-    }
-    
     return params
+  },
+
+  getApiRequestBody: (categoryId) => {
+    const state = get()
+    const sortMapping: Record<SortOption, { sort_by: string; sort_direction: 'asc' | 'desc' }> = {
+      'popularity': { sort_by: 'popularity', sort_direction: 'desc' },
+      'price_asc': { sort_by: 'price', sort_direction: 'asc' },
+      'price_desc': { sort_by: 'price', sort_direction: 'desc' },
+      'newest': { sort_by: 'created_at', sort_direction: 'desc' },
+      'name_asc': { sort_by: 'name', sort_direction: 'asc' },
+      'name_desc': { sort_by: 'name', sort_direction: 'desc' },
+      'rating': { sort_by: 'rating', sort_direction: 'desc' }
+    }
+    
+    const sort = sortMapping[state.sortBy] || sortMapping['popularity']
+    
+    return {
+      category_id: categoryId,
+      page: state.page,
+      page_size: state.pageSize,
+      sort_by: sort.sort_by,
+      sort_direction: sort.sort_direction,
+      filters: state.filters,
+      search_query: state.searchQuery || undefined
+    }
   }
 }))

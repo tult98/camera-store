@@ -2540,6 +2540,7 @@ __metadata:
     "@swc/core": 1.5.7
     "@swc/jest": ^0.2.36
     "@tailwindcss/postcss": ^4.1.12
+    "@tanstack/react-query": ^5.85.5
     "@types/jest": ^29.5.13
     "@types/lodash": ^4.14.195
     "@types/node": ^20.0.0
@@ -11986,6 +11987,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tanstack/query-core@npm:5.85.5":
+  version: 5.85.5
+  resolution: "@tanstack/query-core@npm:5.85.5"
+  checksum: 2bd2b028fcdd5a5608ea4ec3459fea27d72f83d18c586e9dc109869d3f534bbc01430251027a0b2adaf9ab324e63c17d782cc91dc50ba1910f43feec932f5c1c
+  languageName: node
+  linkType: hard
+
 "@tanstack/react-query@npm:5.64.2":
   version: 5.64.2
   resolution: "@tanstack/react-query@npm:5.64.2"
@@ -11994,6 +12002,17 @@ __metadata:
   peerDependencies:
     react: ^18 || ^19
   checksum: e8e886220e9cef2514dc08af8c1bbf4def05e0607d01b3321a37d9f85e00ffe817d66e87b642e087bbab46bb0d31e036bb2c96cc0b5d2fd0fb898307985d5eec
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query@npm:^5.85.5":
+  version: 5.85.5
+  resolution: "@tanstack/react-query@npm:5.85.5"
+  dependencies:
+    "@tanstack/query-core": 5.85.5
+  peerDependencies:
+    react: ^18 || ^19
+  checksum: 02453c002288aade0e8222ae7e430d72e7e7d00bb5e163fcd52e788012b5c45f68b6f7fca470bd90c7ab80e8eda306251990164a386010dc19c54b3c0ea62b12
   languageName: node
   linkType: hard
 

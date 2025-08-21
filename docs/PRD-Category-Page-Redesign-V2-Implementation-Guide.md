@@ -1,6 +1,6 @@
 # Implementation Guide: Category Page V2
 
-**Version**: 1.1  
+**Version**: 2.0  
 **Date**: August 21, 2025  
 **Status**: Revised  
 **Author**: Gemini
@@ -9,222 +9,159 @@
 
 ## 1. Introduction
 
-This document is a technical companion to `PRD-Category-Page-Redesign-V2.md`. It provides a detailed, step-by-step guide for a junior developer to implement the new category page.
+This document is a technical companion to `PRD-Category-Page-Redesign-V2.md`. It provides a detailed, step-by-step guide for a junior developer to implement the new category page, reflecting the necessary **custom API strategy**.
 
 **Project Tech Stack:**
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS, daisyUI
-- **State Management**: Zustand (for client-side UI state)
+- **State Management**: Zustand (for client-side UI state), React Query (for data fetching & caching)
 - **API Client**: The existing `api-client` in `libs/api-client`.
 
 ---
 
-## 2. Architecture: Hybrid Rendering for Performance & SEO
+## 2. Architecture: Server-Rendered Foundation with Client-Side Data Fetching
 
-To achieve the best results for both users and search engines, we will use a **hybrid rendering model**. This is not a pure Client-Side Rendered (CSR) application.
+To balance SEO, performance, and a dynamic user experience, we will use a hybrid approach.
 
 1.  **Initial Load (SSR/ISR):** The main page component (`app/categories/[handle]/page.tsx`) will be a **Server Component**.
-    -   For the initial visit, the server will render the full page HTML. This is great for SEO and fast initial load times.
-    -   We should use **Incremental Static Regeneration (ISR)** by setting a `revalidate` time. This means the page is served statically from a CDN for speed and regenerated in the background periodically.
-    -   **Example:** `export const revalidate = 300; // Re-generate the page every 5 minutes`
+    -   It will fetch the initial, unfiltered list of products and facets using the custom API. This ensures the page is fully rendered on the server for fast initial loads and excellent SEO.
+    -   We will use **Incremental Static Regeneration (ISR)** with a revalidation period (e.g., 5 minutes) to keep the data fresh without constant database hits.
 
-2.  **Interactivity (Client Components):** Components that require user interaction (like the filter sidebar) will be **Client Components** (marked with `'use client'`).
-    -   These components are hydrated on the client, becoming interactive.
-    -   **Zustand's Role:** Zustand is used here to manage the *UI state* (which filters are checked, what the sort order is, etc.). Its job is to react to user input and then update the URL's query parameters.
+2.  **Interactivity & Data Updates (Client Components):**
+    -   The core interactive elements—the filter sidebar and the product list display—will be wrapped in a single high-level **Client Component** (e.g., `CategoryPageClient.tsx`). This component will be responsible for all client-side logic.
+    -   **Zustand's Role**: Manages the UI state of the filters (what's checked, the price range, etc.). It holds the *state* of the filters, not the data itself.
+    -   **React Query's Role**: Manages all data fetching. It will call our custom `POST` API endpoints, handle caching, and provide loading/error states.
 
 3.  **The Update Cycle:**
-    -   User clicks a filter.
-    -   The Client Component updates the URL via Next.js's `useRouter`.
-    -   Next.js detects the URL change and automatically re-fetches the data for the **Server Components** on the page, sending down the updated HTML.
-    -   The page updates seamlessly without a full reload.
-
-This model gives us the SEO and performance of a server-rendered page with the smooth, app-like feel of a client-rendered application.
+    -   User clicks a filter (e.g., checks the "Sony" box).
+    -   The filter component updates the **Zustand store**.
+    -   A `useEffect` hook in `CategoryPageClient.tsx` listens for changes in the Zustand store.
+    -   When the store changes, the hook triggers a **refetch** via **React Query**, sending the new filter state in the body of the `POST` request to the `/store/category-products` and `/store/category-facets` endpoints.
+    -   React Query receives the new data, and the components re-render with the updated product list and facet counts.
+    -   The URL is updated via `router.push` to reflect the new state for bookmarking and sharing.
 
 ---
 
 ## 3. Core Task Breakdown
 
-### Task 2.1: URL-Based State Management with Zustand
-
-The entire state of the category page (filters, sorting, pagination) must be stored in the URL's query parameters. This is crucial for sharing, bookmarking, and browser history.
+### Task 3.1: State and Data Fetching Setup
 
 **1. Setup Zustand Store:**
-Create a new store at `apps/frontend/src/modules/products/store/category-filter-store.ts`.
+The store holds the UI state that will be used to build the API request body.
 
 ```typescript
 // apps/frontend/src/modules/products/store/category-filter-store.ts
 import { create } from 'zustand';
 
+// This defines the structure of the 'filters' object in our API request
+interface ApiFilters {
+  tags?: string[];
+  availability?: string[];
+  price?: { min?: number; max?: number };
+  metadata?: Record<string, string[]>;
+}
+
 type CategoryFilterState = {
-  // Example: { brand: ['sony', 'canon'], sensor_size: ['full-frame'] }
-  filters: Record<string, string[]>;
+  filters: ApiFilters;
   sortBy: string;
   page: number;
-  viewMode: 'grid' | 'list';
+  // ... other UI state like viewMode
 
   // Actions
-  setFilters: (newFilters: Record<string, string[]>) => void;
-  setSortBy: (newSortBy: string) => void;
-  setPage: (newPage: number) => void;
-  setViewMode: (newViewMode: 'grid' | 'list') => void;
-  // Action to initialize state from URL
+  setFilters: (newFilters: ApiFilters) => void;
+  // ... other setters
+  // Action to sync URL changes back to the store
   initStateFromUrl: (searchParams: URLSearchParams) => void;
 };
 
-export const useCategoryFilterStore = create<CategoryFilterState>((set) => ({
-  filters: {},
-  sortBy: 'popularity',
-  page: 1,
-  viewMode: 'grid',
-
-  setFilters: (newFilters) => set({ filters: newFilters, page: 1 }), // Reset to page 1 on filter change
-  setSortBy: (newSortBy) => set({ sortBy: newSortBy }),
-  setPage: (newPage) => set({ page: newPage }),
-  setViewMode: (newViewMode) => set({ viewMode: newViewMode }),
-  
-  initStateFromUrl: (searchParams) => {
-    // Logic to parse searchParams and set initial state
-    // ...
-  },
-}));
+// ... Zustand store implementation ...
 ```
 
-**2. Synchronize with URL:**
-Create a client component that listens to store changes and updates the URL, and vice-versa.
+**2. Setup React Query:**
+Configure React Query in your `app/layout.tsx` or a provider component. Create hooks for interacting with the new API endpoints.
 
-- Use the `useSearchParams` and `useRouter` hooks from `next/navigation`.
-- On initial load, call `initStateFromUrl` with the current `searchParams`.
-- Use a `useEffect` hook to watch for changes in the Zustand store and push updates to the URL.
+```typescript
+// apps/frontend/src/lib/hooks/useCategoryData.ts
+import { useQuery } from '@tanstack/react-query';
+import { cameraStoreApi } from '@lib/config'; // Use the specific client for our custom APIs
+import { ApiFilters } from '...'; // Import from store
 
-**Example URL Structure:**
-`http://localhost:8000/categories/cameras?brand=sony,canon&sensor_size=full-frame&sortBy=price_asc&page=2`
+export const useCategoryProducts = (categoryId: string, filters: ApiFilters, page: number, sortBy: string) => {
+  return useQuery({
+    queryKey: ['categoryProducts', categoryId, filters, page, sortBy],
+    queryFn: async () => {
+      // The api-client is just a thin wrapper around fetch, 
+      // so we can call our custom POST endpoint directly.
+      const response = await cameraStoreApi.post('/store/category-products', {
+        category_id: categoryId,
+        filters,
+        page,
+        sort_by: sortBy,
+      });
+      return response.data;
+    },
+  });
+};
 
----
-
-### Task 2.2: Building the Faceted Navigation Sidebar
-
-This is the main component for filtering. It must be a **Client Component** because it is highly interactive. Add `'use client'` to the top of the file.
-
-**Component Structure:**
-```
-- `apps/frontend/src/modules/products/components/filters/`
-  - `FilterSidebar.tsx` (Client Component - Main container)
-  - `FilterGroup.tsx` (Client Component - Renders a single facet like "Brand")
-  - `CheckboxFilter.tsx` (Client Component - Renders the list of options for a facet)
-  - `PriceRangeSlider.tsx` (Client Component - Renders the price slider)
-```
-
-**1. `FilterSidebar.tsx`:**
-- This component will be responsible for orchestrating the filter state.
-- It will contain all the other filter components.
-
-**2. `FilterGroup.tsx`:**
-- Takes a facet object (from the API response) as a prop.
-- Renders the facet label (e.g., "Brand").
-- Conditionally renders either `CheckboxFilter` or `PriceRangeSlider` based on `facet.type`.
-
-**3. `CheckboxFilter.tsx`:**
-- Receives `options` from the `FilterGroup`.
-- Renders a list of checkboxes (daisyUI `checkbox` component).
-- Each option should display its `label` and `count`.
-- When a checkbox is changed, it should call the `setFilters` action in the Zustand store.
-
-**4. `PriceRangeSlider.tsx`:**
-- Use the daisyUI `range` component.
-- Will likely need two inputs for min/max values.
-- On change, update the `price` filter in the Zustand store.
-
----
-
-### Task 2.3: Building the Product Display Area
-
-This area is a mix of Server and Client components.
-
-**Component Structure:**
-```
-- `apps/frontend/src/modules/products/components/`
-  - `ProductList.tsx` (**Server Component** - Main container for the right side)
-  - `ProductGrid.tsx` (**Server Component** - Renders products in a grid)
-  - `ProductListItem.tsx` (**Server Component** - Renders a single product in list view)
-  - `ProductCard.tsx` (**Server Component** - Renders a single product in grid view)
-  - `ViewToggle.tsx` (**Client Component** - The Grid/List toggle buttons)
-  - `SortOptions.tsx` (**Client Component** - The dropdown for sorting)
+export const useCategoryFacets = (categoryId: string, filters: ApiFilters) => {
+  return useQuery({
+    queryKey: ['categoryFacets', categoryId, filters],
+    queryFn: async () => {
+      const response = await cameraStoreApi.post('/store/category-facets', {
+        category_id: categoryId,
+        filters,
+      });
+      return response.data;
+    },
+  });
+};
 ```
 
-**1. `ProductList.tsx` (Server Component):**
-- This is the main server component that fetches product data from `GET /api/category/{id}/products` based on the `searchParams`.
-- It will render `SortOptions` and `ViewToggle` at the top.
-- It conditionally renders either `ProductGrid` or a list of `ProductListItem` components based on the `viewMode` search param.
+### Task 3.2: Building the Main Client Component
 
-**2. `ProductCard.tsx` (Server Component):**
-- Display `thumbnail`, `title`, `price`.
-- Add a section for `key_specs`.
-- **Info Tooltips**: Use the daisyUI `tooltip` component. Wrap a small info icon next to a spec label.
-  ```html
-  <div class="tooltip" data-tip="Definition of Sensor Size">
-    <svg>...</svg> <!-- Info Icon -->
-  </div>
-  ```
-- **Quick View**: This should be a button that opens a modal. The modal itself can be a separate Client Component that fetches its content on demand.
+Create `CategoryPageClient.tsx`. This component will be the orchestrator.
 
-**3. `ProductListItem.tsx` (Server Component):**
-- This is a wider, horizontal layout.
-- It should display the `thumbnail` on the left and product details on the right.
-- Display more information than the grid card, including a short description and a more extensive list of `key_specs`.
+- It receives the initial, server-fetched data as props.
+- It uses the Zustand store to manage filter state.
+- It uses the React Query hooks (`useCategoryProducts`, `useCategoryFacets`) to fetch new data when the filter state changes.
+- It passes the fetched data down to the `FilterSidebar` and `ProductList` components.
 
-**4. `ViewToggle.tsx` (Client Component):**
-- Add `'use client'`.
-- Two buttons: "Grid" and "List".
-- On click, it should update the URL with the new view mode preference.
-- The user's choice should also be persisted in `localStorage` for a consistent experience across sessions.
-
----
-
-## 3. API Interaction Flow
+### Task 3.3: API Interaction Flow
 
 1.  **Initial Page Load**:
-    - The page component reads the initial `searchParams` from the URL.
-    - It calls `initStateFromUrl` in the Zustand store.
-    - It fetches products (`/api/category/{id}/products`) and facets (`/api/category/{id}/facets`) in parallel, passing the initial filter parameters.
+    - `app/categories/[handle]/page.tsx` (Server Component) fetches initial products and facets and passes them to `CategoryPageClient.tsx`.
+    - `CategoryPageClient.tsx` initializes the Zustand store and React Query with this server-fetched data.
 
-2.  **User Applies a Filter (e.g., clicks "Sony" brand):**
-    - The `CheckboxFilter` component calls the `setFilters` action in the Zustand store.
-    - A `useEffect` hook watching the store state detects the change and updates the URL query string using `router.push()`.
-    - The page re-renders because the `searchParams` have changed.
-    - On re-render, the page fetches **both** products and facets again with the new, updated filters. This ensures the product list is updated and the facet counts (e.g., "Full-Frame (15)") are also refreshed.
+2.  **User Applies a Filter**:
+    - A component (e.g., `CheckboxFilter`) calls an action in the Zustand store (e.g., `setFilters`).
+    - The `CategoryPageClient.tsx` component's `useEffect` hook detects the state change.
+    - The hook triggers the `refetch` functions from the `useCategoryProducts` and `useCategoryFacets` hooks.
+    - React Query makes the `POST` requests with the updated filter body.
+    - While fetching, the `isLoading` state from the hooks can be used to show loading skeletons.
+    - Once the data is returned, the components re-render with the new information.
+    - A separate `useEffect` updates the URL query string to match the store state.
 
 ---
 
 ## 4. Detailed Implementation Plan
 
-### Phase 1: Foundation (Week 1)
-- **Task 1.1**: Create the Zustand store file (`category-filter-store.ts`) with the initial state and actions defined.
-- **Task 1.2**: Create the main page layout file `apps/frontend/src/app/categories/[handle]/page.tsx`.
-- **Task 1.3**: Implement the URL synchronization logic. Create a client component that reads from `useSearchParams` on load and updates the URL on store changes.
-- **Task 1.4**: Create placeholder components for `FilterSidebar` and `ProductList`.
+### Phase 1: Backend API (Week 1)
+- **Task 1.1**: **Crucial**: Implement the custom Medusa backend routes: `POST /store/category-products` and `POST /store/category-facets`. These must be fully functional before frontend work can be completed.
 
-### Phase 2: Core Filtering (Week 2)
-- **Task 2.1**: Build the `FilterSidebar.tsx` component. It should fetch and display the raw data from the facets API.
-- **Task 2.2**: Build the `FilterGroup.tsx` and `CheckboxFilter.tsx` components. Wire them up to the Zustand store so that clicking a checkbox updates the state.
-- **Task 2.3**: Build the `PriceRangeSlider.tsx` component and connect it to the store.
-- **Task 2.4**: Verify that applying filters correctly updates the URL and triggers API re-fetches.
+### Phase 2: Frontend Foundation (Week 2)
+- **Task 2.1**: Set up Zustand store and React Query hooks as described above.
+- **Task 2.2**: Create the main page component (`page.tsx`) and the orchestrating client component (`CategoryPageClient.tsx`). Implement the initial server-side data fetch.
+- **Task 2.3**: Implement the URL synchronization logic within `CategoryPageClient.tsx`.
 
-### Phase 3: Product Display (Week 3)
-- **Task 3.1**: Build the `ProductList.tsx` component to fetch and display products.
-- **Task 3.2**: Build the `ProductCard.tsx` for the grid view, including key specs and price.
-- **Task 3.3**: Implement the `ViewToggle.tsx` component to switch between grid and list views. Persist the state to `localStorage`.
-- **Task 3.4**: Build the `ProductListItem.tsx` for the list view.
-- **Task 3.5**: Implement the "Quick View" modal.
+### Phase 3: Connecting Filters & Display (Week 3)
+- **Task 3.1**: Build the `FilterSidebar.tsx` and its children. They should receive facet data as props and use Zustand actions to update the filter state.
+- **Task 3.2**: Build the `ProductList.tsx` and its children. They should receive product data as props.
+- **Task 3.3**: Wire everything together in `CategoryPageClient.tsx`. Ensure that changing a filter in the sidebar triggers the React Query refetch and updates the product list.
 
-### Phase 4: Advanced Features (Week 4)
-- **Task 4.1**: Implement the `SortOptions.tsx` dropdown and connect it to the store.
-- **Task 4.2**: Implement the "Active Filters" display above the product list, allowing users to remove a filter by clicking an "X" icon.
-- **Task 4.3**: Begin work on the product comparison feature. Create a new Zustand store to manage the list of products to compare.
-- **Task 4.4**: Add an "Add to Compare" checkbox on each product card/list item.
-
-### Phase 5: Testing & Polish (Week 5)
-- **Task 5.1**: Write end-to-end tests using Cypress or Playwright for the core user flow: applying a filter, changing the view, sorting, and seeing the results update.
-- **Task 5.2**: Polish the UI. Check for responsive design issues on mobile and tablet.
-- **Task 5.3**: Add loading skeletons for the product list and filter sidebar to improve perceived performance.
-- **Task 5.4**: Final review of accessibility (WCAG 2.1 AA). Use browser tools to check for contrast ratios, keyboard navigation, and screen reader compatibility.
+### Phase 4 & 5: Advanced Features & Polish (Weeks 4-5)
+- *(Tasks remain largely the same, but are now built on top of the new client-side data fetching architecture.)*
+- **Task 4.1**: Implement sorting, view toggle, active filters display.
+- **Task 5.1**: Write E2E tests for the client-side filtering flow.
+- **Task 5.2**: Implement loading skeletons using React Query's `isLoading` state.
+- **Task 5.3**: Final review and polish.

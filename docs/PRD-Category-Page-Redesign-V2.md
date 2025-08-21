@@ -60,10 +60,14 @@ This document outlines the requirements for a comprehensive redesign of the came
 *(Requirements from V1 remain, including WCAG 2.1 AA, Core Web Vitals, etc.)*
 
 ### 4.2. API & Data Contracts
-To ensure smooth development, the frontend will consume a set of well-defined API endpoints.
-- **`GET /api/category/{id}/products`**: Fetches products for a category, accepting filter parameters in the query string.
-- **`GET /api/category/{id}/facets`**: Fetches available filters (facets) for a category, including dynamic result counts based on the current product selection.
-- See **Appendix A.2** for detailed request/response structures.
+To ensure smooth development, the frontend will consume a set of well-defined API endpoints. Research indicates that Medusa's default Storefront API does not support the required advanced filtering (by price, metadata, availability) or dynamic facet counts out-of-the-box.
+
+Therefore, the following endpoints must be created as **custom Medusa API routes**.
+
+- **`POST /api/store/category-products`**: Fetches products for a category, accepting a rich filter object in the request body for advanced filtering. Using POST allows for a more complex filter structure than GET query parameters.
+- **`POST /api/store/category-facets`**: Fetches available filters (facets) for a category, including dynamic result counts based on the currently applied filters sent in the request body.
+
+See **Appendix A.2** for detailed request/response structures.
 
 ### 4.3. State Management
 - The application state (selected filters, view mode, current page) must be synchronized with the URL query string to ensure shareability and browser history integration.
@@ -84,10 +88,10 @@ This replaces the "Advanced Filtering System" from V1.
 
 #### 5.1.2. Filter Types
 - **Technical Filters**:
-    - **Camera-Specific**: Brand, Sensor Size, Megapixels, Video Resolution (4K@60, 8K@30), Mount Type, etc.
-    - **Lens-Specific**: Focal Length, Aperture, Lens Type, Mount Compatibility, Image Stabilization.
+    - **Camera-Specific**: Brand, Sensor Size, Megapixels, Video Resolution (4K@60, 8K@30), Mount Type, etc. These will be stored in product `metadata`.
+    - **Lens-Specific**: Focal Length, Aperture, Lens Type, Mount Compatibility, Image Stabilization. These will be stored in product `metadata`.
 - **Thematic & Guided Filters**:
-    - **Use Case**: "Good for Vlogging," "Good for Sports," "Good for Portraits." These are curated tags managed in the backend.
+    - **Use Case**: "Good for Vlogging," "Good for Sports," "Good for Portraits." These are curated and stored as product `tags`.
 - **Operational Filters**:
     - **Price Range**: A slider with input fields.
     - **Availability**: "In Stock," "Pre-Order," "Used."
@@ -117,7 +121,7 @@ This replaces the "Advanced Filtering System" from V1.
 ---
 
 ## 6. Layout Specifications
-*(Layouts from V1 are a strong foundation. The primary change is the addition of thematic filters and the list/grid view toggle.)*
+*(Layouts from V1 are a strong foundation. The primary change is the addition of the list/grid view toggle and clear labeling for thematic vs. technical filters.)*
 
 ### 6.1. Desktop Layout (≥768px)
 ```
@@ -131,7 +135,7 @@ This replaces the "Advanced Filtering System" from V1.
 │ ☐ Good for Vlogging(12)│ │ │  1  │ │  2  │ │  3  │ │  4  │  │
 │ ☐ Good for Sports (8)  │ │ └─────┘ └─────┘ └─────┘ └─────┘  │
 │                        │ │                                  │
-│ ▼ BRAND                │ │ [← Previous] [1][2][3] [Next →] │
+│ ▼ BRAND (TECHNICAL)    │ │ [← Previous] [1][2][3] [Next →] │
 │ ☐ Canon (24)           │ └────────────────────────────────────┘
 │ ☐ Nikon (18)           │
 ...
@@ -142,11 +146,11 @@ This replaces the "Advanced Filtering System" from V1.
 ## 7. Implementation Plan
 *(The phased plan from V1 is a good model. This version adjusts tasks to reflect new features.)*
 
-- **Phase 1: Foundation (Week 1)**: Project setup, layout components, basic navigation. **New Task**: Define and mock API contracts.
-- **Phase 2: Core Filtering (Week 2)**: **Task**: Implement the full faceted navigation system, including dynamic result counts and URL state management.
+- **Phase 1: Foundation (Week 1)**: Project setup, layout components, basic navigation. **New Task**: Implement the custom Medusa API endpoints defined in Section 4.2.
+- **Phase 2: Core Filtering (Week 2)**: **Task**: Connect the frontend to the custom API. Implement the full faceted navigation system, including dynamic result counts and URL state management.
 - **Phase 3: Product Display (Week 3)**: **Task**: Build Grid/List views, product cards with tooltips, and sorting.
 - **Phase 4: Advanced Features (Week 4)**: **Task**: Build comparison tool, integrate buying guides, and implement in-category search.
-- **Phase 5: Testing & Polish (Week 5)**: **New Task**: Add end-to-end tests for the faceted filtering and comparison user flows.
+- **Phase 5: Testing & Polish (Week 5)**: **New Task**: Add end-to-end tests for the custom API endpoints, faceted filtering, and comparison user flows.
 
 ---
 
@@ -168,14 +172,44 @@ This replaces the "Advanced Filtering System" from V1.
 
 ### A.2. API & Data Contracts
 
-#### Product Response (`/api/category/{id}/products`)
+**Note**: These endpoints must be implemented as **custom routes** in the Medusa backend.
+
+#### 1. Get Products API
+
+- **Endpoint**: `POST /store/category-products`
+- **Description**: Fetches a paginated list of products for a given category, applying a set of filters.
+
+**Request Body:**
+```json
+{
+  "category_id": "pcat_123",
+  "page": 1,
+  "page_size": 24,
+  "sort_by": "price",
+  "sort_direction": "asc",
+  "filters": {
+    "tags": ["vlogging"],
+    "availability": ["in-stock"],
+    "price": {
+      "min": 1000,
+      "max": 2500
+    },
+    "metadata": {
+      "sensor_size": ["full-frame"],
+      "brand": ["sony", "canon"]
+    }
+  }
+}
+```
+
+**Product Response (Success: 200 OK):**
 ```json
 {
   "pagination": {
-    "total": 156,
+    "total": 84,
     "limit": 24,
     "offset": 0,
-    "totalPages": 7,
+    "totalPages": 4,
     "currentPage": 1
   },
   "products": [
@@ -197,7 +231,29 @@ This replaces the "Advanced Filtering System" from V1.
 }
 ```
 
-#### Facets Response (`/api/category/{id}/facets`)
+---
+
+#### 2. Get Facets API
+
+- **Endpoint**: `POST /store/category-facets`
+- **Description**: Fetches the available filter facets and their dynamic counts based on the current filtering context.
+
+**Request Body:**
+*(The same body as the Get Products API is used to provide context)*
+```json
+{
+  "category_id": "pcat_123",
+  "filters": {
+    "tags": ["vlogging"],
+    "price": {
+      "min": 1000,
+      "max": 2500
+    }
+  }
+}
+```
+
+**Facets Response (Success: 200 OK):**
 ```json
 {
   "facets": [
@@ -206,9 +262,8 @@ This replaces the "Advanced Filtering System" from V1.
       "label": "Brand",
       "type": "checkbox",
       "options": [
-        { "value": "sony", "label": "Sony", "count": 32 },
-        { "value": "canon", "label": "Canon", "count": 24 },
-        { "value": "nikon", "label": "Nikon", "count": 18 }
+        { "value": "sony", "label": "Sony", "count": 12 },
+        { "value": "canon", "label": "Canon", "count": 8 }
       ]
     },
     {
@@ -216,15 +271,15 @@ This replaces the "Advanced Filtering System" from V1.
       "label": "Sensor Size",
       "type": "checkbox",
       "options": [
-        { "value": "full-frame", "label": "Full-Frame", "count": 15 },
-        { "value": "aps-c", "label": "APS-C", "count": 28 }
+        { "value": "full-frame", "label": "Full-Frame", "count": 10 },
+        { "value": "aps-c", "label": "APS-C", "count": 10 }
       ]
     },
     {
       "id": "price",
       "label": "Price",
       "type": "range",
-      "options": { "min": 500, "max": 6500 }
+      "options": { "min": 1100, "max": 2499 }
     }
   ]
 }

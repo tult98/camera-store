@@ -18,7 +18,12 @@ interface CategoryPageClientProps {
   initialProductsData?: any
 }
 
-const fetchCategoryProducts = async ({ categoryId, page, pageSize, sortBy }: {
+const fetchCategoryProducts = async ({
+  categoryId,
+  page,
+  pageSize,
+  sortBy,
+}: {
   categoryId: string
   page: number
   pageSize: number
@@ -32,10 +37,13 @@ const fetchCategoryProducts = async ({ categoryId, page, pageSize, sortBy }: {
     filters: {},
   }
 
-  const response = await apiClient<CategoryProductsResponse>("/store/category-products", {
-    method: "POST",
-    body: productsRequest,
-  })
+  const response = await apiClient<CategoryProductsResponse>(
+    "/store/category-products",
+    {
+      method: "POST",
+      body: productsRequest,
+    }
+  )
 
   return response
 }
@@ -51,19 +59,23 @@ export default function CategoryPageClient({
   const pageSize = 24
 
   const { data, isLoading } = useQuery<CategoryProductsResponse>({
-    queryKey: ['category-products', categoryId, page, sortBy],
-    queryFn: () => fetchCategoryProducts({ categoryId, page, pageSize, sortBy }),
+    queryKey: ["category-products", categoryId, page, sortBy],
+    queryFn: () =>
+      fetchCategoryProducts({ categoryId, page, pageSize, sortBy }),
     initialData: initialProductsData,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
-  const products = data?.data || []
-  const metadata = data?.metadata
-  const pagination = metadata ? {
+  const products = data?.items || []
+  
+  // Calculate pagination from response data
+  const totalCount = data?.count || 0
+  const totalPages = Math.ceil(totalCount / pageSize)
+  const pagination = data ? {
     currentPage: page,
-    totalPages: Math.ceil(metadata.count / pageSize),
-    total: metadata.count,
+    totalPages,
     limit: pageSize,
+    total: totalCount,
   } : null
 
   const handleSortChange = (newSortBy: string) => {
@@ -100,8 +112,8 @@ export default function CategoryPageClient({
             <div className="flex items-center gap-4">
               {pagination && (
                 <p className="text-sm text-base-content/70">
-                  Showing{" "}
-                  {(pagination.currentPage - 1) * pagination.limit + 1} to{" "}
+                  Showing {(pagination.currentPage - 1) * pagination.limit + 1}{" "}
+                  to{" "}
                   {Math.min(
                     pagination.currentPage * pagination.limit,
                     pagination.total
@@ -112,11 +124,11 @@ export default function CategoryPageClient({
             </div>
 
             <div className="flex items-center gap-3">
-              <SortDropdown sortBy={sortBy as any} onSortChange={handleSortChange} />
-              <ViewToggle
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
+              <SortDropdown
+                sortBy={sortBy as any}
+                onSortChange={handleSortChange}
               />
+              <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
             </div>
           </div>
         )}

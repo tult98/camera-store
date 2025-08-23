@@ -1,11 +1,11 @@
-import { notFound } from "next/navigation"
-import { Suspense } from "react"
-import CategoryPageClient from "@modules/store/components/category-page-client"
+import { CategoryProductsResponse } from "@camera-store/shared-types"
 import { apiClient } from "@lib/api-client"
 import { getCategoryByHandle } from "@lib/data/categories"
-import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import SkeletonProductControls from "@modules/skeletons/components/skeleton-product-controls"
-import { CategoryProductsResponse } from "@camera-store/shared-types"
+import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
+import CategoryPageClient from "@modules/store/components/category-page-client"
+import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 type Props = {
   params: Promise<{ category: string[] }>
@@ -50,12 +50,10 @@ export default async function CategoryPage(props: Props) {
   const initialProductsData = await fetchCategoryProducts(category.id)
 
   const fallbackProducts: CategoryProductsResponse = {
-    data: [],
-    metadata: {
-      count: 0,
-      skip: 0,
-      take: 24,
-    },
+    items: [],
+    limit: 24,
+    offset: 0,
+    count: 0,
   }
 
   return (

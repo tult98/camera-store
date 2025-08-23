@@ -1,10 +1,10 @@
 import { EyeIcon } from "@heroicons/react/24/outline"
-import { ProductData } from "@lib/hooks/useCategoryData"
 import { ViewMode } from "@modules/store/store/category-filter-store"
 import CategoryProductCard from "@modules/store/components/category-product-card"
+import { HttpTypes } from "@medusajs/types"
 
 interface ProductGridProps {
-  products: ProductData[]
+  products: HttpTypes.StoreProduct[]
   viewMode?: ViewMode
 }
 

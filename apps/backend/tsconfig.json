@@ -20,10 +20,6 @@
     "checkJs": false,
     "strictNullChecks": true,
     "baseUrl": ".",
-    "paths": {
-      "@camera-store/shared-types": ["../../libs/shared-types/src/index.ts"],
-      "@camera-store/api-client": ["../../libs/api-client/src/index.ts"]
-    }
   },
   "ts-node": {
     "swc": true

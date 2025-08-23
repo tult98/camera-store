@@ -16,7 +16,6 @@ This document is a technical companion to `PRD-Category-Page-Redesign-V2.md`. It
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS, daisyUI
 - **State Management**: Zustand (for client-side UI state), React Query (for data fetching & caching)
-- **API Client**: The existing `api-client` in `libs/api-client`.
 
 ---
 
@@ -91,8 +90,6 @@ export const useCategoryProducts = (categoryId: string, filters: ApiFilters, pag
   return useQuery({
     queryKey: ['categoryProducts', categoryId, filters, page, sortBy],
     queryFn: async () => {
-      // The api-client is just a thin wrapper around fetch, 
-      // so we can call our custom POST endpoint directly.
       const response = await cameraStoreApi.post('/store/category-products', {
         category_id: categoryId,
         filters,

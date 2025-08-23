@@ -43,16 +43,25 @@
       },
       "dependsOn": ["build"]
     },
-    "test": {
+    "test:unit": {
       "executor": "nx:run-commands",
       "options": {
-        "commands": [
-          "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
-          "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-          "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit"
-        ],
-        "cwd": "apps/backend",
-        "parallel": false
+        "command": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+        "cwd": "apps/backend"
+      }
+    },
+    "test:integration:http": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+        "cwd": "apps/backend"
+      }
+    },
+    "test:integration:modules": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
+        "cwd": "apps/backend"
       }
     },
     "seed": {

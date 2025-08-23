@@ -4,7 +4,6 @@ export async function GET(
   req: MedusaRequest,
   res: MedusaResponse
 ) {
-  const categoryId = req.params.id
   const query = req.query as Record<string, string>
 
   const allProducts = [

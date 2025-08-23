@@ -19,11 +19,6 @@ camera-store/
 ├── apps/
 │   ├── frontend/          # Next.js 15 storefront (port 8000)
 │   └── backend/           # MedusaJS v2 API server (port 9000)
-├── libs/
-│   ├── shared-types/      # Generated API types from OpenAPI
-│   └── api-client/        # Frontend API client utilities
-├── tools/
-│   └── openapi/           # OpenAPI schema and generation scripts
 ├── nx.json               # NX workspace configuration
 ├── tsconfig.base.json    # Base TypeScript configuration
 └── package.json          # Workspace dependencies and scripts
@@ -43,9 +38,6 @@ camera-store/
 ```bash
 # Install dependencies
 yarn install
-
-# Generate TypeScript types from OpenAPI schema
-yarn generate:types
 ```
 
 ### Development
@@ -164,9 +156,6 @@ nx lint frontend        # Lint frontend project
 nx lint backend         # Lint backend project
 nx run-many --target=lint --all  # Lint all projects
 nx run-many --target=type-check --all  # TypeScript checking across workspace
-
-# Type Generation
-yarn generate:types     # Generate TypeScript types from OpenAPI schema
 
 # Utilities
 nx reset                # Clean NX cache
@@ -383,27 +372,6 @@ export default async function myScript({ container, args }: ExecArgs) {
 
 **Execute with**: `npx medusa exec ./src/scripts/my-script.ts`
 
-## 📚 Libraries & Type System
-
-### Shared Types (`libs/shared-types/`)
-
-TypeScript types generated from OpenAPI specifications for type safety between frontend and backend.
-
-```typescript
-import type { FeaturedCategory, Product } from '@camera-store/shared-types';
-```
-
-### API Client (`libs/api-client/`)
-
-Type-safe client for consuming backend APIs in the frontend.
-
-```typescript
-import { createNextApiClient } from '@camera-store/api-client';
-
-const apiClient = createNextApiClient();
-const categories = await apiClient.getFeaturedCategories();
-```
-
 ## 🌐 API Documentation
 
 ### Featured Categories API
@@ -454,34 +422,15 @@ medusaIntegrationTestRunner({
 })
 ```
 
-## 🔄 Type Generation Workflow
-
-1. **Update API**: Make changes to backend API routes
-2. **Update Schema**: Modify `tools/openapi/schema.json` to reflect changes
-3. **Generate Types**: Run `yarn generate:types`
-4. **Build Libraries**: Types are automatically built and made available
-5. **Use in Frontend**: Import updated types in frontend applications
-
-```bash
-# Regenerate types after API changes
-yarn generate:types
-```
-
 ## 📊 Development Workflow
 
 ### Adding New API Endpoints
 
 1. Create route file in `apps/backend/src/api/`
-2. Update OpenAPI schema in `tools/openapi/schema.json`
-3. Generate types with `yarn generate:types`
-4. Update API client in `libs/api-client/`
-5. Import and use new types and client methods in frontend
 
 ### Adding New Frontend Pages
 
 1. Create page in `apps/frontend/src/app/`
-2. Import types from `@camera-store/shared-types`
-3. Import API client from `@camera-store/api-client`
 4. Follow existing patterns for consistency
 
 ## 🚀 Deployment
@@ -509,7 +458,6 @@ nx build backend
 ### Common Issues
 
 1. **Build Errors**: Run `yarn clean` and `yarn install` to clear cache
-2. **Type Errors**: Regenerate types with `yarn generate:types`
 3. **Port Conflicts**: Check that ports 8000 and 9000 are available
 4. **Database Connection**: Verify PostgreSQL is running and DATABASE_URL is correct
 

@@ -85,6 +85,5 @@
         "cwd": "apps/frontend"
       }
     }
-  },
-  "implicitDependencies": ["api-client"]
+  }
 }

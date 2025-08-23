@@ -1,6 +1,5 @@
 import { cameraStoreApi } from "@lib/config"
 
-// Temporarily using inline type until shared-types module is resolved
 interface FeaturedCategory {
   id: string;
   category_name: string;

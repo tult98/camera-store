@@ -9,9 +9,12 @@
     "build": "nx run-many --targets=build --projects=frontend,backend",
     "start": "nx run-many --targets=start --projects=frontend,backend --parallel",
     "test": "nx run-many --targets=test --projects=frontend,backend",
+    "test:backend:unit": "nx run backend:test:unit",
+    "test:backend:integration:http": "nx run backend:test:integration:http",
+    "test:backend:integration:modules": "nx run backend:test:integration:modules",
+    "test:backend:all": "yarn test:backend:unit && yarn test:backend:integration:http && yarn test:backend:integration:modules",
     "lint": "nx run-many --targets=lint --all",
     "type-check": "nx run-many --targets=type-check --all",
-    "generate:types": "nx run backend:generate-openapi && nx run shared-types:build",
     "clean": "nx reset"
   },
   "dependencies": {

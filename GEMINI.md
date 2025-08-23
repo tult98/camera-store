@@ -8,9 +8,6 @@ This is a full-stack e-commerce application for a camera store, built as a monor
 
 - **Frontend (`apps/frontend`):** A **Next.js 15** application using React 19, TypeScript, Tailwind CSS, and daisyUI. It serves as the customer-facing storefront.
 - **Backend (`apps/backend`):** A headless e-commerce server powered by **MedusaJS v2**. It uses TypeScript and connects to a PostgreSQL database.
-- **Shared Libraries (`libs`):**
-    - `shared-types`: Contains TypeScript types generated from the backend's OpenAPI schema to ensure type safety between the frontend and backend.
-    - `api-client`: A type-safe client for the frontend to consume the backend API.
 
 The project is configured for CI/CD with **GitHub Actions**, deploying to **Railway** using **Nixpacks** for builds.
 
@@ -19,49 +16,59 @@ The project is configured for CI/CD with **GitHub Actions**, deploying to **Rail
 The primary commands are defined in the root `package.json` and orchestrated by Nx.
 
 ### Prerequisites
+
 - Node.js >= 20
 - Yarn
 - PostgreSQL database
 
 ### Initial Setup
+
 1.  Install dependencies:
     ```bash
     yarn install
     ```
 2.  Set up environment variables by creating `.env` files in `apps/backend` and `apps/frontend` (refer to `README.md` for required variables).
-3.  Generate the shared TypeScript types from the backend API schema. This is a **critical step** for type safety.
-    ```bash
-    yarn generate:types
-    ```
 
 ### Development
+
 To run both the frontend (http://localhost:8000) and backend (http://localhost:9000) servers in parallel:
+
 ```bash
 yarn dev
 ```
+
 To run them individually:
+
 ```bash
 nx serve frontend
 nx serve backend
 ```
 
 ### Building for Production
+
 To build both applications:
+
 ```bash
 yarn build
 ```
+
 Or individually:
+
 ```bash
 nx build frontend
 nx build backend
 ```
 
 ### Testing
+
 To run all tests across the workspace:
+
 ```bash
 yarn test
 ```
+
 To run tests for a specific application:
+
 ```bash
 nx test frontend
 nx test backend
@@ -70,7 +77,6 @@ nx test backend
 ## 3. Development Conventions
 
 - **Monorepo Management:** Nx is the single source of truth for running tasks (`serve`, `build`, `lint`, `test`) and understanding the dependency graph between projects. Use `nx <command> <project>` for all operations.
-- **Type Safety:** The connection between the frontend and backend is strictly typed. After making any changes to the backend API routes, the OpenAPI schema must be updated and types regenerated using `yarn generate:types`.
 - **Code Style:** Code quality is maintained with ESLint and Prettier. Use `nx lint <project>` to check for issues.
 - **State Management:** The frontend prioritizes React Server Components (RSC) for data fetching. Client-side state is managed with React hooks and context.
 - **Component Structure:** The frontend follows a modular approach, with components organized by feature under `src/modules`. Shared components are in `src/modules/common`.

@@ -16,7 +16,6 @@ import {
   linkSalesChannelsToApiKeyWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
   updateStoresWorkflow,
-  createPriceListsWorkflow,
 } from '@medusajs/medusa/core-flows'
 
 export default async function seedDemoData({ container }: ExecArgs) {
@@ -65,7 +64,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   })
 
   logger.info('Seeding region data...')
-  const { result: regionResult } = await createRegionsWorkflow(container).run({
+  await createRegionsWorkflow(container).run({
     input: {
       regions: [
         {
@@ -643,9 +642,7 @@ NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}
 
   const categoryResult = [...mainCategoryResult, ...subCategoryResult]
 
-  const vietnamRegion = regionResult[0]
-
-  const { result: productResult } = await createProductsWorkflow(container).run({
+  await createProductsWorkflow(container).run({
     input: {
       products: [
         {

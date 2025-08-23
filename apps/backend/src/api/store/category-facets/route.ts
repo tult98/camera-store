@@ -54,7 +54,7 @@ export async function POST(
     // Verify category exists
     try {
       await productCategoryService.retrieveProductCategory(category_id)
-    } catch (error) {
+    } catch {
       return res.status(404).json({
         error: "Category not found"
       })

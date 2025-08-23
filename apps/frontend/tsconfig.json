@@ -20,8 +20,6 @@
       "@lib/*": ["lib/*"],
       "@modules/*": ["modules/*"],
       "@pages/*": ["pages/*"],
-      "@camera-store/shared-types": ["../../libs/shared-types/src/index.ts"],
-      "@camera-store/api-client": ["../../libs/api-client/src/index.ts"]
     },
     "plugins": [
       {

@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework/utils";
 import { z } from "zod";
 import type { CategoryProductsRequest } from "@camera-store/shared-types";
+import { toPaginatedResponse } from "src/utils/pagination";
 
 export const CategoryProductsSchema = z.object({
   category_id: z.string().min(1, "category_id is required"),
@@ -67,7 +68,7 @@ export async function POST(
     const offset = (currentPage - 1) * itemsPerPage;
 
     // Build query filters
-    const queryFilters: any = {
+    const queryFilters: Record<string, any> = {
       categories: {
         id: category_id,
       },
@@ -75,26 +76,26 @@ export async function POST(
 
     // Apply tag filters
     if (filters.tags && filters.tags.length > 0) {
-      queryFilters.tags = {
+      queryFilters["tags"] = {
         value: filters.tags,
       };
     }
 
     // Apply price filters on calculated_price
     if (filters.price?.min !== undefined || filters.price?.max !== undefined) {
-      queryFilters.variants = queryFilters.variants || {};
-      queryFilters.variants.calculated_price = {};
+      queryFilters["variants"] = queryFilters["variants"] || {};
+      queryFilters["variants"]["calculated_price"] = {};
 
       if (filters.price.min !== undefined) {
-        queryFilters.variants.calculated_price.calculated_amount = {
+        queryFilters["variants"]["calculated_price"]["calculated_amount"] = {
           $gte: filters.price.min * 100, // Convert to cents
         };
       }
       if (filters.price.max !== undefined) {
-        if (!queryFilters.variants.calculated_price.calculated_amount) {
-          queryFilters.variants.calculated_price.calculated_amount = {};
+        if (!queryFilters["variants"]["calculated_price"]["calculated_amount"]) {
+          queryFilters["variants"]["calculated_price"]["calculated_amount"] = {};
         }
-        queryFilters.variants.calculated_price.calculated_amount.$lte =
+        queryFilters["variants"]["calculated_price"]["calculated_amount"].$lte =
           filters.price.max * 100; // Convert to cents
       }
     }
@@ -109,7 +110,7 @@ export async function POST(
     }
 
     // Build sorting from order_by string (e.g., "-price,name,created_at")
-    let orderBy: any = {};
+    let orderBy: Record<string, any> = {};
 
     if (order_by) {
       // Split by comma to get individual fields
@@ -124,20 +125,20 @@ export async function POST(
         switch (fieldName.trim()) {
           case "price":
             // For nested price sorting
-            if (!orderBy.variants) orderBy.variants = {};
-            if (!orderBy.variants.calculated_price)
-              orderBy.variants.calculated_price = {};
-            orderBy.variants.calculated_price.calculated_amount = direction;
+            if (!orderBy["variants"]) orderBy["variants"] = {};
+            if (!orderBy["variants"]["calculated_price"])
+              orderBy["variants"]["calculated_price"] = {};
+            orderBy["variants"]["calculated_price"]["calculated_amount"] = direction;
             break;
           case "name":
-            orderBy.title = direction;
+            orderBy["title"] = direction;
             break;
           case "created_at":
-            orderBy.created_at = direction;
+            orderBy["created_at"] = direction;
             break;
           case "popularity":
             // Popularity maps to created_at desc (newest/most recent)
-            orderBy.created_at = "desc";
+            orderBy["created_at"] = "desc";
             break;
           default:
             // For any other field, use it directly
@@ -148,7 +149,7 @@ export async function POST(
     }
 
     // Query products with calculated prices
-    const data = await query.graph({
+    const result = await query.graph({
       entity: "product",
       fields: [
         "*",
@@ -174,7 +175,17 @@ export async function POST(
       },
     });
 
-    res.status(200).json(data);
+    const products = result.data || [];
+    const totalCount = result.metadata?.count || 0;
+
+    const paginatedResponse = toPaginatedResponse(
+      products,
+      totalCount,
+      itemsPerPage,
+      offset
+    );
+
+    res.status(200).json(paginatedResponse);
   } catch (error) {
     console.error("Error in POST /store/category-products:", error);
     res.status(500).json({

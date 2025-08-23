@@ -17,3 +17,5 @@ export const sdk = new Medusa({
   debug: process.env.NODE_ENV === "development",
   publishableKey,
 })
+
+export { cameraStoreApi } from "./api-client"

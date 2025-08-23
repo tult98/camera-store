@@ -1,4 +1,4 @@
-import { sdk } from '@lib/config';
+import { apiClient } from '@lib/api-client';
 
 interface FeaturedCategory {
   id: string;
@@ -21,7 +21,7 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
     
     const getCachedCategories = unstable_cache(
       async () => {
-        return await sdk.client.fetch('/store/featured-categories', {
+        return await apiClient<FeaturedCategory[]>('/store/featured-categories', {
           method: 'GET',
           next: { revalidate: 300 }
         })
@@ -34,7 +34,7 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
     )
 
     const featuredCategories = await getCachedCategories()
-    return featuredCategories as FeaturedCategory[]
+    return featuredCategories
   } catch (error) {
     console.error("Error fetching featured categories:", error)
     // Return empty array on error to prevent page crashes

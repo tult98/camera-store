@@ -31,9 +31,10 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
           const defaultRegion = regions[0]
           setRegion(defaultRegion)
           
-          // Store region ID for server-side usage
+          // Store region data for client-side usage
           if (typeof window !== "undefined") {
             sessionStorage.setItem("default-region-id", defaultRegion.id)
+            sessionStorage.setItem("default-currency-code", defaultRegion.currency_code)
           }
         } else {
           setError("No regions found in your Medusa store")

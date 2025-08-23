@@ -1,5 +1,7 @@
-import { Product } from ".medusa/types/query-entry-points";
-import { RemoteQueryFunctionReturnPagination } from "@medusajs/types";
+import {
+  HttpTypes,
+  RemoteQueryFunctionReturnPagination,
+} from "@medusajs/types";
 
 export interface ApiFilters {
   tags?: string[];
@@ -16,7 +18,5 @@ export interface CategoryProductsRequest {
   filters?: ApiFilters;
 }
 
-export interface CategoryProductsResponse {
-  data: Product[];
-  metadata?: RemoteQueryFunctionReturnPagination;
-}
+export interface CategoryProductsResponse
+  extends HttpTypes.PaginatedResponse<{ items: HttpTypes.StoreProduct[] }> {}

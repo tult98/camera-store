@@ -15,9 +15,9 @@ export function toPaginatedResponse<T>(
   limit: number,
   offset: number,
   estimate_count?: number
-): PaginatedResponse<{ data: T[] }> {
+): PaginatedResponse<{ items: T[] }> {
   return {
-    data,
+    items: data,
     count,
     limit,
     offset,

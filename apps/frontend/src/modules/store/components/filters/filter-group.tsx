@@ -1,7 +1,7 @@
 "use client"
 
-import { Facet, FacetOption } from "@lib/hooks/useCategoryData"
-import { useCategoryFilterStore, ApiFilters } from "@modules/store/store/category-filter-store"
+import { Facet, FacetOption } from "@camera-store/shared-types"
+import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
 import { useState } from "react"
 
 interface FilterGroupProps {

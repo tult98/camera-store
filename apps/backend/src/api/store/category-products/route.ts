@@ -1,24 +1,31 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import { ContainerRegistrationKeys, QueryContext } from "@medusajs/framework/utils";
+import {
+  ContainerRegistrationKeys,
+  QueryContext,
+} from "@medusajs/framework/utils";
 import { z } from "zod";
+import type { CategoryProductsRequest } from "@camera-store/shared-types";
 
 export const CategoryProductsSchema = z.object({
   category_id: z.string().min(1, "category_id is required"),
   page: z.number().int().positive().default(1),
   page_size: z.number().int().positive().max(100).default(24),
   order_by: z.string().default("-created_at"),
-  filters: z.object({
-    tags: z.array(z.string()).optional(),
-    availability: z.array(z.enum(["in-stock", "out-of-stock"])).optional(),
-    price: z.object({
-      min: z.number().min(0).optional(),
-      max: z.number().min(0).optional(),
-    }).optional(),
-    metadata: z.record(z.string(), z.array(z.string())).optional(),
-  }).optional().default({}),
+  filters: z
+    .object({
+      tags: z.array(z.string()).optional(),
+      availability: z.array(z.enum(["in-stock", "out-of-stock"])).optional(),
+      price: z
+        .object({
+          min: z.number().min(0).optional(),
+          max: z.number().min(0).optional(),
+        })
+        .optional(),
+      metadata: z.record(z.string(), z.array(z.string())).optional(),
+    })
+    .optional()
+    .default({}),
 });
-
-export type CategoryProductsRequest = z.infer<typeof CategoryProductsSchema>;
 
 export async function POST(
   req: MedusaRequest<CategoryProductsRequest>,
@@ -43,8 +50,8 @@ export async function POST(
     }
 
     // Get region_id and currency_code from request headers
-    const region_id = req.headers['region_id'] as string;
-    const currency_code = req.headers['currency_code'] as string;
+    const region_id = req.headers["region_id"] as string;
+    const currency_code = req.headers["currency_code"] as string;
 
     if (!region_id || !currency_code) {
       res.status(400).json({
@@ -77,7 +84,7 @@ export async function POST(
     if (filters.price?.min !== undefined || filters.price?.max !== undefined) {
       queryFilters.variants = queryFilters.variants || {};
       queryFilters.variants.calculated_price = {};
-      
+
       if (filters.price.min !== undefined) {
         queryFilters.variants.calculated_price.calculated_amount = {
           $gte: filters.price.min * 100, // Convert to cents
@@ -87,7 +94,8 @@ export async function POST(
         if (!queryFilters.variants.calculated_price.calculated_amount) {
           queryFilters.variants.calculated_price.calculated_amount = {};
         }
-        queryFilters.variants.calculated_price.calculated_amount.$lte = filters.price.max * 100; // Convert to cents
+        queryFilters.variants.calculated_price.calculated_amount.$lte =
+          filters.price.max * 100; // Convert to cents
       }
     }
 
@@ -102,22 +110,23 @@ export async function POST(
 
     // Build sorting from order_by string (e.g., "-price,name,created_at")
     let orderBy: any = {};
-    
+
     if (order_by) {
       // Split by comma to get individual fields
       const sortFields = order_by.split(",");
-      
-      sortFields.forEach(field => {
+
+      sortFields.forEach((field) => {
         // Check if field starts with "-" for descending order
         const isDescending = field.startsWith("-");
         const fieldName = isDescending ? field.substring(1) : field;
         const direction = isDescending ? "desc" : "asc";
-        
+
         switch (fieldName.trim()) {
           case "price":
             // For nested price sorting
             if (!orderBy.variants) orderBy.variants = {};
-            if (!orderBy.variants.calculated_price) orderBy.variants.calculated_price = {};
+            if (!orderBy.variants.calculated_price)
+              orderBy.variants.calculated_price = {};
             orderBy.variants.calculated_price.calculated_amount = direction;
             break;
           case "name":
@@ -165,41 +174,7 @@ export async function POST(
       },
     });
 
-    res.status(200).json(data)
-
-    // Get total count for pagination
-    // const { data: countData } = await query.graph({
-    //   entity: "product",
-    //   fields: ["id"],
-    //   filters: queryFilters,
-    // });
-
-    // const totalProducts = countData.length;
-    // const totalPages = Math.ceil(totalProducts / itemsPerPage);
-
-    // Apply availability filter after fetching (since it's calculated)
-    // let finalProducts = products;
-    // if (filters.availability && filters.availability.length > 0) {
-    //   finalProducts = finalProducts.filter((product: any) => {
-    //     // Calculate availability based on inventory
-    //     const hasInventory = product.variants?.some((v: any) => 
-    //       v.inventory_quantity > 0
-    //     );
-    //     const availability = hasInventory ? "in-stock" : "out-of-stock";
-    //     return filters.availability!.includes(availability);
-    //   });
-    // }
-
-    // res.status(200).json({
-    //   pagination: {
-    //     total: totalProducts,
-    //     limit: itemsPerPage,
-    //     offset,
-    //     totalPages,
-    //     currentPage,
-    //   },
-    //   products: finalProducts,
-    // });
+    res.status(200).json(data);
   } catch (error) {
     console.error("Error in POST /store/category-products:", error);
     res.status(500).json({

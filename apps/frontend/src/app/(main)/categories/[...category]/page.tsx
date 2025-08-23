@@ -1,8 +1,12 @@
-
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import CategoryPageClient from "@modules/store/components/category-page-client"
-import { CategoryProductsResponse, CategoryFacetsResponse, CategoryProductsRequest, CategoryFacetsRequest } from "@lib/hooks/useCategoryData"
+import {
+  CategoryProductsResponse,
+  CategoryFacetsResponse,
+  CategoryProductsRequest,
+  CategoryFacetsRequest,
+} from "@lib/hooks/useCategoryData"
 import { sdk } from "@lib/config"
 import { getCategoryByHandle } from "@lib/data/categories"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
@@ -14,8 +18,6 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-
-
 async function fetchCategoryData(categoryId: string): Promise<{
   products: CategoryProductsResponse | null
   facets: CategoryFacetsResponse | null
@@ -25,31 +27,36 @@ async function fetchCategoryData(categoryId: string): Promise<{
       category_id: categoryId,
       page: 1,
       page_size: 24,
-      sort_by: 'created_at',
-      sort_direction: 'desc',
-      filters: {}
+      order_by: "created_at",
+      filters: {},
     }
-    
+
     const facetsRequest: CategoryFacetsRequest = {
       category_id: categoryId,
-      filters: {}
+      filters: {},
     }
 
-    const productsResponse = await sdk.client.fetch<CategoryProductsResponse>('/store/category-products', {
-      method: 'POST',
-      body: productsRequest,
-      next: { revalidate: 300 }
-    })
+    const productsResponse = await sdk.client.fetch<CategoryProductsResponse>(
+      "/store/category-products",
+      {
+        method: "POST",
+        body: productsRequest,
+        next: { revalidate: 300 },
+      }
+    )
 
-    const facetsResponse = await sdk.client.fetch<CategoryFacetsResponse>('/store/category-facets', {
-      method: 'POST',
-      body: facetsRequest,
-      next: { revalidate: 300 }
-    })
+    const facetsResponse = await sdk.client.fetch<CategoryFacetsResponse>(
+      "/store/category-facets",
+      {
+        method: "POST",
+        body: facetsRequest,
+        next: { revalidate: 300 },
+      }
+    )
 
     return { products: productsResponse, facets: facetsResponse }
   } catch (error) {
-    console.error('Error fetching category data:', error)
+    console.error("Error fetching category data:", error)
     return { products: null, facets: null }
   }
 }
@@ -63,45 +70,46 @@ export default async function CategoryPage(props: Props) {
     notFound()
   }
 
-  const { products: initialProductsData, facets: initialFacetsData } = await fetchCategoryData(category.id)
+  const { products: initialProductsData, facets: initialFacetsData } =
+    await fetchCategoryData(category.id)
 
   const fallbackProducts: CategoryProductsResponse = {
-    pagination: {
-      total: 0,
-      limit: 24,
-      offset: 0,
-      totalPages: 0,
-      currentPage: 1
+    data: [],
+    metadata: {
+      count: 0,
+      skip: 0,
+      take: 24,
     },
-    products: []
   }
 
   const fallbackFacets: CategoryFacetsResponse = {
-    facets: []
+    facets: [],
   }
 
   return (
-    <Suspense fallback={
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Title Skeleton */}
-        <div className="mb-6">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-48 mb-2"></div>
-            <div className="h-4 bg-gray-100 rounded w-64"></div>
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          {/* Page Title Skeleton */}
+          <div className="mb-6">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded w-48 mb-2"></div>
+              <div className="h-4 bg-gray-100 rounded w-64"></div>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8">
+            <aside className="lg:w-80">
+              <SkeletonFilterSidebar />
+            </aside>
+            <main className="flex-1">
+              <SkeletonProductControls />
+              <SkeletonProductGrid numberOfProducts={8} />
+            </main>
           </div>
         </div>
-        
-        <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="lg:w-80">
-            <SkeletonFilterSidebar />
-          </aside>
-          <main className="flex-1">
-            <SkeletonProductControls />
-            <SkeletonProductGrid numberOfProducts={8} />
-          </main>
-        </div>
-      </div>
-    }>
+      }
+    >
       <CategoryPageClient
         categoryId={category.id}
         categoryName={category.name}

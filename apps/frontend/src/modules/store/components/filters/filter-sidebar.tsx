@@ -1,7 +1,7 @@
 "use client"
 
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
-import { Facet } from "@lib/hooks/useCategoryData"
+import { Facet } from "@camera-store/shared-types"
 import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
 import { useState } from "react"
 import FilterGroup from "./filter-group"

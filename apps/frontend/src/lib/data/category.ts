@@ -3,7 +3,7 @@ import {
   CategoryProductsResponse, 
   CategoryFacetsRequest, 
   CategoryFacetsResponse 
-} from '@/types/category'
+} from '@camera-store/shared-types'
 
 const API_BASE_URL = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000'
 
@@ -65,8 +65,7 @@ export async function fetchCategoryData(categoryId: string) {
       category_id: categoryId,
       page: 1,
       page_size: 24,
-      sort_by: 'created_at',
-      sort_direction: 'desc',
+      order_by: '-created_at',
       filters: {}
     }),
     fetchCategoryFacets({

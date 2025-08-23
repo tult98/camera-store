@@ -13,13 +13,16 @@
     "sourceMap": false,
     "inlineSourceMap": true,
     "outDir": "./.medusa/server",
-    "rootDir": "./",
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "checkJs": false,
     "strictNullChecks": true,
     "baseUrl": ".",
+    "paths": {
+      "@camera-store/shared-types": ["../../shared-types/index.ts"],
+      "@camera-store/shared-types/*": ["../../shared-types/*"]
+    }
   },
   "ts-node": {
     "swc": true

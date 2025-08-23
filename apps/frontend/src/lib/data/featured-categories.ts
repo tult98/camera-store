@@ -1,4 +1,4 @@
-import { cameraStoreApi } from "@lib/config"
+import { sdk } from '@lib/config';
 
 interface FeaturedCategory {
   id: string;
@@ -21,7 +21,10 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
     
     const getCachedCategories = unstable_cache(
       async () => {
-        return await cameraStoreApi.getFeaturedCategories()
+        return await sdk.client.fetch('/store/featured-categories', {
+          method: 'GET',
+          next: { revalidate: 300 }
+        })
       },
       ['featured-categories'],
       {
@@ -31,7 +34,7 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
     )
 
     const featuredCategories = await getCachedCategories()
-    return featuredCategories
+    return featuredCategories as FeaturedCategory[]
   } catch (error) {
     console.error("Error fetching featured categories:", error)
     // Return empty array on error to prevent page crashes

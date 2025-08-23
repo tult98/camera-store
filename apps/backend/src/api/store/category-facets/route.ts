@@ -1,36 +1,11 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { Modules } from "@medusajs/framework/utils"
-
-interface FacetsRequest {
-  category_id: string
-  filters?: {
-    tags?: string[]
-    availability?: string[]
-    price?: {
-      min?: number
-      max?: number
-    }
-    metadata?: Record<string, string[]>
-  }
-}
-
-interface FacetOption {
-  value: string
-  label: string
-  count: number
-}
-
-interface FacetRangeOptions {
-  min: number
-  max: number
-}
-
-interface Facet {
-  id: string
-  label: string
-  type: 'checkbox' | 'range'
-  options: FacetOption[] | FacetRangeOptions
-}
+import type { 
+  CategoryFacetsRequest, 
+  FacetOption, 
+  FacetRangeOptions, 
+  Facet 
+} from '@camera-store/shared-types'
 
 export async function POST(
   req: MedusaRequest,
@@ -40,7 +15,7 @@ export async function POST(
     const {
       category_id,
       filters = {}
-    }: FacetsRequest = req.body as FacetsRequest
+    }: CategoryFacetsRequest = req.body as CategoryFacetsRequest
 
     if (!category_id) {
       return res.status(400).json({

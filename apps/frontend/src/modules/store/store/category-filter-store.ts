@@ -1,14 +1,8 @@
 import { create } from 'zustand'
+import { ApiFilters } from '@camera-store/shared-types'
 
 export type ViewMode = 'grid' | 'list'
 export type SortOption = 'popularity' | 'price_asc' | 'price_desc' | 'newest' | 'name_asc' | 'name_desc' | 'rating'
-
-export interface ApiFilters {
-  tags?: string[]
-  availability?: string[]
-  price?: { min?: number; max?: number }
-  metadata?: Record<string, string[]>
-}
 
 export interface CategoryFilterState {
   filters: ApiFilters

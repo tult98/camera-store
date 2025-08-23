@@ -1,73 +1,36 @@
 import { useQuery } from '@tanstack/react-query'
-import { cameraStoreApi } from '@lib/config'
-import { ApiFilters } from '@modules/store/store/category-filter-store'
+import { 
+  CategoryProductsRequest as SharedCategoryProductsRequest,
+  CategoryProductsResponse,
+  CategoryFacetsRequest as SharedCategoryFacetsRequest,
+  CategoryFacetsResponse,
+  CategoryProduct,
+  Facet,
+  FacetOption
+} from '@camera-store/shared-types'
+import { sdk } from '@lib/config'
 
-export interface CategoryProductsRequest {
-  category_id: string
-  page: number
-  page_size: number
-  sort_by: string
-  sort_direction: 'asc' | 'desc'
-  filters: ApiFilters
+// Extend the shared type to add search_query for client-side filtering
+export interface CategoryProductsRequest extends SharedCategoryProductsRequest {
   search_query?: string
 }
 
-export interface CategoryFacetsRequest {
-  category_id: string
-  filters: ApiFilters
-}
+export interface CategoryFacetsRequest extends SharedCategoryFacetsRequest {}
 
-export interface ProductData {
-  id: string
-  title: string
-  handle: string
-  thumbnail: string
-  price: {
-    amount: number
-    currency_code: string
-  }
-  rating?: number
-  review_count?: number
-  key_specs: Array<{
-    label: string
-    value: string
-  }>
-  availability: string
-}
+// Re-export ProductData as an alias for CategoryProduct for backward compatibility
+export type ProductData = CategoryProduct
 
-export interface CategoryProductsResponse {
-  pagination: {
-    total: number
-    limit: number
-    offset: number
-    totalPages: number
-    currentPage: number
-  }
-  products: ProductData[]
-}
-
-export interface FacetOption {
-  value: string
-  label: string
-  count: number
-}
-
-export interface Facet {
-  id: string
-  label: string
-  type: 'checkbox' | 'range'
-  options: FacetOption[] | { min: number; max: number }
-}
-
-export interface CategoryFacetsResponse {
-  facets: Facet[]
-}
+// Re-export types for backward compatibility
+export { CategoryProductsResponse, CategoryFacetsResponse, Facet, FacetOption }
 
 export const useCategoryProducts = (request: CategoryProductsRequest) => {
   return useQuery<CategoryProductsResponse>({
     queryKey: ['categoryProducts', request],
     queryFn: async () => {
-      const response = await cameraStoreApi.post('/store/category-products', request)
+      const response = await sdk.client.fetch('/store/category-products', {
+        method: 'POST',
+        body: request,
+      })
       return response.data
     },
     enabled: !!request.category_id,
@@ -78,7 +41,10 @@ export const useCategoryFacets = (request: CategoryFacetsRequest) => {
   return useQuery<CategoryFacetsResponse>({
     queryKey: ['categoryFacets', request],
     queryFn: async () => {
-      const response = await cameraStoreApi.post('/store/category-facets', request)
+      const response = await sdk.client.fetch('/store/category-facets', {
+        method: 'POST',
+        body: request,
+      })
       return response.data
     },
     enabled: !!request.category_id,

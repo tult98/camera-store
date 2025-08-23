@@ -4,8 +4,10 @@ import type {
   MedusaResponse,
   MiddlewaresConfig 
 } from "@medusajs/framework"
+import { validateAndTransformBody } from "@medusajs/framework/http"
 import express from "express"
 import path from "path"
+import { CategoryProductsSchema } from "./store/category-products/route"
 
 const staticMiddleware = (
   req: MedusaRequest, 
@@ -17,11 +19,20 @@ const staticMiddleware = (
   return express.static(staticPath)(req as any, res as any, next)
 }
 
-export const config: MiddlewaresConfig = {
+const config: MiddlewaresConfig = {
   routes: [
     {
       matcher: "/static/*",
       middlewares: [staticMiddleware],
     },
+    {
+      matcher: "/store/category-products",
+      method: "POST",
+      middlewares: [
+        validateAndTransformBody(CategoryProductsSchema),
+      ],
+    },
   ],
 }
+
+export default config

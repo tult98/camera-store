@@ -1,46 +1,63 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework";
-import type { IProductModuleService } from "@medusajs/types";
-import { Modules } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys, QueryContext } from "@medusajs/framework/utils";
+import { z } from "zod";
 
-interface FilterRequest {
-  category_id: string;
-  page?: number;
-  page_size?: number;
-  sort_by?: string;
-  sort_direction?: "asc" | "desc";
-  filters?: {
-    tags?: string[];
-    availability?: string[];
-    price?: {
-      min?: number;
-      max?: number;
-    };
-    metadata?: Record<string, string[]>;
-  };
-}
+export const CategoryProductsSchema = z.object({
+  category_id: z.string().min(1, "category_id is required"),
+  page: z.number().int().positive().default(1),
+  page_size: z.number().int().positive().max(100).default(24),
+  order_by: z.string().default("-created_at"),
+  filters: z.object({
+    tags: z.array(z.string()).optional(),
+    availability: z.array(z.enum(["in-stock", "out-of-stock"])).optional(),
+    price: z.object({
+      min: z.number().min(0).optional(),
+      max: z.number().min(0).optional(),
+    }).optional(),
+    metadata: z.record(z.string(), z.array(z.string())).optional(),
+  }).optional().default({}),
+});
 
-export async function POST(req: MedusaRequest, res: MedusaResponse) {
+export type CategoryProductsRequest = z.infer<typeof CategoryProductsSchema>;
+
+export async function POST(
+  req: MedusaRequest<CategoryProductsRequest>,
+  res: MedusaResponse
+): Promise<void> {
   try {
+    const requestData = req.validatedBody;
+
     const {
       category_id,
       page = 1,
       page_size = 24,
-      sort_by = "popularity",
-      sort_direction = "asc",
+      order_by = "-created_at",
       filters = {},
-    }: FilterRequest = req.body as FilterRequest;
+    } = requestData as CategoryProductsRequest;
 
     if (!category_id) {
-      return res.status(400).json({
+      res.status(400).json({
         error: "category_id is required",
       });
+      return;
     }
+
+    // Get region_id and currency_code from request headers
+    const region_id = req.headers['region_id'] as string;
+    const currency_code = req.headers['currency_code'] as string;
+
+    if (!region_id || !currency_code) {
+      res.status(400).json({
+        error: "region_id and currency_code headers are required",
+      });
+      return;
+    }
+
+    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
     const currentPage = Number(page);
     const itemsPerPage = Number(page_size);
     const offset = (currentPage - 1) * itemsPerPage;
-
-    const productModuleService = req.scope.resolve(Modules.PRODUCT) as IProductModuleService;
 
     // Build query filters
     const queryFilters: any = {
@@ -56,22 +73,21 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       };
     }
 
-    // Apply price filters (using variants.prices instead of calculated_price)
+    // Apply price filters on calculated_price
     if (filters.price?.min !== undefined || filters.price?.max !== undefined) {
-      queryFilters.variants = {
-        prices: {},
-      };
+      queryFilters.variants = queryFilters.variants || {};
+      queryFilters.variants.calculated_price = {};
+      
       if (filters.price.min !== undefined) {
-        queryFilters.variants.prices.amount = {
+        queryFilters.variants.calculated_price.calculated_amount = {
           $gte: filters.price.min * 100, // Convert to cents
         };
       }
       if (filters.price.max !== undefined) {
-        if (!queryFilters.variants.prices.amount) {
-          queryFilters.variants.prices.amount = {};
+        if (!queryFilters.variants.calculated_price.calculated_amount) {
+          queryFilters.variants.calculated_price.calculated_amount = {};
         }
-        queryFilters.variants.prices.amount.$lte =
-          filters.price.max * 100; // Convert to cents
+        queryFilters.variants.calculated_price.calculated_amount.$lte = filters.price.max * 100; // Convert to cents
       }
     }
 
@@ -84,104 +100,106 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       });
     }
 
-    // Build sorting
+    // Build sorting from order_by string (e.g., "-price,name,created_at")
     let orderBy: any = {};
-    switch (sort_by) {
-      case "price":
-        orderBy = {
-          variants: { prices: { amount: sort_direction } },
-        };
-        break;
-      case "name":
-        orderBy = { title: sort_direction };
-        break;
-      case "created_at":
-      case "newest":
-        orderBy = { created_at: sort_direction === "asc" ? "desc" : "asc" };
-        break;
-      case "popularity":
-      default:
-        orderBy = { created_at: "desc" };
-        break;
+    
+    if (order_by) {
+      // Split by comma to get individual fields
+      const sortFields = order_by.split(",");
+      
+      sortFields.forEach(field => {
+        // Check if field starts with "-" for descending order
+        const isDescending = field.startsWith("-");
+        const fieldName = isDescending ? field.substring(1) : field;
+        const direction = isDescending ? "desc" : "asc";
+        
+        switch (fieldName.trim()) {
+          case "price":
+            // For nested price sorting
+            if (!orderBy.variants) orderBy.variants = {};
+            if (!orderBy.variants.calculated_price) orderBy.variants.calculated_price = {};
+            orderBy.variants.calculated_price.calculated_amount = direction;
+            break;
+          case "name":
+            orderBy.title = direction;
+            break;
+          case "created_at":
+            orderBy.created_at = direction;
+            break;
+          case "popularity":
+            // Popularity maps to created_at desc (newest/most recent)
+            orderBy.created_at = "desc";
+            break;
+          default:
+            // For any other field, use it directly
+            orderBy[fieldName.trim()] = direction;
+            break;
+        }
+      });
     }
 
-    // Query products with relations
-    const products = await productModuleService.listProducts(
-      queryFilters,
-      {
+    // Query products with calculated prices
+    const data = await query.graph({
+      entity: "product",
+      fields: [
+        "*",
+        "variants.*",
+        "variants.calculated_price.*",
+        "categories.*",
+        "tags.*",
+        "images.*",
+      ],
+      filters: queryFilters,
+      pagination: {
         skip: offset,
         take: itemsPerPage,
         order: orderBy,
-        relations: [
-          "variants",
-          "categories",
-          "tags",
-          "images",
-        ],
-      }
-    );
+      },
+      context: {
+        variants: {
+          calculated_price: QueryContext({
+            region_id: region_id,
+            currency_code: currency_code,
+          }),
+        },
+      },
+    });
+
+    res.status(200).json(data)
 
     // Get total count for pagination
-    const count = await productModuleService.listProducts(queryFilters, {
-      relations: [],
-    }).then(result => result.length);
+    // const { data: countData } = await query.graph({
+    //   entity: "product",
+    //   fields: ["id"],
+    //   filters: queryFilters,
+    // });
 
-    // Transform products to match frontend expected structure
-    const transformedProducts = products.map((product: any) => {
-      const defaultVariant = product.variants?.[0];
-      const price = defaultVariant?.prices?.[0];
+    // const totalProducts = countData.length;
+    // const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
-      return {
-        id: product.id,
-        title: product.title,
-        handle: product.handle,
-        thumbnail: product.thumbnail || product.images?.[0]?.url,
-        price: price
-          ? {
-              amount: price.amount / 100, // Convert from cents
-              currency_code: price.currency_code,
-            }
-          : { amount: 0, currency_code: "usd" },
-        description: product.description,
-        tags: product.tags?.map((tag: any) => tag.value) || [],
-        categories:
-          product.categories?.map((cat: any) => ({
-            id: cat.id,
-            name: cat.name,
-            handle: cat.handle,
-          })) || [],
-        metadata: product.metadata || {},
-        availability:
-          defaultVariant?.inventory_quantity > 0 ? "in-stock" : "out-of-stock",
-        images:
-          product.images?.map((img: any) => ({
-            id: img.id,
-            url: img.url,
-          })) || [],
-      };
-    });
+    // Apply availability filter after fetching (since it's calculated)
+    // let finalProducts = products;
+    // if (filters.availability && filters.availability.length > 0) {
+    //   finalProducts = finalProducts.filter((product: any) => {
+    //     // Calculate availability based on inventory
+    //     const hasInventory = product.variants?.some((v: any) => 
+    //       v.inventory_quantity > 0
+    //     );
+    //     const availability = hasInventory ? "in-stock" : "out-of-stock";
+    //     return filters.availability!.includes(availability);
+    //   });
+    // }
 
-    // Apply availability filter after transformation (since it's calculated)
-    let finalProducts = transformedProducts;
-    if (filters.availability && filters.availability.length > 0) {
-      finalProducts = finalProducts.filter((product: any) =>
-        filters.availability!.includes(product.availability)
-      );
-    }
-
-    const totalProducts = count;
-    const totalPages = Math.ceil(totalProducts / itemsPerPage);
-
-    res.status(200).json({
-      pagination: {
-        total: totalProducts,
-        limit: itemsPerPage,
-        offset,
-        totalPages,
-        currentPage,
-      },
-      products: finalProducts,
-    });
+    // res.status(200).json({
+    //   pagination: {
+    //     total: totalProducts,
+    //     limit: itemsPerPage,
+    //     offset,
+    //     totalPages,
+    //     currentPage,
+    //   },
+    //   products: finalProducts,
+    // });
   } catch (error) {
     console.error("Error in POST /store/category-products:", error);
     res.status(500).json({

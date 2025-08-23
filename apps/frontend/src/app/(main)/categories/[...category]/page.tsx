@@ -47,9 +47,6 @@ async function fetchCategoryData(categoryId: string): Promise<{
       next: { revalidate: 300 }
     })
 
-    console.log('================productsResponse:', productsResponse)
-    console.log('================facetsResponse:', facetsResponse)
-
     return { products: productsResponse, facets: facetsResponse }
   } catch (error) {
     console.error('Error fetching category data:', error)

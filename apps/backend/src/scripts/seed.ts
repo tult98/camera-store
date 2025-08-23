@@ -32,7 +32,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info('Seeding store data...')
   const [store] = await storeModuleService.listStores()
   let defaultSalesChannel = await salesChannelModuleService.listSalesChannels({
-    name: 'Kênh Bán Hàng Mặc Định',
+    name: 'Default Sales Channel',
   })
 
   if (!defaultSalesChannel.length) {
@@ -41,7 +41,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       input: {
         salesChannelsData: [
           {
-            name: 'Kênh Bán Hàng Mặc Định',
+            name: 'Default Sales Channel',
           },
         ],
       },
@@ -69,7 +69,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       regions: [
         {
-          name: 'Việt Nam',
+          name: 'Vietnam',
           currency_code: 'vnd',
           countries,
           payment_providers: ['pp_system_default'],
@@ -87,7 +87,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       locations: [
         {
-          name: 'Cửa hàng Fujifilm Hà Nội',
+          name: 'Fujifilm Hanoi Store',
           address: {
             city: 'Hanoi',
             country_code: 'VN',
@@ -110,7 +110,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       input: {
         data: [
           {
-            name: 'Hồ sơ Vận chuyển Mặc định',
+            name: 'Default Shipping Profile',
             type: 'default',
           },
         ],
@@ -120,11 +120,11 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
 
   const fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
-    name: 'Giao hàng từ cửa hàng Hà Nội',
+    name: 'Shipping from Hanoi Store',
     type: 'shipping',
     service_zones: [
       {
-        name: 'Việt Nam',
+        name: 'Vietnam',
         geo_zones: [
           {
             country_code: 'vn',
@@ -156,14 +156,14 @@ export default async function seedDemoData({ container }: ExecArgs) {
   await createShippingOptionsWorkflow(container).run({
     input: [
       {
-        name: 'Giao hàng tận nơi',
+        name: 'Store Delivery',
         price_type: 'flat',
         provider_id: 'manual_manual',
         service_zone_id: fulfillmentSet.service_zones[0].id,
         shipping_profile_id: shippingProfile.id,
         type: {
-          label: 'Giao hàng tận nơi',
-          description: 'Chúng tôi đảm bảo giao hàng an toàn và nhanh chóng.',
+          label: 'Store Delivery',
+          description: 'We ensure safe and fast delivery.',
           code: 'store-delivery',
         },
         prices: [
@@ -202,7 +202,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       api_keys: [
         {
-          title: 'Cửa hàng trực tuyến',
+          title: 'Online Store',
           type: 'publishable',
           created_by: '',
         },
@@ -237,7 +237,9 @@ export default async function seedDemoData({ container }: ExecArgs) {
         envContent = envContent.replace(keyRegex, `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}`)
       } else {
         // Add the key if it doesn't exist
-        envContent += `\nNEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}\n`
+        envContent += `
+NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}
+`
       }
       
       fs.writeFileSync(frontendEnvPath, envContent, 'utf8')
@@ -318,70 +320,70 @@ export default async function seedDemoData({ container }: ExecArgs) {
       collections: [
         // Brand collections
         {
-          title: 'Bộ sưu tập Canon',
+          title: 'Canon Collection',
           handle: 'canon-collection',
         },
         {
-          title: 'Bộ sưu tập Nikon',
+          title: 'Nikon Collection',
           handle: 'nikon-collection',
         },
         {
-          title: 'Bộ sưu tập Sony',
+          title: 'Sony Collection',
           handle: 'sony-collection',
         },
         {
-          title: 'Bộ sưu tập Fujifilm',
+          title: 'Fujifilm Collection',
           handle: 'fujifilm-collection',
         },
         // Feature collections
         {
-          title: 'Máy ảnh Full Frame',
+          title: 'Full Frame Cameras',
           handle: 'full-frame-cameras',
         },
         {
-          title: 'Hệ thống máy ảnh Mirrorless',
+          title: 'Mirrorless Systems',
           handle: 'mirrorless-systems',
         },
         {
-          title: 'Ống kính chuyên nghiệp',
+          title: 'Professional Lenses',
           handle: 'professional-lenses',
         },
         {
-          title: 'Thiết bị du lịch',
+          title: 'Travel Gear',
           handle: 'travel-gear',
         },
         // Use case collections
         {
-          title: 'Chụp ảnh chân dung',
+          title: 'Portrait Photography',
           handle: 'portrait-photography',
         },
         {
-          title: 'Chụp ảnh phong cảnh',
+          title: 'Landscape Photography',
           handle: 'landscape-photography',
         },
         {
-          title: 'Chụp ảnh đường phố',
+          title: 'Street Photography',
           handle: 'street-photography',
         },
         {
-          title: 'Đồ dùng thiết yếu cho người sáng tạo nội dung',
+          title: 'Content Creator Essentials',
           handle: 'content-creator-essentials',
         },
         // Special collections
         {
-          title: 'Sản phẩm mới về',
+          title: 'New Arrivals',
           handle: 'new-arrivals',
         },
         {
-          title: 'Bán chạy nhất',
+          title: 'Best Sellers',
           handle: 'best-sellers',
         },
         {
-          title: 'Dòng máy chuyên nghiệp',
+          title: 'Professional Series',
           handle: 'professional-series',
         },
         {
-          title: 'Dành cho người mới bắt đầu',
+          title: 'Beginner Friendly',
           handle: 'beginner-friendly',
         },
       ],
@@ -461,10 +463,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       product_categories: [
         {
-          name: 'Máy ảnh',
+          name: 'Cameras',
           is_active: true,
-          description: 'Máy ảnh kỹ thuật số cho mọi nhu cầu chụp ảnh',
-          handle: 'may-anh',
+          description: 'Digital cameras for all your photography needs',
+          handle: 'cameras',
           metadata: {
             hero_image_url: heroBanners[0],
             is_featured: true,
@@ -472,10 +474,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
           }
         },
         {
-          name: 'Ống kính',
+          name: 'Lenses',
           is_active: true,
-          description: 'Ống kính máy ảnh cho tất cả các loại ngàm (mount)',
-          handle: 'ong-kinh',
+          description: 'Camera lenses for all mount types',
+          handle: 'lenses',
           metadata: {
             hero_image_url: heroBanners[1],
             is_featured: true,
@@ -483,10 +485,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
           }
         },
         {
-          name: 'Phụ kiện',
+          name: 'Accessories',
           is_active: true,
-          description: 'Phụ kiện và thiết bị nhiếp ảnh',
-          handle: 'phu-kien',
+          description: 'Photography accessories and gear',
+          handle: 'accessories',
           metadata: {
             hero_image_url: heroBanners[2],
             is_featured: true,
@@ -494,146 +496,146 @@ export default async function seedDemoData({ container }: ExecArgs) {
           }
         },
         {
-          name: 'Âm thanh & Video',
+          name: 'Audio & Video',
           is_active: true,
-          description: 'Micro và phụ kiện video',
-          handle: 'am-thanh-video'
+          description: 'Microphones and video accessories',
+          handle: 'audio-video'
         },
       ],
     },
   })
 
   // Then create subcategories
-  const camerasCategory = mainCategoryResult.find((cat) => cat.name === 'Máy ảnh')
-  const lensesCategory = mainCategoryResult.find((cat) => cat.name === 'Ống kính')
-  const accessoriesCategory = mainCategoryResult.find((cat) => cat.name === 'Phụ kiện')
-  const audioVideoCategory = mainCategoryResult.find((cat) => cat.name === 'Âm thanh & Video')
+  const camerasCategory = mainCategoryResult.find((cat) => cat.name === 'Cameras')
+  const lensesCategory = mainCategoryResult.find((cat) => cat.name === 'Lenses')
+  const accessoriesCategory = mainCategoryResult.find((cat) => cat.name === 'Accessories')
+  const audioVideoCategory = mainCategoryResult.find((cat) => cat.name === 'Audio & Video')
 
   const { result: subCategoryResult } = await createProductCategoriesWorkflow(container).run({
     input: {
       product_categories: [
         // Camera subcategories
         {
-          name: 'Máy ảnh DSLR',
+          name: 'DSLR Cameras',
           is_active: true,
-          description: 'Máy ảnh kỹ thuật số với gương lật',
+          description: 'Digital single-lens reflex cameras',
           parent_category_id: camerasCategory?.id || null,
-          handle: 'may-anh-dslr'
+          handle: 'dslr-cameras'
         },
         {
-          name: 'Máy ảnh Mirrorless',
+          name: 'Mirrorless Cameras',
           is_active: true,
-          description: 'Hệ thống máy ảnh không gương lật nhỏ gọn',
+          description: 'Compact mirrorless camera systems',
           parent_category_id: camerasCategory?.id || null,
-          handle: 'may-anh-mirrorless'
+          handle: 'mirrorless-cameras'
         },
         {
-          name: 'Máy ảnh lấy liền',
+          name: 'Instant Cameras',
           is_active: true,
-          description: 'Máy ảnh in ảnh trực tiếp và phim',
+          description: 'Instant print and film cameras',
           parent_category_id: camerasCategory?.id || null,
-          handle: 'may-anh-ly-lien'
+          handle: 'instant-cameras'
         },
         {
-          name: 'Máy ảnh hành động',
+          name: 'Action Cameras',
           is_active: true,
-          description: 'Máy ảnh nhỏ gọn cho thể thao và phiêu lưu',
+          description: 'Compact cameras for sports and adventure',
           parent_category_id: camerasCategory?.id || null,
-          handle: 'may-anh-hanh-dong'
+          handle: 'action-cameras'
         },
         {
-          name: 'Máy ảnh phim',
+          name: 'Film Cameras',
           is_active: true,
-          description: 'Máy ảnh phim 35mm và medium format',
+          description: '35mm and medium format film cameras',
           parent_category_id: camerasCategory?.id || null,
-          handle: 'may-anh-phim'
+          handle: 'film-cameras'
         },
         // Lens subcategories
         {
-          name: 'Ống kính fix (Prime)',
+          name: 'Prime Lenses',
           is_active: true,
-          description: 'Ống kính có tiêu cự cố định',
+          description: 'Lenses with a fixed focal length',
           parent_category_id: lensesCategory?.id || null,
-          handle: 'ong-kinh-fix'
+          handle: 'prime-lenses'
         },
         {
-          name: 'Ống kính zoom',
+          name: 'Zoom Lenses',
           is_active: true,
-          description: 'Ống kính có tiêu cự thay đổi',
+          description: 'Lenses with a variable focal length',
           parent_category_id: lensesCategory?.id || null,
-          handle: 'ong-kinh-zoom'
+          handle: 'zoom-lenses'
         },
         {
-          name: 'Ống kính macro',
+          name: 'Macro Lenses',
           is_active: true,
-          description: 'Ống kính chụp ảnh cận cảnh',
+          description: 'Lenses for close-up photography',
           parent_category_id: lensesCategory?.id || null,
-          handle: 'ong-kinh-macro'
+          handle: 'macro-lenses'
         },
         {
-          name: 'Ống kính tele',
+          name: 'Telephoto Lenses',
           is_active: true,
-          description: 'Ống kính có tiêu cự dài',
+          description: 'Lenses with a long focal length',
           parent_category_id: lensesCategory?.id || null,
-          handle: 'ong-kinh-tele'
+          handle: 'telephoto-lenses'
         },
         // Accessory subcategories
         {
-          name: 'Chân máy & Hỗ trợ',
+          name: 'Tripods & Supports',
           is_active: true,
-          description: 'Thiết bị ổn định máy ảnh',
+          description: 'Camera stabilization equipment',
           parent_category_id: accessoriesCategory?.id || null,
-          handle: 'chan-may-va-ho-tro'
+          handle: 'tripods-supports'
         },
         {
-          name: 'Túi & Hộp đựng',
+          name: 'Bags & Cases',
           is_active: true,
-          description: 'Giải pháp lưu trữ và bảo vệ máy ảnh',
+          description: 'Camera storage and protection solutions',
           parent_category_id: accessoriesCategory?.id || null,
-          handle: 'tui-va-hop-dung'
+          handle: 'bags-cases'
         },
         {
-          name: 'Kính lọc (Filter)',
+          name: 'Filters',
           is_active: true,
-          description: 'Kính lọc ống kính và phụ kiện',
+          description: 'Lens filters and accessories',
           parent_category_id: accessoriesCategory?.id || null,
-          handle: 'kinh-loc'
+          handle: 'filters'
         },
         {
-          name: 'Pin & Sạc',
+          name: 'Batteries & Chargers',
           is_active: true,
-          description: 'Phụ kiện nguồn cho máy ảnh',
+          description: 'Power accessories for cameras',
           parent_category_id: accessoriesCategory?.id || null,
-          handle: 'pin-va-sac'
+          handle: 'batteries-chargers'
         },
         {
-          name: 'Thẻ nhớ',
+          name: 'Memory Cards',
           is_active: true,
-          description: 'Giải pháp lưu trữ cho máy ảnh kỹ thuật số',
+          description: 'Storage solutions for digital cameras',
           parent_category_id: accessoriesCategory?.id || null,
-          handle: 'the-nho'
+          handle: 'memory-cards'
         },
         {
-          name: 'Đèn & Chiếu sáng',
+          name: 'Lighting & Flashes',
           is_active: true,
-          description: 'Thiết bị chiếu sáng studio và di động',
+          description: 'Studio and portable lighting equipment',
           parent_category_id: accessoriesCategory?.id || null,
-          handle: 'den-va-chieu-sang'
+          handle: 'lighting-flashes'
         },
         // Audio & Video subcategories
         {
-          name: 'Micro thu âm',
+          name: 'Microphones',
           is_active: true,
-          description: 'Micro ngoài dành cho máy ảnh',
+          description: 'External microphones for cameras',
           parent_category_id: audioVideoCategory?.id || null,
-          handle: 'micro-thu-am'
+          handle: 'microphones'
         },
         {
-          name: 'Phụ kiện video',
+          name: 'Video Accessories',
           is_active: true,
-          description: 'Phụ kiện quay video',
+          description: 'Accessories for video recording',
           parent_category_id: audioVideoCategory?.id || null,
-          handle: 'phu-kien-video'
+          handle: 'video-accessories'
         },
       ],
     },
@@ -649,7 +651,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'Fujifilm X100VI',
           type_id: productTypeResult.find((type) => type.value === 'camera')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Máy ảnh Mirrorless')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Mirrorless Cameras')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'fujifilm-collection')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === 'Fujifilm')?.id,
@@ -661,7 +663,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Travel')?.id,
           ].filter(Boolean) as string[],
           description:
-            'Fujifilm X100VI sở hữu cảm biến X-Trans CMOS 5 HR 40.2MP và bộ xử lý X-Processor 5, mang đến chất lượng hình ảnh vượt trội trong một thân máy nhỏ gọn, cao cấp. Với ống kính fix 23mm f/2 đặc trưng và kính ngắm lai tiên tiến, chiếc máy này hoàn hảo cho thể loại nhiếp ảnh đường phố và du lịch.',
+            'The Fujifilm X100VI features a 40.2MP X-Trans CMOS 5 HR sensor and the X-Processor 5, delivering outstanding image quality in a compact, premium body. With its signature 23mm f/2 fixed lens and advanced hybrid viewfinder, this camera is perfect for street and travel photography.',
           handle: 'fujifilm-x100vi',
           weight: 521,
           status: ProductStatus.PUBLISHED,
@@ -684,15 +686,15 @@ export default async function seedDemoData({ container }: ExecArgs) {
           options: [
             {
               title: 'Color',
-              values: ['Bạc', 'Đen'],
+              values: ['Silver', 'Black'],
             },
           ],
           variants: [
             {
-              title: 'Bạc',
+              title: 'Silver',
               sku: 'FUJI-X100VI-SILVER',
               options: {
-                Color: 'Bạc',
+                Color: 'Silver',
               },
               prices: [
                 {
@@ -702,10 +704,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
               ],
             },
             {
-              title: 'Đen',
+              title: 'Black',
               sku: 'FUJI-X100VI-BLACK',
               options: {
-                Color: 'Đen',
+                Color: 'Black',
               },
               prices: [
                 {
@@ -724,7 +726,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'Canon EOS R5',
           type_id: productTypeResult.find((type) => type.value === 'camera')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Máy ảnh Mirrorless')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Mirrorless Cameras')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'canon-collection')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === 'Canon')?.id,
@@ -739,7 +741,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Professional')?.id,
           ].filter(Boolean) as string[],
           description:
-            'Canon EOS R5 là máy ảnh mirrorless full-frame cao cấp với cảm biến 45MP, quay video 8K và hệ thống lấy nét Dual Pixel CMOS AF II tiên tiến. Máy sở hữu chống rung trong thân máy 5 trục, màn hình cảm ứng xoay lật và khả năng chống thời tiết toàn diện, hoàn hảo cho nhiếp ảnh chuyên nghiệp.',
+            'The Canon EOS R5 is a high-end full-frame mirrorless camera with a 45MP sensor, 8K video recording, and an advanced Dual Pixel CMOS AF II system. It features 5-axis in-body image stabilization, a vari-angle touchscreen, and comprehensive weather sealing, making it perfect for professional photography.',
           handle: 'canon-eos-r5',
           weight: 738,
           status: ProductStatus.PUBLISHED,
@@ -765,7 +767,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
           options: [
             {
               title: 'Kit',
-              values: ['Body only', 'Kit với lens 24-105mm f/4L'],
+              values: ['Body only', 'Kit with 24-105mm f/4L lens'],
             },
           ],
           variants: [
@@ -783,10 +785,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
               ],
             },
             {
-              title: 'Kit với lens 24-105mm f/4L',
+              title: 'Kit with 24-105mm f/4L lens',
               sku: 'CANON-R5-KIT-24-105',
               options: {
-                Kit: 'Kit với lens 24-105mm f/4L',
+                Kit: 'Kit with 24-105mm f/4L lens',
               },
               prices: [
                 {
@@ -805,7 +807,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'Sony A7 IV',
           type_id: productTypeResult.find((type) => type.value === 'camera')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Máy ảnh Mirrorless')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Mirrorless Cameras')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'sony-collection')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === 'Sony')?.id,
@@ -822,7 +824,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Content Creation')?.id,
           ].filter(Boolean) as string[],
           description:
-            'Sony A7 IV là máy ảnh mirrorless full-frame mới nhất với cảm biến 33MP, quay video 4K 60fps và hệ thống lấy nét lai 759 điểm. Với chống rung trong thân máy 5.5 stops, màn hình cảm ứng xoay lật và khả năng chống bụi bẩn, hoàn hảo cho cả nhiếp ảnh và quay phim chuyên nghiệp.',
+            'The Sony A7 IV is the latest full-frame mirrorless camera with a 33MP sensor, 4K 60fps video recording, and a 759-point hybrid AF system. With 5.5-stops of in-body image stabilization, a vari-angle touchscreen, and dust and moisture resistance, it is perfect for both professional photography and videography.',
           handle: 'sony-a7-iv',
           weight: 658,
           status: ProductStatus.PUBLISHED,
@@ -849,7 +851,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
           options: [
             {
               title: 'Kit',
-              values: ['Body only', 'Kit với lens FE 28-70mm f/3.5-5.6 OSS'],
+              values: ['Body only', 'Kit with FE 28-70mm f/3.5-5.6 OSS lens'],
             },
           ],
           variants: [
@@ -867,10 +869,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
               ],
             },
             {
-              title: 'Kit với lens FE 28-70mm f/3.5-5.6 OSS',
+              title: 'Kit with FE 28-70mm f/3.5-5.6 OSS lens',
               sku: 'SONY-A7IV-KIT-28-70',
               options: {
-                Kit: 'Kit với lens FE 28-70mm f/3.5-5.6 OSS',
+                Kit: 'Kit with FE 28-70mm f/3.5-5.6 OSS lens',
               },
               prices: [
                 {
@@ -889,7 +891,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'Canon RF 50mm f/1.2L USM',
           type_id: productTypeResult.find((type) => type.value === 'lens')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Ống kính fix (Prime)')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Prime Lenses')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'canon-collection')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === 'Canon')?.id,
@@ -899,7 +901,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Weather Sealed')?.id,
           ].filter(Boolean) as string[],
           description:
-            'Canon RF 50mm f/1.2L USM là ống kính chân dung chuyên nghiệp với khẩu độ f/1.2 cực rộng, tạo ra hiệu ứng bokeh tuyệt đẹp. Với công nghệ Dual Pixel CMOS AF và chống rung quang học, ống kính mang đến chất lượng hình ảnh xuất sắc cho hệ thống Canon EOS R.',
+            'The Canon RF 50mm f/1.2L USM is a professional portrait lens with an ultra-wide f/1.2 aperture, creating beautiful bokeh effects. With Dual Pixel CMOS AF technology and optical image stabilization, this lens delivers outstanding image quality for the Canon EOS R system.',
           handle: 'canon-rf-50mm-f1-2l-usm',
           weight: 950,
           status: ProductStatus.PUBLISHED,
@@ -965,7 +967,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'GoPro Hero 12 Black',
           type_id: productTypeResult.find((type) => type.value === 'camera')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Máy ảnh hành động')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Action Cameras')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'travel-gear')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === '4K Video')?.id,
@@ -979,7 +981,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Content Creation')?.id,
           ].filter(Boolean) as string[],
           description:
-            'GoPro Hero 12 Black là camera hành động tiên tiến nhất với quay video 5.3K60 và HDR, chống nước đến độ sâu 10m. Với HyperSmooth 6.0, TimeWarp 3.0 và khả năng livestream, hoàn hảo cho thể thao cực hạn và sáng tạo nội dung.',
+            'The GoPro Hero 12 Black is the most advanced action camera with 5.3K60 video and HDR, waterproof to 10m. With HyperSmooth 6.0, TimeWarp 3.0, and livestreaming capabilities, it is perfect for extreme sports and content creation.',
           handle: 'gopro-hero-12-black',
           weight: 154,
           status: ProductStatus.PUBLISHED,
@@ -1043,7 +1045,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'Leica M11',
           type_id: productTypeResult.find((type) => type.value === 'camera')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Máy ảnh phim')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Film Cameras')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'professional-series')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === 'Leica')?.id,
@@ -1053,7 +1055,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Portrait')?.id,
           ].filter(Boolean) as string[],
           description:
-            'Leica M11 là đỉnh cao của nhiếp ảnh rangefinder với cảm biến BSI CMOS 60MP, thiết kế cổ điển bền bỉ và chất lượng hình ảnh xuất sắc. Tương thích với toàn bộ hệ thống ống kính M, máy mang đến trải nghiệm nhiếp ảnh thuần túy và tinh tế nhất.',
+            'The Leica M11 is the pinnacle of rangefinder photography with a 60MP BSI CMOS sensor, a classic durable design, and outstanding image quality. Compatible with the entire M-lens system, it offers the purest and most refined photography experience.',
           handle: 'leica-m11',
           weight: 640,
           status: ProductStatus.PUBLISHED,
@@ -1117,7 +1119,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'Fujifilm Instax Mini 12',
           type_id: productTypeResult.find((type) => type.value === 'camera')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Máy ảnh lấy liền')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Instant Cameras')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'fujifilm-collection')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === 'Fujifilm')?.id,
@@ -1125,7 +1127,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Beginner Friendly')?.id,
           ].filter(Boolean) as string[],
           description:
-            'Fujifilm Instax Mini 12 là máy ảnh lấy liền nhỏ gọn và dễ sử dụng, hoàn hảo cho những khoảnh khắc đáng nhớ. Với chế độ tự động thông minh, ống kính selfie tích hợp và thiết kế màu sắc tươi sáng, máy mang đến trải nghiệm nhiếp ảnh vui tươi và đơn giản.',
+            'The Fujifilm Instax Mini 12 is a compact and easy-to-use instant camera, perfect for memorable moments. With its smart automatic mode, built-in selfie lens, and bright color design, it offers a fun and simple photography experience.',
           handle: 'fujifilm-instax-mini-12',
           weight: 306,
           status: ProductStatus.PUBLISHED,
@@ -1226,7 +1228,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         {
           title: 'Sony FE 24-70mm f/2.8 GM II',
           type_id: productTypeResult.find((type) => type.value === 'lens')?.id!,
-          category_ids: [categoryResult.find((cat) => cat.name === 'Ống kính zoom')!.id],
+          category_ids: [categoryResult.find((cat) => cat.name === 'Zoom Lenses')!.id],
           collection_id: collectionResult.find((col) => col.handle === 'sony-collection')!.id,
           tag_ids: [
             productTagResult.find((tag) => tag.value === 'Sony')?.id,
@@ -1238,7 +1240,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
             productTagResult.find((tag) => tag.value === 'Content Creation')?.id,
           ].filter(Boolean) as string[],
           description:
-            'Sony FE 24-70mm f/2.8 GM II là ống kính zoom tiêu chuẩn G Master thế hệ mới, nhẹ hơn 20% so với phiên bản trước với độ phân giải cực cao. Với 4 motor XD Linear và chống rung quang học, ống kính hoàn hảo cho cả nhiếp ảnh và quay phim chuyên nghiệp.',
+            'The Sony FE 24-70mm f/2.8 GM II is the new generation G Master standard zoom lens, 20% lighter than its predecessor with extremely high resolution. With 4 XD Linear motors and optical image stabilization, this lens is perfect for both professional photography and videography.',
           handle: 'sony-fe-24-70mm-f2-8-gm-ii',
           weight: 695,
           status: ProductStatus.PUBLISHED,

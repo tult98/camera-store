@@ -1,35 +1,47 @@
-import { apiClient } from '@lib/api-client';
-
-interface FeaturedCategory {
-  id: string;
-  category_name: string;
-  category_description: string;
-  category_handle: string;
-  hero_image_url: string;
-  display_order: number;
-  products: any[];
-}
+import { FeaturedCategoriesResponse } from "@camera-store/shared-types"
+import { apiClient } from "@lib/api-client"
+import { getDefaultRegion } from "./regions"
 
 /**
  * Fetch featured categories with caching and type safety
  * Uses the Camera Store API client for type safety with Next.js caching for performance
  */
-export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
+export async function getFeaturedCategories(): Promise<FeaturedCategoriesResponse> {
   try {
-    // Use unstable_cache for server-side caching with 5 minute revalidation
-    const { unstable_cache } = await import('next/cache')
+    // Get the default region for pricing context
+    const region = await getDefaultRegion()
     
+    if (!region) {
+      console.error("No region available for featured categories")
+      return {
+        featured_categories: [],
+        region_id: "",
+        currency_code: ""
+      }
+    }
+
+    // Use unstable_cache for server-side caching with 5 minute revalidation
+    const { unstable_cache } = await import("next/cache")
+
     const getCachedCategories = unstable_cache(
       async () => {
-        return await apiClient<FeaturedCategory[]>('/store/featured-categories', {
-          method: 'GET',
-          next: { revalidate: 300 }
+        const params = new URLSearchParams({
+          region_id: region.id,
+          currency_code: region.currency_code
         })
+        
+        return await apiClient<FeaturedCategoriesResponse>(
+          `/store/featured-categories?${params.toString()}`,
+          {
+            method: "GET",
+            next: { revalidate: 300 },
+          }
+        )
       },
-      ['featured-categories'],
+      ["featured-categories", region.id, region.currency_code],
       {
         revalidate: 300, // 5 minutes
-        tags: ['featured-categories'],
+        tags: ["featured-categories"],
       }
     )
 
@@ -38,6 +50,10 @@ export async function getFeaturedCategories(): Promise<FeaturedCategory[]> {
   } catch (error) {
     console.error("Error fetching featured categories:", error)
     // Return empty array on error to prevent page crashes
-    return []
+    return {
+      featured_categories: [],
+      region_id: "",
+      currency_code: ""
+    }
   }
 }

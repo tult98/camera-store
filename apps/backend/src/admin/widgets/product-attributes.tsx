@@ -56,7 +56,10 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
       selectedTemplate.attribute_definitions.forEach(attr => {
         if (attr.type === "select") {
           if (attr.option_group && optionGroups[attr.option_group]) {
-            resolved[attr.key] = optionGroups[attr.option_group].options
+            resolved[attr.key] = optionGroups[attr.option_group].options.map((opt: any) => ({
+              value: opt.value,
+              label: opt.value // Use value as label since label field doesn't exist
+            }))
           } else if (attr.options) {
             resolved[attr.key] = attr.options.map(opt => ({ value: opt, label: opt }))
           }
@@ -130,7 +133,10 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
         // Resolve options for select attributes
         if (attr.type === "select") {
           if (attr.option_group && optionGroups[attr.option_group]) {
-            resolved[attr.key] = optionGroups[attr.option_group].options
+            resolved[attr.key] = optionGroups[attr.option_group].options.map((opt: any) => ({
+              value: opt.value,
+              label: opt.value // Use value as label since label field doesn't exist
+            }))
           } else if (attr.options) {
             resolved[attr.key] = attr.options.map(opt => ({ value: opt, label: opt }))
           }

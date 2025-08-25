@@ -27,7 +27,6 @@ export const GET = async (
     }
     acc[option.group_code].options.push({
       value: option.value,
-      label: option.label,
       display_order: option.display_order
     })
     return acc

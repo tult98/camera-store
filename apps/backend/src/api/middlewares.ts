@@ -29,7 +29,7 @@ const config: MiddlewaresConfig = {
       matcher: "/store/category-products",
       method: "POST",
       middlewares: [
-        validateAndTransformBody(CategoryProductsSchema),
+        validateAndTransformBody(CategoryProductsSchema as any),
       ],
     },
   ],

@@ -43,11 +43,13 @@ const CustomOptionsInput = ({
   onChange: (value?: string[]) => void;
   placeholder: string;
 }) => {
-  const [inputValue, setInputValue] = useState(value?.join(", ") || "");
+  const [inputValue, setInputValue] = useState(
+    Array.isArray(value) ? value.join(", ") : ""
+  );
   
   // Update input value when prop changes
   useEffect(() => {
-    setInputValue(value?.join(", ") || "");
+    setInputValue(Array.isArray(value) ? value.join(", ") : "");
   }, [value]);
   
   return (
@@ -407,7 +409,7 @@ const AttributeTemplateForm = () => {
                                   name={`option_source_${index}`}
                                   checked={!field.value}
                                   onChange={() => {
-                                    field.onChange(undefined)
+                                    field.onChange(null)
                                     setValue(`attribute_definitions.${index}.options`, undefined)
                                   }}
                                 />

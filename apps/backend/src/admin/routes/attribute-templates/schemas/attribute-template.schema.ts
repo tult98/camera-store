@@ -8,7 +8,7 @@ export const AttributeDefinitionSchema = z.object({
     message: "Attribute type is required",
   }).default("text"),
   options: z.array(z.string()).optional(),
-  option_group: z.string().optional(),
+  option_group: z.string().nullable().optional(),
   required: z.boolean().default(false),
   display_order: z.number().default(0),
   help_text: z.string().optional(),
@@ -21,6 +21,15 @@ export const AttributeDefinitionSchema = z.object({
   default_value: z.unknown().optional(),
   unit: z.string().optional(),
   placeholder: z.string().optional(),
+}).refine((data) => {
+  // For select types, require either options or option_group
+  if (data.type === "select") {
+    return (data.options && data.options.length > 0) || data.option_group;
+  }
+  return true;
+}, {
+  message: "Select attributes must have either custom options or an option group",
+  path: ["options"],
 })
 
 // Main form schema

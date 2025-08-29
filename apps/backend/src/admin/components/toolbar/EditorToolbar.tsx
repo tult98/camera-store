@@ -23,12 +23,14 @@ import {
 import { MenuButton } from "./MenuButton";
 import { Divider } from "./Divider";
 import { ImageDropdown } from "../image/ImageDropdown";
+import { VideoButton } from "./VideoButton";
 
 interface EditorToolbarProps {
   editor: Editor;
   disabled?: boolean;
   onImageUpload: () => void;
   onImageUrl: () => void;
+  onLinkClick?: () => void;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
@@ -36,22 +38,28 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   disabled = false,
   onImageUpload,
   onImageUrl,
+  onLinkClick,
 }) => {
   const setLink = useCallback(() => {
-    const previousUrl = editor.getAttributes("link")["href"];
-    const url = window.prompt("URL", previousUrl);
+    if (onLinkClick) {
+      onLinkClick();
+    } else {
+      // Fallback to prompt if no modal handler provided
+      const previousUrl = editor.getAttributes("link")["href"];
+      const url = window.prompt("URL", previousUrl);
 
-    if (url === null) {
-      return;
+      if (url === null) {
+        return;
+      }
+
+      if (url === "") {
+        editor.chain().focus().extendMarkRange("link").unsetLink().run();
+        return;
+      }
+
+      editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
     }
-
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
-
-    editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
-  }, [editor]);
+  }, [editor, onLinkClick]);
 
   return (
     <div
@@ -227,6 +235,11 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
         >
           <Link2 className="w-4 h-4" />
         </MenuButton>
+
+        <VideoButton
+          onClick={onLinkClick || (() => {})}
+          disabled={disabled}
+        />
 
         <ImageDropdown
           onUploadClick={onImageUpload}

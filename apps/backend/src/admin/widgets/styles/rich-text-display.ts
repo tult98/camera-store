@@ -1,94 +1,59 @@
-export const editorStyles = `
-  .ProseMirror {
-    min-height: var(--editor-min-height, 200px);
-    max-height: var(--editor-max-height, 500px);
-    overflow-y: auto;
-    padding: 1rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    outline: none;
-  }
-  
-  .ProseMirror:focus {
-    border-color: #8b5cf6;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-  }
-  
-  .ProseMirror.is-editor-empty:first-child::before {
-    content: attr(data-placeholder);
-    color: #9ca3af;
-    float: left;
-    height: 0;
-    pointer-events: none;
-  }
-  
-  .ProseMirror h1 {
+export const richTextDisplayStyles = `
+  .rich-text-display h1 {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
   }
-  
-  .ProseMirror h2 {
+  .rich-text-display h2 {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
   }
-  
-  .ProseMirror h3 {
+  .rich-text-display h3 {
     font-size: 1.25rem;
     font-weight: 600;
     margin-bottom: 0.5rem;
   }
-  
-  .ProseMirror p {
+  .rich-text-display p {
     margin-bottom: 0.75rem;
     line-height: 1.6;
   }
-  
-  .ProseMirror ul,
-  .ProseMirror ol {
+  .rich-text-display ul,
+  .rich-text-display ol {
     padding-left: 1.5rem;
     margin-bottom: 0.75rem;
   }
-  
-  .ProseMirror ul {
+  .rich-text-display ul {
     list-style-type: disc;
   }
-  
-  .ProseMirror ol {
+  .rich-text-display ol {
     list-style-type: decimal;
   }
-  
-  .ProseMirror ul ul {
+  .rich-text-display ul ul {
     list-style-type: circle;
   }
-  
-  .ProseMirror ul ul ul {
+  .rich-text-display ul ul ul {
     list-style-type: square;
   }
-  
-  .ProseMirror li {
+  .rich-text-display li {
     margin-bottom: 0.25rem;
     display: list-item;
   }
-  
-  .ProseMirror blockquote {
+  .rich-text-display blockquote {
     padding-left: 1rem;
     border-left: 3px solid #e2e8f0;
     margin: 1rem 0;
     font-style: italic;
     color: #64748b;
   }
-  
-  .ProseMirror code {
+  .rich-text-display code {
     background-color: #f1f5f9;
     color: #e11d48;
     padding: 0.125rem 0.25rem;
     border-radius: 0.25rem;
     font-family: monospace;
   }
-  
-  .ProseMirror pre {
+  .rich-text-display pre {
     background-color: #1e293b;
     color: #e2e8f0;
     padding: 1rem;
@@ -96,44 +61,52 @@ export const editorStyles = `
     overflow-x: auto;
     margin-bottom: 0.75rem;
   }
-  
-  .ProseMirror pre code {
+  .rich-text-display pre code {
     background: none;
     color: inherit;
     padding: 0;
   }
-  
-  .ProseMirror hr {
+  .rich-text-display hr {
     border: none;
     border-top: 2px solid #e2e8f0;
     margin: 1.5rem 0;
   }
-  
-  .ProseMirror img {
+  .rich-text-display img {
     max-width: 100%;
     height: auto;
     border-radius: 0.5rem;
     margin: 1rem 0;
   }
+  .rich-text-display a {
+    color: #8b5cf6;
+    text-decoration: underline;
+  }
+  .rich-text-display strong {
+    font-weight: 600;
+  }
+  .rich-text-display em {
+    font-style: italic;
+  }
   
-  /* Video embed styles */
-  .ProseMirror iframe[src*="youtube"],
-  .ProseMirror iframe[src*="vimeo"],
-  .ProseMirror div[data-youtube-video] {
+  /* Video embed styles for display mode */
+  .rich-text-display iframe[src*="youtube"],
+  .rich-text-display iframe[src*="vimeo"],
+  .rich-text-display div[data-youtube-video] {
     width: 100%;
     max-width: 640px;
     aspect-ratio: 16 / 9;
     border-radius: 0.5rem;
     margin: 1rem 0;
+    border: none;
   }
   
-  .ProseMirror div[data-youtube-video] {
+  .rich-text-display div[data-youtube-video] {
     position: relative;
     background: #000;
     overflow: hidden;
   }
   
-  .ProseMirror div[data-youtube-video] iframe {
+  .rich-text-display div[data-youtube-video] iframe {
     position: absolute;
     top: 0;
     left: 0;

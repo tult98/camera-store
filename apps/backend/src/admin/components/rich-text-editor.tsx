@@ -10,8 +10,10 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Image from "@tiptap/extension-image";
+import Youtube from "@tiptap/extension-youtube";
 import { EditorToolbar } from "./toolbar/EditorToolbar";
 import { URLInputModal } from "./modals/URLInputModal";
+import { LinkInputModal } from "./modals/LinkInputModal";
 import { ImageUploadProgress } from "./modals/ImageUploadProgress";
 import { useImageUpload } from "./image/useImageUpload";
 import { editorStyles } from "./styles/editor-styles";
@@ -39,6 +41,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   minHeight = 200,
 }) => {
   const [error, setError] = useState<string | null>(null);
+  const [showLinkModal, setShowLinkModal] = useState(false);
 
   const handleError = useCallback(
     (errorMessage: string) => {
@@ -63,6 +66,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         openOnClick: false,
         HTMLAttributes: {
           class: "text-violet-600 underline",
+          target: "_blank",
+          rel: "noopener noreferrer",
         },
       }),
       TextAlign.configure({
@@ -73,6 +78,17 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         HTMLAttributes: {
           class: "max-w-full h-auto rounded-lg",
         },
+      }),
+      Youtube.configure({
+        width: 640,
+        height: 360,
+        nocookie: true,
+        HTMLAttributes: {
+          class: "rounded-lg overflow-hidden",
+        },
+        addPasteHandler: false,
+        allowFullscreen: true,
+        autoplay: false,
       }),
     ],
     [placeholder]
@@ -92,6 +108,73 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editor,
     onError: handleError,
   });
+
+  const handleLinkSubmit = useCallback(
+    (data: { type: 'link' | 'video'; url: string; text?: string }) => {
+      if (!editor) return;
+
+      if (data.type === 'video') {
+        // Extract video ID from various YouTube URL formats
+        let videoId = '';
+        const url = data.url;
+        
+        if (url.includes('youtube.com/watch?v=')) {
+          videoId = url.split('v=')[1]?.split('&')[0] || '';
+        } else if (url.includes('youtu.be/')) {
+          videoId = url.split('youtu.be/')[1]?.split('?')[0] || '';
+        } else if (url.includes('vimeo.com/')) {
+          // For Vimeo, insert iframe directly
+          const vimeoId = url.split('vimeo.com/')[1]?.split('?')[0]?.split('/')[0] || '';
+          if (vimeoId) {
+            const iframeHtml = `<iframe src="https://player.vimeo.com/video/${vimeoId}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+            editor
+              .chain()
+              .focus()
+              .insertContent(iframeHtml)
+              .run();
+          }
+          return;
+        }
+        
+        if (videoId) {
+          editor
+            .chain()
+            .focus()
+            .setYoutubeVideo({
+              src: `https://www.youtube.com/watch?v=${videoId}`,
+            })
+            .run();
+        }
+      } else {
+        // Handle regular link
+        const { from, to } = editor.state.selection;
+        const selectedText = editor.state.doc.textBetween(from, to, ' ');
+        
+        if (selectedText) {
+          // If text is selected, make it a link
+          editor
+            .chain()
+            .focus()
+            .extendMarkRange('link')
+            .setLink({ href: data.url })
+            .run();
+        } else {
+          // Insert new link with text
+          editor
+            .chain()
+            .focus()
+            .insertContent(`<a href="${data.url}" target="_blank" rel="noopener noreferrer">${data.text || data.url}</a>`)
+            .run();
+        }
+      }
+    },
+    [editor]
+  );
+
+  const openLinkModal = useCallback(() => {
+    if (!editor) return;
+    setShowLinkModal(true);
+  }, [editor]);
 
   useEffect(() => {
     if (!editor) return;
@@ -152,6 +235,11 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         onClose={() => imageUpload.setShowUrlModal(false)}
         onSubmit={imageUpload.handleUrlSubmit}
       />
+      <LinkInputModal
+        isOpen={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        onSubmit={handleLinkSubmit}
+      />
       <ImageUploadProgress
         isUploading={imageUpload.isUploading}
         progress={imageUpload.uploadProgress}
@@ -180,6 +268,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           disabled={disabled}
           onImageUpload={imageUpload.addImage}
           onImageUrl={imageUpload.addImageFromURL}
+          onLinkClick={openLinkModal}
         />
         <EditorContent
           editor={editor}

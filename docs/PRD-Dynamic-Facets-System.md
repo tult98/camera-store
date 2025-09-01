@@ -25,6 +25,11 @@
 
 ## 1. Executive Summary
 
+### 1.0 Implementation Scope
+**Target Catalog Size**: 100-200 products  
+**Optimization Level**: Simple, real-time queries (no complex caching)  
+**Scalability**: Architecture designed to add optimization layers when catalog grows
+
 ### 1.1 Problem Statement
 The camera store currently uses hardcoded filters for product discovery (sensor size, video capabilities, mount type, etc.). This approach lacks flexibility and requires code changes to add or modify filters. With the existing ProductAttribute system in place, we need a dynamic faceting system that leverages attribute data to generate filters automatically.
 
@@ -91,8 +96,6 @@ So that I can optimize the filtering experience.
 Acceptance Criteria:
 ✓ Can set maximum items before "Show more"
 ✓ Can enable/disable product counts
-✓ Can make facets collapsible
-✓ Can enable search within facet options
 ✓ Can configure range buckets for numeric facets
 ```
 
@@ -245,17 +248,17 @@ Acceptance Criteria:
 ```
 1. Admin Configuration Flow:
    Admin UI → Template Editor → Add facet_config to attribute
-   → Save to AttributeTemplate → Clear facet cache
+   → Save to AttributeTemplate
 
 2. Customer Filter Flow:
    Category Page → Fetch facets for category → Get templates
-   → Extract facet-enabled attributes → Aggregate values
+   → Extract facet-enabled attributes → Aggregate values (real-time)
    → Display filters → Apply selections → Query products
 
-3. Aggregation Flow:
-   FacetAggregationService → Check cache → If miss:
-   → Query ProductAttributes → Group by template & attribute
-   → Count occurrences → Store in cache → Return counts
+3. Aggregation Flow (Simplified for Small Catalog):
+   FacetAggregationService → Query ProductAttributes directly
+   → Group by template & attribute → Count occurrences → Return counts
+   (No caching needed for 100-200 products)
 ```
 
 ---
@@ -286,10 +289,7 @@ export interface FacetConfig {
   
   // UI configuration
   show_count?: boolean           // Show (X) next to each option
-  collapsible?: boolean          // Can collapse/expand
-  initial_collapsed?: boolean    // Start collapsed
   max_display_items?: number     // Show "See more" after X items
-  searchable?: boolean           // Add search box for options
   
   // Advanced settings
   cache_ttl?: number             // Cache duration in seconds
@@ -347,8 +347,6 @@ interface FacetAggregation {
   }
   ui_config: {
     show_count: boolean
-    collapsible: boolean
-    searchable: boolean
     max_display_items?: number
   }
 }
@@ -364,25 +362,82 @@ interface FacetsResponse {
 ### 6.3 Database Indexes
 
 ```sql
--- Optimize facet aggregation queries
+-- Essential indexes for facet aggregation queries
 CREATE INDEX idx_product_attributes_template_id_key 
   ON product_attributes(template_id, (attribute_values->>'key'));
 
 CREATE INDEX idx_product_attributes_facet_values 
   ON product_attributes USING GIN (attribute_values);
 
--- Cache table for facet aggregations
-CREATE TABLE facet_aggregation_cache (
-  id UUID PRIMARY KEY,
-  cache_key VARCHAR(255) UNIQUE,
-  category_id UUID,
-  facet_data JSONB,
-  created_at TIMESTAMP DEFAULT NOW(),
-  expires_at TIMESTAMP
-);
+-- Product-category relationship for filtering
+CREATE INDEX idx_product_categories_category_product 
+  ON product_categories(category_id, product_id);
 
-CREATE INDEX idx_facet_cache_key ON facet_aggregation_cache(cache_key);
-CREATE INDEX idx_facet_cache_expires ON facet_aggregation_cache(expires_at);
+-- Note: No cache table needed for small catalog (100-200 products)
+-- Can add Redis/cache layer later if catalog grows significantly
+```
+
+### 6.4 System Facets
+
+System facets are built-in filters that aggregate data from core commerce models rather than ProductAttribute:
+
+```typescript
+interface SystemFacet {
+  key: string
+  type: "price" | "availability" | "rating"
+  aggregation_source: string
+  config: {
+    display_priority: number
+    display_type: "slider" | "checkbox" | "range"
+    show_count: boolean
+  }
+}
+
+// Price facet configuration
+const PRICE_FACET: SystemFacet = {
+  key: "price",
+  type: "price", 
+  aggregation_source: "variant.calculated_price",
+  config: {
+    display_priority: 0, // Always show first
+    display_type: "slider",
+    show_count: true
+  }
+}
+```
+
+#### Key Differences from Attribute Facets:
+- **Data Source**: Aggregates from Product/Variant models, not ProductAttribute
+- **Configuration**: Not managed through AttributeTemplate admin UI
+- **Implementation**: Handled by separate aggregation logic in FacetAggregationService
+- **Always Available**: Present on all category pages regardless of templates
+
+#### Implementation Notes:
+```typescript
+// FacetAggregationService needs dual paths
+class FacetAggregationService {
+  // For attribute-based facets
+  async aggregateAttributeFacets(categoryId: string) {
+    // Query ProductAttribute table
+    // Use template facet_config
+  }
+  
+  // For system facets like price
+  async aggregateSystemFacets(categoryId: string) {
+    // Query Product/Variant tables directly
+    // Get min/max from calculated_price
+    // Return price ranges
+  }
+  
+  // Combine both for complete facet list
+  async getAllFacets(categoryId: string) {
+    const [systemFacets, attributeFacets] = await Promise.all([
+      this.aggregateSystemFacets(categoryId),
+      this.aggregateAttributeFacets(categoryId)
+    ])
+    return [...systemFacets, ...attributeFacets]
+  }
+}
 ```
 
 ---
@@ -483,109 +538,92 @@ Response: {
 
 ## 8. Implementation Plan
 
-### Phase 1: Backend Foundation (Week 1)
+### Phase 1: Backend Foundation (Simplified - 2-3 Days)
 
-#### Day 1-2: Data Model Extensions
-- [ ] Extend AttributeDefinition interface with FacetConfig
-- [ ] Update AttributeTemplate model types
-- [ ] Create facet configuration types
-- [ ] Add validation for facet_config
+#### Day 1: Complete Admin UI (US-002)
+- [ ] Add range_config fields to attribute template form
+- [ ] Add min, max, step inputs for range facets
+- [ ] Show range config only when aggregation_type is "range" or "histogram"
 
-#### Day 3-4: Service Layer
-- [ ] Create FacetAggregationService
-- [ ] Implement aggregation logic for each type
-- [ ] Add caching layer with Redis
-- [ ] Create FacetConfigurationService
+#### Day 2: Simple Service Layer
+- [ ] Create basic FacetAggregationService (no caching)
+- [ ] Implement aggregation logic for term, range, boolean types
+- [ ] Add system facet support for price (from variant.calculated_price)
+- [ ] Create simple aggregation queries for small datasets
 
-#### Day 5: Database Optimization
-- [ ] Add required indexes
-- [ ] Create aggregation cache table
-- [ ] Optimize queries for large datasets
-- [ ] Test performance with sample data
+#### Day 3: Basic Database Setup
+- [ ] Add essential indexes for ProductAttribute queries
+- [ ] Test aggregation performance with 200 products
+- [ ] Ensure queries run under 50ms (simple target)
 
-### Phase 2: API Development (Week 2)
+### Phase 2: API Development (Simplified - 2-3 Days)
 
-#### Day 6-7: Store APIs
-- [ ] Implement /store/facets/:category_id endpoint
-- [ ] Create /store/facets/aggregate endpoint
+#### Day 4-5: Store APIs
+- [ ] Implement /store/facets/:category_id endpoint (simple config retrieval)
+- [ ] Create /store/facets/aggregate endpoint (real-time aggregation)
 - [ ] Extend product search with facet filters
-- [ ] Add facet data to product responses
+- [ ] Test APIs with sample data
 
-#### Day 8-9: Admin APIs
-- [ ] Create facet configuration endpoints
-- [ ] Implement analytics endpoints
-- [ ] Add bulk facet operations
-- [ ] Create validation middleware
-
-#### Day 10: Integration
+#### Day 6: Integration
 - [ ] Link Product and ProductAttribute modules
-- [ ] Update existing product queries
-- [ ] Implement cache invalidation
-- [ ] Add event handlers for updates
+- [ ] Update existing product queries to support facet filtering
+- [ ] Test end-to-end flow with real data
+- [ ] Skip analytics endpoints for initial implementation
 
-### Phase 3: Frontend Implementation (Week 3)
+### Phase 3: Frontend Implementation (Simplified - 3-4 Days)
 
-#### Day 11-12: Core Components
+#### Day 7-8: Core Components
 - [ ] Create DynamicFacetFilter component
 - [ ] Build FacetGroup component
-- [ ] Implement different display types
-- [ ] Add facet search functionality
+- [ ] Implement basic display types (checkbox, slider, dropdown)
+- [ ] Skip search functionality for initial version
 
-#### Day 13-14: State Management
-- [ ] Create facet state hooks
+#### Day 9-10: State Management
+- [ ] Create simple facet state hooks
 - [ ] Implement URL synchronization
 - [ ] Add filter persistence
 - [ ] Build active filter display
 
-#### Day 15: Integration
-- [ ] Replace hardcoded filters
-- [ ] Update category pages
-- [ ] Add mobile responsive design
-- [ ] Implement lazy loading
+#### Day 11: Integration
+- [ ] Replace hardcoded filters with dynamic facets
+- [ ] Update category pages to use new system
+- [ ] Test with mobile responsive design
+- [ ] Skip lazy loading (not needed for small catalog)
 
-### Phase 4: Admin UI (Week 4)
+### Phase 4: Testing & Polish (1-2 Days)
 
-#### Day 16-17: Template Editor
-- [ ] Add facet configuration UI
-- [ ] Create facet preview
-- [ ] Build validation interface
-- [ ] Add drag-drop for priority
-- [ ] Implement tooltip system with icon components
-- [ ] Add color-coded sections for attribute vs facet fields
-- [ ] Create hover/click tooltip interactions
-- [ ] Add keyboard accessibility for tooltips
+#### Day 12: Testing & Validation
+- [ ] Test facet configuration in admin UI
+- [ ] Test dynamic facets on storefront
+- [ ] Verify filter combinations work correctly
+- [ ] Test with sample product data
 
-#### Day 18-19: Analytics Dashboard
-- [ ] Create facet usage dashboard
-- [ ] Build performance metrics
-- [ ] Add export functionality
-- [ ] Implement real-time updates
+#### Day 13: Final Polish
+- [ ] Fix any UI issues
+- [ ] Add basic error handling
+- [ ] Test mobile responsive design
+- [ ] Verify backward compatibility
 
-#### Day 20: Testing & Polish
-- [ ] Complete UI testing
-- [ ] Fix responsive issues
-- [ ] Add loading states
-- [ ] Implement error handling
+### Future Enhancements (When Catalog Grows)
+- [ ] Add Redis caching layer
+- [ ] Implement analytics dashboard
+- [ ] Add facet search functionality
+- [ ] Optimize for large datasets
+- [ ] Add drag-drop priority management
 
-### Phase 5: Migration & Deployment (Week 5)
+### Phase 5: Deployment (1 Day)
 
-#### Day 21-22: Data Migration
-- [ ] Map existing filters to facets
-- [ ] Create migration scripts
-- [ ] Migrate existing filter data
-- [ ] Verify data integrity
-
-#### Day 23-24: Testing
-- [ ] End-to-end testing
-- [ ] Performance testing
-- [ ] Load testing
-- [ ] Security testing
-
-#### Day 25: Deployment
+#### Day 14: Deployment
 - [ ] Deploy to staging
-- [ ] Run smoke tests
+- [ ] Run basic smoke tests
 - [ ] Deploy to production
-- [ ] Monitor performance
+- [ ] Monitor basic performance
+- [ ] Document setup for future optimization
+
+#### Migration Strategy (Simplified)
+- [ ] Keep existing hardcoded filters as fallback initially
+- [ ] Gradually enable facets category by category
+- [ ] Remove hardcoded filters once facets proven stable
 
 ---
 
@@ -600,7 +638,7 @@ Response: {
 | video-capability-filter | video_resolution | term | Map to select attribute options |
 | mount-type-filter | mount_type | term | Use existing attribute options |
 | brand-filter | brand | term | Create brand attribute in templates |
-| price-filter | N/A | range | Keep as special system facet |
+| price-filter | N/A (variant.calculated_price) | range | System facet - aggregates from variant prices, not attributes |
 
 ### 9.2 Migration Steps
 
@@ -612,7 +650,8 @@ Response: {
 2. **Phase 2: Gradual Migration**
    - Migrate one filter at a time
    - Start with simple term facets (brand, mount type)
-   - Move to complex range facets (price, megapixels)
+   - Move to complex range facets (megapixels, focal length)
+   - Price filter remains as system facet (no migration needed)
 
 3. **Phase 3: Deprecation**
    - Remove hardcoded filter components
@@ -677,11 +716,12 @@ describe('FacetAggregationService', () => {
 
 | Test Case | Target | Measurement |
 |-----------|--------|-------------|
-| Facet aggregation (1000 products) | < 100ms | 95th percentile |
-| Facet aggregation (10000 products) | < 200ms | 95th percentile |
-| Complex filter (5+ facets) | < 300ms | 95th percentile |
-| Cache hit ratio | > 80% | Average |
-| Concurrent users (100) | < 500ms | 95th percentile |
+| Facet aggregation (200 products) | < 50ms | 95th percentile |
+| Complex filter (3+ facets) | < 100ms | 95th percentile |
+| Category facet config load | < 20ms | 95th percentile |
+| Concurrent users (10) | < 200ms | 95th percentile |
+
+**Note**: Performance targets are conservative for small catalog. Can optimize later if catalog grows to 1000+ products.
 
 ### 10.4 E2E Tests
 
@@ -719,52 +759,48 @@ describe('Facet Filtering Flow', () => {
 
 | Risk | Probability | Impact | Mitigation Strategy |
 |------|-------------|--------|-------------------|
-| **Performance degradation with large datasets** | High | High | Implement caching, database indexes, pagination |
-| **Complex facet combinations causing slow queries** | Medium | High | Query optimization, result limiting, caching |
-| **Cache invalidation issues** | Medium | Medium | Event-driven invalidation, TTL strategy |
+| **Query performance with growth** | Low | Medium | Monitor query times, add indexes if needed |
+| **Complex facet combinations** | Low | Low | Simple queries sufficient for small catalog |
+| **Future scaling needs** | Medium | Low | Architecture supports adding caching later |
 | **Migration data inconsistency** | Low | High | Parallel running, data validation, rollback plan |
 | **UI complexity for many facets** | Medium | Medium | Progressive disclosure, search within facets |
 | **Browser compatibility issues** | Low | Low | Progressive enhancement, polyfills |
 
-### 11.2 Performance Optimization Strategies
+### 11.2 Performance Optimization Strategies (Current Implementation)
 
-1. **Caching Strategy**
-   - Redis cache for aggregations
-   - 5-minute TTL for category facets
-   - Invalidate on product updates
-   - Pre-warm cache for popular categories
+1. **Simple Query Optimization**
+   - Use essential database indexes
+   - Direct aggregation queries (no caching complexity)
+   - Limit queries to active products only
 
-2. **Query Optimization**
-   - Use database indexes effectively
-   - Limit aggregation to visible products
+2. **Frontend Optimization**
+   - Standard React state management
+   - URL synchronization for filter persistence
+   - Basic responsive design
+
+3. **Future Scaling Options** (When Catalog Grows > 500 Products)
+   - Add Redis caching layer
    - Implement query result pagination
-   - Use materialized views for common aggregations
-
-3. **Frontend Optimization**
-   - Lazy load facet values
-   - Debounce filter applications
-   - Use virtual scrolling for long lists
-   - Implement progressive enhancement
+   - Add lazy loading for facet values
+   - Use materialized views for heavy aggregations
 
 ### 11.3 Monitoring & Metrics
 
-- **Performance Metrics**
+- **Performance Metrics** (Basic)
   - Facet aggregation response time
-  - Cache hit/miss ratio
   - Query execution time
   - API response time
 
-- **Business Metrics**
+- **Business Metrics** (Basic)
   - Facet usage rate
   - Filter conversion rate
-  - Search refinement rate
-  - Bounce rate on filtered pages
 
-- **Error Monitoring**
+- **Error Monitoring** (Essential)
   - Failed aggregation queries
-  - Cache connection errors
   - Invalid facet configurations
-  - Timeout errors
+  - API timeout errors
+
+**Note**: Keep monitoring simple initially. Can expand analytics when catalog grows.
 
 ---
 
@@ -984,9 +1020,7 @@ interface TooltipConfig {
         "display_priority": 1,
         "aggregation_type": "term",
         "display_type": "checkbox",
-        "show_count": true,
-        "searchable": true,
-        "collapsible": false
+        "show_count": true
       }
     },
     {
@@ -1001,9 +1035,7 @@ interface TooltipConfig {
         "display_priority": 2,
         "aggregation_type": "term",
         "display_type": "checkbox",
-        "show_count": true,
-        "collapsible": true,
-        "initial_collapsed": false
+        "show_count": true
       }
     },
     {
@@ -1045,8 +1077,6 @@ interface TooltipConfig {
         "aggregation_type": "term",
         "display_type": "checkbox",
         "show_count": true,
-        "collapsible": true,
-        "initial_collapsed": true,
         "max_display_items": 3
       }
     },
@@ -1122,8 +1152,7 @@ interface TooltipConfig {
         "display_priority": 3,
         "aggregation_type": "term",
         "display_type": "dropdown",
-        "show_count": true,
-        "searchable": true
+        "show_count": true
       }
     }
   ]

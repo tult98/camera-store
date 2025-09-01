@@ -11,21 +11,10 @@ export const FacetConfigSchema = z.object({
     min: z.number().optional(),
     max: z.number().optional(),
     step: z.number().positive("Step must be positive").optional(),
-    buckets: z.array(z.object({
-      min: z.number(),
-      max: z.number().nullable(),
-      label: z.string().min(1, "Bucket label is required"),
-    })).optional(),
   }).optional(),
   
   show_count: z.boolean().default(true),
-  collapsible: z.boolean().default(true),
-  initial_collapsed: z.boolean().default(false),
   max_display_items: z.number().positive("Max display items must be positive").default(5),
-  searchable: z.boolean().default(true),
-  
-  cache_ttl: z.number().positive("Cache TTL must be positive").optional(),
-  depends_on: z.array(z.string()).optional(),
 }).optional()
 
 // Validation schema for tooltip content
@@ -99,10 +88,7 @@ export const defaultAttributeDefinition: AttributeDefinitionFormData = {
     aggregation_type: "term",
     display_type: "checkbox",
     show_count: true,
-    collapsible: true,
-    initial_collapsed: false,
     max_display_items: 5,
-    searchable: true,
   },
 }
 

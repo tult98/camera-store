@@ -86,5 +86,28 @@ export const FACET_TOOLTIPS: Record<string, Omit<TooltipIconProps, "color">> = {
   max_display_items: {
     content: "Show 'See more' button after this many options",
     examples: "Setting 5 shows first 5 options, then 'Show more' button"
+  },
+  
+  range_config: {
+    content: "Configure min/max values and step increment for range sliders",
+    note: "Leave fields empty to auto-detect from product data"
+  },
+  
+  range_min: {
+    content: "Minimum value for range slider",
+    note: "Leave empty to auto-detect from product data",
+    examples: "For megapixels: 10, for focal length: 8"
+  },
+  
+  range_max: {
+    content: "Maximum value for range slider",
+    note: "Leave empty to auto-detect from product data",
+    examples: "For megapixels: 60, for focal length: 800"
+  },
+  
+  range_step: {
+    content: "Step increment for range slider",
+    note: "Leave empty to auto-calculate optimal step",
+    examples: "Step of 5 for megapixels, step of 10 for focal length"
   }
 };

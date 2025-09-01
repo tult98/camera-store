@@ -11,7 +11,7 @@ class ProductAttributesModuleService extends MedusaService({
 
   constructor(container: any) {
     super(...arguments)
-    this.facetAggregationService_ = new FacetAggregationService(this.__container__)
+    this.facetAggregationService_ = new FacetAggregationService(container)
   }
 
   getFacetAggregationService(): FacetAggregationService {

@@ -64,7 +64,7 @@ export async function GET(
     const totalPages = Math.ceil(totalProducts / itemsPerPage)
     const paginatedProducts = filteredProducts.slice(offset, offset + itemsPerPage)
 
-    res.json({
+    return res.json({
       pagination: {
         total: totalProducts,
         limit: itemsPerPage,
@@ -78,7 +78,7 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching products for category:", error)
     
-    res.status(500).json({
+    return res.status(500).json({
       error: "Failed to fetch products",
       message: error instanceof Error ? error.message : "Unknown error"
     })

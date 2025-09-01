@@ -151,6 +151,30 @@ apps/frontend/src/
 - Custom modules: Use exported constants like `PRODUCT_ATTRIBUTES_MODULE = "productAttributes"`
 - Pass `req.scope` container to services that need access to other modules to avoid resolution errors
 
+**Database Querying with Relations & Pricing:**
+- Use `query.graph()` for complex queries with relations and calculated data
+- For products with pricing: Always pass `QueryContext` with `region_id` and `currency_code`
+- Extract pricing context from request headers: `req.headers["region_id"]` and `req.headers["currency_code"]`
+- Example pattern for products with calculated prices:
+  ```typescript
+  const query = container.resolve(ContainerRegistrationKeys.QUERY);
+  const result = await query.graph({
+    entity: "product",
+    fields: ["*", "variants.*", "variants.calculated_price.*"],
+    filters: { categories: { id: categoryId } },
+    context: {
+      variants: {
+        calculated_price: QueryContext({
+          region_id: region_id,      // From request headers
+          currency_code: currency_code, // From request headers
+        }),
+      },
+    },
+  });
+  ```
+- **Critical**: `calculated_price` will be `null` without proper `region_id` and `currency_code` context
+- Always validate that pricing headers are present before querying products for price-sensitive operations
+
 **File-based Routing:**
 - API routes created by file structure under `/apps/backend/src/api/`
 - Dynamic parameters using `[param]` directory naming
@@ -267,6 +291,15 @@ apps/frontend/src/
 - **Performance**: Prefer Server Components, minimize client-side JavaScript
 - **Accessibility**: Use semantic HTML and ARIA attributes with daisyUI
 - **Responsive**: Mobile-first design with Tailwind breakpoints
+
+### Backend Code Quality Standards
+- **TypeScript**: Use proper types instead of `any` - create interfaces for complex objects
+- **Logging**: Use `container.resolve(ContainerRegistrationKeys.LOGGER)` instead of `console.*`
+- **Input Validation**: Validate and sanitize all user inputs (trim, length limits, type checking)
+- **Error Handling**: Wrap operations in try-catch with proper error typing
+- **Headers**: Extract required headers early and validate presence before processing
+- **Pricing Context**: Always pass `region_id` and `currency_code` for price-sensitive operations
+- **Container Injection**: Pass container/scope through service method chains for proper DI
 
 ## daisyUI Integration
 

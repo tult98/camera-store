@@ -11,9 +11,9 @@ import { FieldWithTooltip } from "../../../../components/tooltip-icon";
 import { ATTRIBUTE_TOOLTIPS } from "../../../../constants/tooltip-content";
 
 interface OptionGroup {
-  group_code: string;
-  display_name: string;
-  options: Array<{ value: string; display_order: number }>;
+  id: string;
+  group_name: string;
+  options: string[];
 }
 
 interface CustomOptionsInputProps {
@@ -144,10 +144,10 @@ export const SelectOptionsSection = ({
                 <Select.Content>
                   {optionGroups.map((group: OptionGroup) => (
                     <Select.Item
-                      key={group.group_code}
-                      value={group.group_code}
+                      key={group.id}
+                      value={group.group_name}
                     >
-                      {group.display_name} ({group.options.length} options)
+                      {group.group_name} ({group.options.length} options)
                     </Select.Item>
                   ))}
                 </Select.Content>
@@ -162,13 +162,10 @@ export const SelectOptionsSection = ({
                 {optionGroups
                   .find(
                     (g: OptionGroup) =>
-                      g.group_code ===
+                      g.group_name ===
                       watch(`attribute_definitions.${index}.option_group`)
                   )
-                  ?.options.map(
-                    (o: { value: string; display_order: number }) => o.value
-                  )
-                  .join(", ") || "No options available"}
+                  ?.options.join(", ") || "No options available"}
               </div>
             )}
         </div>

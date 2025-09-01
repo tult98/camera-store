@@ -12,9 +12,9 @@ import { AttributeTemplateFormData } from "../../schemas/attribute-template.sche
 import { AttributeDefinitionItem } from "./AttributeDefinitionItem";
 
 interface OptionGroup {
-  group_code: string;
-  display_name: string;
-  options: Array<{ value: string; display_order: number }>;
+  id: string;
+  group_name: string;
+  options: string[];
 }
 
 interface AttributeDefinitionsSectionProps {

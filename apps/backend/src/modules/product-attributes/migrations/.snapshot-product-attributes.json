@@ -15,8 +15,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "group_code": {
-          "name": "group_code",
+        "group_name": {
+          "name": "group_name",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -24,43 +24,14 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "value": {
-          "name": "value",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "text"
-        },
-        "display_order": {
-          "name": "display_order",
-          "type": "integer",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "0",
-          "mappedType": "integer"
-        },
-        "metadata": {
-          "name": "metadata",
+        "options": {
+          "name": "options",
           "type": "jsonb",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
-          "mappedType": "json"
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
           "nullable": false,
-          "default": "true",
-          "mappedType": "boolean"
+          "mappedType": "json"
         },
         "created_at": {
           "name": "created_at",
@@ -95,20 +66,20 @@
           "mappedType": "datetime"
         }
       },
-      "name": "attribute_option",
+      "name": "attribute_group",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_attribute_option_deleted_at",
+          "keyName": "IDX_attribute_group_deleted_at",
           "columnNames": [],
           "composite": false,
           "constraint": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_option_deleted_at\" ON \"attribute_option\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_attribute_group_deleted_at\" ON \"attribute_group\" (deleted_at) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "attribute_option_pkey",
+          "keyName": "attribute_group_pkey",
           "columnNames": [
             "id"
           ],

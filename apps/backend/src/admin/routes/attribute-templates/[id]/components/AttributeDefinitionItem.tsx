@@ -13,9 +13,9 @@ import { SelectOptionsSection } from "./SelectOptionsSection";
 import { FacetConfigurationSection } from "./FacetConfigurationSection";
 
 interface OptionGroup {
-  group_code: string;
-  display_name: string;
-  options: Array<{ value: string; display_order: number }>;
+  id: string;
+  group_name: string;
+  options: string[];
 }
 
 interface AttributeDefinitionItemProps {

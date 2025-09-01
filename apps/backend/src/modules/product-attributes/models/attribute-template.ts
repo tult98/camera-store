@@ -36,7 +36,7 @@ export interface AttributeDefinition {
   label: string
   type: "text" | "number" | "select" | "boolean"
   options?: string[]
-  option_group?: string  // Reference to AttributeOption group_code
+  option_group?: string  // Reference to AttributeGroup group_name
   required: boolean
   display_order: number
   validation?: {

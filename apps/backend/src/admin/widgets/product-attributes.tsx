@@ -62,13 +62,13 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
   const { data: optionGroupsData } = useQuery({
     queryKey: ["attribute-option-groups"],
     queryFn: async () => {
-      const response = await fetch("/admin/attribute-options/groups");
+      const response = await fetch("/admin/attribute-options");
       const data = await response.json();
 
-      // Convert array to lookup object by group_code
-      const groupsMap: Record<string, { group_code: string; options: { value: string; display_order: number }[] }> = {};
-      data.option_groups?.forEach((group: { group_code: string; options: { value: string; display_order: number }[] }) => {
-        groupsMap[group.group_code] = group;
+      // Convert array to lookup object by group_name
+      const groupsMap: Record<string, { group_name: string; options: string[] }> = {};
+      data.attribute_groups?.forEach((group: { group_name: string; options: string[] }) => {
+        groupsMap[group.group_name] = group;
       });
       return groupsMap;
     },
@@ -100,13 +100,9 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
           const groupOptions =
             optionGroupsData[attr.option_group].options || [];
           resolved[attr.key] = groupOptions
-            .sort(
-              (a, b) =>
-                (a.display_order || 0) - (b.display_order || 0)
-            )
             .map((opt) => ({
-              value: opt.value,
-              label: opt.value,
+              value: opt,
+              label: opt,
             }));
         } else if (attr.options && Array.isArray(attr.options)) {
           resolved[attr.key] = attr.options.map((opt) => ({

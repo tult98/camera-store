@@ -20,7 +20,7 @@ This is a **general camera store** e-commerce platform consisting of:
 - `npx medusa db:generate <module>` - Generate migrations for specific module (run from apps/backend)
 - `nx run backend:migrate` - Run database migrations
 - `nx run backend:seed` - Seed database with demo data (runs `src/scripts/seed.ts`)
-- `nx run backend:reset-database` - **Complete database reset**: drops database, recreates, runs migrations, creates admin user, and seeds demo data with consistent publishable API key (`pk_camera_store_dev_static_key_123456789`)
+- `nx run backend:reset-database` - **Complete database reset**: drops database, recreates, runs migrations, creates admin user, and seeds demo data with consistent publishable API key (`pk_camera_store_dev_static_key_123456789`) - **⚠️ CLAUDE CODE: DO NOT RUN THIS COMMAND**
 
 **Testing:**
 - `nx run backend:test` - Run all tests (unit + integration HTTP + integration modules)

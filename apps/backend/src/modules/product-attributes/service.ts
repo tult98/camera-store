@@ -1,11 +1,11 @@
 import { MedusaService } from "@medusajs/framework/utils"
-import { AttributeTemplate, ProductAttribute, AttributeOption } from "./models"
+import { AttributeTemplate, ProductAttribute, AttributeGroup } from "./models"
 import FacetAggregationService from "./services/facet-aggregation.service"
 
 class ProductAttributesModuleService extends MedusaService({
   AttributeTemplate,
   ProductAttribute, 
-  AttributeOption,
+  AttributeGroup,
 }) {
   private facetAggregationService_: FacetAggregationService
 

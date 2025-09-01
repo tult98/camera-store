@@ -71,14 +71,14 @@ const AttributeTemplateFormCore = () => {
     isLoading: optionGroupsLoading,
     error: optionGroupsError,
   } = useQuery({
-    queryKey: ["option-groups"],
+    queryKey: ["attribute-groups"],
     queryFn: async () => {
-      const response = await fetch("/admin/attribute-options/groups");
+      const response = await fetch("/admin/attribute-options");
       if (!response.ok) {
-        throw new Error("Failed to fetch option groups");
+        throw new Error("Failed to fetch attribute groups");
       }
       const data = await response.json();
-      return data.option_groups || [];
+      return data.attribute_groups || [];
     },
   });
 
@@ -194,6 +194,8 @@ const AttributeTemplateFormCore = () => {
             register={register}
             control={control}
             errors={errors}
+            setValue={setValue}
+            watch={watch}
           />
 
           <AttributeDefinitionsSection

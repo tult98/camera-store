@@ -32,7 +32,7 @@ import { ATTRIBUTE_TOOLTIPS, FACET_TOOLTIPS } from "../../../constants/tooltip-c
 interface OptionGroup {
   group_code: string;
   display_name: string;
-  options: Array<{ value: string; label: string }>;
+  options: Array<{ value: string; display_order: number }>;
 }
 
 // Separate component to handle custom options input
@@ -521,8 +521,8 @@ const AttributeTemplateForm = () => {
                                       g.group_code ===
                                       watch(`attribute_definitions.${index}.option_group`)
                                   )
-                                  ?.options.map((o) => o.label)
-                                  .join(", ")}
+                                  ?.options.map((o) => o.value)
+                                  .join(", ") || "No options available"}
                               </div>
                             )}
                           </div>

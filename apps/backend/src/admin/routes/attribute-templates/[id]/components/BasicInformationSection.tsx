@@ -58,9 +58,12 @@ export const BasicInformationSection = ({
           {errors.name && (
             <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
           )}
-          <p className="text-sm text-gray-500 mt-1">
-            Code will be auto-generated: {templateName ? generateCodeFromName(templateName) : 'e.g., camera_attributes'}
-          </p>
+          <div className="text-xs text-gray-500 mt-1">
+            Generated key:{" "}
+            <code className="bg-gray-100 px-1 rounded">
+              {templateName ? generateCodeFromName(templateName) : 'e.g., camera_attributes'}
+            </code>
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">

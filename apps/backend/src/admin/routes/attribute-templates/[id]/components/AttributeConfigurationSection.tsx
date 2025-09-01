@@ -80,6 +80,12 @@ export const AttributeConfigurationSection = ({
                   {errors.attribute_definitions[index]?.label?.message}
                 </p>
               )}
+              <div className="text-xs text-gray-500 mt-1">
+                Generated key:{" "}
+                <code className="bg-gray-100 px-1 rounded">
+                  {watch(`attribute_definitions.${index}.key`) || "auto_generated"}
+                </code>
+              </div>
             </div>
           }
         />
@@ -151,15 +157,6 @@ export const AttributeConfigurationSection = ({
         type="hidden"
         {...register(`attribute_definitions.${index}.key`)}
       />
-
-      <div className="mt-2">
-        <div className="text-xs text-gray-500">
-          Generated key:{" "}
-          <code className="bg-gray-100 px-1 rounded">
-            {watch(`attribute_definitions.${index}.key`) || "auto_generated"}
-          </code>
-        </div>
-      </div>
     </div>
   );
 };

@@ -26,6 +26,8 @@ import {
   defaultAttributeDefinition,
   defaultAttributeTemplate,
 } from "../schemas/attribute-template.schema";
+import { FieldWithTooltip } from "../../../components/tooltip-icon";
+import { ATTRIBUTE_TOOLTIPS, FACET_TOOLTIPS } from "../../../constants/tooltip-content";
 
 interface OptionGroup {
   group_code: string;
@@ -80,7 +82,8 @@ const AttributeTemplateForm = () => {
     // @ts-expect-error - Zod resolver type mismatch with default values
     resolver: zodResolver(AttributeTemplateSchema),
     defaultValues: defaultAttributeTemplate,
-    mode: "onBlur", // Validate on blur for better UX
+    mode: "onBlur",
+    reValidateMode: "onBlur",
   });
 
   const {
@@ -191,6 +194,16 @@ const AttributeTemplateForm = () => {
     }
   };
 
+  // Function to generate key from label
+  const generateKeyFromLabel = (label: string): string => {
+    return label
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+      .replace(/\s+/g, '_') // Replace spaces with underscores
+      .replace(/^_+|_+$/g, '') // Remove leading/trailing underscores
+      .substring(0, 50); // Limit length
+  };
+
   const handleAddAttribute = () => {
     appendAttribute(defaultAttributeDefinition);
   };
@@ -290,24 +303,16 @@ const AttributeTemplateForm = () => {
 
           {/* Attribute Definitions */}
           <div className="bg-white p-6 rounded-lg border">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h3 className="text-lg font-medium">Attribute Definitions</h3>
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={handleAddAttribute}
-                type="button"
-              >
-                <Plus className="w-4 h-4" />
-                Add Attribute
-              </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {attributeFields.map((field, index) => (
-                <div key={field.id} className="border rounded p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium">Attribute {index + 1}</h4>
+                <div key={field.id} className="space-y-6">
+                  {/* Header */}
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-lg font-semibold">Attribute {index + 1}</h4>
                     <Button
                       variant="transparent"
                       size="small"
@@ -318,227 +323,403 @@ const AttributeTemplateForm = () => {
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <Label>Key</Label>
-                      <Input
-                        {...register(`attribute_definitions.${index}.key`)}
-                        placeholder="e.g., sensor_type"
+                  {/* Attribute Configuration Section */}
+                  <div className="border rounded-lg p-6">
+                    <h3 className="font-semibold mb-4 flex items-center">
+                      📝 Attribute Configuration
+                      <FieldWithTooltip
+                        label=""
+                        tooltip={{
+                          content: "These settings control how admins enter product data",
+                          color: "blue"
+                        }}
+                        field={<span />}
                       />
-                      {errors.attribute_definitions?.[index]?.key && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.attribute_definitions[index]?.key?.message}
-                        </p>
-                      )}
-                    </div>
+                    </h3>
 
-                    <div>
-                      <Label>Label</Label>
-                      <Input
-                        {...register(`attribute_definitions.${index}.label`)}
-                        placeholder="e.g., Sensor Type"
+                    <div className="grid grid-cols-2 gap-4">
+                      <FieldWithTooltip
+                        label="Label"
+                        required
+                        tooltip={{
+                          content: "Display name shown to admins in product forms",
+                          examples: "Sensor Type, Resolution, Brand",
+                          note: "Key will be auto-generated from this label",
+                          color: "blue"
+                        }}
+                        field={
+                          <Input
+                            {...register(`attribute_definitions.${index}.label`)}
+                            placeholder="e.g., Sensor Type"
+                            onChange={(e) => {
+                              // Auto-generate key when label changes
+                              const generatedKey = generateKeyFromLabel(e.target.value);
+                              setValue(`attribute_definitions.${index}.key`, generatedKey);
+                              // Also update the label field
+                              setValue(`attribute_definitions.${index}.label`, e.target.value);
+                            }}
+                          />
+                        }
                       />
-                      {errors.attribute_definitions?.[index]?.label && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.attribute_definitions[index]?.label?.message}
-                        </p>
-                      )}
-                    </div>
 
-                    <div>
-                      <Label>Type</Label>
-                      <Controller
-                        name={`attribute_definitions.${index}.type`}
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <Select.Trigger>
-                              <Select.Value placeholder="Select type" />
-                            </Select.Trigger>
-                            <Select.Content>
-                              <Select.Item value="text">Text</Select.Item>
-                              <Select.Item value="number">Number</Select.Item>
-                              <Select.Item value="select">Select</Select.Item>
-                              <Select.Item value="boolean">Boolean</Select.Item>
-                            </Select.Content>
-                          </Select>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mt-3">
-                    <div>
-                      <Label>Help Text</Label>
-                      <Input
-                        {...register(
-                          `attribute_definitions.${index}.help_text`
-                        )}
-                        placeholder="Optional help text"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Placeholder</Label>
-                      <Input
-                        {...register(
-                          `attribute_definitions.${index}.placeholder`
-                        )}
-                        placeholder="Input placeholder"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Select Options */}
-                  {watch(`attribute_definitions.${index}.type`) ===
-                    "select" && (
-                    <div className="mt-3 space-y-3">
-                      <div>
-                        <Label>Option Source</Label>
-                        <div className="flex gap-4">
-                          <label className="flex items-center space-x-2">
-                            <Controller
-                              name={`attribute_definitions.${index}.option_group`}
-                              control={control}
-                              render={({ field }) => (
-                                <input
-                                  type="radio"
-                                  name={`option_source_${index}`}
-                                  checked={!field.value}
-                                  onChange={() => {
-                                    field.onChange(null)
-                                    setValue(`attribute_definitions.${index}.options`, undefined)
-                                  }}
-                                />
-                              )}
-                            />
-                            <span className="text-sm text-gray-700">
-                              Custom Options
-                            </span>
-                          </label>
-                          <label className="flex items-center space-x-2">
-                            <Controller
-                              name={`attribute_definitions.${index}.option_group`}
-                              control={control}
-                              render={({ field }) => (
-                                <input
-                                  type="radio"
-                                  name={`option_source_${index}`}
-                                  checked={!!field.value}
-                                  onChange={() => {
-                                    field.onChange("__placeholder__")
-                                    setValue(`attribute_definitions.${index}.options`, undefined)
-                                  }}
-                                />
-                              )}
-                            />
-                            <span className="text-sm text-gray-700">
-                              Use Option Group
-                            </span>
-                          </label>
-                        </div>
-                      </div>
-
-                      {watch(`attribute_definitions.${index}.option_group`) ? (
-                        <div>
-                          <Label>Select Option Group</Label>
+                      <FieldWithTooltip
+                        label="Input Type"
+                        tooltip={{...ATTRIBUTE_TOOLTIPS.type, color: "blue"}}
+                        field={
                           <Controller
-                            name={`attribute_definitions.${index}.option_group`}
+                            name={`attribute_definitions.${index}.type`}
                             control={control}
                             render={({ field }) => (
                               <Select
-                                value={field.value === "__placeholder__" ? "" : field.value || ""}
+                                value={field.value}
                                 onValueChange={field.onChange}
                               >
                                 <Select.Trigger>
-                                  <Select.Value placeholder="Choose an option group" />
+                                  <Select.Value placeholder="Select type" />
                                 </Select.Trigger>
                                 <Select.Content>
-                                  {optionGroups.map((group) => (
-                                    <Select.Item
-                                      key={group.group_code}
-                                      value={group.group_code}
-                                    >
-                                      {group.display_name} (
-                                      {group.options.length} options)
-                                    </Select.Item>
-                                  ))}
+                                  <Select.Item value="text">Text</Select.Item>
+                                  <Select.Item value="number">Number</Select.Item>
+                                  <Select.Item value="select">Select</Select.Item>
+                                  <Select.Item value="boolean">Boolean</Select.Item>
                                 </Select.Content>
                               </Select>
                             )}
                           />
-                          {watch(
-                            `attribute_definitions.${index}.option_group`
-                          ) && 
-                          watch(
-                            `attribute_definitions.${index}.option_group`
-                          ) !== "__placeholder__" && (
-                            <div className="mt-2 text-sm text-gray-600">
-                              Options:{" "}
-                              {optionGroups
-                                .find(
-                                  (g) =>
-                                    g.group_code ===
-                                    watch(
-                                      `attribute_definitions.${index}.option_group`
-                                    )
-                                )
-                                ?.options.map((o) => o.label)
-                                .join(", ")}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <Label>Custom Options (comma separated)</Label>
+                        }
+                      />
+
+                      <FieldWithTooltip
+                        label="Required"
+                        tooltip={{...ATTRIBUTE_TOOLTIPS.required, color: "blue"}}
+                        field={
                           <Controller
-                            name={`attribute_definitions.${index}.options`}
+                            name={`attribute_definitions.${index}.required`}
                             control={control}
                             render={({ field }) => (
-                              <CustomOptionsInput
-                                value={field.value}
-                                onChange={field.onChange}
-                                placeholder="e.g., Full Frame, APS-C, Micro Four Thirds"
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
                               />
                             )}
                           />
-                        </div>
+                        }
+                      />
+
+                      <FieldWithTooltip
+                        label="Display Order"
+                        tooltip={{...ATTRIBUTE_TOOLTIPS.display_order, color: "blue"}}
+                        field={
+                          <Input
+                            type="number"
+                            {...register(
+                              `attribute_definitions.${index}.display_order`,
+                              { valueAsNumber: true }
+                            )}
+                            placeholder="1"
+                          />
+                        }
+                      />
+                    </div>
+
+                    {/* Hidden key field - auto-generated from label */}
+                    <input
+                      type="hidden"
+                      {...register(`attribute_definitions.${index}.key`)}
+                    />
+
+                    {/* Show generated key for reference */}
+                    <div className="mt-2">
+                      <div className="text-xs text-gray-500">
+                        Generated key: <code className="bg-gray-100 px-1 rounded">{watch(`attribute_definitions.${index}.key`) || 'auto_generated'}</code>
+                      </div>
+                    </div>
+
+
+                    {/* Select Options */}
+                    {watch(`attribute_definitions.${index}.type`) === "select" && (
+                      <div className="mt-4 space-y-3">
+                        <FieldWithTooltip
+                          label="Option Source"
+                          tooltip={{...ATTRIBUTE_TOOLTIPS.options, color: "blue"}}
+                          field={
+                            <div className="flex gap-4">
+                              <label className="flex items-center space-x-2">
+                                <Controller
+                                  name={`attribute_definitions.${index}.option_group`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <input
+                                      type="radio"
+                                      name={`option_source_${index}`}
+                                      checked={!field.value}
+                                      onChange={() => {
+                                        field.onChange(null)
+                                        setValue(`attribute_definitions.${index}.options`, undefined)
+                                      }}
+                                    />
+                                  )}
+                                />
+                                <span className="text-sm text-gray-700">Custom Options</span>
+                              </label>
+                              <label className="flex items-center space-x-2">
+                                <Controller
+                                  name={`attribute_definitions.${index}.option_group`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <input
+                                      type="radio"
+                                      name={`option_source_${index}`}
+                                      checked={!!field.value}
+                                      onChange={() => {
+                                        field.onChange("__placeholder__")
+                                        setValue(`attribute_definitions.${index}.options`, undefined)
+                                      }}
+                                    />
+                                  )}
+                                />
+                                <span className="text-sm text-gray-700">Use Option Group</span>
+                              </label>
+                            </div>
+                          }
+                        />
+
+                        {watch(`attribute_definitions.${index}.option_group`) ? (
+                          <div>
+                            <Label>Select Option Group</Label>
+                            <Controller
+                              name={`attribute_definitions.${index}.option_group`}
+                              control={control}
+                              render={({ field }) => (
+                                <Select
+                                  value={field.value === "__placeholder__" ? "" : field.value || ""}
+                                  onValueChange={field.onChange}
+                                >
+                                  <Select.Trigger>
+                                    <Select.Value placeholder="Choose an option group" />
+                                  </Select.Trigger>
+                                  <Select.Content>
+                                    {optionGroups.map((group) => (
+                                      <Select.Item
+                                        key={group.group_code}
+                                        value={group.group_code}
+                                      >
+                                        {group.display_name} ({group.options.length} options)
+                                      </Select.Item>
+                                    ))}
+                                  </Select.Content>
+                                </Select>
+                              )}
+                            />
+                            {watch(`attribute_definitions.${index}.option_group`) && 
+                            watch(`attribute_definitions.${index}.option_group`) !== "__placeholder__" && (
+                              <div className="mt-2 text-sm text-gray-600">
+                                Options:{" "}
+                                {optionGroups
+                                  .find(
+                                    (g) =>
+                                      g.group_code ===
+                                      watch(`attribute_definitions.${index}.option_group`)
+                                  )
+                                  ?.options.map((o) => o.label)
+                                  .join(", ")}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            <Label>Custom Options (comma separated)</Label>
+                            <Controller
+                              name={`attribute_definitions.${index}.options`}
+                              control={control}
+                              render={({ field }) => (
+                                <CustomOptionsInput
+                                  value={field.value}
+                                  onChange={field.onChange}
+                                  placeholder="e.g., Full Frame, APS-C, Micro Four Thirds"
+                                />
+                              )}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                  </div>
+
+                  {/* Facet Configuration Section */}
+                  <div className="border rounded-lg p-6">
+                    <h3 className="font-semibold mb-4 flex items-center">
+                      🔍 Customer Filter Configuration
+                      <FieldWithTooltip
+                        label=""
+                        tooltip={{
+                          content: "These settings control how customers filter products",
+                          color: "purple"
+                        }}
+                        field={<span />}
+                      />
+                    </h3>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FieldWithTooltip
+                        label="Use as Filter"
+                        tooltip={{...FACET_TOOLTIPS.is_facet, color: "purple"}}
+                        field={
+                          <Controller
+                            name={`attribute_definitions.${index}.facet_config.is_facet`}
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                checked={field.value || false}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
+                          />
+                        }
+                      />
+
+                      {/* Show facet config only when facet is enabled */}
+                      {watch(`attribute_definitions.${index}.facet_config.is_facet`) && (
+                        <FieldWithTooltip
+                          label="Show Count"
+                          tooltip={{...FACET_TOOLTIPS.show_count, color: "purple"}}
+                          field={
+                            <Controller
+                              name={`attribute_definitions.${index}.facet_config.show_count`}
+                              control={control}
+                              render={({ field }) => (
+                                <Switch
+                                  checked={field.value ?? true}
+                                  onCheckedChange={field.onChange}
+                                />
+                              )}
+                            />
+                          }
+                        />
+                      )}
+
+                      {watch(`attribute_definitions.${index}.facet_config.is_facet`) && (
+                        <>
+                          <FieldWithTooltip
+                            label="Filter Priority"
+                            tooltip={{...FACET_TOOLTIPS.display_priority, color: "purple"}}
+                            field={
+                              <div>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  {...register(
+                                    `attribute_definitions.${index}.facet_config.display_priority`,
+                                    { valueAsNumber: true }
+                                  )}
+                                  placeholder="1"
+                                />
+                                {errors.attribute_definitions?.[index]?.facet_config?.display_priority && (
+                                  <p className="text-red-500 text-sm mt-1">
+                                    {errors.attribute_definitions[index]?.facet_config?.display_priority?.message}
+                                  </p>
+                                )}
+                              </div>
+                            }
+                          />
+
+                          <FieldWithTooltip
+                            label="Aggregation Type"
+                            tooltip={{...FACET_TOOLTIPS.aggregation_type, color: "purple"}}
+                            field={
+                              <div>
+                                <Controller
+                                  name={`attribute_definitions.${index}.facet_config.aggregation_type`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Select
+                                      value={field.value || "term"}
+                                      onValueChange={field.onChange}
+                                    >
+                                      <Select.Trigger>
+                                        <Select.Value />
+                                      </Select.Trigger>
+                                      <Select.Content>
+                                        <Select.Item value="term">Term</Select.Item>
+                                        <Select.Item value="range">Range</Select.Item>
+                                        <Select.Item value="histogram">Histogram</Select.Item>
+                                        <Select.Item value="boolean">Boolean</Select.Item>
+                                      </Select.Content>
+                                    </Select>
+                                  )}
+                                />
+                                {errors.attribute_definitions?.[index]?.facet_config?.aggregation_type && (
+                                  <p className="text-red-500 text-sm mt-1">
+                                    {errors.attribute_definitions[index]?.facet_config?.aggregation_type?.message}
+                                  </p>
+                                )}
+                              </div>
+                            }
+                          />
+
+                          <FieldWithTooltip
+                            label="Display Type"
+                            tooltip={{...FACET_TOOLTIPS.display_type, color: "purple"}}
+                            field={
+                              <div>
+                                <Controller
+                                  name={`attribute_definitions.${index}.facet_config.display_type`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Select
+                                      value={field.value || "checkbox"}
+                                      onValueChange={field.onChange}
+                                    >
+                                      <Select.Trigger>
+                                        <Select.Value />
+                                      </Select.Trigger>
+                                      <Select.Content>
+                                        <Select.Item value="checkbox">Checkbox</Select.Item>
+                                        <Select.Item value="radio">Radio</Select.Item>
+                                        <Select.Item value="slider">Slider</Select.Item>
+                                        <Select.Item value="dropdown">Dropdown</Select.Item>
+                                        <Select.Item value="toggle">Toggle</Select.Item>
+                                      </Select.Content>
+                                    </Select>
+                                  )}
+                                />
+                                {errors.attribute_definitions?.[index]?.facet_config?.display_type && (
+                                  <p className="text-red-500 text-sm mt-1">
+                                    {errors.attribute_definitions[index]?.facet_config?.display_type?.message}
+                                  </p>
+                                )}
+                              </div>
+                            }
+                          />
+
+                          <FieldWithTooltip
+                            label="Max Display Items"
+                            tooltip={{...FACET_TOOLTIPS.max_display_items, color: "purple"}}
+                            field={
+                              <div>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  {...register(
+                                    `attribute_definitions.${index}.facet_config.max_display_items`,
+                                    { valueAsNumber: true }
+                                  )}
+                                  placeholder="No limit"
+                                />
+                                {errors.attribute_definitions?.[index]?.facet_config?.max_display_items && (
+                                  <p className="text-red-500 text-sm mt-1">
+                                    {errors.attribute_definitions[index]?.facet_config?.max_display_items?.message}
+                                  </p>
+                                )}
+                              </div>
+                            }
+                          />
+                        </>
                       )}
                     </div>
-                  )}
-
-                  <div className="flex items-center space-x-4 mt-3">
-                    <div className="flex items-center space-x-2">
-                      <Controller
-                        name={`attribute_definitions.${index}.required`}
-                        control={control}
-                        render={({ field }) => (
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        )}
-                      />
-                      <Label>Required</Label>
-                    </div>
-
-                    <div>
-                      <Label>Display Order</Label>
-                      <Input
-                        type="number"
-                        className="w-24"
-                        {...register(
-                          `attribute_definitions.${index}.display_order`,
-                          {
-                            valueAsNumber: true,
-                          }
-                        )}
-                      />
-                    </div>
                   </div>
+
                 </div>
               ))}
             </div>
@@ -548,6 +729,19 @@ const AttributeTemplateForm = () => {
                 No attributes defined. Click "Add Attribute" to get started.
               </div>
             )}
+
+            {/* Add Attribute Button - Moved to bottom */}
+            <div className="mt-6 flex justify-center">
+              <Button
+                variant="secondary"
+                size="small"
+                onClick={handleAddAttribute}
+                type="button"
+              >
+                <Plus className="w-4 h-4" />
+                Add Attribute
+              </Button>
+            </div>
           </div>
 
           {/* Actions */}

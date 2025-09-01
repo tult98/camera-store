@@ -10,9 +10,7 @@ type AttributeDefinition = {
   option_group?: string
   required: boolean
   display_order: number
-  help_text?: string
   unit?: string
-  placeholder?: string
   default_value?: any
 }
 
@@ -213,7 +211,6 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
           <Input
             value={value}
             onChange={(e) => handleAttributeValueChange(attr.key, e.target.value)}
-            placeholder={attr.placeholder}
           />
         )
 
@@ -224,7 +221,6 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
               type="number"
               value={value}
               onChange={(e) => handleAttributeValueChange(attr.key, parseFloat(e.target.value) || 0)}
-              placeholder={attr.placeholder}
             />
             {attr.unit && <span className="text-sm text-gray-500">{attr.unit}</span>}
           </div>
@@ -235,7 +231,7 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
         return (
           <Select value={value || undefined} onValueChange={(val) => handleAttributeValueChange(attr.key, val)}>
             <Select.Trigger>
-              <Select.Value placeholder={attr.placeholder || "Select an option"} />
+              <Select.Value placeholder="Select an option" />
             </Select.Trigger>
             <Select.Content>
               {options.map((option: any) => (
@@ -314,11 +310,6 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
                       {attr.label}
                       {attr.required && <span className="text-red-500 ml-1">*</span>}
                     </Label>
-                    {attr.help_text && (
-                      <span className="text-xs text-gray-500">
-                        ({attr.help_text})
-                      </span>
-                    )}
                   </div>
                   
                   {renderAttributeInput(attr)}

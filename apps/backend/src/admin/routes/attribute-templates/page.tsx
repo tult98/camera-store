@@ -140,6 +140,7 @@ const AttributeTemplateList = () => {
 
 export const config = defineRouteConfig({
   label: "Attribute Templates",
+  icon: PencilSquare,
 })
 
 export default AttributeTemplateList

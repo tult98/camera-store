@@ -147,7 +147,9 @@ apps/frontend/src/
 **Module Resolution:**
 - Services resolved via `req.scope.resolve("serviceName")` in API routes
 - Container-based dependency injection throughout the application
-- Standard Medusa modules: product, order, customer, etc.
+- Built-in Medusa modules: Use `Modules.PRODUCT`, `Modules.ORDER`, `Modules.CUSTOMER`, etc.
+- Custom modules: Use exported constants like `PRODUCT_ATTRIBUTES_MODULE = "productAttributes"`
+- Pass `req.scope` container to services that need access to other modules to avoid resolution errors
 
 **File-based Routing:**
 - API routes created by file structure under `/apps/backend/src/api/`
@@ -465,5 +467,6 @@ The project uses daisyUI v5.0.50 with built-in themes:
 - **Image Optimization**: Ensure Next.js Image component is used
 - **Caching**: Monitor cache hit rates for product data
 - Do not run yarn dev to verify after changes. Let's me verify it myself
+- Do not start development servers (nx serve backend, yarn dev) to verify changes - user manages server instances
 - Do not commit & push the code until I told you to do it
 - do not commit & push changes if I do not told you

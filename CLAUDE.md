@@ -64,6 +64,7 @@ yarn analyze
 - **`apps/backend/src/admin/`** - Admin dashboard extensions and widgets
   - Custom React components for extending admin interface
   - Widget configuration with zone-based injection
+  - **React Query Integration**: Use `withQueryClientProvider` HOC for widgets requiring data fetching
 
 - **`apps/backend/src/modules/`** - Custom business logic modules
   - Self-contained modules with models, services, and configurations
@@ -300,6 +301,28 @@ apps/frontend/src/
 - **Headers**: Extract required headers early and validate presence before processing
 - **Pricing Context**: Always pass `region_id` and `currency_code` for price-sensitive operations
 - **Container Injection**: Pass container/scope through service method chains for proper DI
+
+### Admin Widget Development with React Query
+- **Data Fetching**: Use React Query (`@tanstack/react-query`) for admin widgets requiring API calls
+- **Shared QueryClient**: Import `withQueryClientProvider` HOC from `apps/backend/src/admin/utils/query-client.tsx`
+- **Usage Pattern**:
+  ```tsx
+  import { withQueryClientProvider } from "../utils/query-client";
+  import { useQuery, useMutation } from "@tanstack/react-query";
+  
+  const MyWidgetCore = ({ data }) => {
+    const { data: items } = useQuery({
+      queryKey: ["my-data"],
+      queryFn: fetchMyData,
+    });
+    
+    return <div>{/* widget content */}</div>;
+  };
+  
+  export default withQueryClientProvider(MyWidgetCore);
+  ```
+- **Query Configuration**: Optimized defaults include 5-minute stale time, 10-minute garbage collection
+- **Benefits**: Automatic caching, deduplication, background refetching, optimistic updates
 
 ## daisyUI Integration
 

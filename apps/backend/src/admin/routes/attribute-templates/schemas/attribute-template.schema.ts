@@ -21,7 +21,7 @@ export const FacetConfigSchema = z.object({
   show_count: z.boolean().default(true),
   collapsible: z.boolean().default(true),
   initial_collapsed: z.boolean().default(false),
-  max_display_items: z.number().positive("Max display items must be positive").optional(),
+  max_display_items: z.number().positive("Max display items must be positive").default(5),
   searchable: z.boolean().default(true),
   
   cache_ttl: z.number().positive("Cache TTL must be positive").optional(),
@@ -101,6 +101,7 @@ export const defaultAttributeDefinition: AttributeDefinitionFormData = {
     show_count: true,
     collapsible: true,
     initial_collapsed: false,
+    max_display_items: 5,
     searchable: true,
   },
 }

@@ -698,14 +698,21 @@ const AttributeTemplateForm = () => {
                             tooltip={{...FACET_TOOLTIPS.max_display_items, color: "purple"}}
                             field={
                               <div>
-                                <Input
-                                  type="number"
-                                  min="1"
-                                  {...register(
-                                    `attribute_definitions.${index}.facet_config.max_display_items`,
-                                    { valueAsNumber: true }
+                                <Controller
+                                  name={`attribute_definitions.${index}.facet_config.max_display_items`}
+                                  control={control}
+                                  render={({ field }) => (
+                                    <Input
+                                      type="number"
+                                      min="1"
+                                      value={field.value || 5}
+                                      onChange={(e) => {
+                                        const value = e.target.value === "" ? 5 : Number(e.target.value);
+                                        field.onChange(isNaN(value) ? 5 : value);
+                                      }}
+                                      placeholder="5"
+                                    />
                                   )}
-                                  placeholder="No limit"
                                 />
                                 {errors.attribute_definitions?.[index]?.facet_config?.max_display_items && (
                                   <p className="text-red-500 text-sm mt-1">

@@ -2,10 +2,10 @@ import { z } from "zod"
 
 // Validation schema for facet configuration
 export const FacetConfigSchema = z.object({
-  is_facet: z.boolean().default(false),
-  display_priority: z.number().min(1, "Display priority must be at least 1").default(1),
-  aggregation_type: z.enum(["term", "range", "histogram", "boolean"]).default("term"),
-  display_type: z.enum(["checkbox", "radio", "slider", "dropdown", "toggle"]).default("checkbox"),
+  is_facet: z.boolean(),
+  display_priority: z.number().min(1, "Display priority must be at least 1"),
+  aggregation_type: z.enum(["term", "range", "histogram", "boolean"]),
+  display_type: z.enum(["checkbox", "radio", "slider", "dropdown", "toggle"]),
   
   range_config: z.object({
     min: z.number().optional(),
@@ -13,8 +13,8 @@ export const FacetConfigSchema = z.object({
     step: z.number().positive("Step must be positive").optional(),
   }).optional(),
   
-  show_count: z.boolean().default(true),
-  max_display_items: z.number().positive("Max display items must be positive").default(5),
+  show_count: z.boolean(),
+  max_display_items: z.number().positive("Max display items must be positive"),
 }).optional()
 
 // Validation schema for tooltip content
@@ -29,11 +29,11 @@ export const AttributeDefinitionSchema = z.object({
   label: z.string().min(1, "Attribute label is required"),
   type: z.enum(["text", "number", "select", "boolean"], {
     message: "Attribute type is required",
-  }).default("text"),
+  }),
   options: z.array(z.string()).optional(),
   option_group: z.string().nullable().optional(),
-  required: z.boolean().default(false),
-  display_order: z.number().default(0),
+  required: z.boolean(),
+  display_order: z.number(),
   validation: z.object({
     rules: z.array(z.string()),
     min: z.number().optional(),

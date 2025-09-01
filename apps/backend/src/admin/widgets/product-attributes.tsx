@@ -1,178 +1,154 @@
-import { defineWidgetConfig } from "@medusajs/admin-sdk"
-import { Container, Heading, Button, Select, Input, Label, Switch, Toaster, toast } from "@medusajs/ui"
-import { useState, useEffect } from "react"
+import { defineWidgetConfig } from "@medusajs/admin-sdk";
+import {
+  Container,
+  Heading,
+  Button,
+  Select,
+  Input,
+  Label,
+  Switch,
+  Toaster,
+  toast,
+} from "@medusajs/ui";
+import { useState, useMemo, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { withQueryClientProvider } from "../utils/query-client";
 
 type AttributeDefinition = {
-  key: string
-  label: string
-  type: "text" | "number" | "select" | "boolean"
-  options?: string[]
-  option_group?: string
-  required: boolean
-  display_order: number
-  unit?: string
-  default_value?: any
-}
+  key: string;
+  label: string;
+  type: "text" | "number" | "select" | "boolean";
+  options?: string[];
+  option_group?: string;
+  required: boolean;
+  display_order: number;
+  unit?: string;
+  default_value?: string | number | boolean;
+};
 
 type AttributeTemplate = {
-  id: string
-  name: string
-  code: string
-  attribute_definitions: AttributeDefinition[]
-  is_active: boolean
-}
+  id: string;
+  name: string;
+  code: string;
+  attribute_definitions: AttributeDefinition[];
+  is_active: boolean;
+};
 
-type ProductAttribute = {
-  id?: string
-  product_id: string
-  template_id: string
-  attribute_values: Record<string, any>
-}
+const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<AttributeTemplate | null>(null);
+  const [attributeValues, setAttributeValues] = useState<Record<string, string | number | boolean>>(
+    {}
+  );
+  const queryClient = useQueryClient();
 
-const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
-  const [templates, setTemplates] = useState<AttributeTemplate[]>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<AttributeTemplate | null>(null)
-  const [productAttributes, setProductAttributes] = useState<ProductAttribute | null>(null)
-  const [attributeValues, setAttributeValues] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [optionGroups, setOptionGroups] = useState<Record<string, any>>({})
-  const [resolvedOptions, setResolvedOptions] = useState<Record<string, any[]>>({})
+  const productId = data.id;
 
-  const productId = data.id
+  // Fetch templates
+  const { data: templatesData, isLoading: templatesLoading } = useQuery({
+    queryKey: ["attribute-templates"],
+    queryFn: async () => {
+      const response = await fetch("/admin/attribute-templates");
+      const data = await response.json();
+      return (
+        data.attribute_templates?.filter(
+          (t: AttributeTemplate) => t.is_active
+        ) || []
+      );
+    },
+  });
 
-  useEffect(() => {
-    fetchData()
-    fetchOptionGroups()
-  }, [productId])
-  
-  // Re-resolve options when template or option groups change
-  useEffect(() => {
-    if (selectedTemplate && Object.keys(optionGroups).length > 0) {
-      const resolved: Record<string, any[]> = {}
-      
-      selectedTemplate.attribute_definitions.forEach(attr => {
-        if (attr.type === "select") {
-          if (attr.option_group && optionGroups[attr.option_group]) {
-            resolved[attr.key] = optionGroups[attr.option_group].options.map((opt: any) => ({
-              value: opt.value,
-              label: opt.value // Use value as label since label field doesn't exist
-            }))
-          } else if (attr.options) {
-            resolved[attr.key] = attr.options.map(opt => ({ value: opt, label: opt }))
-          }
-        }
-      })
-      
-      setResolvedOptions(resolved)
-    }
-  }, [selectedTemplate, optionGroups])
+  // Fetch option groups
+  const { data: optionGroupsData } = useQuery({
+    queryKey: ["attribute-option-groups"],
+    queryFn: async () => {
+      const response = await fetch("/admin/attribute-options/groups");
+      const data = await response.json();
 
-  const fetchData = async () => {
-    try {
-      // Fetch templates
-      const templatesResponse = await fetch("/admin/attribute-templates")
-      const templatesData = await templatesResponse.json()
-      const activeTemplates = templatesData.attribute_templates?.filter((t: AttributeTemplate) => t.is_active) || []
-      setTemplates(activeTemplates)
-
-      // Fetch existing product attributes
-      const productAttrsResponse = await fetch(`/admin/product-attributes?product_id=${productId}`)
-      const productAttrsData = await productAttrsResponse.json()
-      
-      if (productAttrsData.product_attributes?.length > 0) {
-        const existingAttr = productAttrsData.product_attributes[0]
-        setProductAttributes(existingAttr)
-        setAttributeValues(existingAttr.attribute_values || {})
-        
-        // Find and set the selected template
-        const template = activeTemplates.find((t: AttributeTemplate) => t.id === existingAttr.template_id)
-        if (template) {
-          setSelectedTemplate(template)
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch data:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-  
-  const fetchOptionGroups = async () => {
-    try {
-      const response = await fetch("/admin/attribute-options/groups")
-      const data = await response.json()
-      
       // Convert array to lookup object by group_code
-      const groupsMap: Record<string, any> = {}
-      data.option_groups?.forEach((group: any) => {
-        groupsMap[group.group_code] = group
-      })
-      setOptionGroups(groupsMap)
-    } catch (error) {
-      console.error("Failed to fetch option groups:", error)
-    }
-  }
+      const groupsMap: Record<string, { group_code: string; options: { value: string; display_order: number }[] }> = {};
+      data.option_groups?.forEach((group: { group_code: string; options: { value: string; display_order: number }[] }) => {
+        groupsMap[group.group_code] = group;
+      });
+      return groupsMap;
+    },
+  });
 
-  const handleTemplateChange = (templateId: string) => {
-    const template = templates.find(t => t.id === templateId)
-    setSelectedTemplate(template || null)
-    
-    // Initialize attribute values with defaults and resolve options
-    if (template) {
-      const initialValues: Record<string, any> = {}
-      const resolved: Record<string, any[]> = {}
-      
-      template.attribute_definitions.forEach(attr => {
-        if (attr.default_value !== undefined) {
-          initialValues[attr.key] = attr.default_value
-        }
-        
-        // Resolve options for select attributes
-        if (attr.type === "select") {
-          if (attr.option_group && optionGroups[attr.option_group]) {
-            resolved[attr.key] = optionGroups[attr.option_group].options.map((opt: any) => ({
+  // Fetch product attributes
+  const { data: productAttributesData, isLoading: productAttributesLoading } =
+    useQuery({
+      queryKey: ["product-attributes", productId],
+      queryFn: async () => {
+        const response = await fetch(
+          `/admin/product-attributes?product_id=${productId}`
+        );
+        const data = await response.json();
+        return data.product_attributes?.[0] || null;
+      },
+      enabled: !!productId,
+    });
+
+  // Resolve options from templates and option groups
+  const resolvedOptions = useMemo(() => {
+    if (!selectedTemplate || !optionGroupsData) return {};
+
+    const resolved: Record<string, { value: string; label: string }[]> = {};
+
+    selectedTemplate.attribute_definitions.forEach((attr) => {
+      if (attr.type === "select") {
+        if (attr.option_group && optionGroupsData[attr.option_group]) {
+          const groupOptions =
+            optionGroupsData[attr.option_group].options || [];
+          resolved[attr.key] = groupOptions
+            .sort(
+              (a, b) =>
+                (a.display_order || 0) - (b.display_order || 0)
+            )
+            .map((opt) => ({
               value: opt.value,
-              label: opt.value // Use value as label since label field doesn't exist
-            }))
-          } else if (attr.options) {
-            resolved[attr.key] = attr.options.map(opt => ({ value: opt, label: opt }))
-          }
+              label: opt.value,
+            }));
+        } else if (attr.options && Array.isArray(attr.options)) {
+          resolved[attr.key] = attr.options.map((opt) => ({
+            value: opt,
+            label: opt,
+          }));
         }
-      })
-      
-      setAttributeValues(initialValues)
-      setResolvedOptions(resolved)
-    } else {
-      setAttributeValues({})
-      setResolvedOptions({})
-    }
-  }
-
-  const handleAttributeValueChange = (key: string, value: any) => {
-    setAttributeValues(prev => ({
-      ...prev,
-      [key]: value
-    }))
-  }
-
-  const handleSave = async () => {
-    if (!selectedTemplate) return
-
-    setSaving(true)
-    
-    try {
-      const payload = {
-        product_id: productId,
-        template_id: selectedTemplate.id,
-        attribute_values: attributeValues,
       }
+    });
 
-      const url = productAttributes?.id 
+    return resolved;
+  }, [selectedTemplate, optionGroupsData]);
+
+  // Set initial template and values when product attributes are loaded
+  const templates = templatesData || [];
+  const productAttributes = productAttributesData;
+
+  // Initialize template and values when data is loaded
+  useEffect(() => {
+    if (productAttributes && templates.length > 0 && !selectedTemplate) {
+      const template = templates.find(
+        (t: AttributeTemplate) => t.id === productAttributes.template_id
+      );
+      if (template) {
+        setSelectedTemplate(template);
+        setAttributeValues(productAttributes.attribute_values || {});
+      }
+    }
+  }, [productAttributes, templates, selectedTemplate]);
+
+  // Mutation for saving product attributes
+  const saveAttributesMutation = useMutation({
+    mutationFn: async (payload: {
+      product_id: string;
+      template_id: string;
+      attribute_values: Record<string, string | number | boolean>;
+    }) => {
+      const url = productAttributes?.id
         ? `/admin/product-attributes/${productAttributes.id}`
-        : "/admin/product-attributes"
-      
-      const method = productAttributes?.id ? "PUT" : "POST"
+        : "/admin/product-attributes";
+
+      const method = productAttributes?.id ? "PUT" : "POST";
 
       const response = await fetch(url, {
         method,
@@ -180,87 +156,151 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-      })
+      });
 
-      if (response.ok) {
-        const data = await response.json()
-        setProductAttributes(data.product_attribute)
-        // Show success message
-        toast.success("Success", {
-          description: "Product attributes saved successfully!"
-        })
-      } else {
-        throw new Error("Failed to save attributes")
+      if (!response.ok) {
+        throw new Error("Failed to save attributes");
       }
-    } catch (error) {
-      console.error("Failed to save attributes:", error)
+
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate and refetch product attributes
+      queryClient.invalidateQueries({
+        queryKey: ["product-attributes", productId],
+      });
+      toast.success("Success", {
+        description: "Product attributes saved successfully!",
+      });
+    },
+    onError: (_error: Error) => {
       toast.error("Error", {
-        description: "Failed to save attributes. Please try again."
-      })
-    } finally {
-      setSaving(false)
+        description: "Failed to save attributes. Please try again.",
+      });
+    },
+  });
+
+  const handleTemplateChange = (templateId: string) => {
+    const template = templates.find((t: AttributeTemplate) => t.id === templateId);
+    setSelectedTemplate(template || null);
+
+    // Initialize attribute values with defaults
+    if (template) {
+      const initialValues: Record<string, string | number | boolean> = {};
+
+      template.attribute_definitions.forEach((attr: AttributeDefinition) => {
+        if (attr.default_value !== undefined) {
+          initialValues[attr.key] = attr.default_value;
+        }
+      });
+
+      setAttributeValues(initialValues);
+    } else {
+      setAttributeValues({});
     }
-  }
+  };
+
+  const handleAttributeValueChange = (key: string, value: string | number | boolean) => {
+    setAttributeValues((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const handleSave = () => {
+    if (!selectedTemplate) return;
+
+    const payload = {
+      product_id: productId,
+      template_id: selectedTemplate.id,
+      attribute_values: attributeValues,
+    };
+
+    saveAttributesMutation.mutate(payload);
+  };
 
   const renderAttributeInput = (attr: AttributeDefinition) => {
-    const value = attributeValues[attr.key] || ""
+    const value = attributeValues[attr.key] || "";
 
     switch (attr.type) {
       case "text":
         return (
           <Input
-            value={value}
-            onChange={(e) => handleAttributeValueChange(attr.key, e.target.value)}
+            value={String(value)}
+            onChange={(e) =>
+              handleAttributeValueChange(attr.key, e.target.value)
+            }
           />
-        )
+        );
 
       case "number":
         return (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
-              value={value}
-              onChange={(e) => handleAttributeValueChange(attr.key, parseFloat(e.target.value) || 0)}
+              value={String(value)}
+              onChange={(e) =>
+                handleAttributeValueChange(
+                  attr.key,
+                  parseFloat(e.target.value) || 0
+                )
+              }
             />
-            {attr.unit && <span className="text-sm text-gray-500">{attr.unit}</span>}
+            {attr.unit && (
+              <span className="text-sm text-gray-500">{attr.unit}</span>
+            )}
           </div>
-        )
+        );
 
       case "select":
-        const options = resolvedOptions[attr.key] || []
+        const options = resolvedOptions[attr.key] || [];
+
         return (
-          <Select value={value || undefined} onValueChange={(val) => handleAttributeValueChange(attr.key, val)}>
+          <Select
+            value={String(value) || undefined}
+            onValueChange={(val) => handleAttributeValueChange(attr.key, val)}
+          >
             <Select.Trigger>
               <Select.Value placeholder="Select an option" />
             </Select.Trigger>
             <Select.Content>
-              {options.map((option: any) => (
-                <Select.Item key={option.value} value={option.value}>
-                  {option.label}
+              {options.length > 0 ? (
+                options.map((option) => (
+                  <Select.Item key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Item>
+                ))
+              ) : (
+                <Select.Item value="no-options" disabled>
+                  No options available
                 </Select.Item>
-              ))}
+              )}
             </Select.Content>
           </Select>
-        )
+        );
 
       case "boolean":
         return (
           <div className="flex items-center space-x-2">
             <Switch
               checked={Boolean(value)}
-              onCheckedChange={(checked) => handleAttributeValueChange(attr.key, checked)}
+              onCheckedChange={(checked) =>
+                handleAttributeValueChange(attr.key, checked)
+              }
             />
             <span className="text-sm">{value ? "Yes" : "No"}</span>
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  if (loading) {
-    return <div className="p-4">Loading attributes...</div>
+  const isLoading = templatesLoading || productAttributesLoading;
+
+  if (isLoading) {
+    return <div className="p-4">Loading attributes...</div>;
   }
 
   return (
@@ -270,8 +310,13 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
         <div className="flex items-center justify-between">
           <Heading level="h3">Product Attributes</Heading>
           {selectedTemplate && (
-            <Button onClick={handleSave} disabled={saving}>
-              {saving ? "Saving..." : "Save Attributes"}
+            <Button
+              onClick={handleSave}
+              disabled={saveAttributesMutation.isPending}
+            >
+              {saveAttributesMutation.isPending
+                ? "Saving..."
+                : "Save Attributes"}
             </Button>
           )}
         </div>
@@ -287,7 +332,7 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
               <Select.Value placeholder="Select a template" />
             </Select.Trigger>
             <Select.Content>
-              {templates.map((template) => (
+              {templates.map((template: AttributeTemplate) => (
                 <Select.Item key={template.id} value={template.id}>
                   {template.name}
                 </Select.Item>
@@ -300,7 +345,7 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
         {selectedTemplate && (
           <div className="space-y-4">
             <h4 className="font-medium">Attributes</h4>
-            
+
             {selectedTemplate.attribute_definitions
               .sort((a, b) => a.display_order - b.display_order)
               .map((attr) => (
@@ -308,10 +353,12 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
                   <div className="flex items-center space-x-2">
                     <Label htmlFor={attr.key}>
                       {attr.label}
-                      {attr.required && <span className="text-red-500 ml-1">*</span>}
+                      {attr.required && (
+                        <span className="text-red-500 ml-1">*</span>
+                      )}
                     </Label>
                   </div>
-                  
+
                   {renderAttributeInput(attr)}
                 </div>
               ))}
@@ -321,16 +368,21 @@ const ProductAttributesWidget = ({ data }: { data: { id: string } }) => {
         {templates.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <p>No attribute templates available.</p>
-            <p className="text-sm">Create templates to start adding attributes to products.</p>
+            <p className="text-sm">
+              Create templates to start adding attributes to products.
+            </p>
           </div>
         )}
       </div>
     </Container>
-  )
-}
+  );
+};
+
+// Apply HOC to create the final component
+const ProductAttributesWidget = withQueryClientProvider(ProductAttributesWidgetCore);
 
 export const config = defineWidgetConfig({
   zone: "product.details.after",
-})
+});
 
-export default ProductAttributesWidget
+export default ProductAttributesWidget;

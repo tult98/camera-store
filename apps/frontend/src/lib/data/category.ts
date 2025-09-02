@@ -1,8 +1,8 @@
 import { 
   CategoryProductsRequest, 
   CategoryProductsResponse, 
-  CategoryFacetsRequest, 
-  CategoryFacetsResponse 
+  FacetsRequest, 
+  FacetsResponse 
 } from '@camera-store/shared-types'
 
 const API_BASE_URL = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000'
@@ -34,14 +34,16 @@ export async function fetchCategoryProducts(
 }
 
 export async function fetchCategoryFacets(
-  request: CategoryFacetsRequest
-): Promise<CategoryFacetsResponse | null> {
+  request: FacetsRequest
+): Promise<FacetsResponse | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/store/category-facets`, {
+    const response = await fetch(`${API_BASE_URL}/store/facets/aggregate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ''
+        'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '',
+        'region_id': 'reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK',
+        'currency_code': 'usd'
       },
       body: JSON.stringify(request),
       next: { revalidate: 300 }
@@ -70,7 +72,8 @@ export async function fetchCategoryData(categoryId: string) {
     }),
     fetchCategoryFacets({
       category_id: categoryId,
-      filters: {}
+      applied_filters: {},
+      include_counts: true
     })
   ])
 

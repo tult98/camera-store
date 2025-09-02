@@ -277,6 +277,15 @@ apps/frontend/src/
 - **File Naming**: PascalCase for components, kebab-case for utilities
 - **Import Order**: External packages → Internal modules → Relative imports
 
+### Filter Architecture Guidelines
+- **Unified Component Approach**: Use single `FilterGroup` component for all filter types (checkbox, range, etc.)
+- **Facet-Based System**: All filters driven by dynamic facet data from backend API
+- **State Management**: Centralized filter state using Zustand store (`useCategoryFilterStore`)
+- **Type Definitions**: Use `FacetAggregation` for filter data, `SortOption` for sorting
+- **Accessibility**: Include ARIA attributes (`aria-expanded`, `aria-controls`, `aria-label`)
+- **Error Handling**: Wrap filter operations in try-catch blocks with proper logging
+- **Performance**: Use `useCallback` for event handlers to prevent unnecessary re-renders
+
 ### File Structure Patterns
 - **Feature Modules**: `apps/frontend/src/modules/` - organized by business domain
 - **Shared Utilities**: `apps/frontend/src/lib/util/` - reusable helper functions
@@ -292,6 +301,13 @@ apps/frontend/src/
 - **Performance**: Prefer Server Components, minimize client-side JavaScript
 - **Accessibility**: Use semantic HTML and ARIA attributes with daisyUI
 - **Responsive**: Mobile-first design with Tailwind breakpoints
+
+### CSS Architecture Patterns
+- **Global Styles**: Use `apps/frontend/src/styles/globals.css` for complex reusable styles
+- **Component-Specific**: Prefer Tailwind utility classes for component styling
+- **Custom CSS Classes**: Create semantic class names for complex interactions (e.g., `range-slider-input`)
+- **Style Organization**: Move long inline Tailwind classes to CSS files for maintainability
+- **Browser Compatibility**: Use vendor prefixes for complex features like range sliders
 
 ### Backend Code Quality Standards
 - **TypeScript**: Use proper types instead of `any` - create interfaces for complex objects
@@ -394,6 +410,38 @@ The project uses daisyUI v5.0.50 with built-in themes:
 ```
 
 ### Testing daisyUI Components
+
+## Visual Development
+
+### Design Principles
+- Comprehensive design checklist in `/context/design-principles.md`
+- Brand style guide in `/context/style-guide.md`
+- When making visual (front-end, UI/UX) changes, always refer to these files for guidance
+
+### Quick Visual Check
+IMMEDIATELY after implementing any front-end change:
+1. **Identify what changed** - Review the modified components/pages
+2. **Navigate to affected pages** - Use `mcp__playwright__browser_navigate` to visit each changed view
+3. **Verify design compliance** - Compare against `/context/design-principles.md` and `/context/style-guide.md`
+4. **Validate feature implementation** - Ensure the change fulfills the user's specific request
+5. **Check acceptance criteria** - Review any provided context files or requirements
+6. **Capture evidence** - Take full page screenshot at desktop viewport (1440px) of each changed view
+7. **Check for errors** - Run `mcp__playwright__browser_console_messages`
+
+This verification ensures changes meet design standards and user requirements.
+
+### Camera Store Design Guidelines
+- **E-commerce Focus**: Professional product presentation for photography equipment
+- **Visual Hierarchy**: Clean product grids with emphasis on high-quality imagery
+- **daisyUI Integration**: Consistent component usage with camera store branding
+- **Mobile Responsiveness**: Touch-friendly interfaces for mobile shopping
+- **Performance**: Optimized image loading for product galleries and hero sections
+
+### Comprehensive Design Review
+Invoke the `@agent-design-review` subagent for thorough design validation when:
+- Completing significant UI/UX features
+- Before finalizing PRs with visual changes
+- Needing comprehensive accessibility and responsiveness testing
 
 ## Backend Integration
 

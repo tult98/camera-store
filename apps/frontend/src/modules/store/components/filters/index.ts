@@ -1,12 +1,4 @@
-export { default as ActiveFilters } from './active-filters'
-export { default as AvailabilityFilter } from './availability-filter'
-export { default as BrandFilter } from './brand-filter'
-export { default as FilterDrawer } from './filter-drawer'
-export { default as FilterGroup } from './filter-group'
-export { default as FilterSidebar } from './filter-sidebar'
-export { default as MegapixelRangeFilter } from './megapixel-range-filter'
-export { default as MountTypeFilter } from './mount-type-filter'
-export { default as PriceFilter } from './price-filter'
-export { default as PriceRangeFilter } from './price-range-filter'
-export { default as SensorSizeFilter } from './sensor-size-filter'
-export { default as VideoCapabilityFilter } from './video-capability-filter'
+export { default as ActiveFilters } from "./active-filters"
+export { default as FilterDrawer } from "./filter-drawer"
+export { default as FilterGroup } from "./filter-group"
+export { default as FilterSidebar } from "./filter-sidebar"

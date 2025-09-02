@@ -3,8 +3,6 @@
 export const dynamic = 'force-dynamic'
 // import { Metadata } from "next"
 
-// import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
-// import StoreTemplate from "@modules/store/templates"
 
 // export const metadata: Metadata = {
 //   title: "Store",
@@ -13,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 // type Params = {
 //   searchParams: Promise<{
-//     sortBy?: SortOptions
+//     sortBy?: SortOption
 //     page?: string
 //   }>
 // }

@@ -1,11 +1,11 @@
 
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import { SortOption } from "@modules/store/store/category-filter-store"
 
 type Props = {
   params: Promise<{ handle: string; countryCode: string }>
   searchParams: Promise<{
     page?: string
-    sortBy?: SortOptions
+    sortBy?: SortOption
   }>
 }
 

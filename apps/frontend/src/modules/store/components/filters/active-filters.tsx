@@ -8,28 +8,37 @@ interface ActiveFilter {
   label: string
   value: string
   displayValue: string
-  filterType: 'tags' | 'availability' | 'metadata' | 'price' | 'search'
+  filterType: "tags" | "availability" | "metadata" | "price" | "search"
 }
 
 export default function ActiveFilters() {
-  const { filters, searchQuery, removeFilter, clearAllFilters, setSearchQuery } = useCategoryFilterStore()
+  const {
+    filters,
+    searchQuery,
+    removeFilter,
+    clearAllFilters,
+    setSearchQuery,
+  } = useCategoryFilterStore()
 
   const handleRemoveFilter = (filter: ActiveFilter) => {
-    if (filter.filterType === 'search') {
-      setSearchQuery('')
-    } else if (filter.filterType === 'price') {
-      removeFilter('price', '')
-    } else if (filter.filterType === 'tags' || filter.filterType === 'availability') {
+    if (filter.filterType === "search") {
+      setSearchQuery("")
+    } else if (filter.filterType === "price") {
+      removeFilter("price", "")
+    } else if (
+      filter.filterType === "tags" ||
+      filter.filterType === "availability"
+    ) {
       removeFilter(filter.filterType, filter.value)
-    } else if (filter.filterType === 'metadata') {
-      removeFilter('metadata', filter.key, filter.value)
+    } else if (filter.filterType === "metadata") {
+      removeFilter("metadata", filter.key, filter.value)
     }
   }
 
   const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount)
   }
 
@@ -39,56 +48,63 @@ export default function ActiveFilters() {
     // Search query
     if (searchQuery) {
       activeFilters.push({
-        key: 'search',
-        label: 'Search',
+        key: "search",
+        label: "Search",
         value: searchQuery,
         displayValue: `Search: "${searchQuery}"`,
-        filterType: 'search'
+        filterType: "search",
       })
     }
 
     // Price filter
     if (filters.price) {
-      let priceLabel = 'Price: '
+      let priceLabel = "Price: "
       if (filters.price.min && filters.price.max) {
-        priceLabel += `${formatPrice(filters.price.min)} - ${formatPrice(filters.price.max)}`
+        priceLabel += `${formatPrice(filters.price.min)} - ${formatPrice(
+          filters.price.max
+        )}`
       } else if (filters.price.min) {
         priceLabel += `From ${formatPrice(filters.price.min)}`
       } else if (filters.price.max) {
         priceLabel += `Up to ${formatPrice(filters.price.max)}`
       }
-      
+
       activeFilters.push({
-        key: 'price',
-        label: 'Price',
-        value: 'price_range',
+        key: "price",
+        label: "Price",
+        value: "price_range",
         displayValue: priceLabel,
-        filterType: 'price'
+        filterType: "price",
       })
     }
 
     // Tags filter
     if (filters.tags) {
-      filters.tags.forEach(tag => {
+      filters.tags.forEach((tag) => {
         activeFilters.push({
-          key: 'tags',
-          label: 'Use Case',
+          key: "tags",
+          label: "Use Case",
           value: tag,
           displayValue: tag.charAt(0).toUpperCase() + tag.slice(1),
-          filterType: 'tags'
+          filterType: "tags",
         })
       })
     }
 
     // Availability filter
     if (filters.availability) {
-      filters.availability.forEach(availability => {
+      filters.availability.forEach((availability) => {
         activeFilters.push({
-          key: 'availability',
-          label: 'Availability',
+          key: "availability",
+          label: "Availability",
           value: availability,
-          displayValue: availability === 'in-stock' ? 'In Stock' : availability === 'pre-order' ? 'Pre-Order' : 'Used',
-          filterType: 'availability'
+          displayValue:
+            availability === "in-stock"
+              ? "In Stock"
+              : availability === "pre-order"
+              ? "Pre-Order"
+              : "Used",
+          filterType: "availability",
         })
       })
     }
@@ -96,16 +112,20 @@ export default function ActiveFilters() {
     // Metadata filters
     if (filters.metadata) {
       Object.entries(filters.metadata).forEach(([key, values]) => {
-        values.forEach(value => {
-          const formattedKey = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-          const formattedValue = value.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-          
+        values.forEach((value) => {
+          const formattedKey = key
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())
+          const formattedValue = value
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase())
+
           activeFilters.push({
             key,
             label: formattedKey,
             value,
             displayValue: formattedValue,
-            filterType: 'metadata'
+            filterType: "metadata",
           })
         })
       })
@@ -123,9 +143,14 @@ export default function ActiveFilters() {
   return (
     <div className="mb-6">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-base-content/70">Active filters:</span>
+        <span className="text-sm font-medium text-base-content/70">
+          Active filters:
+        </span>
         {activeFilters.map((filter, index) => (
-          <div key={`${filter.key}-${filter.value}-${index}`} className="badge badge-primary gap-1">
+          <div
+            key={`${filter.key}-${filter.value}-${index}`}
+            className="badge badge-primary gap-1"
+          >
             <span className="text-xs">{filter.displayValue}</span>
             <button
               onClick={() => handleRemoveFilter(filter)}

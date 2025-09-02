@@ -3,7 +3,7 @@
 import { sdk } from "@lib/config"
 import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import { SortOption } from "@modules/store/store/category-filter-store"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getDefaultRegion } from "./regions"
 
@@ -82,7 +82,7 @@ export const listProductsWithSort = async ({
 }: {
   page?: number
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
-  sortBy?: SortOptions
+  sortBy?: SortOption
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number }
   nextPage: number | null

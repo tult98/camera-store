@@ -1,6 +1,6 @@
 import {
-  CategoryFacetsRequest,
-  CategoryFacetsResponse,
+  FacetsRequest,
+  FacetsResponse,
   CategoryProductsRequest,
   CategoryProductsResponse
 } from "@camera-store/shared-types"
@@ -24,18 +24,22 @@ export const useCategoryProducts = (request: CategoryProductsRequest) => {
   })
 }
 
-export const useCategoryFacets = (request: CategoryFacetsRequest) => {
-  return useQuery<CategoryFacetsResponse>({
+export const useCategoryFacets = (request: FacetsRequest) => {
+  return useQuery<FacetsResponse>({
     queryKey: ["categoryFacets", request],
     queryFn: async () => {
-      const response = await cameraStoreApi<{ data: CategoryFacetsResponse }>(
-        "/store/category-facets",
+      const response = await cameraStoreApi<FacetsResponse>(
+        "/store/facets/aggregate",
         {
           method: "POST",
           body: request,
+          headers: {
+            'region_id': 'reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK',
+            'currency_code': 'usd'
+          }
         }
       )
-      return response.data
+      return response
     },
     enabled: !!request.category_id,
   })

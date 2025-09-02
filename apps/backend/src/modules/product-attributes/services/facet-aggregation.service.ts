@@ -553,8 +553,8 @@ class FacetAggregationService {
         context: {
           variants: {
             calculated_price: QueryContext({
-              region_id: pricingContext?.region_id || "reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK",
-              currency_code: pricingContext?.currency_code || "usd",
+              region_id: pricingContext?.region_id,
+              currency_code: pricingContext?.currency_code,
             }),
           },
         },
@@ -583,6 +583,10 @@ class FacetAggregationService {
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
 
+      // Convert from cents to dollars for display
+      const minPriceDollars = Math.floor(minPrice / 100);
+      const maxPriceDollars = Math.ceil(maxPrice / 100);
+
       return {
         facet_key: "price",
         facet_label: "Price",
@@ -590,9 +594,9 @@ class FacetAggregationService {
         display_type: "slider",
         values: [], // For range facets, values array can be empty
         range: {
-          min: minPrice,
-          max: maxPrice,
-          step: this.calculatePriceStep(minPrice, maxPrice),
+          min: minPriceDollars,
+          max: maxPriceDollars,
+          step: this.calculatePriceStep(minPriceDollars, maxPriceDollars),
         },
         ui_config: {
           show_count: true,

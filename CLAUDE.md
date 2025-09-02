@@ -311,8 +311,27 @@ apps/frontend/src/
 - **Error Handling**: Graceful fallbacks with user-friendly messages
 - **Security**: Never expose secrets, use environment variables
 - **Performance**: Prefer Server Components, minimize client-side JavaScript
-- **Accessibility**: Use semantic HTML and ARIA attributes with daisyUI
+- **Accessibility**: Use semantic HTML and ARIA attributes with daisyUI - always add `aria-label` for icon-only buttons
 - **Responsive**: Mobile-first design with Tailwind breakpoints
+
+### Accessibility Patterns
+```tsx
+// Icon-only buttons require aria-label
+<button 
+  className="btn btn-ghost btn-circle" 
+  aria-label="Search"
+>
+  <MagnifyingGlassIcon className="w-4 h-4" />
+</button>
+
+// Close buttons should describe what they close
+<button 
+  className="btn btn-ghost btn-circle" 
+  aria-label="Close filter panel"
+>
+  <XMarkIcon className="w-5 h-5" />
+</button>
+```
 
 ### CSS Architecture Patterns
 - **Global Styles**: Use `apps/frontend/src/styles/globals.css` for complex reusable styles
@@ -378,6 +397,11 @@ The project uses daisyUI v5.0.50 with built-in themes:
   <HeartIcon className="w-4 h-4" />
 </button>
 
+// Filter clear buttons - outline with hover fill
+<button className="btn btn-outline btn-primary btn-block hover:btn-primary">
+  Clear All Filters
+</button>
+
 // Product cards
 <div className="card bg-base-100 shadow-xl">
   <figure>
@@ -404,7 +428,14 @@ The project uses daisyUI v5.0.50 with built-in themes:
   </div>
 </div>
 
-// Form elements
+// Search inputs - use input-primary for storefront search only
+<input 
+  type="text" 
+  placeholder="Search cameras, lenses..." 
+  className="input input-primary w-full" 
+/>
+
+// Form inputs - use regular input without borders (daisyUI v5 default)
 <div className="form-control w-full max-w-xs">
   <label className="label">
     <span className="label-text">Email</span>
@@ -412,7 +443,7 @@ The project uses daisyUI v5.0.50 with built-in themes:
   <input 
     type="email" 
     placeholder="Enter email"
-    className="input input-bordered w-full max-w-xs" 
+    className="input w-full max-w-xs" 
   />
 </div>
 

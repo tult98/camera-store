@@ -158,7 +158,7 @@ export default function ProductActions({
                 type="number" 
                 value={quantity}
                 onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
-                className="input input-sm input-bordered join-item w-16 text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] focus:outline-none"
+                className="input input-sm join-item w-16 text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] focus:outline-none"
                 min="1"
               />
               <button 

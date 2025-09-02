@@ -53,7 +53,7 @@ const SearchBar = () => {
           <input 
             type="text" 
             placeholder="Search cameras, lenses..." 
-            className="input input-bordered join-item w-full max-w-xs" 
+            className="input input-primary join-item w-full max-w-xs" 
             value={searchQuery}
             onChange={(e) => handleInputChange(e.target.value)}
           />
@@ -99,7 +99,7 @@ const SearchBar = () => {
                   ref={inputRef}
                   type="text" 
                   placeholder="Search cameras, lenses..." 
-                  className="input input-bordered join-item flex-1" 
+                  className="input input-primary join-item flex-1" 
                   value={searchQuery}
                   onChange={(e) => handleInputChange(e.target.value)}
                 />

@@ -26,26 +26,21 @@ export default function FilterSidebar({
 
   return (
     <div className="w-80 bg-base-100 border-r border-base-300 h-full flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-base-300 bg-base-200/30">
-        <h3 className="font-bold text-xl text-base-content mb-1">
-          Refine Results
-        </h3>
-        <p className="text-sm text-base-content/70">
-          Filter by specifications and features
-        </p>
-        <form onSubmit={handleSearch} className="mt-4">
+      {/* Search */}
+      <div className="p-4">
+        <form onSubmit={handleSearch}>
           <div className="relative">
             <input
               type="text"
               placeholder="Search within category..."
-              className="input input-bordered w-full pr-12 bg-base-100 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              className="input input-primary w-full pr-12 bg-base-100"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <button
               type="submit"
               className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-ghost btn-sm btn-circle hover:bg-primary hover:text-primary-content"
+              aria-label="Search"
             >
               <MagnifyingGlassIcon className="w-4 h-4" />
             </button>
@@ -94,9 +89,9 @@ export default function FilterSidebar({
       </div>
 
       {/* Clear All Button */}
-      <div className="p-6 border-t border-base-300 bg-base-200/30">
+      <div className="p-4">
         <button
-          className="btn btn-outline btn-block hover:btn-primary transition-all duration-200"
+          className="btn btn-outline btn-primary btn-block hover:btn-primary"
           onClick={clearAllFilters}
         >
           Clear All Filters

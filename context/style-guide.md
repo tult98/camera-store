@@ -169,7 +169,7 @@ font-family: 'Inter', system-ui, -apple-system, sans-serif;
   <input 
     type="email"
     placeholder="Enter your email"
-    className="input input-bordered focus:input-primary" 
+    className="input focus:input-primary" 
   />
   <label className="label">
     <span className="label-text-alt text-base-content-secondary">
@@ -177,6 +177,13 @@ font-family: 'Inter', system-ui, -apple-system, sans-serif;
     </span>
   </label>
 </div>
+
+/* Search Inputs - Storefront Only */
+<input 
+  type="text"
+  placeholder="Search cameras, lenses..."
+  className="input input-primary" 
+/>
 ```
 
 ### Navigation

@@ -70,6 +70,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
       data.attribute_groups?.forEach((group: { group_name: string; options: string[] }) => {
         groupsMap[group.group_name] = group;
       });
+      
       return groupsMap;
     },
   });

@@ -8,7 +8,7 @@ export const attributeTemplatesData = [
         key: 'brand',
         label: 'Brand',
         type: 'select',
-        option_group: 'camera_brands',
+        option_group: 'Camera Brands',
         required: true,
         display_order: 1,
         facet_config: {
@@ -28,9 +28,9 @@ export const attributeTemplatesData = [
       },
       {
         key: 'sensor_type',
-        label: 'Sensor Format',
+        label: 'Sensor Types',
         type: 'select',
-        option_group: 'sensor_types',
+        option_group: 'Sensor Types',
         required: true,
         display_order: 2,
         facet_config: {
@@ -85,7 +85,7 @@ export const attributeTemplatesData = [
         key: 'video_resolution',
         label: 'Video Capability',
         type: 'select',
-        option_group: 'video_capabilities',
+        option_group: 'Video Capabilities',
         required: false,
         display_order: 4,
         facet_config: {
@@ -171,7 +171,7 @@ export const attributeTemplatesData = [
         key: 'viewfinder_type',
         label: 'Viewfinder Type',
         type: 'select',
-        option_group: 'viewfinder_types',
+        option_group: 'Viewfinder Types',
         required: false,
         display_order: 10,
         facet_config: {
@@ -304,7 +304,7 @@ export const attributeTemplatesData = [
         key: 'brand',
         label: 'Brand',
         type: 'select',
-        option_group: 'lens_brands',
+        option_group: 'Lens Brands',
         required: true,
         display_order: 1,
         facet_config: {
@@ -320,7 +320,7 @@ export const attributeTemplatesData = [
         key: 'lens_type',
         label: 'Lens Type',
         type: 'select',
-        option_group: 'lens_types',
+        option_group: 'Lens Types',
         required: true,
         display_order: 2,
         facet_config: {
@@ -389,7 +389,7 @@ export const attributeTemplatesData = [
         key: 'mount',
         label: 'Lens Mount',
         type: 'select',
-        option_group: 'lens_mounts',
+        option_group: 'Lens Mounts',
         required: true,
         display_order: 6,
         facet_config: {

@@ -56,6 +56,62 @@ const nextConfig = {
         protocol: "https",
         hostname: "fastly.picsum.photos",
       },
+      {
+        protocol: "https",
+        hostname: "product.hstatic.net",
+      },
+      {
+        protocol: "https",
+        hostname: "fujifilmshop.vn",
+      },
+      {
+        protocol: "https",
+        hostname: "shopusa.fujifilm-x.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.vjshop.vn",
+      },
+      {
+        protocol: "https",
+        hostname: "images2.jessops.com",
+      },
+      {
+        protocol: "https",
+        hostname: "img.photographyblog.com",
+      },
+      {
+        protocol: "https",
+        hostname: "tokyocamera.vn",
+      },
+      {
+        protocol: "https",
+        hostname: "thecamerastore.com",
+      },
+      {
+        protocol: "https",
+        hostname: "giangduydat.vn",
+      },
+      {
+        protocol: "https",
+        hostname: "leicavietnam.com",
+      },
+      {
+        protocol: "https",
+        hostname: "asset.fujifilm.com",
+      },
+      {
+        protocol: "https",
+        hostname: "t3.ftcdn.net",
+      },
+      {
+        protocol: "https",
+        hostname: "t4.ftcdn.net",
+      },
+      {
+        protocol: "https",
+        hostname: "i.pinimg.com",
+      },
     ],
   },
 }

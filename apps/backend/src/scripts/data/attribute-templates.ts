@@ -59,7 +59,7 @@ export const attributeTemplatesData = [
           max: 150
         },
         facet_config: {
-          is_facet: true,
+          is_facet: false,
           display_priority: 4,
           aggregation_type: 'range',
           display_type: 'slider',
@@ -194,7 +194,7 @@ export const attributeTemplatesData = [
           max: 12800
         },
         facet_config: {
-          is_facet: true,
+          is_facet: false,
           display_priority: 12,
           aggregation_type: 'range',
           display_type: 'slider',
@@ -230,7 +230,7 @@ export const attributeTemplatesData = [
           max: 3000
         },
         facet_config: {
-          is_facet: true,
+          is_facet: false,
           display_priority: 13,
           aggregation_type: 'range',
           display_type: 'slider',
@@ -260,7 +260,7 @@ export const attributeTemplatesData = [
           max: 4.0
         },
         facet_config: {
-          is_facet: true,
+          is_facet: false,
           display_priority: 14,
           aggregation_type: 'term',
           display_type: 'checkbox',
@@ -274,7 +274,7 @@ export const attributeTemplatesData = [
         required: false,
         display_order: 15,
         facet_config: {
-          is_facet: true,
+          is_facet: false,
           display_priority: 15,
           aggregation_type: 'boolean',
           display_type: 'toggle',

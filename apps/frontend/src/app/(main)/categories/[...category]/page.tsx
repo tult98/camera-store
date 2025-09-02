@@ -12,7 +12,7 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-async function fetchCategoryProducts(categoryId: string): Promise<any> {
+async function fetchCategoryProducts(categoryId: string): Promise<CategoryProductsResponse | null> {
   try {
     const productsRequest = {
       category_id: categoryId,
@@ -22,6 +22,7 @@ async function fetchCategoryProducts(categoryId: string): Promise<any> {
       filters: {},
     }
 
+    // apiClient automatically includes region headers
     const productsResponse = await apiClient<CategoryProductsResponse>(
       "/store/category-products",
       {

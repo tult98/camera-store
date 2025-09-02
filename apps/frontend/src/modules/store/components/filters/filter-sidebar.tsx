@@ -1,7 +1,7 @@
 "use client"
 
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { FacetAggregation } from "@camera-store/shared-types"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
 import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
 import FilterGroup from "./filter-group"
 
@@ -64,20 +64,10 @@ export default function FilterSidebar({
                 </div>
               ))}
             </div>
-          ) : Array.isArray(facets) && facets.length > 0 ? (
-            facets.map((facet) => {
-              try {
-                return <FilterGroup key={facet.facet_key} facet={facet} />
-              } catch (error) {
-                console.error("Error rendering FilterGroup:", error, facet)
-                return (
-                  <div key={facet.facet_key} className="p-4 text-red-500">
-                    Error rendering filter:{" "}
-                    {facet.facet_label || facet.facet_key}
-                  </div>
-                )
-              }
-            })
+          ) : facets.length > 0 ? (
+            facets.map((facet) => (
+              <FilterGroup key={facet.facet_key} facet={facet} />
+            ))
           ) : (
             <div className="p-6 text-center">
               <p className="text-sm text-base-content/60">

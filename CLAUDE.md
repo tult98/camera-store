@@ -290,13 +290,15 @@ apps/frontend/src/
 - **Import Order**: External packages → Internal modules → Relative imports
 
 ### Filter Architecture Guidelines
-- **Unified Component Approach**: Use single `FilterGroup` component for all filter types (checkbox, range, etc.)
+- **Component Composition**: Break filter types into specialized components (CheckboxFilter, RadioFilter, DropdownFilter, ToggleFilter, SliderFilter, FilterHeader)
+- **Coordinator Pattern**: Main FilterGroup component acts as coordinator, delegating to appropriate sub-components based on `facet.display_type`
+- **Shared Logic Extraction**: Create utility functions in `src/lib/util/filter-utils.ts` for common selection and toggle patterns
 - **Facet-Based System**: All filters driven by dynamic facet data from backend API
 - **State Management**: Centralized filter state using Zustand store (`useCategoryFilterStore`)
-- **Type Definitions**: Use `FacetAggregation` for filter data, `SortOption` for sorting
-- **Accessibility**: Include ARIA attributes (`aria-expanded`, `aria-controls`, `aria-label`)
-- **Error Handling**: Wrap filter operations in try-catch blocks with proper logging
-- **Performance**: Use `useCallback` for event handlers to prevent unnecessary re-renders
+- **Type Definitions**: Use `FacetAggregation` for filter data, `ApiFilters` for state typing, `SortOption` for sorting
+- **Accessibility**: Include ARIA attributes (`aria-expanded`, `aria-controls`, `aria-label`, `role="region"`, `aria-labelledby`)
+- **Error Handling**: Wrap filter operations in try-catch blocks with standardized error patterns
+- **Performance**: Use `useCallback` for event handlers, avoid creating functions in render, debounce range slider updates
 
 ### File Structure Patterns
 - **Feature Modules**: `apps/frontend/src/modules/` - organized by business domain
@@ -306,11 +308,72 @@ apps/frontend/src/
 - **Components**: Each module contains `components/` and `templates/`
 - **Hooks**: Custom hooks in `apps/frontend/src/lib/hooks/` or module-specific locations
 
+### Component Composition Patterns
+- **Specialized Components**: Break complex components into focused, single-responsibility sub-components
+- **Coordinator Components**: Use main components as coordinators that delegate to specialized sub-components
+- **Shared Logic**: Extract common patterns into utility functions rather than duplicating across components
+- **Interface Consistency**: Maintain consistent prop interfaces across related components using base interfaces
+- **Type Safety**: Use proper TypeScript interfaces, avoid `any` types, prefer `keyof` for dynamic property access
+- **Event Handler Patterns**: Pass handlers down rather than recreating logic in each component
+- **Component Cleanup**: Remove unused components and update index.ts exports to avoid dead code
+  ```tsx
+  // Good: Coordinator pattern with consistent interfaces
+  interface BaseFilterProps {
+    facet: FacetAggregation
+    filters: ApiFilters
+    onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+    onRemoveFilter?: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  }
+  
+  const renderFilterContent = () => {
+    if (facet.display_type === "checkbox") {
+      return <CheckboxFilter {...baseProps} />
+    }
+    // ... other types
+  }
+  
+  // Good: Shared utility
+  import { isOptionSelected, handleFilterToggle } from "@lib/util/filter-utils"
+  
+  // Bad: Logic duplication across components
+  const isSelected = facet.facet_key === "tags" ? filters.tags?.includes(value) : ...
+  ```
+
+### Error Handling Patterns
+- **Standardized Error Handling**: Use consistent error patterns across components
+- **User-Friendly Messages**: Never expose internal errors to users
+- **Error Logging**: Use proper logging services instead of console.error for production
+- **Input Validation**: Validate and sanitize all user inputs before processing
+- **Graceful Fallbacks**: Provide fallback UI states when operations fail
+  ```tsx
+  // Good: Standardized error handling
+  import { reportError } from '@lib/util/error-reporting'
+  
+  const handleFilterAction = async (action: string) => {
+    try {
+      await performFilterAction(action)
+    } catch (error) {
+      reportError('Filter operation failed', { 
+        action, 
+        facetKey: facet.facet_key, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      })
+      // Show user-friendly message without exposing internals
+      showNotification('Filter could not be applied. Please try again.')
+    }
+  }
+  
+  // Bad: Exposing internal errors
+  } catch (error) {
+    console.error("Error toggling filter:", error) // Security risk
+  }
+  ```
+
 ### Code Style Guidelines
 - **No Comments**: DO NOT add code comments unless explicitly requested
-- **Error Handling**: Graceful fallbacks with user-friendly messages
-- **Security**: Never expose secrets, use environment variables
-- **Performance**: Prefer Server Components, minimize client-side JavaScript
+- **Error Handling**: Use standardized error patterns, never expose internal errors to users
+- **Security**: Never expose secrets, validate all inputs, sanitize error messages
+- **Performance**: Prefer Server Components, minimize client-side JavaScript, memoize event handlers
 - **Accessibility**: Use semantic HTML and ARIA attributes with daisyUI - always add `aria-label` for icon-only buttons
 - **Responsive**: Mobile-first design with Tailwind breakpoints
 
@@ -333,12 +396,28 @@ apps/frontend/src/
 </button>
 ```
 
+### Performance Optimization Patterns
+- **Event Handler Memoization**: Use `useCallback` for event handlers passed as props
+  ```tsx
+  // Good: Memoized handler
+  const handleToggle = useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed])
+  <FilterHeader onToggle={handleToggle} />
+  
+  // Bad: Creates new function on every render
+  <FilterHeader onToggle={() => setIsCollapsed(!isCollapsed)} />
+  ```
+- **Debounced Updates**: Use debouncing for high-frequency updates like range sliders
+- **Component Splitting**: Break complex components to enable better tree-shaking
+- **State Management**: Minimize state updates, batch related updates when possible
+- **Render Optimization**: Avoid creating objects/arrays in render, use useMemo for expensive calculations
+
 ### CSS Architecture Patterns
 - **Global Styles**: Use `apps/frontend/src/styles/globals.css` for complex reusable styles
 - **Component-Specific**: Prefer Tailwind utility classes for component styling
 - **Custom CSS Classes**: Create semantic class names for complex interactions (e.g., `range-slider-input`)
 - **Style Organization**: Move long inline Tailwind classes to CSS files for maintainability
 - **Browser Compatibility**: Use vendor prefixes for complex features like range sliders
+- **Color Consistency**: Use CSS variables and daisyUI theme colors instead of hard-coded values
 
 ### Backend Code Quality Standards
 - **TypeScript**: Use proper types instead of `any` - create interfaces for complex objects

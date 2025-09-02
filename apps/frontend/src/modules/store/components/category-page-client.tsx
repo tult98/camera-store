@@ -74,10 +74,6 @@ const fetchCategoryFacets = async ({
     {
       method: "POST",
       body: facetsRequest,
-      headers: {
-        'region_id': process.env['NEXT_PUBLIC_DEFAULT_REGION_ID'] || 'reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK',
-        'currency_code': process.env['NEXT_PUBLIC_DEFAULT_CURRENCY'] || 'usd'
-      }
     }
   )
 
@@ -121,12 +117,6 @@ export default function CategoryPageClient({
 
   const products = productsData?.items || []
   const facets = facetsData?.facets || []
-  
-  // Debug logging
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Facets data:', { facetsData, facets, isLoadingFacets, filters })
-  }
-  
   // Calculate pagination from response data
   const totalCount = productsData?.count || 0
   const totalPages = Math.ceil(totalCount / pageSize)

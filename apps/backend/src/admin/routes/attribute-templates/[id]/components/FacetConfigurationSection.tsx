@@ -204,22 +204,22 @@ export const FacetConfigurationSection = ({
               }}
               field={
                 <div>
-                  <Controller
-                    name={`attribute_definitions.${index}.facet_config.max_display_items`}
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        type="number"
-                        min="1"
-                        value={field.value || 5}
-                        onChange={(e) => {
-                          const value =
-                            e.target.value === "" ? 5 : Number(e.target.value);
-                          field.onChange(isNaN(value) ? 5 : value);
-                        }}
-                        placeholder="5"
-                      />
+                  <Input
+                    type="number"
+                    min="1"
+                    max="100"
+                    {...register(
+                      `attribute_definitions.${index}.facet_config.max_display_items`,
+                      { 
+                        valueAsNumber: true,
+                        validate: (value) => {
+                          if (value && value < 1) return "Must be at least 1";
+                          if (value && value > 100) return "Cannot exceed 100 items";
+                          return true;
+                        }
+                      }
                     )}
+                    placeholder="5"
                   />
                   {errors.attribute_definitions?.[index]?.facet_config
                     ?.max_display_items && (

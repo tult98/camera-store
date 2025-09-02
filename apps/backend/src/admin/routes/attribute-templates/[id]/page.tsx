@@ -13,6 +13,37 @@ import {
   defaultAttributeDefinition,
   defaultAttributeTemplate,
 } from "../schemas/attribute-template.schema";
+
+// Interface for template data coming from server
+interface ServerTemplateData {
+  id?: string;
+  name?: string;
+  code?: string;
+  description?: string;
+  is_active?: boolean;
+  attribute_definitions?: Array<{
+    key?: string;
+    label?: string;
+    type?: string;
+    options?: string[];
+    option_group?: string | null;
+    required?: boolean;
+    display_order?: number;
+    validation?: {
+      rules?: string[];
+      min?: number;
+      max?: number;
+      regex?: string;
+    };
+    default_value?: unknown;
+    unit?: string;
+    facet_config?: Partial<typeof defaultAttributeDefinition.facet_config>;
+    tooltip?: {
+      attribute_tooltip?: string;
+      facet_tooltip?: string;
+    };
+  }>;
+}
 import { AttributeDefinitionsSection } from "./components/AttributeDefinitionsSection";
 import { BasicInformationSection } from "./components/BasicInformationSection";
 
@@ -85,7 +116,19 @@ const AttributeTemplateFormCore = () => {
   // Update form when template data is loaded
   useEffect(() => {
     if (templateData) {
-      reset(templateData);
+      // Merge template data with defaults to ensure all required fields have values
+      const mergedData: AttributeTemplateFormData = {
+        ...templateData,
+        attribute_definitions:
+          templateData.attribute_definitions?.map((def: NonNullable<ServerTemplateData['attribute_definitions']>[number]) => ({
+            ...def,
+            facet_config: {
+              ...defaultAttributeDefinition.facet_config,
+              ...(def.facet_config || {}),
+            },
+          })) || [],
+      };
+      reset(mergedData);
     }
   }, [templateData, reset]);
 

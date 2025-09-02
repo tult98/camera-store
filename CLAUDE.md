@@ -403,6 +403,31 @@ apps/frontend/src/
 - **Query Configuration**: Optimized defaults include 5-minute stale time, 10-minute garbage collection
 - **Benefits**: Automatic caching, deduplication, background refetching, optimistic updates
 
+### Admin Form Handling Best Practices
+- **React Hook Form Integration**: Use `register` for simple inputs, `Controller` for complex components
+- **Number Field Pattern**: Use `{ valueAsNumber: true }` with `register` for numeric inputs
+  ```tsx
+  <Input
+    type="number"
+    {...register("field_name", { 
+      valueAsNumber: true,
+      validate: (value) => value > 0 || "Must be positive"
+    })}
+  />
+  ```
+- **Default Value Merging**: When loading server data, merge with schema defaults to prevent validation issues
+  ```tsx
+  const mergedData = {
+    ...serverData,
+    nested_object: {
+      ...defaultValues.nested_object,
+      ...(serverData.nested_object || {}),
+    }
+  };
+  ```
+- **Type Safety**: Define proper interfaces for server data vs. form data to avoid `any` types
+- **Validation**: Combine Zod schema validation with field-level validation for better UX
+
 ## daisyUI Integration
 
 The project uses daisyUI v5.0.50 with built-in themes:

@@ -6,10 +6,10 @@ import SkeletonProductControls from "@modules/skeletons/components/skeleton-prod
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import SkeletonProductList from "@modules/skeletons/templates/skeleton-product-list"
 import SkeletonFilterSidebar from "@modules/skeletons/templates/skeleton-filter-sidebar"
+import { useCategoryBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
 import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { FunnelIcon } from "@heroicons/react/24/outline"
-import Link from "next/link"
 import { Pagination } from "./pagination"
 import ProductGrid from "./product-grid"
 import ViewToggle from "./product-grid/view-toggle"
@@ -96,6 +96,10 @@ export default function CategoryPageClient({
   const pageSize = 24
   
   const { filters } = useCategoryFilterStore()
+  
+  // Set breadcrumbs in the layout context
+  const categoryHandle = categoryName.toLowerCase().replace(/\s+/g, '-')
+  useCategoryBreadcrumbs(categoryName, categoryHandle)
 
   const { data: productsData, isLoading: isLoadingProducts } = useQuery<CategoryProductsResponse>({
     queryKey: ["category-products", categoryId, page, sortBy, filters],
@@ -184,13 +188,6 @@ export default function CategoryPageClient({
         <div className="flex-1 min-w-0 p-6 lg:p-8 w-full">
           {/* Desktop Category Header */}
           <div className="hidden lg:block mb-8">
-            <nav className="breadcrumbs text-sm mb-4">
-              <ul className="text-base-content/70">
-                <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
-                <li><Link href="/store" className="hover:text-primary transition-colors">Store</Link></li>
-                <li className="text-primary font-medium">{categoryName}</li>
-              </ul>
-            </nav>
             <div className="flex items-end justify-between">
               <div>
                 <h1 className="text-4xl font-bold text-base-content mb-2">{categoryName}</h1>

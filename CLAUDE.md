@@ -233,6 +233,18 @@ apps/frontend/src/
 - **Secondary**: Tailwind utilities for custom styling
 - **Theme Colors**: Use semantic color classes (`btn-primary`, `text-base-content`)
 - **Theme System**: Uses daisyUI's built-in light and dark themes
+- **Focus States**: Use `focus-visible:ring-2` instead of `focus:ring-2` for better UX
+- **Current Page Styling**: Use `text-primary` for highlighting current page in breadcrumbs
+
+### Navigation & Breadcrumb System
+- **Layout-Level Implementation**: Breadcrumbs managed at Next.js layout level using React Context
+- **Context Provider**: `BreadcrumbProvider` manages global breadcrumb state with memoized functions
+- **Utility Functions**: Standardized breadcrumb generation for different page types (product, category, collection, etc.)
+- **SEO Integration**: Schema.org structured data automatically generated for breadcrumbs
+- **Accessibility**: Full ARIA support with keyboard navigation and screen reader compatibility
+- **Performance**: Proper memoization with `useCallback`/`useMemo` to prevent infinite re-renders
+- **Visual Design**: Current page highlighted in primary color, clickable links in gray with hover states
+- **Hook Usage**: Use `useLayoutBreadcrumbs()` family of hooks to set breadcrumbs in page components
 
 ### Icon System - Heroicons Integration
 - **Library**: `@heroicons/react` for consistent SVG icons
@@ -499,7 +511,7 @@ Invoke the `@agent-design-review` subagent for thorough design validation when:
 **3. Backend Deployment:**
 - Triggers when backend is affected or manually forced
 - Builds backend with `yarn nx build backend`
-- Deploys to Railway using `bervProject/railway-deploy@main`
+- Deploys to Railway using `brianpetro/railway-deploy@main`
 - Uses `RAILWAY_BACKEND_SERVICE_NAME` variable for service targeting
 
 **4. Frontend Deployment:**

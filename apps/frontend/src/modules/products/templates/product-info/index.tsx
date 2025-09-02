@@ -1,38 +1,20 @@
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
-import Link from "next/link"
 import ProductPrice from "@modules/products/components/product-price"
+import { useProductBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct
 }
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
+  // Set breadcrumbs in the layout context
+  useProductBreadcrumbs(product)
+
   return (
     <div id="product-info">
       <div className="flex flex-col gap-y-6">
-        {product.collection && (
-          <nav className="text-sm breadcrumbs">
-            <ul className="text-base-content/60">
-              <li>
-                <Link 
-                  href="/" 
-                  className="hover:text-primary transition-colors"
-                >
-                  Trang chủ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href={`/collections/${product.collection.handle}`}
-                  className="hover:text-primary transition-colors"
-                >
-                  {product.collection.title}
-                </Link>
-              </li>
-              <li className="text-base-content font-semibold cursor-default">{product.title}</li>
-            </ul>
-          </nav>
-        )}
         
         <h1
           className="text-2xl lg:text-3xl font-bold text-base-content leading-tight"

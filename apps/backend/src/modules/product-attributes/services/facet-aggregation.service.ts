@@ -5,6 +5,7 @@ import type {
   FacetConfig,
 } from "../models/attribute-template";
 import { PRODUCT_ATTRIBUTES_MODULE } from "../index";
+import { getAllCategoryIds, resolveQueryInstance } from "../../../utils/category-hierarchy";
 
 interface FacetResponse {
   key: string;
@@ -91,10 +92,14 @@ class FacetAggregationService {
   ): Promise<FacetResponse[]> {
     const activeContainer = container || this.container_;
     try {
-      // Get all products in the category using container resolve
+      // Get all category IDs including child categories
+      const query = resolveQueryInstance(activeContainer);
+      const categoryIds = await getAllCategoryIds(query, categoryId);
+      
+      // Get all products in the category and child categories using container resolve
       const productModule = activeContainer.resolve(Modules.PRODUCT);
       const products = await productModule.listProducts({
-        categories: { id: [categoryId] },
+        categories: { id: categoryIds },
       });
 
       if (!products || products.length === 0) {
@@ -415,7 +420,10 @@ class FacetAggregationService {
       PRODUCT_ATTRIBUTES_MODULE
     );
 
-    // Get all products in category with pricing data
+    // Get all category IDs including child categories
+    const categoryIds = await getAllCategoryIds(query, categoryId);
+
+    // Get all products in category and child categories with pricing data
     const result = await query.graph({
       entity: "product",
       fields: [
@@ -424,7 +432,7 @@ class FacetAggregationService {
         "variants.calculated_price.*"
       ],
       filters: {
-        categories: { id: categoryId },
+        categories: { id: categoryIds },
         status: "published"
       },
       context: {

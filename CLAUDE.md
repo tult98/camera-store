@@ -349,6 +349,38 @@ apps/frontend/src/
 - **Pricing Context**: Always pass `region_id` and `currency_code` for price-sensitive operations
 - **Container Injection**: Pass container/scope through service method chains for proper DI
 
+### Hierarchical Category Query Patterns
+- **Recursive Category Inclusion**: When querying products by category, include child categories using `getAllCategoryIds()` pattern
+- **Performance Safeguards**: Implement depth limits (max 10 levels) and category count limits (max 1000) to prevent DoS
+- **Query Optimization**: Use single database query with nested fields rather than multiple recursive queries
+- **Deduplication**: Use `Set` data structure to prevent duplicate category IDs in results
+- **Graceful Fallbacks**: Return original category ID if child category lookup fails
+- **Security**: Validate category IDs are strings and sanitize input before database queries
+
+### Facet Aggregation Service Patterns
+- **Modular Architecture**: Separate system facets (price, availability) from attribute facets
+- **Container Dependency Injection**: Pass container through service methods for proper module resolution
+- **Pricing Context Requirements**: Always provide `region_id` and `currency_code` for accurate price aggregations
+- **Error Resilience**: Implement comprehensive error handling with graceful fallbacks to system facets
+- **Performance Optimization**: Use batched queries and efficient in-memory filtering for complex facet operations
+- **Type Safety**: Proper TypeScript interfaces for all facet configurations and aggregation responses
+
+### Shared Utility Patterns
+- **Centralized Logic**: Create shared utilities in `src/utils/` for complex operations used across multiple modules
+- **Type Safety**: Export proper TypeScript interfaces alongside utility functions for consistent typing
+- **Container Resolution**: Use `resolveQueryInstance(container)` helper for consistent query instance typing
+- **Code Example**:
+  ```typescript
+  // src/utils/category-hierarchy.ts
+  export async function getAllCategoryIds(query: QueryInstance, categoryId: string): Promise<string[]>
+  export function resolveQueryInstance(container: any): QueryInstance
+  
+  // Usage in API routes and services
+  import { getAllCategoryIds, resolveQueryInstance } from "src/utils/category-hierarchy";
+  const query = resolveQueryInstance(req.scope);
+  const categoryIds = await getAllCategoryIds(query, categoryId);
+  ```
+
 ### Admin Widget Development with React Query
 - **Data Fetching**: Use React Query (`@tanstack/react-query`) for admin widgets requiring API calls
 - **Shared QueryClient**: Import `withQueryClientProvider` HOC from `apps/backend/src/admin/utils/query-client.tsx`

@@ -6,6 +6,7 @@ import {
 import { z } from "zod";
 import type { CategoryProductsRequest } from "@camera-store/shared-types";
 import { toPaginatedResponse } from "src/utils/pagination";
+import { getAllCategoryIds, resolveQueryInstance } from "src/utils/category-hierarchy";
 
 export const CategoryProductsSchema = z.object({
   category_id: z.string().min(1, "category_id is required"),
@@ -32,24 +33,31 @@ export async function POST(
   req: MedusaRequest<CategoryProductsRequest>,
   res: MedusaResponse
 ): Promise<void> {
+  const requestData = req.validatedBody;
+
+  const {
+    category_id,
+    page = 1,
+    page_size = 24,
+    order_by = "-created_at",
+    filters = {},
+  } = requestData as CategoryProductsRequest;
+
+  if (
+    !category_id ||
+    typeof category_id !== "string" ||
+    category_id.trim() === ""
+  ) {
+    res.status(400).json({
+      error: "Valid category_id is required",
+    });
+    return;
+  }
+
+  // Sanitize category_id
+  const sanitizedCategoryId = category_id.trim();
+
   try {
-    const requestData = req.validatedBody;
-
-    const {
-      category_id,
-      page = 1,
-      page_size = 24,
-      order_by = "-created_at",
-      filters = {},
-    } = requestData as CategoryProductsRequest;
-
-    if (!category_id) {
-      res.status(400).json({
-        error: "category_id is required",
-      });
-      return;
-    }
-
     // Get region_id and currency_code from request headers
     const region_id = req.headers["region_id"] as string;
     const currency_code = req.headers["currency_code"] as string;
@@ -61,16 +69,32 @@ export async function POST(
       return;
     }
 
-    const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
+    const query = resolveQueryInstance(req.scope);
 
-    const currentPage = Number(page);
-    const itemsPerPage = Number(page_size);
+    // Validate pagination parameters
+    const currentPage = Math.max(1, Number(page) || 1);
+    const itemsPerPage = Math.min(Math.max(1, Number(page_size) || 24), 100); // Cap at 100 items per page
     const offset = (currentPage - 1) * itemsPerPage;
+
+    // Get all child categories recursively
+    const categoryIds = await getAllCategoryIds(query, sanitizedCategoryId);
+
+    // Validate that we have at least one category ID and they are all valid strings
+    if (
+      !categoryIds ||
+      categoryIds.length === 0 ||
+      categoryIds.some((id) => !id || typeof id !== "string")
+    ) {
+      res.status(404).json({
+        error: "Category not found or invalid",
+      });
+      return;
+    }
 
     // Build query filters
     const queryFilters: Record<string, any> = {
       categories: {
-        id: category_id,
+        id: categoryIds,
       },
     };
 
@@ -92,8 +116,11 @@ export async function POST(
         };
       }
       if (filters.price.max !== undefined) {
-        if (!queryFilters["variants"]["calculated_price"]["calculated_amount"]) {
-          queryFilters["variants"]["calculated_price"]["calculated_amount"] = {};
+        if (
+          !queryFilters["variants"]["calculated_price"]["calculated_amount"]
+        ) {
+          queryFilters["variants"]["calculated_price"]["calculated_amount"] =
+            {};
         }
         queryFilters["variants"]["calculated_price"]["calculated_amount"].$lte =
           filters.price.max * 100; // Convert to cents
@@ -110,7 +137,7 @@ export async function POST(
     }
 
     // Build sorting from order_by string (e.g., "-price,name,created_at")
-    let orderBy: Record<string, any> = {};
+    const orderBy: Record<string, any> = {};
 
     if (order_by) {
       // Split by comma to get individual fields
@@ -128,7 +155,8 @@ export async function POST(
             if (!orderBy["variants"]) orderBy["variants"] = {};
             if (!orderBy["variants"]["calculated_price"])
               orderBy["variants"]["calculated_price"] = {};
-            orderBy["variants"]["calculated_price"]["calculated_amount"] = direction;
+            orderBy["variants"]["calculated_price"]["calculated_amount"] =
+              direction;
             break;
           case "name":
             orderBy["title"] = direction;
@@ -187,7 +215,8 @@ export async function POST(
 
     res.status(200).json(paginatedResponse);
   } catch (error) {
-    console.error("Error in POST /store/category-products:", error);
+    const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+    logger.error("Error in POST /store/category-products for category " + sanitizedCategoryId + ":", error instanceof Error ? error : new Error(String(error)));
     res.status(500).json({
       error: "Internal server error",
     });

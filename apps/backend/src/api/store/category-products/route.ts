@@ -1,35 +1,271 @@
+import type { CategoryProductsRequest } from "@camera-store/shared-types";
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework";
 import {
   ContainerRegistrationKeys,
   QueryContext,
 } from "@medusajs/framework/utils";
-import { z } from "zod";
-import type { CategoryProductsRequest } from "@camera-store/shared-types";
-import { toPaginatedResponse } from "src/utils/pagination";
-import { getAllCategoryIds, resolveQueryInstance } from "src/utils/category-hierarchy";
 import { PRODUCT_ATTRIBUTES_MODULE } from "src/modules/product-attributes/index";
+import {
+  getAllCategoryIds,
+  resolveQueryInstance,
+} from "src/utils/category-hierarchy";
+import { toPaginatedResponse } from "src/utils/pagination";
+import { z } from "zod";
 
-export const CategoryProductsSchema = z.object({
-  category_id: z.string().min(1, "category_id is required"),
-  page: z.number().int().positive().default(1),
-  page_size: z.number().int().positive().max(100).default(24),
-  order_by: z.string().default("-created_at"),
-  filters: z
-    .object({
-      tags: z.array(z.string()).optional(),
-      availability: z.array(z.enum(["in-stock", "out-of-stock"])).optional(),
-      price: z
-        .object({
-          min: z.number().min(0).optional(),
-          max: z.number().min(0).optional(),
-        })
-        .optional(),
-      metadata: z.record(z.string(), z.array(z.string())).optional(),
-    })
-    .optional()
-    .default({}),
-});
+// Constants
+const MAX_QUERY_LIMIT = 1000; // Prevent DoS attacks with large queries
+const CENTS_TO_DOLLARS = 100;
 
+// TypeScript Interfaces
+interface ProductVariant {
+  id: string;
+  calculated_price?: {
+    calculated_amount?: number | null;
+  };
+}
+
+interface Product {
+  id: string;
+  title: string;
+  created_at: string;
+  variants?: ProductVariant[];
+  categories?: Array<{ id: string }>;
+  tags?: Array<{ value: string }>;
+  images?: Array<{ url: string }>;
+}
+
+interface QueryFilters {
+  categories?: {
+    id: string[];
+  };
+  tags?: {
+    value: string[];
+  };
+}
+
+interface SortOrder {
+  [key: string]: "asc" | "desc" | SortOrder;
+}
+
+interface ProductAttribute {
+  product_id: string;
+  attribute_values: Record<string, unknown>;
+}
+
+interface PriceFilter {
+  min?: number;
+  max?: number;
+}
+
+/**
+ * Filters products by price range
+ */
+function filterProductsByPrice(
+  products: Product[],
+  priceFilter: PriceFilter | undefined
+): Product[] {
+  if (
+    !priceFilter ||
+    (priceFilter.min === undefined && priceFilter.max === undefined)
+  ) {
+    return products;
+  }
+
+  const minPrice = priceFilter.min
+    ? priceFilter.min * CENTS_TO_DOLLARS
+    : undefined;
+  const maxPrice = priceFilter.max
+    ? priceFilter.max * CENTS_TO_DOLLARS
+    : undefined;
+
+  return products.filter((product: Product) => {
+    if (!product.variants || product.variants.length === 0) return false;
+
+    return product.variants.some((variant: ProductVariant) => {
+      const price = variant.calculated_price?.calculated_amount;
+      if (price === null || price === undefined) return false;
+
+      if (minPrice !== undefined && price < minPrice) return false;
+      if (maxPrice !== undefined && price > maxPrice) return false;
+
+      return true;
+    });
+  });
+}
+
+/**
+ * Sorts products by price
+ */
+function sortProductsByPrice(
+  products: Product[],
+  descending: boolean
+): Product[] {
+  return [...products].sort((a: Product, b: Product) => {
+    const aPrice = Math.min(
+      ...(a.variants || []).map(
+        (v: ProductVariant) => v.calculated_price?.calculated_amount || Infinity
+      )
+    );
+    const bPrice = Math.min(
+      ...(b.variants || []).map(
+        (v: ProductVariant) => v.calculated_price?.calculated_amount || Infinity
+      )
+    );
+
+    if (aPrice === Infinity && bPrice === Infinity) return 0;
+    if (aPrice === Infinity) return 1;
+    if (bPrice === Infinity) return -1;
+
+    return descending ? bPrice - aPrice : aPrice - bPrice;
+  });
+}
+
+/**
+ * Filters products by attributes
+ */
+async function filterProductsByAttributes(
+  products: Product[],
+  attributeFilters: Array<[string, unknown]>,
+  productAttributesService: any,
+  logger: any
+): Promise<Product[]> {
+  if (attributeFilters.length === 0 || products.length === 0) {
+    return products;
+  }
+
+  const productIds = products.map((p: Product) => p.id);
+
+  const productAttributes =
+    (await productAttributesService.listProductAttributes({
+      product_id: productIds,
+    })) as ProductAttribute[];
+
+  logger.debug(`Retrieved ${productAttributes.length} product attributes`);
+
+  // Build a map of products that match each filter
+  const filterMatches = new Map<string, Set<string>>();
+
+  for (const [attributeKey, attributeValues] of attributeFilters) {
+    if (
+      !attributeValues ||
+      !Array.isArray(attributeValues) ||
+      attributeValues.length === 0
+    ) {
+      continue;
+    }
+
+    const matchingProducts = new Set<string>();
+
+    for (const productAttribute of productAttributes) {
+      const attributeData = productAttribute.attribute_values || {};
+      const productValue = attributeData[attributeKey];
+
+      if (productValue && attributeValues.includes(String(productValue))) {
+        matchingProducts.add(productAttribute.product_id);
+      }
+    }
+
+    filterMatches.set(attributeKey, matchingProducts);
+  }
+
+  // Find products that match ALL attribute filters (intersection)
+  let filteredProductIds = new Set<string>();
+  let isFirstFilter = true;
+
+  for (const [, matchingProducts] of filterMatches) {
+    if (isFirstFilter) {
+      filteredProductIds = new Set(matchingProducts);
+      isFirstFilter = false;
+    } else {
+      filteredProductIds = new Set(
+        [...filteredProductIds].filter((id) => matchingProducts.has(id))
+      );
+    }
+  }
+
+  return products.filter((p: Product) => filteredProductIds.has(p.id));
+}
+
+export const CategoryProductsSchema = z
+  .object({
+    category_id: z.string().min(1, "category_id is required").max(100),
+    page: z.number().int().positive().default(1),
+    page_size: z.number().int().positive().max(100).default(24),
+    order_by: z.string().max(100).default("-created_at"),
+    filters: z.record(z.string(), z.any()).optional().default({}),
+  })
+  .refine(
+    (data) => {
+      // Validate filter structure
+      if (data.filters) {
+        // Check for reasonable filter count to prevent DoS
+        const filterCount = Object.keys(data.filters).length;
+        if (filterCount > 20) return false;
+
+        // Validate price filter if present
+        if (data.filters["price"]) {
+          if (typeof data.filters["price"] !== "object") return false;
+          const price = data.filters["price"] as PriceFilter;
+          if (
+            price.min !== undefined &&
+            (typeof price.min !== "number" || price.min < 0)
+          )
+            return false;
+          if (
+            price.max !== undefined &&
+            (typeof price.max !== "number" || price.max < 0)
+          )
+            return false;
+          if (
+            price.min !== undefined &&
+            price.max !== undefined &&
+            price.min > price.max
+          )
+            return false;
+        }
+
+        // Validate array filters
+        for (const [key, value] of Object.entries(data.filters)) {
+          if (key === "price") continue;
+          if (Array.isArray(value)) {
+            // Limit array size to prevent DoS
+            if (value.length > 100) return false;
+            // Ensure all values are strings
+            if (!value.every((v) => typeof v === "string" && v.length < 200))
+              return false;
+          }
+        }
+      }
+      return true;
+    },
+    {
+      message: "Invalid filter structure or values",
+    }
+  );
+
+/**
+ * Handles product listing by category with advanced filtering and sorting
+ *
+ * @route POST /store/category-products
+ *
+ * Features:
+ * - Hierarchical category support (includes child categories)
+ * - Dynamic attribute filtering (brand, sensor type, etc.)
+ * - Price range filtering
+ * - Multiple sort options (price, name, created_at, popularity)
+ * - Pagination support
+ *
+ * Performance optimizations:
+ * - Query limit capped at 1000 products
+ * - In-memory filtering for computed fields (price)
+ * - Efficient attribute matching using Set operations
+ *
+ * Security:
+ * - Input validation via Zod schema
+ * - Filter count limits to prevent DoS
+ * - Sanitized category IDs
+ * - Array size limits for filter values
+ */
 export async function POST(
   req: MedusaRequest<CategoryProductsRequest>,
   res: MedusaResponse
@@ -93,7 +329,7 @@ export async function POST(
     }
 
     // Build query filters
-    const queryFilters: Record<string, any> = {
+    const queryFilters: QueryFilters = {
       categories: {
         id: categoryIds,
       },
@@ -106,30 +342,11 @@ export async function POST(
       };
     }
 
-    // Apply price filters on calculated_price
-    if (filters.price?.min !== undefined || filters.price?.max !== undefined) {
-      queryFilters["variants"] = queryFilters["variants"] || {};
-      queryFilters["variants"]["calculated_price"] = {};
-
-      if (filters.price.min !== undefined) {
-        queryFilters["variants"]["calculated_price"]["calculated_amount"] = {
-          $gte: filters.price.min * 100, // Convert to cents
-        };
-      }
-      if (filters.price.max !== undefined) {
-        if (
-          !queryFilters["variants"]["calculated_price"]["calculated_amount"]
-        ) {
-          queryFilters["variants"]["calculated_price"]["calculated_amount"] =
-            {};
-        }
-        queryFilters["variants"]["calculated_price"]["calculated_amount"].$lte =
-          filters.price.max * 100; // Convert to cents
-      }
-    }
+    // Note: Price filtering will be done in-memory after fetching products
+    // because calculated_price is not a database field but a computed field
 
     // Build sorting from order_by string (e.g., "-price,name,created_at")
-    const orderBy: Record<string, any> = {};
+    const orderBy: SortOrder = {};
 
     if (order_by) {
       // Split by comma to get individual fields
@@ -143,12 +360,8 @@ export async function POST(
 
         switch (fieldName.trim()) {
           case "price":
-            // For nested price sorting
-            if (!orderBy["variants"]) orderBy["variants"] = {};
-            if (!orderBy["variants"]["calculated_price"])
-              orderBy["variants"]["calculated_price"] = {};
-            orderBy["variants"]["calculated_price"]["calculated_amount"] =
-              direction;
+            // Price sorting will be done in-memory after fetching
+            // because calculated_price is not a database field
             break;
           case "name":
             orderBy["title"] = direction;
@@ -182,7 +395,7 @@ export async function POST(
       filters: queryFilters,
       pagination: {
         skip: 0,
-        take: 10000, // Get all products for attribute filtering
+        take: MAX_QUERY_LIMIT, // Limit to prevent DoS attacks
         order: orderBy,
       },
       context: {
@@ -195,82 +408,50 @@ export async function POST(
       },
     });
 
-    let products = result.data || [];
+    let products = (result.data || []) as Product[];
     let totalCount = products.length;
+
+    // Apply price filters in-memory (since calculated_price is a computed field)
+    products = filterProductsByPrice(products, filters.price as PriceFilter);
+    totalCount = products.length;
 
     // Apply product attribute filters (all facets come from product attributes)
     // Look for attribute filters in the root level of filters object
-    const attributeFilters = Object.entries(filters).filter(([key]) => 
-      key !== 'tags' && key !== 'availability' && key !== 'price'
+    const attributeFilters = Object.entries(filters).filter(
+      ([key]) => key !== "tags" && key !== "availability" && key !== "price"
     );
 
     if (attributeFilters.length > 0) {
       try {
         const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-        logger.debug(`Found ${attributeFilters.length} attribute filters: ${JSON.stringify(attributeFilters)}`);
-        
-        const productAttributesService = req.scope.resolve(PRODUCT_ATTRIBUTES_MODULE);
-        const productIds = products.map((p: any) => p.id);
+        const productAttributesService = req.scope.resolve(
+          PRODUCT_ATTRIBUTES_MODULE
+        );
 
-        if (productIds.length > 0) {
-          // Get product attributes for all products
-          const productAttributes = await productAttributesService.listProductAttributes({
-            product_id: productIds,
-          });
-          
-          logger.debug(`Retrieved ${productAttributes.length} product attributes`);
-          logger.debug(`Product attributes sample: ${JSON.stringify(productAttributes.slice(0, 2))}`);
-
-          // Filter products based on attribute values
-          // Build a map of products that match each filter
-          const filterMatches = new Map<string, Set<string>>();
-          
-          for (const [attributeKey, attributeValues] of attributeFilters) {
-            if (!attributeValues || !Array.isArray(attributeValues) || attributeValues.length === 0) continue;
-
-            const matchingProducts = new Set<string>();
-            
-            // Find products that have any of the specified attribute values for this key
-            for (const productAttribute of productAttributes) {
-              const attributeData = productAttribute.attribute_values || {};
-              const productValue = attributeData[attributeKey];
-              
-              if (productValue && attributeValues.includes(String(productValue))) {
-                matchingProducts.add(productAttribute.product_id);
-              }
-            }
-            
-            filterMatches.set(attributeKey, matchingProducts);
-          }
-
-          // Find products that match ALL attribute filters
-          let filteredProductIds = new Set<string>();
-          let isFirstFilter = true;
-
-          for (const [, matchingProducts] of filterMatches) {
-            if (isFirstFilter) {
-              filteredProductIds = new Set(matchingProducts);
-              isFirstFilter = false;
-            } else {
-              // Intersection: keep only products that match this filter AND previous filters
-              filteredProductIds = new Set([...filteredProductIds].filter(id => matchingProducts.has(id)));
-            }
-          }
-
-          // Filter products to only include those matching the attributes
-          logger.debug(`Filtered to ${filteredProductIds.size} matching products: ${Array.from(filteredProductIds).join(', ')}`);
-          products = products.filter((p: any) => filteredProductIds.has(p.id));
-          totalCount = products.length;
-          logger.debug(`Final filtered product count: ${totalCount}`);
-        }
+        products = await filterProductsByAttributes(
+          products,
+          attributeFilters,
+          productAttributesService,
+          logger
+        );
+        totalCount = products.length;
       } catch (error) {
         const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-        logger.error("Error filtering by product attributes:", error instanceof Error ? error : new Error(String(error)));
+        logger.error(
+          "Error filtering by product attributes:",
+          error instanceof Error ? error : new Error(String(error))
+        );
         // Continue with original products if attribute filtering fails
       }
     }
 
-    // Apply manual pagination after attribute filtering
+    // Apply in-memory price sorting if requested
+    if (order_by && order_by.includes("price")) {
+      const isPriceDescending = order_by.includes("-price");
+      products = sortProductsByPrice(products, isPriceDescending);
+    }
+
+    // Apply manual pagination after all filtering and sorting
     const paginatedProducts = products.slice(offset, offset + itemsPerPage);
 
     const paginatedResponse = toPaginatedResponse(
@@ -283,7 +464,12 @@ export async function POST(
     res.status(200).json(paginatedResponse);
   } catch (error) {
     const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-    logger.error("Error in POST /store/category-products for category " + sanitizedCategoryId + ":", error instanceof Error ? error : new Error(String(error)));
+    logger.error(
+      "Error in POST /store/category-products for category " +
+        sanitizedCategoryId +
+        ":",
+      error instanceof Error ? error : new Error(String(error))
+    );
     res.status(500).json({
       error: "Internal server error",
     });

@@ -318,6 +318,39 @@ apps/frontend/src/
 - **Error Handling**: Wrap filter operations in try-catch blocks with standardized error patterns
 - **Performance**: Use `useCallback` for event handlers, avoid creating functions in render, debounce range slider updates
 
+### Loading State Management Patterns
+- **Placeholder Data Strategy**: Use React Query's `placeholderData: keepPreviousData` to prevent jarring skeleton replacements during filter updates
+- **Granular Loading Indicators**: Pass `facetsLoading` prop to show loading states on individual count badges while maintaining structure
+- **Consistent Skeleton Sizing**: Ensure skeleton elements match exact dimensions of real content to prevent layout shift
+- **Loading State Differentiation**: Distinguish between initial loading (`isLoading`) and subsequent updates (`isFetching && isPlaceholderData`)
+  ```tsx
+  // Good: Placeholder data with granular loading states
+  const { data, isLoading, isFetching, isPlaceholderData } = useQuery({
+    queryKey: ["facets", filters],
+    queryFn: () => fetchFacets(filters),
+    placeholderData: keepPreviousData, // Keep previous data visible
+  })
+  
+  // Show skeleton only for initial load, loading indicators for updates
+  {isLoading && data?.facets.length === 0 ? (
+    <SkeletonSidebar />
+  ) : (
+    <FilterSidebar 
+      facets={data?.facets || []}
+      facetsLoading={isFetching && isPlaceholderData} // Only show count loading when placeholder
+    />
+  )}
+  
+  // Good: Consistent skeleton and real content sizing
+  {facetsLoading ? (
+    <div className="skeleton text-xs px-2 py-1 rounded-full font-medium h-5 min-w-[2rem]"></div>
+  ) : (
+    <span className="text-xs px-2 py-1 bg-base-300 text-base-content/70 rounded-full font-medium min-w-[2rem] h-5 flex items-center justify-center">
+      {count}
+    </span>
+  )}
+  ```
+
 ### File Structure Patterns
 - **Feature Modules**: `apps/frontend/src/modules/` - organized by business domain
 - **Shared Utilities**: `apps/frontend/src/lib/util/` - reusable helper functions

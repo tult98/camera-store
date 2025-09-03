@@ -4,12 +4,14 @@ interface CheckboxFilterProps {
   facet: FacetAggregation
   filters: ApiFilters
   onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  facetsLoading?: boolean
 }
 
 export default function CheckboxFilter({ 
   facet, 
   filters, 
-  onToggleFilter 
+  onToggleFilter,
+  facetsLoading = false
 }: CheckboxFilterProps) {
   if (!Array.isArray(facet.values)) return null
 
@@ -51,9 +53,13 @@ export default function CheckboxFilter({
           <span className="text-sm flex-1 group-hover:text-primary transition-colors">
             {option.label}
           </span>
-          <span className="text-xs px-2 py-1 bg-base-300 text-base-content/70 rounded-full font-medium">
-            {option.count}
-          </span>
+          {facetsLoading ? (
+            <div className="skeleton text-xs px-2 py-1 rounded-full font-medium h-5 min-w-[2rem]"></div>
+          ) : (
+            <span className="text-xs px-2 py-1 bg-base-300 text-base-content/70 rounded-full font-medium min-w-[2rem] h-5 flex items-center justify-center">
+              {option.count}
+            </span>
+          )}
         </label>
       ))}
     </div>

@@ -12,9 +12,10 @@ import SliderFilter from "./slider-filter"
 
 interface FilterGroupProps {
   facet: FacetAggregation
+  facetsLoading?: boolean
 }
 
-export default function FilterGroup({ facet }: FilterGroupProps) {
+export default function FilterGroup({ facet, facetsLoading = false }: FilterGroupProps) {
   const { filters, toggleFilter, removeFilter, setPriceRange } =
     useCategoryFilterStore()
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -30,6 +31,7 @@ export default function FilterGroup({ facet }: FilterGroupProps) {
           facet={facet}
           filters={filters}
           onToggleFilter={toggleFilter}
+          facetsLoading={facetsLoading}
         />
       )
     }
@@ -41,6 +43,7 @@ export default function FilterGroup({ facet }: FilterGroupProps) {
           filters={filters}
           onToggleFilter={toggleFilter}
           onRemoveFilter={removeFilter}
+          facetsLoading={facetsLoading}
         />
       )
     }
@@ -52,6 +55,7 @@ export default function FilterGroup({ facet }: FilterGroupProps) {
           filters={filters}
           onToggleFilter={toggleFilter}
           onRemoveFilter={removeFilter}
+          facetsLoading={facetsLoading}
         />
       )
     }
@@ -62,6 +66,7 @@ export default function FilterGroup({ facet }: FilterGroupProps) {
           facet={facet}
           filters={filters}
           onToggleFilter={toggleFilter}
+          facetsLoading={facetsLoading}
         />
       )
     }

@@ -8,12 +8,14 @@ import FilterGroup from "./filter-group"
 interface FilterSidebarProps {
   facets: FacetAggregation[]
   loading?: boolean
+  facetsLoading?: boolean
   refetch?: () => void
 }
 
 export default function FilterSidebar({
   facets,
   loading = false,
+  facetsLoading = false,
   refetch,
 }: FilterSidebarProps) {
   const { searchQuery, setSearchQuery, clearAllFilters } =
@@ -66,7 +68,7 @@ export default function FilterSidebar({
             </div>
           ) : facets.length > 0 ? (
             facets.map((facet) => (
-              <FilterGroup key={facet.facet_key} facet={facet} />
+              <FilterGroup key={facet.facet_key} facet={facet} facetsLoading={facetsLoading} />
             ))
           ) : (
             <div className="p-6 text-center">

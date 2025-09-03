@@ -5,13 +5,15 @@ interface DropdownFilterProps {
   filters: ApiFilters
   onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
   onRemoveFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  facetsLoading?: boolean
 }
 
 export default function DropdownFilter({ 
   facet, 
   filters, 
   onToggleFilter,
-  onRemoveFilter
+  onRemoveFilter,
+  facetsLoading = false
 }: DropdownFilterProps) {
   if (!Array.isArray(facet.values)) return null
 
@@ -61,7 +63,7 @@ export default function DropdownFilter({
         <option value="">All {facet.facet_label}</option>
         {facet.values.map((option) => (
           <option key={String(option.value)} value={String(option.value)}>
-            {option.label} ({option.count})
+            {option.label} ({facetsLoading ? '...' : option.count})
           </option>
         ))}
       </select>

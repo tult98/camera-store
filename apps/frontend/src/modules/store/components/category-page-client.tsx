@@ -7,7 +7,7 @@ import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-g
 import SkeletonProductList from "@modules/skeletons/templates/skeleton-product-list"
 import SkeletonFilterSidebar from "@modules/skeletons/templates/skeleton-filter-sidebar"
 import { useCategoryBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, keepPreviousData } from "@tanstack/react-query"
 import { useState } from "react"
 import { FunnelIcon } from "@heroicons/react/24/outline"
 import { Pagination } from "./pagination"
@@ -103,7 +103,7 @@ export default function CategoryPageClient({
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
-  const { data: facetsData, isLoading: isLoadingFacets, refetch: refetchFacets } = useQuery<FacetsResponse>({
+  const { data: facetsData, isLoading: isLoadingFacets, isFetching: isFetchingFacets, isPlaceholderData: isPlaceholderFacetsData, refetch: refetchFacets } = useQuery<FacetsResponse>({
     queryKey: ["category-facets", categoryId, JSON.stringify(filters)],
     queryFn: () =>
       fetchCategoryFacets({ categoryId, filters }),
@@ -111,6 +111,7 @@ export default function CategoryPageClient({
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    placeholderData: keepPreviousData, // Keep previous facets while new ones are loading
   })
 
   const products = productsData?.items || []
@@ -132,6 +133,7 @@ export default function CategoryPageClient({
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
   }
+
 
   return (
     <div className="min-h-screen bg-base-100 w-full">
@@ -160,12 +162,13 @@ export default function CategoryPageClient({
       <div className="flex min-h-[calc(100vh-200px)] w-full">
         {/* Desktop Filter Sidebar */}
         <div className="hidden lg:block flex-shrink-0">
-          {isLoadingFacets ? (
+          {isLoadingFacets && facets.length === 0 ? (
             <SkeletonFilterSidebar />
           ) : (
             <FilterSidebar 
               facets={facets}
-              loading={isLoadingFacets}
+              loading={false}
+              facetsLoading={isFetchingFacets && isPlaceholderFacetsData}
               refetch={refetchFacets}
             />
           )}
@@ -260,7 +263,8 @@ export default function CategoryPageClient({
         isOpen={isMobileFilterOpen}
         onClose={() => setIsMobileFilterOpen(false)}
         facets={facets}
-        loading={isLoadingFacets}
+        loading={isLoadingFacets && facets.length === 0}
+        facetsLoading={isFetchingFacets && isPlaceholderFacetsData}
       />
     </div>
   )

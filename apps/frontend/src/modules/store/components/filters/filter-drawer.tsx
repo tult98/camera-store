@@ -14,6 +14,7 @@ interface FilterDrawerProps {
   onClose: () => void
   facets: FacetAggregation[]
   loading?: boolean
+  facetsLoading?: boolean
 }
 
 export default function FilterDrawer({
@@ -21,6 +22,7 @@ export default function FilterDrawer({
   onClose,
   facets,
   loading = false,
+  facetsLoading = false,
 }: FilterDrawerProps) {
   const { searchQuery, setSearchQuery, clearAllFilters, filters } =
     useCategoryFilterStore()
@@ -107,7 +109,7 @@ export default function FilterDrawer({
               </div>
             ) : (
               facets.map((facet) => (
-                <FilterGroup key={facet.facet_key} facet={facet} />
+                <FilterGroup key={facet.facet_key} facet={facet} facetsLoading={facetsLoading} />
               ))
             )}
           </div>

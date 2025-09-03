@@ -2,7 +2,9 @@
 
 import { FacetAggregation } from "@camera-store/shared-types"
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import { useDebounce } from "@lib/hooks/use-debounce"
 import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
+import { useEffect, useRef, useState } from "react"
 import FilterGroup from "./filter-group"
 
 interface FilterSidebarProps {
@@ -18,36 +20,64 @@ export default function FilterSidebar({
   facetsLoading = false,
   refetch,
 }: FilterSidebarProps) {
-  const { searchQuery, setSearchQuery, clearAllFilters } =
-    useCategoryFilterStore()
+  const { searchQuery, setSearchQuery, clearAllFilters } = useCategoryFilterStore()
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery)
+  const debouncedSearchQuery = useDebounce(localSearchQuery, 500) // 500ms delay
+  const lastGlobalSearch = useRef(searchQuery)
+
+  // Update the global search query when debounced value changes
+  useEffect(() => {
+    if (debouncedSearchQuery !== lastGlobalSearch.current) {
+      setSearchQuery(debouncedSearchQuery)
+      lastGlobalSearch.current = debouncedSearchQuery
+    }
+  }, [debouncedSearchQuery, setSearchQuery])
+
+  // Sync local search with global search when it changes externally (e.g., clear all filters)
+  useEffect(() => {
+    if (searchQuery !== lastGlobalSearch.current) {
+      setLocalSearchQuery(searchQuery)
+      lastGlobalSearch.current = searchQuery
+    }
+  }, [searchQuery])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    refetch?.()
+    // Immediately update the debounced value to trigger search
+    setSearchQuery(localSearchQuery)
   }
 
   return (
     <div className="w-80 bg-base-100 border-r border-base-300 h-full flex flex-col">
       {/* Search */}
       <div className="p-4">
-        <form onSubmit={handleSearch}>
+        <form onSubmit={handleSearch} role="search">
           <div className="relative">
             <input
               type="text"
-              placeholder="Search within category..."
+              placeholder="Search product names..."
               className="input input-primary w-full pr-12 bg-base-100"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={localSearchQuery}
+              onChange={(e) => setLocalSearchQuery(e.target.value)}
+              aria-describedby="search-help"
+              aria-label="Search products by name within this category"
             />
+            <div id="search-help" className="sr-only">
+              Search results will update automatically as you type
+            </div>
             <button
               type="submit"
               className="absolute right-2 top-1/2 -translate-y-1/2 btn btn-ghost btn-sm btn-circle hover:bg-primary hover:text-primary-content"
-              aria-label="Search"
+              aria-label="Search products"
             >
               <MagnifyingGlassIcon className="w-4 h-4" />
             </button>
           </div>
         </form>
+        {/* Live region for search feedback */}
+        <div aria-live="polite" aria-atomic="true" className="sr-only">
+          {localSearchQuery && `Searching for "${localSearchQuery}"`}
+        </div>
       </div>
 
       {/* Filter Groups */}

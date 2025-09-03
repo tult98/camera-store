@@ -838,6 +838,42 @@ Invoke the `@agent-design-review` subagent for thorough design validation when:
 - Prefer editing existing files over creating new ones
 - Use the monorepo structure with separate backend and frontend apps
 
+### Search Implementation Patterns
+- **Simplified Search**: Prefer product title-only search for performance and clarity - avoid complex multi-field searches unless required
+- **Debouncing**: Use 500ms delay for search inputs with proper cleanup and ref-based state tracking
+- **Security**: Always sanitize search inputs before processing - remove `<>"'&` characters and limit to 100 characters
+- **Performance**: Use synchronous in-memory filtering for title searches, avoid expensive async attribute queries when possible
+- **Accessibility**: Include proper ARIA labels (`role="search"`, `aria-describedby`, `aria-label`) and live regions for search feedback
+- **Error Handling**: Provide fallback search results when advanced features fail, never expose search terms in logs
+
+### Search Query Security Guidelines
+- **Input Sanitization**: Remove HTML/script characters from search terms using `replace(/[<>"'&]/g, '')`
+- **Length Limits**: Cap search queries at 100 characters maximum in both Zod schema and processing logic
+- **Rate Limiting**: Consider implementing rate limiting for search endpoints in production
+- **Logging Security**: Never log raw user input - sanitize or redact search terms (`[REDACTED]`)
+- **Validation**: Validate search parameters before database queries and return early for empty sanitized queries
+
+### Search State Management Patterns
+- **Zustand Integration**: Use centralized search state with proper debouncing via custom hooks
+- **React Query**: Implement placeholder data strategy (`keepPreviousData`) for smooth UX during search updates
+- **URL Synchronization**: Sync search state with URL parameters (`searchQuery` in query key) for bookmarkability
+- **Local State Management**: Use `useState` for immediate UI updates, `useDebounce` for API calls, `useRef` for tracking state sources
+- **Circular Dependency Prevention**: Use ref-based tracking (`lastGlobalSearch.current`) to prevent infinite update loops between local and global state
+
+### Debounce Hook Implementation
+- **Generic Type Safety**: Use `useDebounce<T>(value: T, delay: number): T` for type safety across different value types
+- **Cleanup Pattern**: Always return cleanup function in `useEffect` to prevent memory leaks
+- **Delay Configuration**: Use 500ms as standard delay for search inputs, shorter delays (200-300ms) for less expensive operations
+- **State Initialization**: Initialize debounced state with the initial value to prevent rendering mismatches
+
+### Simplified Search Architecture Patterns
+- **Title-Only Search**: Implement `product.title.toLowerCase().includes(sanitizedQuery)` for fast, predictable results
+- **Synchronous Functions**: Prefer synchronous filtering functions over async when possible for better performance
+- **Service Interface Typing**: Define proper interfaces for external services instead of using `any` types
+- **Error Boundary Strategy**: Continue with original products if advanced filtering fails, never break core search functionality
+- **User Expectation Management**: Update UI placeholders and labels to clearly indicate search scope (e.g., "Search product names...")
+- **Performance First**: Prioritize simple, fast implementations over complex multi-field searches unless business requirements demand it
+
 ## Debugging & Troubleshooting
 
 ### Common Issues

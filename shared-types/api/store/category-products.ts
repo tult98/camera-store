@@ -16,6 +16,7 @@ export interface CategoryProductsRequest {
   page_size?: number;
   order_by?: string;
   filters?: ApiFilters;
+  search_query?: string;
 }
 
 export interface CategoryProductsResponse

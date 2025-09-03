@@ -34,6 +34,13 @@ interface Product {
   images?: Array<{ url: string }>;
 }
 
+interface ProductAttributesService {
+  listProductAttributes(params: { product_id: string[] }): Promise<Array<{
+    product_id: string;
+    attribute_values: Record<string, unknown>;
+  }>>;
+}
+
 interface QueryFilters {
   categories?: {
     id: string[];
@@ -47,10 +54,6 @@ interface SortOrder {
   [key: string]: "asc" | "desc" | SortOrder;
 }
 
-interface ProductAttribute {
-  product_id: string;
-  attribute_values: Record<string, unknown>;
-}
 
 interface PriceFilter {
   min?: number;
@@ -121,70 +124,34 @@ function sortProductsByPrice(
 }
 
 /**
- * Filters products by attributes
+ * Filters products by search query
+ * Searches only in product titles for simplicity and performance
  */
-async function filterProductsByAttributes(
+function filterProductsBySearch(
   products: Product[],
-  attributeFilters: Array<[string, unknown]>,
-  productAttributesService: any,
-  logger: any
-): Promise<Product[]> {
-  if (attributeFilters.length === 0 || products.length === 0) {
+  searchQuery: string | undefined
+): Product[] {
+  if (!searchQuery || searchQuery.trim() === "") {
     return products;
   }
 
-  const productIds = products.map((p: Product) => p.id);
-
-  const productAttributes =
-    (await productAttributesService.listProductAttributes({
-      product_id: productIds,
-    })) as ProductAttribute[];
-
-  logger.debug(`Retrieved ${productAttributes.length} product attributes`);
-
-  // Build a map of products that match each filter
-  const filterMatches = new Map<string, Set<string>>();
-
-  for (const [attributeKey, attributeValues] of attributeFilters) {
-    if (
-      !attributeValues ||
-      !Array.isArray(attributeValues) ||
-      attributeValues.length === 0
-    ) {
-      continue;
-    }
-
-    const matchingProducts = new Set<string>();
-
-    for (const productAttribute of productAttributes) {
-      const attributeData = productAttribute.attribute_values || {};
-      const productValue = attributeData[attributeKey];
-
-      if (productValue && attributeValues.includes(String(productValue))) {
-        matchingProducts.add(productAttribute.product_id);
-      }
-    }
-
-    filterMatches.set(attributeKey, matchingProducts);
+  // Sanitize search query to prevent XSS and limit length
+  const sanitizedQuery = searchQuery
+    .toLowerCase()
+    .trim()
+    .replace(/[<>"'&]/g, '') // Remove potentially dangerous characters
+    .substring(0, 100); // Limit length to prevent DoS
+  
+  if (sanitizedQuery.length === 0) {
+    return products;
   }
-
-  // Find products that match ALL attribute filters (intersection)
-  let filteredProductIds = new Set<string>();
-  let isFirstFilter = true;
-
-  for (const [, matchingProducts] of filterMatches) {
-    if (isFirstFilter) {
-      filteredProductIds = new Set(matchingProducts);
-      isFirstFilter = false;
-    } else {
-      filteredProductIds = new Set(
-        [...filteredProductIds].filter((id) => matchingProducts.has(id))
-      );
-    }
-  }
-
-  return products.filter((p: Product) => filteredProductIds.has(p.id));
+  
+  // Filter by product title only
+  return products.filter((product: Product) => 
+    product.title && product.title.toLowerCase().includes(sanitizedQuery)
+  );
 }
+
 
 export const CategoryProductsSchema = z
   .object({
@@ -193,6 +160,7 @@ export const CategoryProductsSchema = z
     page_size: z.number().int().positive().max(100).default(24),
     order_by: z.string().max(100).default("-created_at"),
     filters: z.record(z.string(), z.any()).optional().default({}),
+    search_query: z.string().max(100).optional(),
   })
   .refine(
     (data) => {
@@ -278,6 +246,7 @@ export async function POST(
     page_size = 24,
     order_by = "-created_at",
     filters = {},
+    search_query,
   } = requestData as CategoryProductsRequest;
 
   if (
@@ -410,6 +379,10 @@ export async function POST(
     let products = (result.data || []) as Product[];
     let totalCount = products.length;
 
+    // Apply search filter first (text search)
+    products = filterProductsBySearch(products, search_query);
+    totalCount = products.length;
+
     // Apply price filters in-memory (since calculated_price is a computed field)
     products = filterProductsByPrice(products, filters.price as PriceFilter);
     totalCount = products.length;
@@ -425,20 +398,62 @@ export async function POST(
         const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
         const productAttributesService = req.scope.resolve(
           PRODUCT_ATTRIBUTES_MODULE
-        );
+        ) as ProductAttributesService;
 
-        products = await filterProductsByAttributes(
-          products,
-          attributeFilters,
-          productAttributesService,
-          logger
-        );
+        const productIds = products.map((p: Product) => p.id);
+        const productAttributes = await productAttributesService.listProductAttributes({
+          product_id: productIds,
+        });
+
+        logger.debug(`Retrieved ${productAttributes.length} product attributes`);
+
+        // Build a map of products that match each filter
+        const filterMatches = new Map<string, Set<string>>();
+
+        for (const [attributeKey, attributeValues] of attributeFilters) {
+          if (
+            !attributeValues ||
+            !Array.isArray(attributeValues) ||
+            attributeValues.length === 0
+          ) {
+            continue;
+          }
+
+          const matchingProducts = new Set<string>();
+
+          for (const productAttribute of productAttributes) {
+            const attributeData = productAttribute.attribute_values || {};
+            const productValue = attributeData[attributeKey];
+
+            if (productValue && attributeValues.includes(String(productValue))) {
+              matchingProducts.add(productAttribute.product_id);
+            }
+          }
+
+          filterMatches.set(attributeKey, matchingProducts);
+        }
+
+        // Find products that match ALL attribute filters (intersection)
+        let filteredProductIds = new Set<string>();
+        let isFirstFilter = true;
+
+        for (const [, matchingProducts] of filterMatches) {
+          if (isFirstFilter) {
+            filteredProductIds = new Set(matchingProducts);
+            isFirstFilter = false;
+          } else {
+            filteredProductIds = new Set(
+              [...filteredProductIds].filter((id) => matchingProducts.has(id))
+            );
+          }
+        }
+
+        products = products.filter((p: Product) => filteredProductIds.has(p.id));
         totalCount = products.length;
       } catch (error) {
         const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
         logger.error(
-          "Error filtering by product attributes:",
-          error instanceof Error ? error : new Error(String(error))
+          `Error filtering by product attributes: ${error instanceof Error ? error.message : String(error)}`
         );
         // Continue with original products if attribute filtering fails
       }
@@ -464,10 +479,7 @@ export async function POST(
   } catch (error) {
     const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
     logger.error(
-      "Error in POST /store/category-products for category " +
-        sanitizedCategoryId +
-        ":",
-      error instanceof Error ? error : new Error(String(error))
+      `Error in POST /store/category-products for category ${sanitizedCategoryId}: ${error instanceof Error ? error.message : String(error)}`
     );
     res.status(500).json({
       error: "Internal server error",

@@ -369,9 +369,8 @@ export async function POST(
           case "created_at":
             orderBy["created_at"] = direction;
             break;
-          case "popularity":
-            // Popularity maps to created_at desc (newest/most recent)
-            orderBy["created_at"] = "desc";
+          case "rating":
+            // Skip rating sorting as it's not supported
             break;
           default:
             // For any other field, use it directly

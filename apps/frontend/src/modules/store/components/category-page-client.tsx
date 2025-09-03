@@ -88,7 +88,7 @@ export default function CategoryPageClient({
     setViewMode,
     getApiRequestBody
   } = useCategoryFilterStore()
-  
+
   // Set breadcrumbs in the layout context
   const categoryHandle = categoryName.toLowerCase().replace(/\s+/g, '-')
   useCategoryBreadcrumbs(categoryName, categoryHandle)
@@ -100,7 +100,7 @@ export default function CategoryPageClient({
       return fetchCategoryProducts(requestBody)
     },
     initialData: Object.keys(filters).length === 0 ? initialProductsData : undefined,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Always refetch when query key changes (sorting, filtering, pagination)
   })
 
   const { data: facetsData, isLoading: isLoadingFacets, isFetching: isFetchingFacets, isPlaceholderData: isPlaceholderFacetsData, refetch: refetchFacets } = useQuery<FacetsResponse>({

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { ApiFilters } from '@camera-store/shared-types'
 
 export type ViewMode = 'grid' | 'list'
-export type SortOption = 'popularity' | 'price_asc' | 'price_desc' | 'newest' | 'name_asc' | 'name_desc' | 'rating'
+export type SortOption = 'price_asc' | 'price_desc' | 'newest' | 'name_asc' | 'name_desc'
 
 export interface CategoryFilterState {
   filters: ApiFilters
@@ -29,7 +29,7 @@ export interface CategoryFilterState {
 
 export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => ({
   filters: {},
-  sortBy: 'popularity',
+  sortBy: 'price_asc',
   page: 1,
   pageSize: 24,
   viewMode: 'grid',
@@ -260,7 +260,7 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
       params.set('price_max', state.filters.price.max.toString())
     }
     
-    if (state.sortBy !== 'popularity') {
+    if (state.sortBy !== 'price_asc') {
       params.set('sortBy', state.sortBy)
     }
     
@@ -286,16 +286,14 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
   getApiRequestBody: (categoryId) => {
     const state = get()
     const sortMapping: Record<SortOption, string> = {
-      'popularity': 'popularity',
       'price_asc': 'price',
       'price_desc': '-price',
       'newest': '-created_at',
       'name_asc': 'name',
-      'name_desc': '-name',
-      'rating': '-rating'
+      'name_desc': '-name'
     }
     
-    const orderBy = sortMapping[state.sortBy] || sortMapping['popularity']
+    const orderBy = sortMapping[state.sortBy] || 'price'
     
     // Flatten metadata filters to root level for backend compatibility
     const flattenedFilters = { ...state.filters }

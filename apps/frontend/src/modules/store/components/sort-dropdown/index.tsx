@@ -9,13 +9,11 @@ interface SortDropdownProps {
 }
 
 const sortOptions: { value: SortOption; label: string; description?: string }[] = [
-  { value: "popularity", label: "Most Popular", description: "Best sellers first" },
-  { value: "newest", label: "Latest Arrivals", description: "Newest products first" },
   { value: "price_asc", label: "Price: Low to High", description: "Budget-friendly first" },
   { value: "price_desc", label: "Price: High to Low", description: "Premium equipment first" },
+  { value: "newest", label: "Latest Arrivals", description: "Newest products first" },
   { value: "name_asc", label: "Name: A to Z", description: "Alphabetical order" },
   { value: "name_desc", label: "Name: Z to A", description: "Reverse alphabetical" },
-  { value: "rating", label: "Top Rated", description: "Customer favorites" },
 ]
 
 export default function SortDropdown({ sortBy, onSortChange }: SortDropdownProps) {
@@ -26,7 +24,10 @@ export default function SortDropdown({ sortBy, onSortChange }: SortDropdownProps
       <div 
         tabIndex={0} 
         role="button" 
-        className="btn btn-outline hover:btn-primary transition-all duration-200 gap-2 min-w-[200px] justify-between"
+        className="btn btn-outline btn-primary hover:btn-primary transition-all duration-200 gap-2 min-w-[200px] justify-between"
+        aria-label="Sort products"
+        aria-haspopup="true"
+        aria-expanded="false"
       >
         <div className="flex items-center gap-2">
           <Bars3BottomLeftIcon className="w-4 h-4" />

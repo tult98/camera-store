@@ -3,7 +3,7 @@ import { ViewMode } from "@modules/store/store/category-filter-store"
 import { formatPrice } from "@lib/util/money"
 import Image from "next/image"
 import Link from "next/link"
-import { CameraIcon, CpuChipIcon } from "@heroicons/react/24/outline"
+import { CpuChipIcon } from "@heroicons/react/24/outline"
 
 interface CategoryProductCardProps {
   product: HttpTypes.StoreProduct
@@ -100,12 +100,6 @@ export default function CategoryProductCard({
               </div>
             )}
 
-            <div className="flex items-center justify-between mt-auto pt-4">
-              <div className="flex items-center gap-2 text-xs text-base-content/60">
-                <CameraIcon className="w-4 h-4" />
-                <span>Professional Grade</span>
-              </div>
-            </div>
           </div>
         </div>
       </Link>
@@ -124,13 +118,6 @@ export default function CategoryProductCard({
               className="object-cover group-hover:scale-110 transition-transform duration-500"
               sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
             />
-            {/* Professional Badge */}
-            <div className="absolute top-3 left-3">
-              <div className="badge badge-primary badge-sm gap-1">
-                <CameraIcon className="w-3 h-3" />
-                <span className="text-xs">Pro</span>
-              </div>
-            </div>
           </figure>
 
           <div className="card-body p-4 flex flex-col flex-grow">
@@ -154,19 +141,6 @@ export default function CategoryProductCard({
               <span className="text-primary font-bold text-base lg:text-lg">
                 {displayPrice}
               </span>
-              
-              {/* Quick Action Button */}
-              <button 
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  // Add to favorites logic here
-                }}
-                className="btn btn-ghost btn-sm btn-circle opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-primary hover:text-primary-content"
-                aria-label="View details"
-              >
-                <CameraIcon className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>

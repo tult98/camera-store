@@ -1,81 +1,33 @@
-import { Modules, ContainerRegistrationKeys, QueryContext } from "@medusajs/framework/utils";
 import { Logger } from "@medusajs/framework/types";
-import type {
-  AttributeDefinition,
-  FacetConfig,
-} from "../models/attribute-template";
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import {
+  getAllCategoryIds,
+  resolveQueryInstance,
+} from "../../../utils/category-hierarchy";
+import {
+  aggregateBooleanFacet,
+  aggregatePriceFacet,
+  aggregateRangeFacet,
+  aggregateTermFacet,
+} from "../aggregators";
+import { SYSTEM_FACETS, getSystemFacetLabel } from "../constants/system-facets";
 import { PRODUCT_ATTRIBUTES_MODULE } from "../index";
-import { getAllCategoryIds, resolveQueryInstance } from "../../../utils/category-hierarchy";
-
-interface FacetResponse {
-  key: string;
-  label: string;
-  type: string;
-  display_priority: number;
-  config: FacetConfig;
-}
-
-interface FacetAggregation {
-  facet_key: string;
-  facet_label: string;
-  aggregation_type: string;
-  display_type: string;
-  values: Array<{
-    value: string | number | boolean;
-    label: string;
-    count: number;
-    selected?: boolean;
-  }>;
-  range?: {
-    min: number;
-    max: number;
-    step: number;
-  };
-  ui_config: {
-    show_count: boolean;
-    max_display_items?: number;
-  };
-}
-
-interface FacetsResponse {
-  category_id: string;
-  total_products: number;
-  facets: FacetAggregation[];
-  applied_filters: Record<string, any>;
-}
-
-interface SystemFacet {
-  key: string;
-  type: "price" | "availability" | "rating";
-  aggregation_source: string;
-  config: {
-    display_priority: number;
-    display_type: "slider" | "checkbox" | "range";
-    show_count: boolean;
-    aggregation_type: "range" | "term";
-  };
-}
-
-const SYSTEM_FACETS: SystemFacet[] = [
-  {
-    key: "price",
-    type: "price",
-    aggregation_source: "variant.calculated_price",
-    config: {
-      display_priority: 0, // Always show first
-      display_type: "slider",
-      show_count: true,
-      aggregation_type: "range",
-    },
-  },
-];
+import type { AttributeDefinition } from "../models/attribute-template";
+import type {
+  FacetAggregation,
+  FacetResponse,
+  FacetsResponse,
+} from "../types/facet.types";
+import { ProductFilterService } from "./product-filter.service";
 
 class FacetAggregationService {
   protected logger_: Logger | Console;
   private container_: any;
+  private productFilterService_: ProductFilterService;
 
   constructor(container: any, _options?: any) {
     this.container_ = container;
+    this.productFilterService_ = new ProductFilterService(container);
     // Try to resolve logger, fallback to console if not available
     try {
       this.logger_ = container.resolve
@@ -95,7 +47,7 @@ class FacetAggregationService {
       // Get all category IDs including child categories
       const query = resolveQueryInstance(activeContainer);
       const categoryIds = await getAllCategoryIds(query, categoryId);
-      
+
       // Get all products in the category and child categories using container resolve
       const productModule = activeContainer.resolve(Modules.PRODUCT);
       const products = await productModule.listProducts({
@@ -147,8 +99,9 @@ class FacetAggregationService {
       return allFacets.sort((a, b) => a.display_priority - b.display_priority);
     } catch (error) {
       this.logger_.error(
-        `Error getting facets for category ${categoryId}:`,
-        error as Error
+        `Error getting facets for category ${categoryId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
       // Return system facets as fallback
       return this.getSystemFacets();
@@ -186,7 +139,7 @@ class FacetAggregationService {
   private getSystemFacets(): FacetResponse[] {
     return SYSTEM_FACETS.map((sf) => ({
       key: sf.key,
-      label: this.getSystemFacetLabel(sf.key),
+      label: getSystemFacetLabel(sf.key),
       type: sf.type,
       display_priority: sf.config.display_priority,
       config: {
@@ -199,46 +152,46 @@ class FacetAggregationService {
     }));
   }
 
-  private getSystemFacetLabel(key: string): string {
-    switch (key) {
-      case "price":
-        return "Price";
-      case "availability":
-        return "Availability";
-      case "rating":
-        return "Customer Rating";
-      default:
-        return key.charAt(0).toUpperCase() + key.slice(1);
-    }
-  }
-
   async aggregateSystemFacets(
     categoryId: string,
     appliedFilters: Record<string, unknown> = {},
     container?: any,
-    pricingContext?: { region_id: string; currency_code: string }
+    pricingContext?: { region_id: string; currency_code: string },
+    baseProducts?: any[]
   ): Promise<FacetAggregation[]> {
     const activeContainer = container || this.container_;
     const aggregations: FacetAggregation[] = [];
 
     try {
-      // Get products in category with applied filters
-      const products = await this.getFilteredProducts(
-        categoryId,
-        appliedFilters,
-        activeContainer,
-        pricingContext
-      );
+      // Get base products if not provided
+      const baseProd =
+        baseProducts ||
+        (await this.productFilterService_.getBaseProducts(
+          categoryId,
+          activeContainer,
+          pricingContext
+        ));
 
-      if (products.length === 0) {
+      if (baseProd.length === 0) {
         return [];
       }
 
-      // Aggregate price facet from variants
-      const priceAggregation = await this.aggregatePriceFacet(
-        products,
+      // Get filtered products for counts
+      const filteredProducts =
+        await this.productFilterService_.getFilteredProducts(
+          categoryId,
+          appliedFilters,
+          activeContainer,
+          pricingContext
+        );
+
+      // Aggregate price facet using dedicated aggregator
+      const priceAggregation = await aggregatePriceFacet(
+        baseProd,
         activeContainer,
-        pricingContext
+        pricingContext,
+        filteredProducts,
+        this.logger_
       );
       if (priceAggregation) {
         aggregations.push(priceAggregation);
@@ -247,8 +200,9 @@ class FacetAggregationService {
       return aggregations;
     } catch (error) {
       this.logger_.error(
-        `Error aggregating system facets for category ${categoryId}:`,
-        error instanceof Error ? error : new Error(String(error))
+        `Error aggregating system facets for category ${categoryId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
       return [];
     }
@@ -258,7 +212,8 @@ class FacetAggregationService {
     categoryId: string,
     appliedFilters: Record<string, unknown> = {},
     container?: any,
-    pricingContext?: { region_id: string; currency_code: string }
+    pricingContext?: { region_id: string; currency_code: string },
+    baseProducts?: any[]
   ): Promise<FacetAggregation[]> {
     const activeContainer = container || this.container_;
     const aggregations: FacetAggregation[] = [];
@@ -275,29 +230,50 @@ class FacetAggregationService {
         return [];
       }
 
-      // Get products in category with applied filters
-      const products = await this.getFilteredProducts(
-        categoryId,
-        appliedFilters,
-        activeContainer,
-        pricingContext
-      );
-      const productIds = products.map((p: { id: string }) => p.id);
+      // Get base products if not provided
+      const baseProd =
+        baseProducts ||
+        (await this.productFilterService_.getBaseProducts(
+          categoryId,
+          activeContainer,
+          pricingContext
+        ));
 
-      // Get ProductAttribute data for these products
+      // Get filtered products for counts
+      const filteredProducts =
+        await this.productFilterService_.getFilteredProducts(
+          categoryId,
+          appliedFilters,
+          activeContainer,
+          pricingContext
+        );
+
+      const baseProductIds = baseProd.map((p: { id: string }) => p.id);
+      const filteredProductIds = filteredProducts.map(
+        (p: { id: string }) => p.id
+      );
+
+      // Get ProductAttribute data for base products (for all values)
       const productAttributesService = activeContainer.resolve(
         PRODUCT_ATTRIBUTES_MODULE
       );
-      const productAttributes =
+      const baseProductAttributes =
         await productAttributesService.listProductAttributes({
-          product_id: productIds,
+          product_id: baseProductIds,
         });
 
-      // Aggregate each facet
+      // Get ProductAttribute data for filtered products (for counts)
+      const filteredProductAttributes =
+        await productAttributesService.listProductAttributes({
+          product_id: filteredProductIds,
+        });
+
+      // Aggregate each facet using dedicated aggregators
       for (const facetConfig of attributeFacets) {
-        const aggregation = await this.aggregateAttributeFacet(
+        const aggregation = this.aggregateAttributeFacet(
           facetConfig,
-          productAttributes,
+          baseProductAttributes,
+          filteredProductAttributes,
           appliedFilters
         );
         if (aggregation) {
@@ -308,8 +284,9 @@ class FacetAggregationService {
       return aggregations;
     } catch (error) {
       this.logger_.error(
-        `Error aggregating attribute facets for category ${categoryId}:`,
-        error instanceof Error ? error : new Error(String(error))
+        `Error aggregating attribute facets for category ${categoryId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
       return [];
     }
@@ -343,14 +320,13 @@ class FacetAggregationService {
     );
 
     try {
-      // Get total product count for category
-      const allProducts = await this.getFilteredProducts(
+      // Get base products for total count and facet values
+      const baseProducts = await this.productFilterService_.getBaseProducts(
         categoryId,
-        {},
         activeContainer,
         pricingContext
       );
-      const totalProducts = allProducts.length;
+      const totalProducts = baseProducts.length;
 
       logger.debug(
         `Found ${totalProducts} total products in category ${categoryId}`
@@ -358,12 +334,19 @@ class FacetAggregationService {
 
       // Get both system and attribute facets
       const [systemFacets, attributeFacets] = await Promise.all([
-        this.aggregateSystemFacets(categoryId, appliedFilters, activeContainer, pricingContext),
+        this.aggregateSystemFacets(
+          categoryId,
+          appliedFilters,
+          activeContainer,
+          pricingContext,
+          baseProducts
+        ),
         this.aggregateAttributeFacets(
           categoryId,
           appliedFilters,
           activeContainer,
-          pricingContext
+          pricingContext,
+          baseProducts
         ),
       ]);
 
@@ -396,8 +379,9 @@ class FacetAggregationService {
       return response;
     } catch (error) {
       logger.error(
-        `Error aggregating facets for category ${categoryId}:`,
-        error instanceof Error ? error : new Error(String(error))
+        `Error aggregating facets for category ${categoryId}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
 
       return {
@@ -409,259 +393,62 @@ class FacetAggregationService {
     }
   }
 
-  private async getFilteredProducts(
-    categoryId: string,
-    appliedFilters: Record<string, unknown>,
-    container: any,
-    pricingContext?: { region_id: string; currency_code: string }
-  ) {
-    const query = container.resolve(ContainerRegistrationKeys.QUERY);
-    const productAttributesService = container.resolve(
-      PRODUCT_ATTRIBUTES_MODULE
-    );
-
-    // Get all category IDs including child categories
-    const categoryIds = await getAllCategoryIds(query, categoryId);
-
-    // Get all products in category and child categories with pricing data
-    const result = await query.graph({
-      entity: "product",
-      fields: [
-        "*",
-        "variants.*",
-        "variants.calculated_price.*"
-      ],
-      filters: {
-        categories: { id: categoryIds },
-        status: "published"
-      },
-      context: {
-        variants: {
-          calculated_price: QueryContext({
-            region_id: pricingContext?.region_id || "reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK",
-            currency_code: pricingContext?.currency_code || "usd",
-          }),
-        },
-      },
-    });
-
-    let products = result.data || [];
-
-    // If no filters applied, return all products
-    if (Object.keys(appliedFilters).length === 0) {
-      return products;
-    }
-
-    // Handle price filter (system facet) in memory
-    const priceFilter = appliedFilters["price"] as
-      | { min?: number; max?: number }
-      | undefined;
-    if (priceFilter) {
-      products = products.filter((product: any) => {
-        // Check if any variant matches the price filter
-        return product.variants?.some((variant: any) => {
-          const price = variant.calculated_price?.calculated_amount || 0;
-          
-          if (price === 0) return false;
-          
-          if (priceFilter.min !== undefined && price < priceFilter.min * 100) {
-            return false;
-          }
-          if (priceFilter.max !== undefined && price > priceFilter.max * 100) {
-            return false;
-          }
-          return true;
-        });
-      });
-    }
-
-    // Handle attribute filters
-    const attributeFilters = Object.entries(appliedFilters).filter(
-      ([key]) => key !== "price"
-    );
-
-    if (attributeFilters.length === 0) {
-      return products;
-    }
-
-    const productIds = products.map((p: { id: string }) => p.id);
-
-    // Get product attributes for filtering
-    const productAttributes =
-      await productAttributesService.listProductAttributes({
-        product_id: productIds,
-      });
-
-    // Filter products based on attribute filters
-    const filteredProductIds = new Set<string>();
-
-    for (const pa of productAttributes) {
-      const attributeValues = pa.attribute_values || {};
-      let matchesAllFilters = true;
-
-      // Check if product matches ALL applied attribute filters
-      for (const [filterKey, filterValue] of attributeFilters) {
-        const productValue = attributeValues[filterKey];
-
-        // Handle array filters (e.g., brand: ["Canon", "Sony"])
-        if (Array.isArray(filterValue)) {
-          if (!filterValue.includes(productValue)) {
-            matchesAllFilters = false;
-            break;
-          }
-        }
-        // Handle single value filters
-        else if (productValue !== filterValue) {
-          matchesAllFilters = false;
-          break;
-        }
-      }
-
-      if (matchesAllFilters) {
-        filteredProductIds.add(pa.product_id);
-      }
-    }
-
-    // Return only products that match all filters
-    return products.filter((p: { id: string }) => filteredProductIds.has(p.id));
-  }
-
-  private async aggregatePriceFacet(
-    products: any[],
-    container: any,
-    pricingContext?: { region_id: string; currency_code: string }
-  ): Promise<FacetAggregation | null> {
-    try {
-      if (products.length === 0) {
-        return null;
-      }
-
-      // Use query.graph to get products with proper pricing context
-      const query = container.resolve(ContainerRegistrationKeys.QUERY);
-      const productIds = products.map(p => p.id);
-      
-      const result = await query.graph({
-        entity: "product",
-        fields: [
-          "id",
-          "variants.*",
-          "variants.calculated_price.*"
-        ],
-        filters: {
-          id: productIds
-        },
-        context: {
-          variants: {
-            calculated_price: QueryContext({
-              region_id: pricingContext?.region_id,
-              currency_code: pricingContext?.currency_code,
-            }),
-          },
-        },
-      });
-
-      const productsWithPrices = result.data || [];
-      
-      // Extract all prices from variants
-      const prices: number[] = [];
-
-      for (const product of productsWithPrices) {
-        if (product.variants) {
-          for (const variant of product.variants) {
-            const price = variant.calculated_price?.calculated_amount || 0;
-            if (price > 0) {
-              prices.push(price);
-            }
-          }
-        }
-      }
-
-      if (prices.length === 0) {
-        return null;
-      }
-
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-
-      // Convert from cents to dollars for display
-      const minPriceDollars = Math.floor(minPrice / 100);
-      const maxPriceDollars = Math.ceil(maxPrice / 100);
-
-      return {
-        facet_key: "price",
-        facet_label: "Price",
-        aggregation_type: "range",
-        display_type: "slider",
-        values: [], // For range facets, values array can be empty
-        range: {
-          min: minPriceDollars,
-          max: maxPriceDollars,
-          step: this.calculatePriceStep(minPriceDollars, maxPriceDollars),
-        },
-        ui_config: {
-          show_count: true,
-        },
-      };
-    } catch (error) {
-      this.logger_.error(
-        "Error aggregating price facet:",
-        error instanceof Error ? error : new Error(String(error))
-      );
-      return null;
-    }
-  }
-
-  private calculatePriceStep(min: number, max: number): number {
-    const range = max - min;
-    if (range <= 100) return 5;
-    if (range <= 500) return 10;
-    if (range <= 1000) return 25;
-    if (range <= 5000) return 50;
-    return 100;
-  }
-
-  private async aggregateAttributeFacet(
+  private aggregateAttributeFacet(
     facetConfig: FacetResponse,
-    productAttributes: any[],
+    baseProductAttributes: any[],
+    filteredProductAttributes: any[],
     _appliedFilters: Record<string, unknown>
-  ): Promise<FacetAggregation | null> {
+  ): FacetAggregation | null {
     try {
       const { key, label, config } = facetConfig;
 
-      // Filter attributes for this facet key
-      const relevantAttributes = productAttributes.filter((pa: any) => {
+      // Filter base attributes for this facet key (for all possible values)
+      const relevantBaseAttributes = baseProductAttributes.filter((pa: any) => {
         const attributeValues = pa.attribute_values || {};
         return (
           attributeValues[key] !== undefined && attributeValues[key] !== null
         );
       });
 
-      if (relevantAttributes.length === 0) {
+      // Filter filtered attributes for this facet key (for counts)
+      const relevantFilteredAttributes = filteredProductAttributes.filter(
+        (pa: any) => {
+          const attributeValues = pa.attribute_values || {};
+          return (
+            attributeValues[key] !== undefined && attributeValues[key] !== null
+          );
+        }
+      );
+
+      if (relevantBaseAttributes.length === 0) {
         return null;
       }
 
-      // Aggregate based on aggregation type
+      // Use dedicated aggregators based on aggregation type
       switch (config.aggregation_type) {
         case "term":
-          return this.aggregateTermFacet(
+          return aggregateTermFacet(
             key,
             label,
-            relevantAttributes,
+            relevantBaseAttributes,
+            relevantFilteredAttributes,
             config
           );
         case "range":
         case "histogram":
-          return this.aggregateRangeFacet(
+          return aggregateRangeFacet(
             key,
             label,
-            relevantAttributes,
+            relevantBaseAttributes,
+            relevantFilteredAttributes,
             config
           );
         case "boolean":
-          return this.aggregateBooleanFacet(
+          return aggregateBooleanFacet(
             key,
             label,
-            relevantAttributes,
+            relevantBaseAttributes,
+            relevantFilteredAttributes,
             config
           );
         default:
@@ -672,138 +459,12 @@ class FacetAggregationService {
       }
     } catch (error) {
       this.logger_.error(
-        `Error aggregating facet ${facetConfig.key}:`,
-        error instanceof Error ? error : new Error(String(error))
+        `Error aggregating facet ${facetConfig.key}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
       return null;
     }
-  }
-
-  private aggregateTermFacet(
-    key: string,
-    label: string,
-    productAttributes: any[],
-    config: FacetConfig
-  ): FacetAggregation {
-    const valueCounts = new Map<string, number>();
-
-    // Count occurrences of each value
-    for (const pa of productAttributes) {
-      const value = pa.attribute_values[key];
-      if (value) {
-        const stringValue = String(value);
-        valueCounts.set(stringValue, (valueCounts.get(stringValue) || 0) + 1);
-      }
-    }
-
-    // Convert to response format
-    const values = Array.from(valueCounts.entries()).map(([value, count]) => ({
-      value,
-      label: value,
-      count,
-    }));
-
-    // Sort by count (descending) then by label
-    values.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
-
-    return {
-      facet_key: key,
-      facet_label: label,
-      aggregation_type: "term",
-      display_type: config.display_type,
-      values,
-      ui_config: {
-        show_count: config.show_count || true,
-        max_display_items: config.max_display_items,
-      },
-    };
-  }
-
-  private aggregateRangeFacet(
-    key: string,
-    label: string,
-    productAttributes: any[],
-    config: FacetConfig
-  ): FacetAggregation {
-    const numericValues = productAttributes
-      .map((pa: any) => Number(pa.attribute_values[key]))
-      .filter((val: number) => !isNaN(val));
-
-    if (numericValues.length === 0) {
-      return {
-        facet_key: key,
-        facet_label: label,
-        aggregation_type: "range",
-        display_type: config.display_type,
-        values: [],
-        range: { min: 0, max: 100, step: 1 },
-        ui_config: { show_count: config.show_count || true },
-      };
-    }
-
-    const min = config.range_config?.min ?? Math.min(...numericValues);
-    const max = config.range_config?.max ?? Math.max(...numericValues);
-    const step = config.range_config?.step ?? this.calculateStep(min, max);
-
-    return {
-      facet_key: key,
-      facet_label: label,
-      aggregation_type: "range",
-      display_type: config.display_type,
-      values: [], // Range facets typically use range object instead of discrete values
-      range: { min, max, step },
-      ui_config: {
-        show_count: config.show_count || true,
-        max_display_items: config.max_display_items,
-      },
-    };
-  }
-
-  private aggregateBooleanFacet(
-    key: string,
-    label: string,
-    productAttributes: any[],
-    config: FacetConfig
-  ): FacetAggregation {
-    let trueCount = 0;
-    let falseCount = 0;
-
-    for (const pa of productAttributes) {
-      const value = pa.attribute_values[key];
-      if (value === true || value === "true") {
-        trueCount++;
-      } else if (value === false || value === "false") {
-        falseCount++;
-      }
-    }
-
-    const values = [];
-    if (trueCount > 0) {
-      values.push({ value: true, label: "Yes", count: trueCount });
-    }
-    if (falseCount > 0) {
-      values.push({ value: false, label: "No", count: falseCount });
-    }
-
-    return {
-      facet_key: key,
-      facet_label: label,
-      aggregation_type: "boolean",
-      display_type: config.display_type,
-      values,
-      ui_config: {
-        show_count: config.show_count || true,
-        max_display_items: config.max_display_items,
-      },
-    };
-  }
-
-  private calculateStep(min: number, max: number): number {
-    const range = max - min;
-    if (range <= 10) return 1;
-    if (range <= 100) return 5;
-    if (range <= 1000) return 10;
-    return 50;
   }
 }
 

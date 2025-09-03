@@ -439,16 +439,29 @@ apps/frontend/src/
 
 ### Backend Code Quality Standards
 - **TypeScript**: Use proper types instead of `any` - create interfaces for complex objects
+  - Define interface types for container dependencies and service parameters
+  - Use proper type guards for runtime type checking
+  - Example: `interface Container { resolve: <T>(key: string) => T }`
 - **Logging**: Use `container.resolve(ContainerRegistrationKeys.LOGGER)` instead of `console.*`
   - Logger methods accept only one argument: use template literals or JSON.stringify for complex data
   - Example: `logger.debug(\`Found \${count} items: \${JSON.stringify(data)}\`)`
+  - **Critical**: Never pass multiple arguments to logger methods
 - **Input Validation**: Validate and sanitize all user inputs (trim, length limits, type checking)
+  - Add length limits for string inputs (e.g., category_id max 100 chars)
+  - Sanitize input to remove special characters: `input.replace(/[^a-zA-Z0-9_-]/g, '')`
+  - Validate array sizes to prevent DoS attacks
 - **Error Handling**: Wrap operations in try-catch with proper error typing
+  - Use `error instanceof Error` checks before accessing error properties
+  - Provide graceful fallbacks for service failures
+  - Never expose internal error details to API responses
 - **Headers**: Extract required headers early and validate presence before processing
 - **Pricing Context**: Always pass `region_id` and `currency_code` for price-sensitive operations
 - **Container Injection**: Pass container/scope through service method chains for proper DI
 - **Query Performance**: Implement reasonable limits for large datasets (max 10,000 records per query)
 - **Product Attribute Filtering**: Use intersection logic for multiple filters (ALL conditions must match)
+- **Constants**: Define constants for magic numbers and reusable values
+  - Example: `const CENTS_TO_DOLLARS = 100;` instead of hardcoded divisions by 100
+  - Keep default values in named constants: `const DEFAULT_REGION_ID = "reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK"`
 
 ### Hierarchical Category Query Patterns
 - **Recursive Category Inclusion**: When querying products by category, include child categories using `getAllCategoryIds()` pattern
@@ -466,6 +479,16 @@ apps/frontend/src/
 - **Error Resilience**: Implement comprehensive error handling with graceful fallbacks to system facets
 - **Performance Optimization**: Use batched queries and efficient in-memory filtering for complex facet operations
 - **Type Safety**: Proper TypeScript interfaces for all facet configurations and aggregation responses
+- **Dual-Query Architecture**: Use separate queries for facet availability and counts to maintain filter visibility
+  - **Base Products Query**: Fetch all products in category (unfiltered) to determine available facet values
+  - **Filtered Products Query**: Apply filters to get accurate counts for each facet value
+  - **Facet Value Display**: Always show all base facet values, even if filtered count is 0
+  - **Multi-selection Support**: Enables users to select multiple filter values (e.g., Canon AND Fujifilm)
+- **Memory Management**: Monitor in-memory filtering performance for large datasets (10K+ products)
+- **Caching Strategy**: Consider caching base product lists and facet configurations for performance
+  - Base products: Cache for 5 minutes (category inventory changes infrequently)
+  - Facet configurations: Cache for 1 hour (attribute definitions change rarely)
+  - Category hierarchies: Cache for longer periods (tree structure stable)
 
 ### Shared Utility Patterns
 - **Centralized Logic**: Create shared utilities in `src/utils/` for complex operations used across multiple modules
@@ -537,6 +560,27 @@ apps/frontend/src/
   ```
 - **Type Safety**: Define proper interfaces for server data vs. form data to avoid `any` types
 - **Validation**: Combine Zod schema validation with field-level validation for better UX
+
+### Performance & Security Considerations for E-commerce Faceting
+- **Query Optimization**: Use database indexes on frequently filtered columns
+  - Add indexes on `product_id`, `template_id`, `attribute_values` JSONB fields
+  - Consider partial indexes for common filter combinations
+- **Memory Management**: Monitor memory usage for large product catalogs
+  - Implement pagination for product attribute queries above 10K records
+  - Use streaming responses for very large datasets
+  - Consider database connection pooling for high-traffic scenarios
+- **Rate Limiting**: Protect facet aggregation endpoints from abuse
+  - Implement rate limiting per IP/user for expensive aggregation operations
+  - Add circuit breakers for downstream service failures
+- **Caching Strategy**: Multi-layer caching for optimal performance
+  - **Level 1**: In-memory cache for frequently accessed facet configs (1 hour TTL)
+  - **Level 2**: Redis cache for base product lists per category (5 minute TTL)
+  - **Level 3**: CDN cache for static facet structures (24 hour TTL)
+- **Security Validation**: Comprehensive input validation and sanitization
+  - Validate filter value types match expected attribute data types
+  - Sanitize string inputs to prevent injection attacks
+  - Implement request size limits to prevent payload-based DoS
+  - Log suspicious filtering patterns for monitoring
 
 ## daisyUI Integration
 

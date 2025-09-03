@@ -285,25 +285,34 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
 
   getApiRequestBody: (categoryId) => {
     const state = get()
-    const sortMapping: Record<SortOption, { sort_by: string; sort_direction: 'asc' | 'desc' }> = {
-      'popularity': { sort_by: 'popularity', sort_direction: 'desc' },
-      'price_asc': { sort_by: 'price', sort_direction: 'asc' },
-      'price_desc': { sort_by: 'price', sort_direction: 'desc' },
-      'newest': { sort_by: 'created_at', sort_direction: 'desc' },
-      'name_asc': { sort_by: 'name', sort_direction: 'asc' },
-      'name_desc': { sort_by: 'name', sort_direction: 'desc' },
-      'rating': { sort_by: 'rating', sort_direction: 'desc' }
+    const sortMapping: Record<SortOption, string> = {
+      'popularity': 'popularity',
+      'price_asc': 'price',
+      'price_desc': '-price',
+      'newest': '-created_at',
+      'name_asc': 'name',
+      'name_desc': '-name',
+      'rating': '-rating'
     }
     
-    const sort = sortMapping[state.sortBy] || sortMapping['popularity']
+    const orderBy = sortMapping[state.sortBy] || sortMapping['popularity']
+    
+    // Flatten metadata filters to root level for backend compatibility
+    const flattenedFilters = { ...state.filters }
+    if (state.filters.metadata) {
+      Object.entries(state.filters.metadata).forEach(([key, value]) => {
+        flattenedFilters[key] = value
+      })
+      delete flattenedFilters.metadata
+    }
+    
     
     return {
       category_id: categoryId,
       page: state.page,
       page_size: state.pageSize,
-      sort_by: sort.sort_by,
-      sort_direction: sort.sort_direction,
-      filters: state.filters,
+      order_by: orderBy,
+      filters: flattenedFilters,
       search_query: state.searchQuery || undefined
     }
   }

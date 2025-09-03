@@ -24,32 +24,12 @@ interface CategoryPageClientProps {
   initialProductsData?: CategoryProductsResponse
 }
 
-const fetchCategoryProducts = async ({
-  categoryId,
-  page,
-  pageSize,
-  sortBy,
-  filters,
-}: {
-  categoryId: string
-  page: number
-  pageSize: number
-  sortBy: string
-  filters: any
-}) => {
-  const productsRequest = {
-    category_id: categoryId,
-    page,
-    page_size: pageSize,
-    order_by: sortBy,
-    filters,
-  }
-
+const fetchCategoryProducts = async (requestBody: any) => {
   const response = await apiClient<CategoryProductsResponse>(
     "/store/category-products",
     {
       method: "POST",
-      body: productsRequest,
+      body: requestBody,
     }
   )
 
@@ -63,9 +43,18 @@ const fetchCategoryFacets = async ({
   categoryId: string
   filters: any
 }) => {
+  // Flatten metadata filters to root level for backend compatibility
+  const flattenedFilters = { ...filters }
+  if (filters.metadata) {
+    Object.entries(filters.metadata).forEach(([key, value]) => {
+      flattenedFilters[key] = value
+    })
+    delete flattenedFilters.metadata
+  }
+
   const facetsRequest = {
     category_id: categoryId,
-    applied_filters: filters,
+    applied_filters: flattenedFilters,
     include_counts: true,
   }
 
@@ -85,31 +74,40 @@ export default function CategoryPageClient({
   categoryName,
   initialProductsData,
 }: CategoryPageClientProps) {
-  const [sortBy, setSortBy] = useState("created_at")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [page, setPage] = useState(1)
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
-  const pageSize = 24
   
-  const { filters } = useCategoryFilterStore()
+  const { 
+    filters, 
+    sortBy, 
+    page, 
+    pageSize,
+    viewMode, 
+    searchQuery,
+    setSortBy, 
+    setPage,
+    setViewMode,
+    getApiRequestBody
+  } = useCategoryFilterStore()
   
   // Set breadcrumbs in the layout context
   const categoryHandle = categoryName.toLowerCase().replace(/\s+/g, '-')
   useCategoryBreadcrumbs(categoryName, categoryHandle)
-
+  
   const { data: productsData, isLoading: isLoadingProducts } = useQuery<CategoryProductsResponse>({
-    queryKey: ["category-products", categoryId, page, sortBy, filters],
-    queryFn: () =>
-      fetchCategoryProducts({ categoryId, page, pageSize, sortBy, filters }),
-    initialData: initialProductsData,
+    queryKey: ["category-products", categoryId, page, sortBy, JSON.stringify(filters), searchQuery],
+    queryFn: () => {
+      const requestBody = getApiRequestBody(categoryId)
+      return fetchCategoryProducts(requestBody)
+    },
+    initialData: Object.keys(filters).length === 0 ? initialProductsData : undefined,
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
   const { data: facetsData, isLoading: isLoadingFacets, refetch: refetchFacets } = useQuery<FacetsResponse>({
-    queryKey: ["category-facets", categoryId],
+    queryKey: ["category-facets", categoryId, JSON.stringify(filters)],
     queryFn: () =>
-      fetchCategoryFacets({ categoryId, filters: {} }),
-    staleTime: 60 * 60 * 1000, // 1 hour - facets structure doesn't change often
+      fetchCategoryFacets({ categoryId, filters }),
+    staleTime: 5 * 60 * 1000, // 5 minutes - facets should update when filters change
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -128,8 +126,7 @@ export default function CategoryPageClient({
   } : null
 
   const handleSortChange = (newSortBy: string) => {
-    setSortBy(newSortBy)
-    setPage(1)
+    setSortBy(newSortBy as any)
   }
 
   const handlePageChange = (newPage: number) => {

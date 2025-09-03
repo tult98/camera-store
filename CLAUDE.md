@@ -175,6 +175,24 @@ apps/frontend/src/
   ```
 - **Critical**: `calculated_price` will be `null` without proper `region_id` and `currency_code` context
 - Always validate that pricing headers are present before querying products for price-sensitive operations
+- **Price Unit Handling**: Medusa stores all prices in cents, requiring conversion for display and filtering
+  ```typescript
+  // Backend: Convert cents to dollars for price facet display
+  const minPrice = Math.min(...prices); // cents from calculated_amount
+  const maxPrice = Math.max(...prices);
+  const minPriceDollars = Math.floor(minPrice / 100); // Convert to dollars
+  const maxPriceDollars = Math.ceil(maxPrice / 100);
+  
+  // Backend: Price filtering converts user dollars back to cents
+  if (priceFilter.min !== undefined && price < priceFilter.min * 100) {
+    return false; // Compare cents to cents
+  }
+  
+  // Frontend: Display prices in dollars using formatPrice utilities
+  const formatPrice = (cents: number) => new Intl.NumberFormat("en-US", {
+    style: "currency", currency: "USD"
+  }).format(cents / 100);
+  ```
 
 **File-based Routing:**
 - API routes created by file structure under `/apps/backend/src/api/`
@@ -422,11 +440,15 @@ apps/frontend/src/
 ### Backend Code Quality Standards
 - **TypeScript**: Use proper types instead of `any` - create interfaces for complex objects
 - **Logging**: Use `container.resolve(ContainerRegistrationKeys.LOGGER)` instead of `console.*`
+  - Logger methods accept only one argument: use template literals or JSON.stringify for complex data
+  - Example: `logger.debug(\`Found \${count} items: \${JSON.stringify(data)}\`)`
 - **Input Validation**: Validate and sanitize all user inputs (trim, length limits, type checking)
 - **Error Handling**: Wrap operations in try-catch with proper error typing
 - **Headers**: Extract required headers early and validate presence before processing
 - **Pricing Context**: Always pass `region_id` and `currency_code` for price-sensitive operations
 - **Container Injection**: Pass container/scope through service method chains for proper DI
+- **Query Performance**: Implement reasonable limits for large datasets (max 10,000 records per query)
+- **Product Attribute Filtering**: Use intersection logic for multiple filters (ALL conditions must match)
 
 ### Hierarchical Category Query Patterns
 - **Recursive Category Inclusion**: When querying products by category, include child categories using `getAllCategoryIds()` pattern
@@ -440,6 +462,7 @@ apps/frontend/src/
 - **Modular Architecture**: Separate system facets (price, availability) from attribute facets
 - **Container Dependency Injection**: Pass container through service methods for proper module resolution
 - **Pricing Context Requirements**: Always provide `region_id` and `currency_code` for accurate price aggregations
+- **Price Unit Conversion**: Medusa stores prices in cents, convert to dollars for UI display
 - **Error Resilience**: Implement comprehensive error handling with graceful fallbacks to system facets
 - **Performance Optimization**: Use batched queries and efficient in-memory filtering for complex facet operations
 - **Type Safety**: Proper TypeScript interfaces for all facet configurations and aggregation responses
@@ -459,6 +482,14 @@ apps/frontend/src/
   const query = resolveQueryInstance(req.scope);
   const categoryIds = await getAllCategoryIds(query, categoryId);
   ```
+
+### Product Attribute Filtering Patterns
+- **API Data Structure**: Frontend sends filters flattened at root level, not nested under `metadata`
+  - Frontend transforms: `{metadata: {brand: ["Fujifilm"]}}` → `{brand: ["Fujifilm"]}`
+  - Backend expects: Direct attribute keys as filter properties
+- **Intersection Logic**: Multiple attribute filters use AND logic (all must match)
+- **Filter Processing**: Backend queries all products first, then applies in-memory attribute filtering
+- **Performance Considerations**: Large initial queries (10K limit) with post-processing pagination
 
 ### Admin Widget Development with React Query
 - **Data Fetching**: Use React Query (`@tanstack/react-query`) for admin widgets requiring API calls

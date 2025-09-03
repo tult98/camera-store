@@ -48,7 +48,8 @@ export async function POST(
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error"
-    console.error("Error aggregating facets for category:", errorMessage)
+    const logger = req.scope.resolve("logger")
+    logger.error(`Error aggregating facets for category ${category_id}: ${errorMessage}`)
     
     return res.status(500).json({
       error: "Failed to aggregate facets"

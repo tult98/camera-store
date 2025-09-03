@@ -18,7 +18,7 @@ async function fetchCategoryProducts(categoryId: string): Promise<CategoryProduc
       category_id: categoryId,
       page: 1,
       page_size: 24,
-      order_by: "created_at",
+      order_by: "-created_at",
       filters: {},
     }
 

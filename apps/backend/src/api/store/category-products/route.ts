@@ -7,6 +7,7 @@ import { z } from "zod";
 import type { CategoryProductsRequest } from "@camera-store/shared-types";
 import { toPaginatedResponse } from "src/utils/pagination";
 import { getAllCategoryIds, resolveQueryInstance } from "src/utils/category-hierarchy";
+import { PRODUCT_ATTRIBUTES_MODULE } from "src/modules/product-attributes/index";
 
 export const CategoryProductsSchema = z.object({
   category_id: z.string().min(1, "category_id is required"),
@@ -127,15 +128,6 @@ export async function POST(
       }
     }
 
-    // Apply metadata filters
-    if (filters.metadata) {
-      Object.entries(filters.metadata).forEach(([key, values]) => {
-        if (values && values.length > 0) {
-          queryFilters[`metadata.${key}`] = values;
-        }
-      });
-    }
-
     // Build sorting from order_by string (e.g., "-price,name,created_at")
     const orderBy: Record<string, any> = {};
 
@@ -176,7 +168,7 @@ export async function POST(
       });
     }
 
-    // Query products with calculated prices
+    // Query products with calculated prices (without pagination initially)
     const result = await query.graph({
       entity: "product",
       fields: [
@@ -189,8 +181,8 @@ export async function POST(
       ],
       filters: queryFilters,
       pagination: {
-        skip: offset,
-        take: itemsPerPage,
+        skip: 0,
+        take: 10000, // Get all products for attribute filtering
         order: orderBy,
       },
       context: {
@@ -203,11 +195,86 @@ export async function POST(
       },
     });
 
-    const products = result.data || [];
-    const totalCount = result.metadata?.count || 0;
+    let products = result.data || [];
+    let totalCount = products.length;
+
+    // Apply product attribute filters (all facets come from product attributes)
+    // Look for attribute filters in the root level of filters object
+    const attributeFilters = Object.entries(filters).filter(([key]) => 
+      key !== 'tags' && key !== 'availability' && key !== 'price'
+    );
+
+    if (attributeFilters.length > 0) {
+      try {
+        const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+        logger.debug(`Found ${attributeFilters.length} attribute filters: ${JSON.stringify(attributeFilters)}`);
+        
+        const productAttributesService = req.scope.resolve(PRODUCT_ATTRIBUTES_MODULE);
+        const productIds = products.map((p: any) => p.id);
+
+        if (productIds.length > 0) {
+          // Get product attributes for all products
+          const productAttributes = await productAttributesService.listProductAttributes({
+            product_id: productIds,
+          });
+          
+          logger.debug(`Retrieved ${productAttributes.length} product attributes`);
+          logger.debug(`Product attributes sample: ${JSON.stringify(productAttributes.slice(0, 2))}`);
+
+          // Filter products based on attribute values
+          // Build a map of products that match each filter
+          const filterMatches = new Map<string, Set<string>>();
+          
+          for (const [attributeKey, attributeValues] of attributeFilters) {
+            if (!attributeValues || !Array.isArray(attributeValues) || attributeValues.length === 0) continue;
+
+            const matchingProducts = new Set<string>();
+            
+            // Find products that have any of the specified attribute values for this key
+            for (const productAttribute of productAttributes) {
+              const attributeData = productAttribute.attribute_values || {};
+              const productValue = attributeData[attributeKey];
+              
+              if (productValue && attributeValues.includes(String(productValue))) {
+                matchingProducts.add(productAttribute.product_id);
+              }
+            }
+            
+            filterMatches.set(attributeKey, matchingProducts);
+          }
+
+          // Find products that match ALL attribute filters
+          let filteredProductIds = new Set<string>();
+          let isFirstFilter = true;
+
+          for (const [, matchingProducts] of filterMatches) {
+            if (isFirstFilter) {
+              filteredProductIds = new Set(matchingProducts);
+              isFirstFilter = false;
+            } else {
+              // Intersection: keep only products that match this filter AND previous filters
+              filteredProductIds = new Set([...filteredProductIds].filter(id => matchingProducts.has(id)));
+            }
+          }
+
+          // Filter products to only include those matching the attributes
+          logger.debug(`Filtered to ${filteredProductIds.size} matching products: ${Array.from(filteredProductIds).join(', ')}`);
+          products = products.filter((p: any) => filteredProductIds.has(p.id));
+          totalCount = products.length;
+          logger.debug(`Final filtered product count: ${totalCount}`);
+        }
+      } catch (error) {
+        const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+        logger.error("Error filtering by product attributes:", error instanceof Error ? error : new Error(String(error)));
+        // Continue with original products if attribute filtering fails
+      }
+    }
+
+    // Apply manual pagination after attribute filtering
+    const paginatedProducts = products.slice(offset, offset + itemsPerPage);
 
     const paginatedResponse = toPaginatedResponse(
-      products,
+      paginatedProducts,
       totalCount,
       itemsPerPage,
       offset

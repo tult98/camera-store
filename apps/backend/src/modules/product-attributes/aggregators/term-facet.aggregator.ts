@@ -38,8 +38,8 @@ export function aggregateTermFacet(
     count: valueCounts.get(value) || 0,
   }));
 
-  // Sort by count (descending) then by label
-  values.sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  // Sort alphabetically by label for consistent ordering across API calls
+  values.sort((a, b) => a.label.localeCompare(b.label));
 
   return {
     facet_key: key,

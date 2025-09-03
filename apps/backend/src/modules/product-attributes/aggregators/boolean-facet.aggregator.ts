@@ -38,7 +38,7 @@ export function aggregateBooleanFacet(
     }
   }
 
-  // Always show both options if they exist in base products, with filtered counts
+  // Always show both options in consistent order: Yes first, then No
   const values = [];
   if (hasTrue) {
     values.push({ value: true, label: "Yes", count: trueCount });

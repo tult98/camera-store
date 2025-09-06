@@ -1,9 +1,9 @@
+import { formatPrice } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { ViewMode } from "@modules/store/store/category-filter-store"
-import { formatPrice } from "@lib/util/money"
 import Image from "next/image"
 import Link from "next/link"
-import { CpuChipIcon } from "@heroicons/react/24/outline"
+import { useMemo } from "react"
 
 interface CategoryProductCardProps {
   product: HttpTypes.StoreProduct
@@ -16,43 +16,41 @@ export default function CategoryProductCard({
 }: CategoryProductCardProps) {
   const imageUrl = product.thumbnail || "/images/placeholder-camera.svg"
 
-  // Get lowest price for display
-  const getLowestPrice = () => {
+
+  // Memoize price calculation for performance
+  const displayPrice = useMemo(() => {
     if (!product.variants?.length) return "Price not available"
-    
+
     const validPrices = product.variants
-      .map(v => v.calculated_price)
-      .filter((p): p is NonNullable<typeof p> => 
-        p?.calculated_amount !== undefined && p?.calculated_amount !== null
+      .map((v) => v.calculated_price)
+      .filter(
+        (p): p is NonNullable<typeof p> =>
+          p?.calculated_amount !== undefined && p?.calculated_amount !== null
       )
-    
+
     if (!validPrices.length) return "Price not available"
-    
-    const amounts = validPrices.map(p => p.calculated_amount!)
+
+    const amounts = validPrices.map((p) => p.calculated_amount!)
     const minPrice = Math.min(...amounts)
     const currency = validPrices[0].currency_code || "USD"
-    
+
     return formatPrice(minPrice / 100, currency)
-  }
-  
-  const displayPrice = getLowestPrice()
+  }, [product.variants])
 
-  // Extract technical specs from metadata for camera products
-  const getTechnicalSpecs = () => {
-    const specs = []
-    if (product.metadata?.sensor_type) {
-      specs.push({ label: 'Sensor', value: product.metadata.sensor_type })
-    }
-    if (product.metadata?.megapixels) {
-      specs.push({ label: 'MP', value: `${product.metadata.megapixels}` })
-    }
-    if (product.metadata?.mount_type) {
-      specs.push({ label: 'Mount', value: product.metadata.mount_type })
-    }
-    return specs.slice(0, 2) // Show max 2 specs in grid view
-  }
+  // Memoize description preview for performance
+  const descriptionPreview = useMemo(() => {
+    if (!product.description) return ""
+    
+    // Remove HTML tags and get plain text
+    const plainText = product.description
+      .replace(/<[^>]*>/g, ' ') // Remove HTML tags
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim()
+    
+    // Return first 150 characters for preview
+    return plainText.length > 150 ? plainText.substring(0, 150) + '...' : plainText
+  }, [product.description])
 
-  const technicalSpecs = getTechnicalSpecs()
 
   if (viewMode === "list") {
     return (
@@ -78,26 +76,10 @@ export default function CategoryProductCard({
               </span>
             </div>
 
-            {product.description && (
+            {descriptionPreview && (
               <p className="text-sm text-base-content/70 line-clamp-3 mt-2">
-                {product.description}
+                {descriptionPreview}
               </p>
-            )}
-
-            {/* Technical Specifications */}
-            {technicalSpecs.length > 0 && (
-              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-base-300">
-                {technicalSpecs.map((spec, index) => (
-                  <div key={index} className="">
-                    <dt className="text-xs font-medium text-base-content/50 uppercase tracking-wide">
-                      {spec.label}
-                    </dt>
-                    <dd className="text-sm font-semibold text-base-content mt-1">
-                      {spec.value}
-                    </dd>
-                  </div>
-                ))}
-              </div>
             )}
 
           </div>
@@ -125,17 +107,6 @@ export default function CategoryProductCard({
               {product.title}
             </h3>
 
-            {/* Technical Specifications */}
-            {technicalSpecs.length > 0 && (
-              <div className="flex items-center gap-3 mt-2 text-xs text-base-content/70">
-                {technicalSpecs.map((spec, index) => (
-                  <div key={index} className="flex items-center gap-1">
-                    {spec.label === 'Sensor' && <CpuChipIcon className="w-3 h-3" />}
-                    <span className="font-medium">{spec.value}</span>
-                  </div>
-                ))}
-              </div>
-            )}
 
             <div className="flex items-center justify-between mt-auto pt-3">
               <span className="text-primary font-bold text-base lg:text-lg">

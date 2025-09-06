@@ -359,6 +359,7 @@ export async function POST(
         "categories.*",
         "tags.*",
         "images.*",
+        "product_attribute.*",
       ],
       filters: queryFilters,
       pagination: {

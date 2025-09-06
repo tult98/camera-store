@@ -32,6 +32,7 @@ interface Product {
   categories?: Array<{ id: string }>;
   tags?: Array<{ value: string }>;
   images?: Array<{ url: string }>;
+  product_attributes?: Record<string, unknown>;
 }
 
 interface ProductAttributesService {
@@ -359,7 +360,6 @@ export async function POST(
         "categories.*",
         "tags.*",
         "images.*",
-        "product_attribute.*",
       ],
       filters: queryFilters,
       pagination: {
@@ -388,26 +388,39 @@ export async function POST(
     products = filterProductsByPrice(products, filters.price as PriceFilter);
     totalCount = products.length;
 
-    // Apply product attribute filters (all facets come from product attributes)
-    // Look for attribute filters in the root level of filters object
-    const attributeFilters = Object.entries(filters).filter(
-      ([key]) => key !== "tags" && key !== "availability" && key !== "price"
-    );
+    // Fetch product attributes for all products
+    try {
+      const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+      const productAttributesService = req.scope.resolve(
+        PRODUCT_ATTRIBUTES_MODULE
+      ) as ProductAttributesService;
 
-    if (attributeFilters.length > 0) {
-      try {
-        const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-        const productAttributesService = req.scope.resolve(
-          PRODUCT_ATTRIBUTES_MODULE
-        ) as ProductAttributesService;
+      const productIds = products.map((p: Product) => p.id);
+      const productAttributes = await productAttributesService.listProductAttributes({
+        product_id: productIds,
+      });
 
-        const productIds = products.map((p: Product) => p.id);
-        const productAttributes = await productAttributesService.listProductAttributes({
-          product_id: productIds,
-        });
+      logger.debug(`Retrieved ${productAttributes.length} product attributes`);
 
-        logger.debug(`Retrieved ${productAttributes.length} product attributes`);
+      // Create a map for quick lookup
+      const attributesMap = new Map<string, Record<string, unknown>>();
+      for (const attr of productAttributes) {
+        attributesMap.set(attr.product_id, attr.attribute_values || {});
+      }
 
+      // Attach attributes to products
+      products = products.map((product: Product) => ({
+        ...product,
+        product_attributes: attributesMap.get(product.id) || {},
+      }));
+
+      // Apply product attribute filters (all facets come from product attributes)
+      // Look for attribute filters in the root level of filters object
+      const attributeFilters = Object.entries(filters).filter(
+        ([key]) => key !== "tags" && key !== "availability" && key !== "price"
+      );
+
+      if (attributeFilters.length > 0) {
         // Build a map of products that match each filter
         const filterMatches = new Map<string, Set<string>>();
 
@@ -422,12 +435,11 @@ export async function POST(
 
           const matchingProducts = new Set<string>();
 
-          for (const productAttribute of productAttributes) {
-            const attributeData = productAttribute.attribute_values || {};
-            const productValue = attributeData[attributeKey];
+          for (const product of products) {
+            const productValue = product.product_attributes?.[attributeKey];
 
             if (productValue && attributeValues.includes(String(productValue))) {
-              matchingProducts.add(productAttribute.product_id);
+              matchingProducts.add(product.id);
             }
           }
 
@@ -451,13 +463,13 @@ export async function POST(
 
         products = products.filter((p: Product) => filteredProductIds.has(p.id));
         totalCount = products.length;
-      } catch (error) {
-        const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
-        logger.error(
-          `Error filtering by product attributes: ${error instanceof Error ? error.message : String(error)}`
-        );
-        // Continue with original products if attribute filtering fails
       }
+    } catch (error) {
+      const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+      logger.error(
+        `Error handling product attributes: ${error instanceof Error ? error.message : String(error)}`
+      );
+      // Continue with original products if attribute handling fails
     }
 
     // Apply in-memory price sorting if requested

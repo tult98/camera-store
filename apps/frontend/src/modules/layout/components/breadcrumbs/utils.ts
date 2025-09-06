@@ -60,12 +60,6 @@ export const generateCategoryBreadcrumbs = (
 ): BreadcrumbItem[] => {
   const breadcrumbs: BreadcrumbItem[] = []
 
-  // Add "Store" as intermediate level
-  breadcrumbs.push({
-    title: "Store",
-    href: "/store"
-  })
-
   // Add parent categories
   parentCategories.forEach((parent) => {
     breadcrumbs.push({
@@ -109,12 +103,7 @@ export const generateSearchBreadcrumbs = (
   categoryFilter?: string,
   resultsCount?: number
 ): BreadcrumbItem[] => {
-  const breadcrumbs: BreadcrumbItem[] = [
-    {
-      title: "Store",
-      href: "/store"
-    }
-  ]
+  const breadcrumbs: BreadcrumbItem[] = []
 
   if (categoryFilter) {
     breadcrumbs.push({

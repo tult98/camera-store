@@ -1,899 +1,215 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this camera store e-commerce platform.
 
 ## Project Overview
+- **Backend**: MedusaJS v2 (2.8.8) - TypeScript, PostgreSQL/MikroORM, Jest
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS + daisyUI
 
-This is a **general camera store** e-commerce platform consisting of:
-- **Backend**: Built with **MedusaJS v2** (2.8.8) - a headless e-commerce framework using TypeScript, PostgreSQL with MikroORM, and Jest for testing
-- **Frontend**: Built with Next.js 15 and React 19, integrated with Medusa v2, using TypeScript and Tailwind CSS with daisyUI components
+## Quick Commands
 
-## Development Commands
-
-### Backend (MedusaJS) - Nx Commands
-**Core Development:**
-- `nx serve backend` - Start development server
-- `nx run backend:build` - Build the application for production
-- `nx run backend:start` - Start production server
-
-**Database Operations:**
-- `npx medusa db:generate <module>` - Generate migrations for specific module (run from apps/backend)
-- `nx run backend:migrate` - Run database migrations
-- `nx run backend:seed` - Seed database with demo data (runs `src/scripts/seed.ts`)
-- `nx run backend:reset-database` - **Complete database reset**: drops database, recreates, runs migrations, creates admin user, and seeds demo data with consistent publishable API key (`pk_camera_store_dev_static_key_123456789`) - **⚠️ CLAUDE CODE: DO NOT RUN THIS COMMAND**
-
-**Testing:**
-- `nx run backend:test` - Run all tests (unit + integration HTTP + integration modules)
-
-**Custom Scripts:**
-- `npx medusa exec ./src/scripts/<script-name>.ts` - Execute custom CLI scripts (run from apps/backend)
-
-### Frontend (Next.js)
+### Backend (Nx)
 ```bash
-# Start development server (uses Turbopack, runs on port 8000)
-yarn dev
-
-# Build production application
-yarn build
-
-# Start production server (runs on port 8000)
-yarn start
-
-# Run ESLint linting
-yarn lint
-
-# Analyze bundle size with webpack-bundle-analyzer
-yarn analyze
+nx serve backend          # Development server
+nx run backend:build      # Production build
+nx run backend:migrate    # Run migrations
+nx run backend:seed       # Seed demo data
+nx run backend:test       # Run tests
+# ⚠️ NEVER RUN: nx run backend:reset-database
 ```
 
-## Architecture Overview
+### Frontend
+```bash
+yarn dev      # Development (port 8000)
+yarn build    # Production build
+yarn start    # Production server
+yarn lint     # ESLint
+yarn analyze  # Bundle analyzer
+```
 
-### Backend - MedusaJS Framework Structure
+## Architecture
 
-**Core Configuration:**
-- `medusa-config.ts` - Main Medusa configuration with database, CORS, and JWT settings
-- `package.json` - Uses Yarn package manager with Node.js >=20 requirement
+### Backend Structure
+```
+apps/backend/src/
+├── api/         # REST endpoints (file-based routing)
+├── admin/       # Admin UI extensions (React Query)
+├── modules/     # Business logic modules
+├── workflows/   # Multi-step processes
+├── jobs/        # Scheduled tasks
+├── subscribers/ # Event handlers
+├── links/       # Module relationships
+└── scripts/     # CLI utilities
+```
 
-**Modular Architecture Directories:**
-
-- **`apps/backend/src/api/`** - Custom REST API routes using file-based routing
-  - `store/` - Storefront API endpoints
-  - `admin/` - Admin dashboard API endpoints
-  - Routes defined in `route.ts` files with HTTP method exports (GET, POST, etc.)
-
-- **`apps/backend/src/admin/`** - Admin dashboard extensions and widgets
-  - Custom React components for extending admin interface
-  - Widget configuration with zone-based injection
-  - **React Query Integration**: Use `withQueryClientProvider` HOC for widgets requiring data fetching
-
-- **`apps/backend/src/modules/`** - Custom business logic modules
-  - Self-contained modules with models, services, and configurations
-  - Must export module definition with service registration
-
-- **`apps/backend/src/workflows/`** - Business process orchestration
-  - Multi-step workflows using createStep and createWorkflow
-  - Handles complex business operations with rollback capabilities
-
-- **`apps/backend/src/jobs/`** - Scheduled background tasks
-  - Cron-based job execution with configurable schedules
-  - Access to Medusa container for service resolution
-
-- **`apps/backend/src/subscribers/`** - Event-driven handlers
-  - React to system events (e.g., product.created, order.updated)
-  - Asynchronous event processing with container access
-
-- **`apps/backend/src/links/`** - Module data relationships
-  - Define associations between different module data models
-  - Maintains module isolation while enabling data connections
-
-- **`apps/backend/src/scripts/`** - Custom CLI utilities
-  - Executable scripts via `npx medusa exec`
-  - Access to Medusa container for administrative tasks
-
-### Frontend - Next.js Technology Stack
-- **Framework**: Next.js 15 with App Router and React 19
-- **Language**: TypeScript with strict configuration
-- **Styling**: Tailwind CSS + daisyUI component library
-- **Backend**: Medusa v2 e-commerce platform
-- **State Management**: React Server Components (RSC) prioritized
-- **Payment**: Stripe integration
-- **UI Components**: @medusajs/ui + custom daisyUI components
-
-### Frontend Project Structure
+### Frontend Structure
 ```
 apps/frontend/src/
-├── app/                    # Next.js 15 App Router pages
-│   ├── (main)/            # Main storefront layout group
-│   │   ├── account/       # User account management
-│   │   ├── cart/          # Shopping cart
-│   │   ├── categories/    # Product categories
-│   │   ├── checkout/      # Checkout process
-│   │   ├── collections/   # Product collections
-│   │   ├── products/      # Product detail pages
-│   │   └── store/         # Product listing/search
-├── lib/
-│   ├── config.ts          # Medusa SDK configuration
-│   ├── data/              # Server-side data fetching functions
-│   ├── hooks/             # Custom React hooks
-│   └── util/              # Utility functions
-├── modules/               # Feature-based component modules
-│   ├── account/           # Account management components
-│   ├── cart/              # Cart functionality
-│   ├── checkout/          # Checkout process
-│   ├── common/            # Shared components
-│   ├── home/              # Homepage components
-│   ├── layout/            # Layout components (nav, footer)
-│   ├── products/          # Product-related components
-│   └── store/             # Store/catalog components
-├── styles/
-│   └── globals.css        # Global styles and Tailwind imports
-└── types/                 # TypeScript type definitions
+├── app/         # Next.js App Router
+├── lib/         # SDK config, data fetching, hooks, utils
+├── modules/     # Feature components
+├── styles/      # Global CSS
+└── types/       # TypeScript definitions
 ```
 
-### Database & Testing
+## Key Patterns
 
-**Database Setup:**
-- PostgreSQL with MikroORM as the data layer
-- Migration system integrated with Medusa CLI
-- Environment-based configuration via DATABASE_URL
-
-**Test Configuration:**
-- Jest with SWC transformer for TypeScript
-- Three test types: unit, HTTP integration, module integration
-- Test environment variables: TEST_TYPE determines test suite
-- Setup file: `apps/backend/integration-tests/setup.js`
-
-### Key Technical Details
-
-**Module Resolution:**
-- Services resolved via `req.scope.resolve("serviceName")` in API routes
-- Container-based dependency injection throughout the application
-- Built-in Medusa modules: Use `Modules.PRODUCT`, `Modules.ORDER`, `Modules.CUSTOMER`, etc.
-- Custom modules: Use exported constants like `PRODUCT_ATTRIBUTES_MODULE = "productAttributes"`
-- Pass `req.scope` container to services that need access to other modules to avoid resolution errors
-
-**Database Querying with Relations & Pricing:**
-- Use `query.graph()` for complex queries with relations and calculated data
-- For products with pricing: Always pass `QueryContext` with `region_id` and `currency_code`
-- Extract pricing context from request headers: `req.headers["region_id"]` and `req.headers["currency_code"]`
-- Example pattern for products with calculated prices:
-  ```typescript
-  const query = container.resolve(ContainerRegistrationKeys.QUERY);
-  const result = await query.graph({
-    entity: "product",
-    fields: ["*", "variants.*", "variants.calculated_price.*"],
-    filters: { categories: { id: categoryId } },
-    context: {
-      variants: {
-        calculated_price: QueryContext({
-          region_id: region_id,      // From request headers
-          currency_code: currency_code, // From request headers
-        }),
-      },
-    },
-  });
-  ```
-- **Critical**: `calculated_price` will be `null` without proper `region_id` and `currency_code` context
-- Always validate that pricing headers are present before querying products for price-sensitive operations
-- **Price Unit Handling**: Medusa stores all prices in cents, requiring conversion for display and filtering
-  ```typescript
-  // Backend: Convert cents to dollars for price facet display
-  const minPrice = Math.min(...prices); // cents from calculated_amount
-  const maxPrice = Math.max(...prices);
-  const minPriceDollars = Math.floor(minPrice / 100); // Convert to dollars
-  const maxPriceDollars = Math.ceil(maxPrice / 100);
-  
-  // Backend: Price filtering converts user dollars back to cents
-  if (priceFilter.min !== undefined && price < priceFilter.min * 100) {
-    return false; // Compare cents to cents
-  }
-  
-  // Frontend: Display prices in dollars using formatPrice utilities
-  const formatPrice = (cents: number) => new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD"
-  }).format(cents / 100);
-  ```
-
-**File-based Routing:**
-- API routes created by file structure under `/apps/backend/src/api/`
-- Dynamic parameters using `[param]` directory naming
-- Middleware support via `middlewares.ts` configuration
-
-**Seeding System:**
-- Comprehensive seed script creates demo store with products, categories, regions
-- Includes sample Medusa merchandise (t-shirts, sweatshirts, etc.)
-- Pre-configured European warehouse, shipping options, and payment providers
-
-## Environment Requirements
-
-### Backend Environment Variables
-- Node.js >=20
-- PostgreSQL database
-- Required environment variables:
-  - `DATABASE_URL`
-  - `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS`
-  - `JWT_SECRET`, `COOKIE_SECRET`
-
-### Frontend Environment Variables
-- `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` - Publishable key for Medusa backend authentication
-- `MEDUSA_BACKEND_URL` (optional) - Defaults to http://localhost:9000
-
-### Prerequisites
-- Medusa backend server running on port 9000
-- Node.js with Yarn package manager
-- Environment variables configured in `.env.local`
-
-## Key Features
-
-### Frontend Features
-- **Server Components First**: Leverages RSC for optimal performance
-- **E-commerce Complete**: Cart, checkout, user accounts, order management
-- **Multi-theme Support**: Light/dark theme variants with daisyUI
-- **Payment Integration**: Stripe payment processing
-- **Responsive Design**: Mobile-first approach with Tailwind breakpoints
-- **SEO Optimized**: Proper metadata and static generation
-
-## Component Architecture
-
-### Layout System
-- `apps/frontend/src/app/layout.tsx` - Root layout with minimal wrapper
-- `apps/frontend/src/app/(main)/layout.tsx` - Main storefront layout with navigation/footer
-- Uses daisyUI theme system with `data-theme="light"` as default
-
-### Data Fetching Patterns
-- **Server Actions**: Located in `apps/frontend/src/lib/data/` for backend integration
-- **Medusa SDK**: Configured in `apps/frontend/src/lib/config.ts` with debug mode
-- **Caching Strategy**: Leverages Next.js cache with `force-cache` for products
-- **Error Handling**: Graceful fallbacks for missing backend data
-
-### Styling Guidelines
-- **Primary**: daisyUI components (`btn`, `card`, `navbar`, etc.)
-- **Secondary**: Tailwind utilities for custom styling
-- **Theme Colors**: Use semantic color classes (`btn-primary`, `text-base-content`)
-- **Theme System**: Uses daisyUI's built-in light and dark themes
-- **Focus States**: Use `focus-visible:ring-2` instead of `focus:ring-2` for better UX
-- **Current Page Styling**: Use `text-primary` for highlighting current page in breadcrumbs
-
-### Navigation & Breadcrumb System
-- **Layout-Level Implementation**: Breadcrumbs managed at Next.js layout level using React Context
-- **Context Provider**: `BreadcrumbProvider` manages global breadcrumb state with memoized functions
-- **Utility Functions**: Standardized breadcrumb generation for different page types (product, category, collection, etc.)
-- **SEO Integration**: Schema.org structured data automatically generated for breadcrumbs
-- **Accessibility**: Full ARIA support with keyboard navigation and screen reader compatibility
-- **Performance**: Proper memoization with `useCallback`/`useMemo` to prevent infinite re-renders
-- **Visual Design**: Current page highlighted in primary color, clickable links in gray with hover states
-- **Hook Usage**: Use `useLayoutBreadcrumbs()` family of hooks to set breadcrumbs in page components
-
-### Icon System - Heroicons Integration
-- **Library**: `@heroicons/react` for consistent SVG icons
-- **Usage**: Import icons directly for better tree-shaking
-- **Common E-commerce Icons**:
-  ```tsx
-  import { ShoppingCartIcon, HeartIcon, EyeIcon } from '@heroicons/react/24/outline'
-  import { StarIcon } from '@heroicons/react/24/solid' // For filled variants
-  
-  // Use with daisyUI classes
-  <button className="btn btn-primary">
-    <ShoppingCartIcon className="w-5 h-5" />
-    Add to Cart
-  </button>
-  
-  // Icon-only buttons
-  <button className="btn btn-ghost btn-square">
-    <HeartIcon className="w-5 h-5" />
-  </button>
-  ```
-- **Size Guidelines**: Use `w-4 h-4` (sm), `w-5 h-5` (md), `w-6 h-6` (lg), `w-8 h-8` (xl)
-- **Theme Integration**: Icons inherit theme colors via semantic classes
-
-## Development Guidelines
-
-### TypeScript Configuration
-- **Strict Mode**: Enabled with comprehensive type checking
-- **Base URL**: `./src` for clean imports
-- **Path Aliases**: 
-  - `@lib/*` → `src/lib/*`
-  - `@modules/*` → `src/modules/*`
-  - `@pages/*` → `src/pages/*`
-- **Usage**: `import { sdk } from "@lib/config"`
-- **Target**: ES5 with modern DOM/ESNext libs
-- **JSX**: Preserve mode for Next.js optimization
-
-### Component Conventions
-- **Server Components First**: Default to Server Components (no 'use client' unless needed)
-- **Client Components**: Only for interactivity (forms, modals, state management, event handlers)
-- **Export Style**: Named exports preferred over default exports
-- **Props**: TypeScript interfaces defined inline or in separate types
-- **File Naming**: PascalCase for components, kebab-case for utilities
-- **Import Order**: External packages → Internal modules → Relative imports
-
-### Filter Architecture Guidelines
-- **Component Composition**: Break filter types into specialized components (CheckboxFilter, RadioFilter, DropdownFilter, ToggleFilter, SliderFilter, FilterHeader)
-- **Coordinator Pattern**: Main FilterGroup component acts as coordinator, delegating to appropriate sub-components based on `facet.display_type`
-- **Shared Logic Extraction**: Create utility functions in `src/lib/util/filter-utils.ts` for common selection and toggle patterns
-- **Facet-Based System**: All filters driven by dynamic facet data from backend API
-- **State Management**: Centralized filter state using Zustand store (`useCategoryFilterStore`)
-- **Type Definitions**: Use `FacetAggregation` for filter data, `ApiFilters` for state typing, `SortOption` for sorting
-- **Accessibility**: Include ARIA attributes (`aria-expanded`, `aria-controls`, `aria-label`, `role="region"`, `aria-labelledby`)
-- **Error Handling**: Wrap filter operations in try-catch blocks with standardized error patterns
-- **Performance**: Use `useCallback` for event handlers, avoid creating functions in render, debounce range slider updates
-
-### Loading State Management Patterns
-- **Placeholder Data Strategy**: Use React Query's `placeholderData: keepPreviousData` to prevent jarring skeleton replacements during filter updates
-- **Granular Loading Indicators**: Pass `facetsLoading` prop to show loading states on individual count badges while maintaining structure
-- **Consistent Skeleton Sizing**: Ensure skeleton elements match exact dimensions of real content to prevent layout shift
-- **Loading State Differentiation**: Distinguish between initial loading (`isLoading`) and subsequent updates (`isFetching && isPlaceholderData`)
-  ```tsx
-  // Good: Placeholder data with granular loading states
-  const { data, isLoading, isFetching, isPlaceholderData } = useQuery({
-    queryKey: ["facets", filters],
-    queryFn: () => fetchFacets(filters),
-    placeholderData: keepPreviousData, // Keep previous data visible
-  })
-  
-  // Show skeleton only for initial load, loading indicators for updates
-  {isLoading && data?.facets.length === 0 ? (
-    <SkeletonSidebar />
-  ) : (
-    <FilterSidebar 
-      facets={data?.facets || []}
-      facetsLoading={isFetching && isPlaceholderData} // Only show count loading when placeholder
-    />
-  )}
-  
-  // Good: Consistent skeleton and real content sizing
-  {facetsLoading ? (
-    <div className="skeleton text-xs px-2 py-1 rounded-full font-medium h-5 min-w-[2rem]"></div>
-  ) : (
-    <span className="text-xs px-2 py-1 bg-base-300 text-base-content/70 rounded-full font-medium min-w-[2rem] h-5 flex items-center justify-center">
-      {count}
-    </span>
-  )}
-  ```
-
-### File Structure Patterns
-- **Feature Modules**: `apps/frontend/src/modules/` - organized by business domain
-- **Shared Utilities**: `apps/frontend/src/lib/util/` - reusable helper functions
-- **Data Layer**: `apps/frontend/src/lib/data/` - server actions and API integration
-- **Pages**: `apps/frontend/src/app/` - Next.js App Router with route groups
-- **Components**: Each module contains `components/` and `templates/`
-- **Hooks**: Custom hooks in `apps/frontend/src/lib/hooks/` or module-specific locations
-
-### Component Composition Patterns
-- **Specialized Components**: Break complex components into focused, single-responsibility sub-components
-- **Coordinator Components**: Use main components as coordinators that delegate to specialized sub-components
-- **Shared Logic**: Extract common patterns into utility functions rather than duplicating across components
-- **Interface Consistency**: Maintain consistent prop interfaces across related components using base interfaces
-- **Type Safety**: Use proper TypeScript interfaces, avoid `any` types, prefer `keyof` for dynamic property access
-- **Event Handler Patterns**: Pass handlers down rather than recreating logic in each component
-- **Component Cleanup**: Remove unused components and update index.ts exports to avoid dead code
-  ```tsx
-  // Good: Coordinator pattern with consistent interfaces
-  interface BaseFilterProps {
-    facet: FacetAggregation
-    filters: ApiFilters
-    onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
-    onRemoveFilter?: (filterType: keyof ApiFilters, key: string, value?: string) => void
-  }
-  
-  const renderFilterContent = () => {
-    if (facet.display_type === "checkbox") {
-      return <CheckboxFilter {...baseProps} />
-    }
-    // ... other types
-  }
-  
-  // Good: Shared utility
-  import { isOptionSelected, handleFilterToggle } from "@lib/util/filter-utils"
-  
-  // Bad: Logic duplication across components
-  const isSelected = facet.facet_key === "tags" ? filters.tags?.includes(value) : ...
-  ```
-
-### Error Handling Patterns
-- **Standardized Error Handling**: Use consistent error patterns across components
-- **User-Friendly Messages**: Never expose internal errors to users
-- **Error Logging**: Use proper logging services instead of console.error for production
-- **Input Validation**: Validate and sanitize all user inputs before processing
-- **Graceful Fallbacks**: Provide fallback UI states when operations fail
-  ```tsx
-  // Good: Standardized error handling
-  import { reportError } from '@lib/util/error-reporting'
-  
-  const handleFilterAction = async (action: string) => {
-    try {
-      await performFilterAction(action)
-    } catch (error) {
-      reportError('Filter operation failed', { 
-        action, 
-        facetKey: facet.facet_key, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+### Database Queries
+```typescript
+// Always include pricing context for products
+const result = await query.graph({
+  entity: "product",
+  fields: ["*", "variants.*", "variants.calculated_price.*"],
+  filters: { categories: { id: categoryId } },
+  context: {
+    variants: {
+      calculated_price: QueryContext({
+        region_id: req.headers["region_id"],
+        currency_code: req.headers["currency_code"]
       })
-      // Show user-friendly message without exposing internals
-      showNotification('Filter could not be applied. Please try again.')
     }
   }
-  
-  // Bad: Exposing internal errors
-  } catch (error) {
-    console.error("Error toggling filter:", error) // Security risk
-  }
-  ```
-
-### Code Style Guidelines
-- **No Comments**: DO NOT add code comments unless explicitly requested
-- **Error Handling**: Use standardized error patterns, never expose internal errors to users
-- **Security**: Never expose secrets, validate all inputs, sanitize error messages
-- **Performance**: Prefer Server Components, minimize client-side JavaScript, memoize event handlers
-- **Accessibility**: Use semantic HTML and ARIA attributes with daisyUI - always add `aria-label` for icon-only buttons
-- **Responsive**: Mobile-first design with Tailwind breakpoints
-
-### Accessibility Patterns
-```tsx
-// Icon-only buttons require aria-label
-<button 
-  className="btn btn-ghost btn-circle" 
-  aria-label="Search"
->
-  <MagnifyingGlassIcon className="w-4 h-4" />
-</button>
-
-// Close buttons should describe what they close
-<button 
-  className="btn btn-ghost btn-circle" 
-  aria-label="Close filter panel"
->
-  <XMarkIcon className="w-5 h-5" />
-</button>
+});
 ```
 
-### Performance Optimization Patterns
-- **Event Handler Memoization**: Use `useCallback` for event handlers passed as props
-  ```tsx
-  // Good: Memoized handler
-  const handleToggle = useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed])
-  <FilterHeader onToggle={handleToggle} />
-  
-  // Bad: Creates new function on every render
-  <FilterHeader onToggle={() => setIsCollapsed(!isCollapsed)} />
-  ```
-- **Debounced Updates**: Use debouncing for high-frequency updates like range sliders
-- **Component Splitting**: Break complex components to enable better tree-shaking
-- **State Management**: Minimize state updates, batch related updates when possible
-- **Render Optimization**: Avoid creating objects/arrays in render, use useMemo for expensive calculations
+### Price Handling
+- Backend: Store/query in cents
+- Frontend: Display in dollars
+- Conversion: `cents / 100`
 
-### CSS Architecture Patterns
-- **Global Styles**: Use `apps/frontend/src/styles/globals.css` for complex reusable styles
-- **Component-Specific**: Prefer Tailwind utility classes for component styling
-- **Custom CSS Classes**: Create semantic class names for complex interactions (e.g., `range-slider-input`)
-- **Style Organization**: Move long inline Tailwind classes to CSS files for maintainability
-- **Browser Compatibility**: Use vendor prefixes for complex features like range sliders
-- **Color Consistency**: Use CSS variables and daisyUI theme colors instead of hard-coded values
+### Module Resolution
+- Built-in: `Modules.PRODUCT`, `Modules.ORDER`
+- Custom: Export constants like `PRODUCT_ATTRIBUTES_MODULE`
+- Always pass `req.scope` for container access
 
-### Backend Code Quality Standards
-- **TypeScript**: Use proper types instead of `any` - create interfaces for complex objects
-  - Define interface types for container dependencies and service parameters
-  - Use proper type guards for runtime type checking
-  - Example: `interface Container { resolve: <T>(key: string) => T }`
-- **Logging**: Use `container.resolve(ContainerRegistrationKeys.LOGGER)` instead of `console.*`
-  - Logger methods accept only one argument: use template literals or JSON.stringify for complex data
-  - Example: `logger.debug(\`Found \${count} items: \${JSON.stringify(data)}\`)`
-  - **Critical**: Never pass multiple arguments to logger methods
-- **Input Validation**: Validate and sanitize all user inputs (trim, length limits, type checking)
-  - Add length limits for string inputs (e.g., category_id max 100 chars)
-  - Sanitize input to remove special characters: `input.replace(/[^a-zA-Z0-9_-]/g, '')`
-  - Validate array sizes to prevent DoS attacks
-- **Error Handling**: Wrap operations in try-catch with proper error typing
-  - Use `error instanceof Error` checks before accessing error properties
-  - Provide graceful fallbacks for service failures
-  - Never expose internal error details to API responses
-- **Headers**: Extract required headers early and validate presence before processing
-- **Pricing Context**: Always pass `region_id` and `currency_code` for price-sensitive operations
-- **Container Injection**: Pass container/scope through service method chains for proper DI
-- **Query Performance**: Implement reasonable limits for large datasets (max 10,000 records per query)
-- **Product Attribute Filtering**: Use intersection logic for multiple filters (ALL conditions must match)
-- **Constants**: Define constants for magic numbers and reusable values
-  - Example: `const CENTS_TO_DOLLARS = 100;` instead of hardcoded divisions by 100
-  - Keep default values in named constants: `const DEFAULT_REGION_ID = "reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK"`
+### Component Guidelines
+- Default to Server Components
+- Use `'use client'` only for interactivity
+- daisyUI components for UI consistency
+- Heroicons for icons
 
-### Hierarchical Category Query Patterns
-- **Recursive Category Inclusion**: When querying products by category, include child categories using `getAllCategoryIds()` pattern
-- **Performance Safeguards**: Implement depth limits (max 10 levels) and category count limits (max 1000) to prevent DoS
-- **Query Optimization**: Use single database query with nested fields rather than multiple recursive queries
-- **Deduplication**: Use `Set` data structure to prevent duplicate category IDs in results
-- **Graceful Fallbacks**: Return original category ID if child category lookup fails
-- **Security**: Validate category IDs are strings and sanitize input before database queries
+### Code Quality
 
-### Facet Aggregation Service Patterns
-- **Modular Architecture**: Separate system facets (price, availability) from attribute facets
-- **Container Dependency Injection**: Pass container through service methods for proper module resolution
-- **Pricing Context Requirements**: Always provide `region_id` and `currency_code` for accurate price aggregations
-- **Price Unit Conversion**: Medusa stores prices in cents, convert to dollars for UI display
-- **Error Resilience**: Implement comprehensive error handling with graceful fallbacks to system facets
-- **Performance Optimization**: Use batched queries and efficient in-memory filtering for complex facet operations
-- **Type Safety**: Proper TypeScript interfaces for all facet configurations and aggregation responses
-- **Dual-Query Architecture**: Use separate queries for facet availability and counts to maintain filter visibility
-  - **Base Products Query**: Fetch all products in category (unfiltered) to determine available facet values
-  - **Filtered Products Query**: Apply filters to get accurate counts for each facet value
-  - **Facet Value Display**: Always show all base facet values, even if filtered count is 0
-  - **Multi-selection Support**: Enables users to select multiple filter values (e.g., Canon AND Fujifilm)
-- **Memory Management**: Monitor in-memory filtering performance for large datasets (10K+ products)
-- **Caching Strategy**: Consider caching base product lists and facet configurations for performance
-  - Base products: Cache for 5 minutes (category inventory changes infrequently)
-  - Facet configurations: Cache for 1 hour (attribute definitions change rarely)
-  - Category hierarchies: Cache for longer periods (tree structure stable)
+#### TypeScript
+- No `any` types - create proper interfaces
+- Use type guards for runtime checking
+- Path aliases: `@lib/*`, `@modules/*`
 
-### Shared Utility Patterns
-- **Centralized Logic**: Create shared utilities in `src/utils/` for complex operations used across multiple modules
-- **Type Safety**: Export proper TypeScript interfaces alongside utility functions for consistent typing
-- **Container Resolution**: Use `resolveQueryInstance(container)` helper for consistent query instance typing
-- **Code Example**:
-  ```typescript
-  // src/utils/category-hierarchy.ts
-  export async function getAllCategoryIds(query: QueryInstance, categoryId: string): Promise<string[]>
-  export function resolveQueryInstance(container: any): QueryInstance
-  
-  // Usage in API routes and services
-  import { getAllCategoryIds, resolveQueryInstance } from "src/utils/category-hierarchy";
-  const query = resolveQueryInstance(req.scope);
-  const categoryIds = await getAllCategoryIds(query, categoryId);
-  ```
+#### Error Handling
+- Standardized patterns across components
+- Never expose internal errors to users
+- Graceful fallbacks for failures
 
-### Product Attribute Filtering Patterns
-- **API Data Structure**: Frontend sends filters flattened at root level, not nested under `metadata`
-  - Frontend transforms: `{metadata: {brand: ["Fujifilm"]}}` → `{brand: ["Fujifilm"]}`
-  - Backend expects: Direct attribute keys as filter properties
-- **Intersection Logic**: Multiple attribute filters use AND logic (all must match)
-- **Filter Processing**: Backend queries all products first, then applies in-memory attribute filtering
-- **Performance Considerations**: Large initial queries (10K limit) with post-processing pagination
+#### Performance
+- Memoize event handlers with `useCallback`
+- Debounce high-frequency updates
+- Use placeholder data for smooth filtering
+- Limit queries to 10K records max
 
-### Admin Widget Development with React Query
-- **Data Fetching**: Use React Query (`@tanstack/react-query`) for admin widgets requiring API calls
-- **Shared QueryClient**: Import `withQueryClientProvider` HOC from `apps/backend/src/admin/utils/query-client.tsx`
-- **Usage Pattern**:
-  ```tsx
-  import { withQueryClientProvider } from "../utils/query-client";
-  import { useQuery, useMutation } from "@tanstack/react-query";
-  
-  const MyWidgetCore = ({ data }) => {
-    const { data: items } = useQuery({
-      queryKey: ["my-data"],
-      queryFn: fetchMyData,
-    });
-    
-    return <div>{/* widget content */}</div>;
-  };
-  
-  export default withQueryClientProvider(MyWidgetCore);
-  ```
-- **Query Configuration**: Optimized defaults include 5-minute stale time, 10-minute garbage collection
-- **Benefits**: Automatic caching, deduplication, background refetching, optimistic updates
+#### Security
+- Sanitize all inputs: `replace(/[^a-zA-Z0-9_-]/g, '')`
+- Length limits on strings (100 chars)
+- Never log raw user input
+- Validate before database queries
 
-### Admin Form Handling Best Practices
-- **React Hook Form Integration**: Use `register` for simple inputs, `Controller` for complex components
-- **Number Field Pattern**: Use `{ valueAsNumber: true }` with `register` for numeric inputs
-  ```tsx
-  <Input
-    type="number"
-    {...register("field_name", { 
-      valueAsNumber: true,
-      validate: (value) => value > 0 || "Must be positive"
-    })}
-  />
-  ```
-- **Default Value Merging**: When loading server data, merge with schema defaults to prevent validation issues
-  ```tsx
-  const mergedData = {
-    ...serverData,
-    nested_object: {
-      ...defaultValues.nested_object,
-      ...(serverData.nested_object || {}),
-    }
-  };
-  ```
-- **Type Safety**: Define proper interfaces for server data vs. form data to avoid `any` types
-- **Validation**: Combine Zod schema validation with field-level validation for better UX
-
-### Performance & Security Considerations for E-commerce Faceting
-- **Query Optimization**: Use database indexes on frequently filtered columns
-  - Add indexes on `product_id`, `template_id`, `attribute_values` JSONB fields
-  - Consider partial indexes for common filter combinations
-- **Memory Management**: Monitor memory usage for large product catalogs
-  - Implement pagination for product attribute queries above 10K records
-  - Use streaming responses for very large datasets
-  - Consider database connection pooling for high-traffic scenarios
-- **Rate Limiting**: Protect facet aggregation endpoints from abuse
-  - Implement rate limiting per IP/user for expensive aggregation operations
-  - Add circuit breakers for downstream service failures
-- **Caching Strategy**: Multi-layer caching for optimal performance
-  - **Level 1**: In-memory cache for frequently accessed facet configs (1 hour TTL)
-  - **Level 2**: Redis cache for base product lists per category (5 minute TTL)
-  - **Level 3**: CDN cache for static facet structures (24 hour TTL)
-- **Security Validation**: Comprehensive input validation and sanitization
-  - Validate filter value types match expected attribute data types
-  - Sanitize string inputs to prevent injection attacks
-  - Implement request size limits to prevent payload-based DoS
-  - Log suspicious filtering patterns for monitoring
-
-## daisyUI Integration
-
-The project uses daisyUI v5.0.50 with built-in themes:
-
-### Theme Usage
-```tsx
-// Apply theme at layout level
-<div data-theme="light">
-  {/* Components inherit theme */}
-</div>
+#### Backend Logging
+```typescript
+// Use container logger, single argument only
+const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
+logger.debug(`Found ${count} items: ${JSON.stringify(data)}`);
 ```
 
-### Component Examples
+## UI/UX Standards
+
+### daisyUI Components
 ```tsx
-// Buttons with variants
-<button className="btn btn-primary">Primary Action</button>
-<button className="btn btn-secondary">Secondary</button>
-<button className="btn btn-outline">Outline</button>
-<button className="btn btn-ghost">Ghost</button>
+// Buttons
+<button className="btn btn-primary">Add to Cart</button>
 
-// E-commerce specific buttons
-<button className="btn btn-primary btn-sm">Add to Cart</button>
-<button className="btn btn-outline btn-square">
-  <HeartIcon className="w-4 h-4" />
+// Icon buttons require aria-label
+<button className="btn btn-ghost btn-circle" aria-label="Search">
+  <MagnifyingGlassIcon className="w-5 h-5" />
 </button>
 
-// Filter clear buttons - outline with hover fill
-<button className="btn btn-outline btn-primary btn-block hover:btn-primary">
-  Clear All Filters
-</button>
-
-// Product cards
+// Cards
 <div className="card bg-base-100 shadow-xl">
-  <figure>
-    <Image src="/product.jpg" alt="Product" width={300} height={300} />
-  </figure>
   <div className="card-body">
-    <h2 className="card-title">Product Name</h2>
-    <p className="text-base-content/70">Description</p>
-    <div className="card-actions justify-end">
-      <button className="btn btn-primary">Buy Now</button>
-    </div>
+    <h2 className="card-title">Title</h2>
   </div>
 </div>
 
-// Navigation with cart
-<div className="navbar bg-base-100">
-  <div className="navbar-start">
-    <Link href="/" className="btn btn-ghost text-xl">Store</Link>
-  </div>
-  <div className="navbar-end">
-    <button className="btn btn-ghost btn-circle">
-      <ShoppingCartIcon className="w-6 h-6" />
-    </button>
-  </div>
-</div>
+// Search input (storefront only)
+<input className="input input-primary" placeholder="Search..." />
 
-// Search inputs - use input-primary for storefront search only
-<input 
-  type="text" 
-  placeholder="Search cameras, lenses..." 
-  className="input input-primary w-full" 
-/>
-
-// Form inputs - use regular input without borders (daisyUI v5 default)
-<div className="form-control w-full max-w-xs">
-  <label className="label">
-    <span className="label-text">Email</span>
-  </label>
-  <input 
-    type="email" 
-    placeholder="Enter email"
-    className="input w-full max-w-xs" 
-  />
-</div>
-
-// Loading states
-<button className="btn btn-primary loading">Loading</button>
-<div className="skeleton h-32 w-full"></div>
+// Form inputs (no borders in v5)
+<input className="input" type="email" />
 ```
 
-### Testing daisyUI Components
+### Design Verification
+After frontend changes:
+1. Navigate to affected pages
+2. Check against `/context/design-principles.md`
+3. Take screenshots for evidence
+4. Check console for errors
 
-## Visual Development
+## Specialized Patterns
 
-### Design Principles
-- Comprehensive design checklist in `/context/design-principles.md`
-- Brand style guide in `/context/style-guide.md`
-- When making visual (front-end, UI/UX) changes, always refer to these files for guidance
+### Facet Aggregation
+- Dual-query architecture: base products + filtered counts
+- Cache strategy: 5min products, 1hr configs
+- Show all facet values even with 0 count
 
-### Quick Visual Check
-IMMEDIATELY after implementing any front-end change:
-1. **Identify what changed** - Review the modified components/pages
-2. **Navigate to affected pages** - Use `mcp__playwright__browser_navigate` to visit each changed view
-3. **Verify design compliance** - Compare against `/context/design-principles.md` and `/context/style-guide.md`
-4. **Validate feature implementation** - Ensure the change fulfills the user's specific request
-5. **Check acceptance criteria** - Review any provided context files or requirements
-6. **Capture evidence** - Take full page screenshot at desktop viewport (1440px) of each changed view
-7. **Check for errors** - Run `mcp__playwright__browser_console_messages`
+### Search Implementation
+- Title-only search for performance
+- 500ms debounce on input
+- Sanitize: remove `<>"'&`, limit 100 chars
+- Sync with URL parameters
 
-This verification ensures changes meet design standards and user requirements.
+### Category Hierarchies
+- Include child categories recursively
+- Max 10 levels depth, 1000 categories
+- Use `getAllCategoryIds()` utility
 
-### Camera Store Design Guidelines
-- **E-commerce Focus**: Professional product presentation for photography equipment
-- **Visual Hierarchy**: Clean product grids with emphasis on high-quality imagery
-- **daisyUI Integration**: Consistent component usage with camera store branding
-- **Mobile Responsiveness**: Touch-friendly interfaces for mobile shopping
-- **Performance**: Optimized image loading for product galleries and hero sections
+### Admin Widgets
+```tsx
+import { withQueryClientProvider } from "../utils/query-client";
+import { useQuery } from "@tanstack/react-query";
 
-### Comprehensive Design Review
-Invoke the `@agent-design-review` subagent for thorough design validation when:
-- Completing significant UI/UX features
-- Before finalizing PRs with visual changes
-- Needing comprehensive accessibility and responsiveness testing
+const Widget = () => {
+  const { data } = useQuery({
+    queryKey: ["my-data"],
+    queryFn: fetchData
+  });
+  return <div>{/* content */}</div>;
+};
 
-## Backend Integration
+export default withQueryClientProvider(Widget);
+```
 
-### Medusa Connection
-- **Backend URL**: `http://localhost:9000` (configurable via `MEDUSA_BACKEND_URL`)
-- **Authentication**: Publishable key via `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`
-- **SDK Configuration**: Located in `apps/frontend/src/lib/config.ts` with debug mode
-- **Environment validation**: Automatic startup validation with helpful error messages
+## Environment Variables
 
-### API Patterns & Data Fetching
-- **Products**: 
-  - Fetched with calculated prices and inventory levels
-  - Cached with `force-cache` for performance
-  - Located in `apps/frontend/src/lib/data/products.ts`
-- **Collections**: 
-  - Dynamic category/collection routing
-  - SEO-friendly URLs with handle-based navigation
-- **Cart**: 
-  - Persistent cart state with server actions
-  - Real-time updates with optimistic UI
-  - Located in `apps/frontend/src/lib/data/cart.ts`
-- **Authentication**: 
-  - Session-based user management
-  - Customer profiles and order history
-  - Located in `apps/frontend/src/lib/data/customer.ts`
-- **Orders**: 
-  - Complete checkout flow with Stripe integration
-  - Order confirmation and tracking
+### Backend
+- `DATABASE_URL`
+- `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS`
+- `JWT_SECRET`, `COOKIE_SECRET`
 
-## Static Assets
+### Frontend
+- `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`
+- `MEDUSA_BACKEND_URL` (default: http://localhost:9000)
 
-- Backend static files served from `apps/backend/static/` directory
-- Frontend images optimized through Next.js Image component
-- Example: Camera product images (e.g., `1753805150027-x100vi-bac.webp`)
+## Deployment (GitHub Actions → Railway)
+1. Nx detects affected projects
+2. Runs quality checks (lint, type-check)
+3. Builds affected projects
+4. Deploys to Railway services
 
-## Deployment
+Required secrets: `RAILWAY_TOKEN`, `DATABASE_URL`, `MEDUSA_PUBLISHABLE_KEY`
 
-### GitHub Actions CI/CD Pipeline
-- **Location**: `.github/workflows/deploy.yml`
-- **Purpose**: Automated deployment to Railway on main branch pushes
-- **Strategy**: Nx-powered affected project detection with quality gates
-
-### Deployment Workflow
-
-**1. Setup & Affected Detection:**
-- Detects which projects (backend/frontend) are affected by changes
-- Uses Nx to analyze changed files and their dependencies
-- Outputs affected status for conditional deployment
-
-**2. Quality Checks:**
-- Runs ESLint and TypeScript checks on affected projects
-- Must pass before deployment proceeds
-- Uses `yarn nx affected -t lint` and `yarn nx affected -t type-check`
-
-**3. Backend Deployment:**
-- Triggers when backend is affected or manually forced
-- Builds backend with `yarn nx build backend`
-- Deploys to Railway using `brianpetro/railway-deploy@main`
-- Uses `RAILWAY_BACKEND_SERVICE_NAME` variable for service targeting
-
-**4. Frontend Deployment:**
-- Triggers when frontend is affected
-- Builds frontend with `yarn nx build frontend`
-- Deploys to Railway using same deployment action
-- Uses `RAILWAY_FRONTEND_SERVICE_NAME` variable for service targeting
-
-**5. Deployment Status:**
-- Reports deployment results for both services
-- Shows affected project status and deployment outcomes
-
-### Required Secrets & Variables
-
-**GitHub Secrets:**
-- `RAILWAY_TOKEN` - Railway API token for deployments
-- `DATABASE_URL` - PostgreSQL connection string for backend builds
-- `MEDUSA_PUBLISHABLE_KEY` - Frontend environment variable
-
-**GitHub Variables:**
-- `RAILWAY_BACKEND_SERVICE_NAME` - Railway service name for backend
-- `RAILWAY_FRONTEND_SERVICE_NAME` - Railway service name for frontend
-
-### Environment Configuration
-- **Environment**: `staging` - GitHub environment for deployment protection
-- **Node.js**: Version 20 with Corepack enabled
-- **Package Manager**: Yarn with caching optimization
-- **Build Strategy**: Nx affected builds to minimize unnecessary deployments
-
-## Testing and Validation
-
-### Environment Validation
-- **Automatic Checks**: Startup validation for required environment variables
-- **Error Messages**: Clear, actionable error messages with documentation links
-- **Graceful Failures**: Process exits with helpful instructions if critical variables missing
-- **Debug Mode**: Medusa SDK configured with debug logging in development
-
-### Error Boundaries & Fallbacks
-- **Product Listing**: Graceful fallbacks when backend unavailable
-- **Connection Issues**: Informative error messages for missing Medusa connection
-- **Development Errors**: Detailed error reporting with stack traces
-- **User-Friendly**: Production errors show user-friendly messages
-
-## Development Notes
-
-- Implement the code only and let the user manually test it.
-- NEVER add code comments unless explicitly requested by the user
-- Always follow security best practices and never expose secrets
-- Prefer editing existing files over creating new ones
-- Use the monorepo structure with separate backend and frontend apps
-
-### Search Implementation Patterns
-- **Simplified Search**: Prefer product title-only search for performance and clarity - avoid complex multi-field searches unless required
-- **Debouncing**: Use 500ms delay for search inputs with proper cleanup and ref-based state tracking
-- **Security**: Always sanitize search inputs before processing - remove `<>"'&` characters and limit to 100 characters
-- **Performance**: Use synchronous in-memory filtering for title searches, avoid expensive async attribute queries when possible
-- **Accessibility**: Include proper ARIA labels (`role="search"`, `aria-describedby`, `aria-label`) and live regions for search feedback
-- **Error Handling**: Provide fallback search results when advanced features fail, never expose search terms in logs
-
-### Search Query Security Guidelines
-- **Input Sanitization**: Remove HTML/script characters from search terms using `replace(/[<>"'&]/g, '')`
-- **Length Limits**: Cap search queries at 100 characters maximum in both Zod schema and processing logic
-- **Rate Limiting**: Consider implementing rate limiting for search endpoints in production
-- **Logging Security**: Never log raw user input - sanitize or redact search terms (`[REDACTED]`)
-- **Validation**: Validate search parameters before database queries and return early for empty sanitized queries
-
-### Search State Management Patterns
-- **Zustand Integration**: Use centralized search state with proper debouncing via custom hooks
-- **React Query**: Implement placeholder data strategy (`keepPreviousData`) for smooth UX during search updates
-- **URL Synchronization**: Sync search state with URL parameters (`searchQuery` in query key) for bookmarkability
-- **Local State Management**: Use `useState` for immediate UI updates, `useDebounce` for API calls, `useRef` for tracking state sources
-- **Circular Dependency Prevention**: Use ref-based tracking (`lastGlobalSearch.current`) to prevent infinite update loops between local and global state
-
-### Debounce Hook Implementation
-- **Generic Type Safety**: Use `useDebounce<T>(value: T, delay: number): T` for type safety across different value types
-- **Cleanup Pattern**: Always return cleanup function in `useEffect` to prevent memory leaks
-- **Delay Configuration**: Use 500ms as standard delay for search inputs, shorter delays (200-300ms) for less expensive operations
-- **State Initialization**: Initialize debounced state with the initial value to prevent rendering mismatches
-
-### Simplified Search Architecture Patterns
-- **Title-Only Search**: Implement `product.title.toLowerCase().includes(sanitizedQuery)` for fast, predictable results
-- **Synchronous Functions**: Prefer synchronous filtering functions over async when possible for better performance
-- **Service Interface Typing**: Define proper interfaces for external services instead of using `any` types
-- **Error Boundary Strategy**: Continue with original products if advanced filtering fails, never break core search functionality
-- **User Expectation Management**: Update UI placeholders and labels to clearly indicate search scope (e.g., "Search product names...")
-- **Performance First**: Prioritize simple, fast implementations over complex multi-field searches unless business requirements demand it
-
-## Debugging & Troubleshooting
-
-### Common Issues
-- **Backend Not Running**: Ensure Medusa backend is running on port 9000
-- **Environment Variables**: Check `.env.local` has required Medusa keys
-- **Port Conflicts**: Development server uses port 8000, ensure it's available
-- **TypeScript Errors**: Run `nx run backend:build` or `nx build frontend` to see full type checking results
-
-### Debug Tools
-- **Medusa SDK Debug**: Enable debug mode in `apps/frontend/src/lib/config.ts`
-- **Network Tab**: Monitor API calls to Medusa backend
-- **React DevTools**: Inspect component state and props
-- **Next.js DevTools**: Available in development mode
-
-### Performance Monitoring
-- **Bundle Analyzer**: Use `nx run frontend:analyze` to inspect bundle size
-- **Server Components**: Verify RSC usage to minimize client JavaScript
-- **Image Optimization**: Ensure Next.js Image component is used
-- **Caching**: Monitor cache hit rates for product data
-- Do not run yarn dev to verify after changes. Let's me verify it myself
-- Do not start development servers (nx serve backend, yarn dev) to verify changes - user manages server instances
-- Do not commit & push the code until I told you to do it
-- do not commit & push changes if I do not told you
+## Important Rules
+- NO code comments unless requested
+- NO proactive documentation creation
+- Prefer editing over creating files
+- Never expose secrets or internal errors
+- Don't run dev servers for verification
+- Don't commit unless explicitly asked
+- Use TodoWrite for task planning

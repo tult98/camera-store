@@ -119,6 +119,13 @@ const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 logger.debug(`Found ${count} items: ${JSON.stringify(data)}`);
 ```
 
+#### Frontend Logging
+```typescript
+// Avoid console.log/error in production code
+// Use structured error boundaries and proper error handling
+// For development debugging, use // eslint-disable-next-line
+```
+
 ## UI/UX Standards
 
 ### daisyUI Components
@@ -184,6 +191,21 @@ const Widget = () => {
 };
 
 export default withQueryClientProvider(Widget);
+```
+
+### Service Layer Architecture
+```typescript
+// Filter Pipeline Pattern for complex data processing
+const pipeline = new FilterPipeline(products)
+  .applySearch(search_query)
+  .applyPriceFilter(filters.price)
+  .applyAttributeFilters(filters)
+  .applySorting(order_by)
+  .getResults();
+
+// Validation Layer with dedicated validators
+const validator = new CategoryProductsValidator(req.query);
+const validatedParams = validator.validate();
 ```
 
 ## Environment Variables

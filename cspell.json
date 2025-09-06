@@ -1,0 +1,29 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "medusajs",
+    "mikro",
+    "timestamptz",
+    "pkey",
+    "ilike",
+    "backorder",
+    "varopt",
+    "keymap",
+    "precentage",
+    "lightbox",
+    "viewports",
+    "WCAG"
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.min.js",
+    "yarn.lock",
+    "package-lock.json"
+  ],
+  "ignoreRegExpList": [
+    "/\\b[A-Z]{2,}\\b/g"
+  ]
+}

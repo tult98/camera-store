@@ -143,7 +143,7 @@ export default function ProductActions({
 
         {/* Quantity Selector */}
         <div className="flex flex-col gap-y-3">
-          <span className="text-sm font-medium text-base-content">Số lượng</span>
+          <span className="text-sm font-medium text-base-content">Quantity</span>
           
           <div className="flex items-center gap-3">
             <div className="join w-fit">
@@ -172,10 +172,10 @@ export default function ProductActions({
             {selectedVariant && (
               <span className="text-sm text-base-content/60">
                 {selectedVariant.manage_inventory && selectedVariant.inventory_quantity !== undefined
-                  ? `${selectedVariant.inventory_quantity} sản phẩm có sẵn`
+                  ? `${selectedVariant.inventory_quantity} items available`
                   : selectedVariant.allow_backorder
-                  ? "Có thể đặt trước"
-                  : "Có sẵn"
+                  ? "Pre-order available"
+                  : "Available"
                 }
               </span>
             )}
@@ -198,11 +198,11 @@ export default function ProductActions({
               {isAdding ? (
                 <span className="loading loading-spinner loading-sm"></span>
               ) : !inStock && selectedVariant && isValidVariant ? (
-                "Hết hàng"
+                "Out of stock"
               ) : (
                 <>
                   <ShoppingCartIcon className="w-5 h-5" />
-                  Thêm vào giỏ
+                  Add to cart
                 </>
               )}
             </button>
@@ -222,11 +222,11 @@ export default function ProductActions({
               {isAdding ? (
                 <span className="loading loading-spinner loading-sm"></span>
               ) : !inStock && selectedVariant && isValidVariant ? (
-                "Hết hàng"
+                "Out of stock"
               ) : (
                 <>
                   <BoltIcon className="w-5 h-5" />
-                  Mua ngay
+                  Buy now
                 </>
               )}
             </button>

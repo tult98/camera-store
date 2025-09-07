@@ -24,7 +24,7 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
   return (
     <div className="flex flex-col gap-y-3">
       <span className="text-sm font-medium text-base-content">
-        Chọn {title}
+        Select {title}
       </span>
       
       <div className="flex flex-wrap gap-3" data-testid={dataTestId}>

@@ -13,13 +13,19 @@ export interface Product {
   categories?: Array<{ id: string }>;
   tags?: Array<{ value: string }>;
   images?: Array<{ url: string }>;
-  product_attributes?: Record<string, unknown>;
+  product_attributes?: Array<{
+    attribute_name: string;
+    value: unknown;
+  }>;
 }
 
 export interface ProductAttributesService {
   listProductAttributes(params: { product_id: string[] }): Promise<Array<{
     product_id: string;
-    attribute_values: Record<string, unknown>;
+    attribute_values: Array<{
+      attribute_name: string;
+      value: unknown;
+    }>;
   }>>;
 }
 

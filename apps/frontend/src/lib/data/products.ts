@@ -6,6 +6,7 @@ import { HttpTypes } from "@medusajs/types"
 import { SortOption } from "@modules/store/store/category-filter-store"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getDefaultRegion } from "./regions"
+import { apiClient } from "@lib/api-client"
 
 export const listProducts = async ({
   pageParam = 1,
@@ -26,8 +27,8 @@ export const listProducts = async ({
   const region = await getDefaultRegion()
 
   if (!region) {
-    console.warn(
-      "No default region found, products may not have proper pricing"
+    throw new Error(
+      "No default region found - unable to calculate product pricing"
     )
   }
 
@@ -47,7 +48,7 @@ export const listProducts = async ({
         query: {
           limit,
           offset,
-          region_id: region?.id,
+          region_id: region.id,
           fields:
             "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags,+images",
           ...queryParams,
@@ -71,53 +72,6 @@ export const listProducts = async ({
     })
 }
 
-/**
- * This will fetch 100 products to the Next.js cache and sort them based on the sortBy parameter.
- * It will then return the paginated products based on the page and limit parameters.
- */
-export const listProductsWithSort = async ({
-  page = 0,
-  queryParams,
-  sortBy = "created_at",
-}: {
-  page?: number
-  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
-  sortBy?: SortOption
-}): Promise<{
-  response: { products: HttpTypes.StoreProduct[]; count: number }
-  nextPage: number | null
-  queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
-}> => {
-  const limit = queryParams?.limit || 12
-
-  const {
-    response: { products, count },
-  } = await listProducts({
-    pageParam: 0,
-    queryParams: {
-      ...queryParams,
-      limit: 100,
-    },
-  })
-
-  const sortedProducts = sortProducts(products, sortBy)
-
-  const pageParam = (page - 1) * limit
-
-  const nextPage = count > pageParam + limit ? pageParam + limit : null
-
-  const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
-
-  return {
-    response: {
-      products: paginatedProducts,
-      count,
-    },
-    nextPage,
-    ...(queryParams && { queryParams }),
-  }
-}
-
 export const retrieveProduct = async (
   handle: string
 ): Promise<HttpTypes.StoreProduct | null> => {
@@ -129,15 +83,20 @@ export const retrieveProduct = async (
       console.warn(
         "No default region found, product may not have proper pricing"
       )
+      return null
     }
 
-    const response = await sdk.store.product.list({ 
-      handle,
-      region_id: region?.id,
-      fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags,+images"
-    })
+    const response = await apiClient<{ product: HttpTypes.StoreProduct }>(
+      `/store/products?handle=${handle}`,
+      {
+        headers: {
+          region_id: region.id,
+          currency_code: region.currency_code,
+        },
+      }
+    )
 
-    return response.products.length > 0 ? response.products[0] : null
+    return response.product
   } catch (error) {
     console.error(`Failed to retrieve product with handle ${handle}:`, error)
     return null

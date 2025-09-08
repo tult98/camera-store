@@ -1,38 +1,23 @@
-import { listCartShippingMethods } from "@lib/data/fulfillment"
-import { listCartPaymentMethods } from "@lib/data/payment"
 import { HttpTypes } from "@medusajs/types"
-import Addresses from "@modules/checkout/components/addresses"
-import Payment from "@modules/checkout/components/payment"
-import Review from "@modules/checkout/components/review"
-import Shipping from "@modules/checkout/components/shipping"
+import CartStep from "@modules/checkout/components/cart-step"
+import ReviewStep from "@modules/checkout/components/review-step"
+import ShippingAddressStep from "@modules/checkout/components/shipping-address-step"
 
-export default async function CheckoutForm({
+export default function CheckoutForm({
   cart,
-  customer,
+  isBuyNow = false,
 }: {
-  cart: HttpTypes.StoreCart | null
-  customer: HttpTypes.StoreCustomer | null
+  cart: HttpTypes.StoreCart
+  isBuyNow?: boolean
 }) {
-  if (!cart) {
-    return null
-  }
-
-  const shippingMethods = await listCartShippingMethods(cart.id)
-  const paymentMethods = await listCartPaymentMethods(cart.region?.id ?? "")
-
-  if (!shippingMethods || !paymentMethods) {
-    return null
-  }
 
   return (
-    <div className="w-full grid grid-cols-1 gap-y-8">
-      <Addresses cart={cart} customer={customer} />
-
-      <Shipping cart={cart} availableShippingMethods={shippingMethods} />
-
-      <Payment cart={cart} availablePaymentMethods={paymentMethods} />
-
-      <Review cart={cart} />
+    <div className="w-full">
+      <div className="grid grid-cols-1 gap-y-8">
+        <CartStep initialCart={cart} />
+        <ShippingAddressStep cart={cart} />
+        <ReviewStep cart={cart} isBuyNow={isBuyNow} />
+      </div>
     </div>
   )
 }

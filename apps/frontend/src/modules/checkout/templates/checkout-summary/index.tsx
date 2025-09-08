@@ -1,26 +1,24 @@
 import { Heading } from "@medusajs/ui"
 
 import ItemsPreviewTemplate from "@modules/cart/templates/preview"
-import DiscountCode from "@modules/checkout/components/discount-code"
 import CartTotals from "@modules/common/components/cart-totals"
-import Divider from "@modules/common/components/divider"
 
 const CheckoutSummary = ({ cart }: { cart: any }) => {
   return (
-    <div className="sticky top-0 flex flex-col-reverse small:flex-col gap-y-8 py-8 small:py-0 ">
-      <div className="w-full bg-white flex flex-col">
-        <Divider className="my-6 small:hidden" />
-        <Heading
-          level="h2"
-          className="flex flex-row text-3xl-regular items-baseline"
-        >
-          In your Cart
+    <div className="sticky top-0 border border-gray-200 p-6 rounded-lg">
+      <div className="w-full flex flex-col space-y-6">
+        <Heading level="h2" className="text-xl font-semibold text-gray-900">
+          Order Summary
         </Heading>
-        <Divider className="my-6" />
-        <CartTotals totals={cart} />
-        <ItemsPreviewTemplate cart={cart} />
-        <div className="my-6">
-          <DiscountCode cart={cart} />
+
+        {/* Items */}
+        <div className="space-y-4">
+          <ItemsPreviewTemplate cart={cart} />
+        </div>
+
+        {/* Totals */}
+        <div className="pt-4">
+          <CartTotals totals={cart} />
         </div>
       </div>
     </div>

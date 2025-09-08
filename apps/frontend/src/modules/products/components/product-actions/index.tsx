@@ -1,13 +1,15 @@
 "use client"
 
-import { addToCart } from "@lib/data/cart"
+import { BoltIcon, ShoppingCartIcon } from "@heroicons/react/24/outline"
+import { buyNow } from "@lib/data/cart"
+import { useToast } from "@lib/providers/toast-provider"
 import { HttpTypes } from "@medusajs/types"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
+import { useMutation } from "@tanstack/react-query"
 import { isEqual } from "lodash"
-import { useParams } from "next/navigation"
-import { useEffect, useMemo, useRef, useState } from "react"
-import { ShoppingCartIcon, BoltIcon } from "@heroicons/react/24/outline"
+import { useRouter } from "next/navigation"
+import { useMemo, useRef, useState } from "react"
 import MobileActions from "./mobile-actions"
 
 type ProductActionsProps = {
@@ -31,21 +33,33 @@ export default function ProductActions({
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
   const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
-  const params = useParams()
-  const countryCode = params['countryCode'] as string
+  const router = useRouter()
+  const { showToast } = useToast()
 
-  // If there is only 1 variant, preselect the options
-  useEffect(() => {
-    if (product.variants?.length === 1) {
-      const variantOptions = optionsAsKeymap(product.variants[0].options)
-      setOptions(variantOptions ?? {})
-    }
-  }, [product.variants])
+  // Buy Now mutation using React Query
+  const buyNowMutation = useMutation({
+    mutationFn: async ({
+      variantId,
+      quantity,
+    }: {
+      variantId: string
+      quantity: number
+    }) => {
+      return await buyNow({ variantId, quantity })
+    },
+    onSuccess: () => {
+      showToast("Product added to checkout successfully!", "success")
+      router.push("/checkout")
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.message || "Failed to process buy now. Please try again."
+      showToast(errorMessage, "error")
+    },
+  })
 
   const selectedVariant = useMemo(() => {
-    if (!product.variants || product.variants.length === 0) {
-      return
-    }
+    if (!product?.variants?.length) return
 
     return product.variants.find((v) => {
       const variantOptions = optionsAsKeymap(v.options)
@@ -101,13 +115,23 @@ export default function ProductActions({
 
     setIsAdding(true)
 
-    await addToCart({
-      variantId: selectedVariant.id,
-      quantity: quantity,
-      countryCode,
-    })
+    // await addToCart({
+    //   variantId: selectedVariant.id,
+    //   quantity: quantity,
+    //   countryCode,
+    // })
 
     setIsAdding(false)
+  }
+
+  // handle buy now - create new cart and go to checkout
+  const handleBuyNow = () => {
+    if (!selectedVariant?.id) return
+
+    buyNowMutation.mutate({
+      variantId: selectedVariant.id,
+      quantity: quantity,
+    })
   }
 
   const handleQuantityChange = (newQuantity: number) => {
@@ -143,44 +167,48 @@ export default function ProductActions({
 
         {/* Quantity Selector */}
         <div className="flex flex-col gap-y-3">
-          <span className="text-sm font-medium text-base-content">Quantity</span>
-          
+          <span className="text-sm font-medium text-base-content">
+            Quantity
+          </span>
+
           <div className="flex items-center gap-3">
             <div className="join w-fit">
-              <button 
+              <button
                 className="btn btn-sm join-item"
                 onClick={() => handleQuantityChange(quantity - 1)}
                 disabled={quantity <= 1}
               >
                 -
               </button>
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={quantity}
-                onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
+                onChange={(e) =>
+                  handleQuantityChange(parseInt(e.target.value) || 1)
+                }
                 className="input input-sm join-item w-16 text-center [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] focus:outline-none"
                 min="1"
               />
-              <button 
+              <button
                 className="btn btn-sm join-item"
                 onClick={() => handleQuantityChange(quantity + 1)}
               >
                 +
               </button>
             </div>
-            
+
             {selectedVariant && (
               <span className="text-sm text-base-content/60">
-                {selectedVariant.manage_inventory && selectedVariant.inventory_quantity !== undefined
+                {selectedVariant.manage_inventory &&
+                selectedVariant.inventory_quantity !== undefined
                   ? `${selectedVariant.inventory_quantity} items available`
                   : selectedVariant.allow_backorder
                   ? "Pre-order available"
-                  : "Available"
-                }
+                  : "Available"}
               </span>
             )}
           </div>
-          
+
           {/* Action Buttons */}
           <div className="flex gap-3 mt-2">
             <button
@@ -206,22 +234,23 @@ export default function ProductActions({
                 </>
               )}
             </button>
-            
+
             <button
-              onClick={handleAddToCart}
+              onClick={handleBuyNow}
               disabled={
                 !selectedVariant ||
                 !!disabled ||
-                isAdding ||
+                buyNowMutation.isPending ||
                 !isValidVariant ||
                 !inStock
               }
               className="btn btn-primary h-12 px-6"
               data-testid="buy-now-button"
             >
-              {isAdding ? (
+              {buyNowMutation.isPending && (
                 <span className="loading loading-spinner loading-sm"></span>
-              ) : !inStock && selectedVariant && isValidVariant ? (
+              )}
+              {!inStock && selectedVariant && isValidVariant ? (
                 "Out of stock"
               ) : (
                 <>

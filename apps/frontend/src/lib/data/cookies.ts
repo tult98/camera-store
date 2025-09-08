@@ -87,3 +87,25 @@ export const removeCartId = async () => {
     maxAge: -1,
   })
 }
+
+export const getBuyNowCartId = async () => {
+  const cookies = await nextCookies()
+  return cookies.get("_medusa_buy_now_cart_id")?.value
+}
+
+export const setBuyNowCartId = async (cartId: string) => {
+  const cookies = await nextCookies()
+  cookies.set("_medusa_buy_now_cart_id", cartId, {
+    maxAge: 60 * 60 * 24 * 7,
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+  })
+}
+
+export const removeBuyNowCartId = async () => {
+  const cookies = await nextCookies()
+  cookies.set("_medusa_buy_now_cart_id", "", {
+    maxAge: -1,
+  })
+}

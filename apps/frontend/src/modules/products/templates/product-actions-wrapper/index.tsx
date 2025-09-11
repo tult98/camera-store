@@ -1,4 +1,4 @@
-import { listProducts } from "@lib/data/products"
+import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
 import ProductActions from "@modules/products/components/product-actions"
 
@@ -12,9 +12,14 @@ export default async function ProductActionsWrapper({
   id: string
   region: HttpTypes.StoreRegion
 }) {
-  const product = await listProducts({
-    queryParams: {},
-  }).then(({ response }) => response.products.find(p => p.id === id))
+  const { product } = await sdk.store.product.retrieve(
+    id,
+    {
+      fields:
+        "*variants.calculated_price,+variants.inventory_quantity,+metadata,+tags,+images",
+        region_id: region.id,
+    },
+  )
 
   if (!product) {
     return null

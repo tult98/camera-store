@@ -264,15 +264,31 @@ export async function submitPromotionForm(
  * @param isBuyNow - optional - Whether this is a buy-now cart
  * @returns The cart object if the order was successful, or null if not.
  */
-export async function placeOrder(cartId: string, isBuyNow?: boolean) {
-  let id = cartId
+export async function placeOrder({
+  cart,
+  shippingMethodId,
+  providerId,
+  isBuyNow,
+}: {
+  cart: HttpTypes.StoreCart
+  shippingMethodId: string
+  providerId: string
+  isBuyNow?: boolean
+}) {
+  await sdk.store.cart.addShippingMethod(cart.id, {
+    option_id: shippingMethodId,
+  })
 
-  const cartRes = await sdk.store.cart.complete(id)
+  await sdk.store.payment.initiatePaymentSession(cart, {
+    provider_id: providerId,
+  })
+
+  const cartRes = await sdk.store.cart.complete(cart.id)
   // Remove the appropriate cart cookie
   if (isBuyNow) {
-    removeBuyNowCartId()
+    await removeBuyNowCartId()
   } else {
-    removeCartId()
+    await removeCartId()
   }
 
   return cartRes.type === "order" ? cartRes.order : null

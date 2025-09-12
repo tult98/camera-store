@@ -18,6 +18,7 @@ export default function Checkout() {
   const { data: regularCart, isLoading: isLoadingRegular } = useCart()
 
   const cart = buyNowCart || regularCart
+
   const isBuyNow = !!buyNowCart
   const isLoading = isLoadingBuyNow || isLoadingRegular
 

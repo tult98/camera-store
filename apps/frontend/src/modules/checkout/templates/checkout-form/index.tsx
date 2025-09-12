@@ -2,6 +2,7 @@ import { HttpTypes } from "@medusajs/types"
 import CartStep from "@modules/checkout/components/cart-step"
 import ReviewStep from "@modules/checkout/components/review-step"
 import ShippingAddressStep from "@modules/checkout/components/shipping-address-step"
+import OrderSuccessStep from "@modules/checkout/components/order-success-step"
 
 export default function CheckoutForm({
   cart,
@@ -17,6 +18,7 @@ export default function CheckoutForm({
         <CartStep initialCart={cart} />
         <ShippingAddressStep cart={cart} />
         <ReviewStep cart={cart} isBuyNow={isBuyNow} />
+        <OrderSuccessStep />
       </div>
     </div>
   )

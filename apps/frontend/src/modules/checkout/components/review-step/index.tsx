@@ -1,35 +1,104 @@
 "use client"
 
 import { ChevronLeftIcon } from "@heroicons/react/24/outline"
+import { sdk } from "@lib/config"
 import { placeOrder } from "@lib/data/cart"
 import { useToast } from "@lib/providers/toast-provider"
-import { Heading, Text } from "@medusajs/ui"
+import { formatPrice } from "@lib/util/money"
+import { HttpTypes } from "@medusajs/types"
+import { Heading } from "@medusajs/ui"
 import ItemsPreviewTemplate from "@modules/cart/templates/preview"
 import CartTotals from "@modules/common/components/cart-totals"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueries } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const ReviewStep = ({
   cart,
   isBuyNow = false,
 }: {
-  cart: any
+  cart: HttpTypes.StoreCart
   isBuyNow?: boolean
 }) => {
   const router = useRouter()
+  const { showToast } = useToast()
   const searchParams = useSearchParams()
   const isOpen = searchParams.get("step") === "review"
-  const { showToast } = useToast()
-
-  const [orderPlaced, setOrderPlaced] = useState(false)
 
   const previousStepsCompleted = cart.shipping_address
 
+  const [shippingOptionsQuery, paymentProvidersQuery] = useQueries({
+    queries: [
+      {
+        queryKey: ["shipping-options", cart.id],
+        queryFn: () => {
+          return sdk.store.fulfillment.listCartOptions({
+            cart_id: cart.id,
+            fields: "*calculated_price",
+          })
+        },
+        enabled: !!cart.id,
+      },
+      {
+        queryKey: ["payment-providers", cart.region_id],
+        queryFn: () =>
+          sdk.store.payment.listPaymentProviders({
+            region_id: cart.region_id!,
+          }),
+        enabled: !!cart.region_id,
+      },
+    ],
+  })
+
+  const [selectedShippingOptionId, setSelectedShippingOptionId] = useState<
+    string | null
+  >(null)
+
+  const defaultProviderId =
+    paymentProvidersQuery.data?.payment_providers?.[0]?.id
+
+  useEffect(() => {
+    if (
+      shippingOptionsQuery.data?.shipping_options?.length &&
+      !selectedShippingOptionId
+    ) {
+      setSelectedShippingOptionId(
+        shippingOptionsQuery.data.shipping_options[0].id
+      )
+    }
+  }, [shippingOptionsQuery.data?.shipping_options, selectedShippingOptionId])
+
+  useEffect(() => {
+    const isDataReady =
+      !shippingOptionsQuery.isLoading && !paymentProvidersQuery.isLoading
+    const isMissingRequireData =
+      !shippingOptionsQuery.data?.shipping_options?.length || !defaultProviderId
+    if (isDataReady && isMissingRequireData) {
+      showToast("No shipping options or payment providers found", "error")
+    }
+  }, [
+    defaultProviderId,
+    shippingOptionsQuery.data?.shipping_options,
+    shippingOptionsQuery.isLoading,
+    paymentProvidersQuery.isLoading,
+  ])
+
   const placeOrderMutation = useMutation({
-    mutationFn: () => placeOrder(cart.id, isBuyNow),
+    mutationFn: () => {
+      if (!selectedShippingOptionId) {
+        throw new Error("Please select a shipping option")
+      }
+      return placeOrder({
+        cart,
+        shippingMethodId: selectedShippingOptionId,
+        providerId: defaultProviderId!,
+        isBuyNow,
+      })
+    },
     onSuccess: () => {
-      setOrderPlaced(true)
+      setTimeout(() => {
+        router.push("/checkout?step=success")
+      }, 500)
     },
     onError: (error) => {
       showToast(error.message || "Failed to place order", "error")
@@ -47,41 +116,6 @@ const ReviewStep = ({
   // Only render when this step is active
   if (!isOpen) {
     return null
-  }
-
-  // Show success message after order is placed
-  if (orderPlaced) {
-    return (
-      <div className="bg-white">
-        <div className="text-center py-12">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
-            <svg
-              className="h-6 w-6 text-green-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4.5 12.75l6 6 9-13.5"
-              />
-            </svg>
-          </div>
-          <Heading
-            level="h2"
-            className="text-2xl font-bold text-base-content mb-2"
-          >
-            Order Placed Successfully!
-          </Heading>
-          <Text className="text-lg text-gray-600">
-            Thank you for your order. You will receive a confirmation email
-            shortly.
-          </Text>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -107,6 +141,56 @@ const ReviewStep = ({
                 <ItemsPreviewTemplate cart={cart} />
               </div>
 
+              {/* Shipping Options */}
+              {shippingOptionsQuery.data?.shipping_options && (
+                <div className="mb-6 border-t pt-4">
+                  <Heading level="h3" className="text-lg font-semibold mb-4">
+                    Shipping Method
+                  </Heading>
+                  <div className="space-y-3">
+                    {shippingOptionsQuery.data.shipping_options.map(
+                      (option) => (
+                        <label
+                          key={option.id}
+                          className="flex items-start gap-3 p-3 border rounded-lg cursor-pointer hover:bg-base-200 transition-colors"
+                        >
+                          <input
+                            type="radio"
+                            name="shipping-option"
+                            className="radio radio-primary mt-1"
+                            checked={selectedShippingOptionId === option.id}
+                            onChange={() =>
+                              setSelectedShippingOptionId(option.id)
+                            }
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium">
+                              {option.type.label}
+                            </div>
+                            <div className="text-sm text-base-content/70">
+                              {option.type.description}
+                            </div>
+                            <div className="text-sm font-semibold mt-1">
+                              {option.calculated_price
+                                ? formatPrice(
+                                    option.calculated_price.calculated_amount ||
+                                      0,
+                                    option.calculated_price.currency_code ||
+                                      "vnd"
+                                  )
+                                : formatPrice(
+                                    option.amount || 0,
+                                    cart.currency_code || "USD"
+                                  )}
+                            </div>
+                          </div>
+                        </label>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Totals */}
               <div className="border-t pt-4">
                 <CartTotals totals={cart} />
@@ -126,12 +210,15 @@ const ReviewStep = ({
             </button>
             <button
               onClick={handleConfirmOrder}
-              disabled={placeOrderMutation.isPending}
-              className={`btn btn-primary flex-1 ${
-                placeOrderMutation.isPending ? "loading" : ""
-              }`}
+              disabled={
+                !selectedShippingOptionId || placeOrderMutation.isPending
+              }
+              className="btn btn-primary flex-1"
               data-testid="confirm-order-button"
             >
+              {placeOrderMutation.isPending && (
+                <span className="loading loading-spinner loading-sm"></span>
+              )}
               Confirm Order
             </button>
           </div>

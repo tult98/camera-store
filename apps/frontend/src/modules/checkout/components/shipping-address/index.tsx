@@ -73,6 +73,7 @@ const ShippingAddress = () => {
         })}
         error={errors.shipping_address?.address_1}
         placeholder="House number, street name, etc."
+        helperText="Primary street address (e.g., 123 Main Street)"
         autoComplete="address-line1"
         required
         data-testid="shipping-address-1-input"
@@ -83,6 +84,7 @@ const ShippingAddress = () => {
         {...register("shipping_address.address_2")}
         error={errors.shipping_address?.address_2}
         placeholder="Apartment, suite, unit, etc."
+        helperText="Optional: Apartment, suite, unit, building, floor, etc."
         autoComplete="address-line2"
         data-testid="shipping-address-2-input"
       />

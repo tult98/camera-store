@@ -13,16 +13,19 @@ const steps: { key: string; label: string; description?: string }[] = [
 export default function CheckoutProgress() {
   const searchParams = useSearchParams()
   const currentStep = searchParams.get("step") || "cart"
-
-  const currentStepIndex = steps.findIndex((step) => step.key === currentStep)
+  
+  const isSuccess = currentStep === "success"
+  const currentStepIndex = isSuccess 
+    ? steps.length 
+    : steps.findIndex((step) => step.key === currentStep)
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
-          const isActive = step.key === currentStep
-          const isCompleted = index < currentStepIndex
-          const isAccessible = index <= currentStepIndex
+          const isActive = !isSuccess && step.key === currentStep
+          const isCompleted = isSuccess || index < currentStepIndex
+          const isAccessible = isSuccess || index <= currentStepIndex
 
           return (
             <div key={step.key} className="flex items-center flex-1">

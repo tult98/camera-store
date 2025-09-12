@@ -61,9 +61,7 @@ export const setAuthToken = async (token: string) => {
 
 export const removeAuthToken = async () => {
   const cookies = await nextCookies()
-  cookies.set("_medusa_jwt", "", {
-    maxAge: -1,
-  })
+  cookies.delete("_medusa_jwt")
 }
 
 export const getCartId = async () => {
@@ -83,9 +81,7 @@ export const setCartId = async (cartId: string) => {
 
 export const removeCartId = async () => {
   const cookies = await nextCookies()
-  cookies.set("_medusa_cart_id", "", {
-    maxAge: -1,
-  })
+  cookies.delete("_medusa_cart_id")
 }
 
 export const getBuyNowCartId = async () => {
@@ -105,7 +101,5 @@ export const setBuyNowCartId = async (cartId: string) => {
 
 export const removeBuyNowCartId = async () => {
   const cookies = await nextCookies()
-  cookies.set("_medusa_buy_now_cart_id", "", {
-    maxAge: -1,
-  })
+  cookies.delete("_medusa_buy_now_cart_id")
 }

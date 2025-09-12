@@ -1,5 +1,6 @@
 "use client"
 
+import { ChevronLeftIcon } from "@heroicons/react/24/outline"
 import { updateCart } from "@lib/data/cart"
 import { useToast } from "@lib/providers/toast-provider"
 import { HttpTypes } from "@medusajs/types"
@@ -8,7 +9,6 @@ import { useMutation } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import { FormProvider, useForm } from "react-hook-form"
 import ShippingAddress, { ShippingAddressFormData } from "../shipping-address"
-import { ChevronLeftIcon } from "@heroicons/react/24/outline"
 
 const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const router = useRouter()
@@ -21,14 +21,14 @@ const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
     mode: "onBlur",
     defaultValues: {
       shipping_address: {
-        first_name: cart?.shipping_address?.first_name,
-        last_name: cart?.shipping_address?.last_name,
-        phone: cart?.shipping_address?.phone,
-        city: cart?.shipping_address?.province,
-        address_1: cart?.shipping_address?.address_1,
-        address_2: cart?.shipping_address?.address_2,
+        first_name: cart?.shipping_address?.first_name || "",
+        last_name: cart?.shipping_address?.last_name || "",
+        phone: cart?.shipping_address?.phone || "",
+        city: cart?.shipping_address?.city || "",
+        address_1: cart?.shipping_address?.address_1 || "",
+        address_2: cart?.shipping_address?.address_2 || "",
       },
-      email: cart?.email,
+      email: cart?.email || "",
     },
   })
 
@@ -52,7 +52,20 @@ const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   })
 
   const onSubmit = (data: ShippingAddressFormData) => {
-    updateCartMutation.mutate(data)
+    const countryCode = cart.region?.countries?.[0]?.iso_2
+
+    if (!countryCode) {
+      showToast("Country code not found", "error")
+      return
+    }
+
+    updateCartMutation.mutate({
+      ...data,
+      shipping_address: {
+        ...data.shipping_address,
+        country_code: countryCode,
+      },
+    })
   }
 
   // Only render when this step is active
@@ -83,12 +96,13 @@ const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
               </button>
               <button
                 type="submit"
-                className={`btn btn-primary flex-1 ${
-                  updateCartMutation.isPending ? "loading" : ""
-                }`}
+                className="btn btn-primary flex-1"
                 disabled={updateCartMutation.isPending}
                 data-testid="submit-address-button"
               >
+                {updateCartMutation.isPending && (
+                  <span className="loading loading-spinner loading-sm"></span>
+                )}
                 Continue
               </button>
             </div>

@@ -45,11 +45,26 @@ apps/backend/src/
 ### Frontend Structure
 ```
 apps/frontend/src/
-├── app/         # Next.js App Router
+├── app/         # Next.js App Router (server-side data fetching only)
 ├── lib/         # SDK config, data fetching, hooks, utils
-├── modules/     # Feature components
+├── modules/     # Feature components and business logic
 ├── styles/      # Global CSS
 └── types/       # TypeScript definitions
+```
+
+### Module Structure
+Each module follows this organization:
+```
+modules/[module-name]/
+├── apiCalls/    # API call functions (client-side)
+├── components/  # React components
+│   ├── single-component.tsx           # Simple component
+│   └── complex-component/             # Component with children
+│       ├── index.tsx                  # Main component
+│       └── child-component.tsx        # Child components
+├── hooks/       # Custom React hooks (optional)
+├── store/       # State management (optional)
+└── types/       # Module-specific types (optional)
 ```
 
 ## Key Patterns
@@ -83,10 +98,19 @@ const result = await query.graph({
 - Always pass `req.scope` for container access
 
 ### Component Guidelines
-- Default to Server Components
-- Use `'use client'` only for interactivity
+- **App Router**: Server components for data fetching, minimal logic
+- **Modules**: Client components with React Query for data management
+- Use `'use client'` for interactivity and data fetching
 - daisyUI components for UI consistency
 - Heroicons for icons
+
+### Data Fetching Architecture
+- **Server Components** (app/): Server-side data fetching only
+- **Client Components** (modules/): React Query for all data operations
+- **API Calls**: Located in `modules/[name]/apiCalls/` directory
+- **State Management**: React Query cache + local state only
+- **NO Server Actions**: Use React Query mutations instead
+- **NO mixing**: Server-side fetching only in app/, client-side only in modules/
 
 ### Code Quality
 
@@ -176,6 +200,46 @@ After frontend changes:
 - Include child categories recursively
 - Max 10 levels depth, 1000 categories
 - Use `getAllCategoryIds()` utility
+
+### Client Component Pattern
+```tsx
+// modules/checkout/components/checkout-form.tsx
+"use client"
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { fetchCartData, updateCartItem } from "../apiCalls/cart";
+
+const CheckoutForm = () => {
+  const { data: cart, isLoading } = useQuery({
+    queryKey: ["cart"],
+    queryFn: fetchCartData
+  });
+  
+  const updateMutation = useMutation({
+    mutationFn: updateCartItem,
+    onSuccess: () => {
+      // Invalidate and refetch cart data
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    }
+  });
+  
+  if (isLoading) return <div>Loading...</div>;
+  return <div>{/* content */}</div>;
+};
+```
+
+### API Calls Pattern
+```tsx
+// modules/checkout/apiCalls/cart.ts
+import { medusaClient } from "@lib/config";
+
+export const fetchCartData = async () => {
+  return await medusaClient.store.cart.retrieve();
+};
+
+export const updateCartItem = async (data: CartUpdateData) => {
+  return await medusaClient.store.cart.lineItems.update(data);
+};
+```
 
 ### Admin Widgets
 ```tsx

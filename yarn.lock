@@ -2509,6 +2509,7 @@ __metadata:
     lucide-react: ^0.542.0
     multer: ^2.0.2
     next: ^15.3.1
+    next-client-cookies: ^2.1.0
     nx: 21.3.11
     pg: ^8.13.0
     postcss: ^8.4.8
@@ -20646,6 +20647,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-cookie@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "js-cookie@npm:3.0.5"
+  checksum: 2dbd2809c6180fbcf060c6957cb82dbb47edae0ead6bd71cbeedf448aa6b6923115003b995f7d3e3077bfe2cb76295ea6b584eb7196cca8ba0a09f389f64967a
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -22293,6 +22301,18 @@ __metadata:
   version: 2.0.2
   resolution: "netmask@npm:2.0.2"
   checksum: c65cb8d3f7ea5669edddb3217e4c96910a60d0d9a4b52d9847ff6b28b2d0277cd8464eee0ef85133cdee32605c57940cacdd04a9a019079b091b6bba4cb0ec22
+  languageName: node
+  linkType: hard
+
+"next-client-cookies@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "next-client-cookies@npm:2.1.0"
+  dependencies:
+    js-cookie: ^3.0.5
+  peerDependencies:
+    next: ">= 15.0.0"
+    react: ">= 16.8.0"
+  checksum: 613caeddbe011aa7adeb8a175d89cae8c6e0dc6f046e8174a7e505e72dcd2842cfcd309d03992892c4e20ed39af923bf22eed239ee8d69a280828108ebb38d87
   languageName: node
   linkType: hard
 

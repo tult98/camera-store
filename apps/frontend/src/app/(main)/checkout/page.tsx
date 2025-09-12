@@ -1,43 +1,30 @@
-"use client"
+import { retrieveCart } from "@lib/data/cart"
+import Checkout from "@modules/checkout/components"
+import { redirect } from "next/navigation"
+import { Suspense } from "react"
 
-import { useCart } from "@lib/hooks/use-cart"
-import CheckoutTemplate from "@modules/checkout/templates"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+interface CheckoutPageProps {
+  searchParams: { step?: string }
+}
 
-export default function Checkout() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const step = searchParams.get("step")
+export default async function CheckoutPage({
+  searchParams,
+}: CheckoutPageProps) {
+  const step = searchParams.step
 
-  // Try to get buy-now cart first, then fall back to regular cart
-  const { data: buyNowCart, isLoading: isLoadingBuyNow } = useCart(
-    undefined,
-    true
-  )
-  const { data: regularCart, isLoading: isLoadingRegular } = useCart()
+  // Redirect to cart step if no step is specified
+  if (!step) {
+    redirect("/checkout?step=cart")
+  }
+
+  // Fetch carts on the server
+  const [buyNowCart, regularCart] = await Promise.all([
+    retrieveCart(undefined, true),
+    retrieveCart(),
+  ])
 
   const cart = buyNowCart || regularCart
-
   const isBuyNow = !!buyNowCart
-  const isLoading = isLoadingBuyNow || isLoadingRegular
-
-  useEffect(() => {
-    if (!step) {
-      router.push("/checkout?step=cart")
-    }
-  }, [step, router])
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="loading loading-spinner loading-lg"></div>
-          <p className="mt-4 text-gray-600">Loading checkout...</p>
-        </div>
-      </div>
-    )
-  }
 
   if (!cart) {
     return (
@@ -55,5 +42,18 @@ export default function Checkout() {
     )
   }
 
-  return <CheckoutTemplate cart={cart} isBuyNow={isBuyNow} />
+  return (
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="loading loading-spinner loading-lg"></div>
+            <p className="mt-4 text-gray-600">Loading checkout...</p>
+          </div>
+        </div>
+      }
+    >
+      <Checkout cart={cart} isBuyNow={isBuyNow} />
+    </Suspense>
+  )
 }

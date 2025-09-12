@@ -1,9 +1,10 @@
+import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 
 import ItemsPreviewTemplate from "@modules/cart/templates/preview"
 import CartTotals from "@modules/common/components/cart-totals"
 
-const CheckoutSummary = ({ cart }: { cart: any }) => {
+const CheckoutSummary = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   return (
     <div className="sticky top-0 border border-gray-200 p-6 rounded-lg">
       <div className="w-full flex flex-col space-y-6">

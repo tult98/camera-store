@@ -1,12 +1,12 @@
 "use client"
 
 import { isManual, isStripe } from "@lib/constants"
-import { placeOrder } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
 import React, { useState } from "react"
 import ErrorMessage from "../error-message"
+import { completeOrder } from "@modules/checkout/apiCalls/orders"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
@@ -62,13 +62,13 @@ const StripePaymentButton = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const onPaymentCompleted = async () => {
-    await placeOrder(undefined, isBuyNow)
-      .catch((err) => {
-        setErrorMessage(err.message)
-      })
-      .finally(() => {
-        setSubmitting(false)
-      })
+    // await completeOrder(undefined)
+    //   .catch((err) => {
+    //     setErrorMessage(err.message)
+    //   })
+    //   .finally(() => {
+    //     setSubmitting(false)
+    //   })
   }
 
   const stripe = useStripe()
@@ -161,13 +161,13 @@ const ManualTestPaymentButton = ({ notReady, isBuyNow = false }: { notReady: boo
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const onPaymentCompleted = async () => {
-    await placeOrder(undefined, isBuyNow)
-      .catch((err) => {
-        setErrorMessage(err.message)
-      })
-      .finally(() => {
-        setSubmitting(false)
-      })
+    // await completeOrder(undefined)
+    //   .catch((err) => {
+    //     setErrorMessage(err.message)
+    //   })
+    //   .finally(() => {
+    //     setSubmitting(false)
+    //   })
   }
 
   const handlePayment = () => {

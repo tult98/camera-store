@@ -2,14 +2,15 @@
 
 import { ChevronLeftIcon } from "@heroicons/react/24/outline"
 import { sdk } from "@lib/config"
-import { placeOrder } from "@lib/data/cart"
 import { useToast } from "@lib/providers/toast-provider"
 import { formatPrice } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 import ItemsPreviewTemplate from "@modules/cart/templates/preview"
+import { completeOrder } from "@modules/checkout/apiCalls/orders"
 import CartTotals from "@modules/common/components/cart-totals"
 import { useMutation, useQueries } from "@tanstack/react-query"
+import { useCookies } from "next-client-cookies"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -24,6 +25,7 @@ const ReviewStep = ({
   const { showToast } = useToast()
   const searchParams = useSearchParams()
   const isOpen = searchParams.get("step") === "review"
+  const cookies = useCookies()
 
   const previousStepsCompleted = cart.shipping_address
 
@@ -58,17 +60,6 @@ const ReviewStep = ({
     paymentProvidersQuery.data?.payment_providers?.[0]?.id
 
   useEffect(() => {
-    if (
-      shippingOptionsQuery.data?.shipping_options?.length &&
-      !selectedShippingOptionId
-    ) {
-      setSelectedShippingOptionId(
-        shippingOptionsQuery.data.shipping_options[0].id
-      )
-    }
-  }, [shippingOptionsQuery.data?.shipping_options, selectedShippingOptionId])
-
-  useEffect(() => {
     const isDataReady =
       !shippingOptionsQuery.isLoading && !paymentProvidersQuery.isLoading
     const isMissingRequireData =
@@ -83,19 +74,22 @@ const ReviewStep = ({
     paymentProvidersQuery.isLoading,
   ])
 
-  const placeOrderMutation = useMutation({
-    mutationFn: () => {
-      if (!selectedShippingOptionId) {
-        throw new Error("Please select a shipping option")
-      }
-      return placeOrder({
-        cart,
-        shippingMethodId: selectedShippingOptionId,
-        providerId: defaultProviderId!,
-        isBuyNow,
-      })
-    },
+  // set default shipping option
+  useEffect(() => {
+    if (
+      shippingOptionsQuery.data?.shipping_options?.length &&
+      !selectedShippingOptionId
+    ) {
+      setSelectedShippingOptionId(
+        shippingOptionsQuery.data.shipping_options[0].id
+      )
+    }
+  }, [shippingOptionsQuery.data?.shipping_options, selectedShippingOptionId])
+
+  const completeOrderMutation = useMutation({
+    mutationFn: completeOrder,
     onSuccess: () => {
+      cookies.remove(isBuyNow ? "_medusa_buy_now_cart_id" : "_medusa_cart_id")
       setTimeout(() => {
         router.push("/checkout?step=success")
       }, 500)
@@ -106,7 +100,17 @@ const ReviewStep = ({
   })
 
   const handleConfirmOrder = () => {
-    placeOrderMutation.mutate()
+    if (!selectedShippingOptionId) {
+      showToast("Please select a shipping option", "error")
+      return
+    }
+
+    completeOrderMutation.mutate({
+      cart,
+      shippingMethodId: selectedShippingOptionId,
+      providerId: defaultProviderId!,
+      isBuyNow,
+    })
   }
 
   const handleGoBack = () => {
@@ -202,7 +206,7 @@ const ReviewStep = ({
           <div className="flex gap-4">
             <button
               onClick={handleGoBack}
-              disabled={placeOrderMutation.isPending}
+              disabled={completeOrderMutation.isPending}
               className="btn btn-outline flex-1"
             >
               <ChevronLeftIcon className="w-4 h-4 mr-1" />
@@ -211,12 +215,12 @@ const ReviewStep = ({
             <button
               onClick={handleConfirmOrder}
               disabled={
-                !selectedShippingOptionId || placeOrderMutation.isPending
+                !selectedShippingOptionId || completeOrderMutation.isPending
               }
               className="btn btn-primary flex-1"
               data-testid="confirm-order-button"
             >
-              {placeOrderMutation.isPending && (
+              {completeOrderMutation.isPending && (
                 <span className="loading loading-spinner loading-sm"></span>
               )}
               Confirm Order

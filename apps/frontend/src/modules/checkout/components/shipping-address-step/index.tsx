@@ -1,7 +1,7 @@
 "use client"
 
 import { ChevronLeftIcon } from "@heroicons/react/24/outline"
-import { updateCart } from "@lib/data/cart"
+import { sdk } from "@lib/config"
 import { useToast } from "@lib/providers/toast-provider"
 import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
@@ -33,15 +33,8 @@ const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   })
 
   const updateCartMutation = useMutation({
-    mutationFn: async (data: HttpTypes.StoreUpdateCart) => {
-      return await updateCart(
-        {
-          shipping_address: data.shipping_address,
-          email: data.email,
-        },
-        cart.id
-      )
-    },
+    mutationFn: async (data: HttpTypes.StoreUpdateCart) =>
+      sdk.store.cart.update(cart.id, data),
     onSuccess: () => {
       router.push(`/checkout?step=review`)
     },

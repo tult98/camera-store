@@ -1,17 +1,16 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import CheckoutForm from "./checkout-form"
-import CheckoutSummary from "./checkout-summary"
-import CheckoutProgress from "../components/checkout-progress"
+import CheckoutForm from "@modules/checkout/components/checkout-form"
+import CheckoutProgress from "@modules/checkout/components/checkout-progress"
+import CheckoutSummary from "@modules/checkout/components/checkout-summary"
 
-const CheckoutTemplate = ({
-  cart,
-  isBuyNow = false,
-}: {
+interface CheckoutClientProps {
   cart: HttpTypes.StoreCart
-  isBuyNow?: boolean
-}) => {
+  isBuyNow: boolean
+}
+
+export default function Checkout({ cart, isBuyNow }: CheckoutClientProps) {
   return (
     <div className="content-container py-12">
       {/* Main Checkout Grid */}
@@ -26,5 +25,3 @@ const CheckoutTemplate = ({
     </div>
   )
 }
-
-export default CheckoutTemplate

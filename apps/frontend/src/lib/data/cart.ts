@@ -55,15 +55,6 @@ export async function retrieveCart(cartId?: string, isBuyNow?: boolean) {
     .catch(() => null)
 }
 
-export async function updateCart(
-  data: HttpTypes.StoreUpdateCart,
-  cartId: string
-) {
-  const updatedCart = await sdk.store.cart.update(cartId, data)
-
-  return updatedCart.cart
-}
-
 export async function getOrSetCart(countryCode: string) {
   const region = await getRegion(countryCode)
 
@@ -256,42 +247,6 @@ export async function submitPromotionForm(
   } catch (e: any) {
     return e.message
   }
-}
-
-/**
- * Places an order for a cart. If no cart ID is provided, it will use the cart ID from the cookies.
- * @param cartId - optional - The ID of the cart to place an order for.
- * @param isBuyNow - optional - Whether this is a buy-now cart
- * @returns The cart object if the order was successful, or null if not.
- */
-export async function placeOrder({
-  cart,
-  shippingMethodId,
-  providerId,
-  isBuyNow,
-}: {
-  cart: HttpTypes.StoreCart
-  shippingMethodId: string
-  providerId: string
-  isBuyNow?: boolean
-}) {
-  await sdk.store.cart.addShippingMethod(cart.id, {
-    option_id: shippingMethodId,
-  })
-
-  await sdk.store.payment.initiatePaymentSession(cart, {
-    provider_id: providerId,
-  })
-
-  const cartRes = await sdk.store.cart.complete(cart.id)
-  // Remove the appropriate cart cookie
-  if (isBuyNow) {
-    await removeBuyNowCartId()
-  } else {
-    await removeCartId()
-  }
-
-  return cartRes.type === "order" ? cartRes.order : null
 }
 
 export async function listCartOptions() {

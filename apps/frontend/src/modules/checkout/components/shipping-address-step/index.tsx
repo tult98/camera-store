@@ -15,7 +15,7 @@ const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const { showToast } = useToast()
   const searchParams = useSearchParams()
 
-  const isOpen = searchParams.get("step") === "shipping-address"
+  const step = searchParams.get("step")
 
   const methods = useForm<ShippingAddressFormData>({
     mode: "onBlur",
@@ -59,11 +59,6 @@ const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
         country_code: countryCode,
       },
     })
-  }
-
-  // Only render when this step is active
-  if (!isOpen) {
-    return null
   }
 
   return (

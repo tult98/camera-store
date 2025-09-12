@@ -3,6 +3,7 @@ import CartStep from "@modules/checkout/components/cart-step"
 import OrderSuccessStep from "@modules/checkout/components/order-success-step"
 import ReviewStep from "@modules/checkout/components/review-step"
 import ShippingAddressStep from "@modules/checkout/components/shipping-address-step"
+import { useRouter, useSearchParams } from "next/navigation"
 
 export default function CheckoutForm({
   cart,
@@ -11,13 +12,16 @@ export default function CheckoutForm({
   cart: HttpTypes.StoreCart
   isBuyNow?: boolean
 }) {
+  const searchParams = useSearchParams()
+  const step = searchParams.get("step")
+
   return (
     <div className="w-full">
       <div className="grid grid-cols-1 gap-y-8">
-        <CartStep initialCart={cart} />
-        <ShippingAddressStep cart={cart} />
-        <ReviewStep cart={cart} isBuyNow={isBuyNow} />
-        <OrderSuccessStep />
+        {step === "cart" && <CartStep initialCart={cart} />}
+        {step === "shipping-address" && <ShippingAddressStep cart={cart} />}
+        {step === "review" && <ReviewStep cart={cart} isBuyNow={isBuyNow} />}
+        {step === "success" && <OrderSuccessStep isBuyNow={isBuyNow} />}
       </div>
     </div>
   )

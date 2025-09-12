@@ -2498,6 +2498,7 @@ __metadata:
     autoprefixer: ^10.4.2
     awilix: ^8.0.1
     babel-loader: ^8.2.3
+    cookies-next: ^6.1.0
     daisyui: ^5.0.50
     eslint: ^8.57.0
     eslint-config-next: 15.0.3
@@ -2509,7 +2510,6 @@ __metadata:
     lucide-react: ^0.542.0
     multer: ^2.0.2
     next: ^15.3.1
-    next-client-cookies: ^2.1.0
     nx: 21.3.11
     pg: ^8.13.0
     postcss: ^8.4.8
@@ -15574,6 +15574,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie@npm:^1.0.1":
+  version: 1.0.2
+  resolution: "cookie@npm:1.0.2"
+  checksum: 2c5a6214147ffa7135ce41860c781de17e93128689b0d080d3116468274b3593b607bcd462ac210d3a61f081db3d3b09ae106e18d60b1f529580e95cf2db8a55
+  languageName: node
+  linkType: hard
+
+"cookies-next@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "cookies-next@npm:6.1.0"
+  dependencies:
+    cookie: ^1.0.1
+  peerDependencies:
+    next: ">=15.0.0"
+    react: ">= 16.8.0"
+  checksum: 26bc525d2c398ce0fd04bb0f8bfea83a5cfa7fe2c595cecfc1b6ecdf908b62a497a236df82597b814e70b6280a0800571191df3924e9fe0afd6e6bc08ac38cb6
+  languageName: node
+  linkType: hard
+
 "cookies@npm:~0.9.0, cookies@npm:~0.9.1":
   version: 0.9.1
   resolution: "cookies@npm:0.9.1"
@@ -20647,13 +20666,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-cookie@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "js-cookie@npm:3.0.5"
-  checksum: 2dbd2809c6180fbcf060c6957cb82dbb47edae0ead6bd71cbeedf448aa6b6923115003b995f7d3e3077bfe2cb76295ea6b584eb7196cca8ba0a09f389f64967a
-  languageName: node
-  linkType: hard
-
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -22301,18 +22313,6 @@ __metadata:
   version: 2.0.2
   resolution: "netmask@npm:2.0.2"
   checksum: c65cb8d3f7ea5669edddb3217e4c96910a60d0d9a4b52d9847ff6b28b2d0277cd8464eee0ef85133cdee32605c57940cacdd04a9a019079b091b6bba4cb0ec22
-  languageName: node
-  linkType: hard
-
-"next-client-cookies@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "next-client-cookies@npm:2.1.0"
-  dependencies:
-    js-cookie: ^3.0.5
-  peerDependencies:
-    next: ">= 15.0.0"
-    react: ">= 16.8.0"
-  checksum: 613caeddbe011aa7adeb8a175d89cae8c6e0dc6f046e8174a7e505e72dcd2842cfcd309d03992892c4e20ed39af923bf22eed239ee8d69a280828108ebb38d87
   languageName: node
   linkType: hard
 

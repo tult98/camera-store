@@ -10,7 +10,6 @@ import ItemsPreviewTemplate from "@modules/cart/templates/preview"
 import { completeOrder } from "@modules/checkout/apiCalls/orders"
 import CartTotals from "@modules/common/components/cart-totals"
 import { useMutation, useQueries } from "@tanstack/react-query"
-import { useCookies } from "next-client-cookies"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
@@ -24,8 +23,6 @@ const ReviewStep = ({
   const router = useRouter()
   const { showToast } = useToast()
   const searchParams = useSearchParams()
-  const isOpen = searchParams.get("step") === "review"
-  const cookies = useCookies()
 
   const previousStepsCompleted = cart.shipping_address
 
@@ -89,7 +86,6 @@ const ReviewStep = ({
   const completeOrderMutation = useMutation({
     mutationFn: completeOrder,
     onSuccess: () => {
-      cookies.remove(isBuyNow ? "_medusa_buy_now_cart_id" : "_medusa_cart_id")
       setTimeout(() => {
         router.push("/checkout?step=success")
       }, 500)
@@ -115,11 +111,6 @@ const ReviewStep = ({
 
   const handleGoBack = () => {
     router.push("/checkout?step=shipping-address")
-  }
-
-  // Only render when this step is active
-  if (!isOpen) {
-    return null
   }
 
   return (

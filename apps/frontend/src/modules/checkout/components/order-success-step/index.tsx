@@ -2,12 +2,24 @@
 
 import { CheckCircleIcon } from "@heroicons/react/24/solid"
 import { Heading, Text } from "@medusajs/ui"
+import { deleteCookie } from "cookies-next/client"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect } from "react"
 
-const OrderSuccessStep = () => {
-  const searchParams = useSearchParams()
+const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
   const router = useRouter()
-  const isOpen = searchParams.get("step") === "success"
+
+  // Delete cart cookie when user navigates away from success page
+  useEffect(() => {
+    return () => {
+      // This cleanup function runs when component unmounts
+      deleteCookie(isBuyNow ? "_medusa_buy_now_cart_id" : "_medusa_cart_id", {
+        path: "/",
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+      })
+    }
+  }, [])
 
   const handleContinueShopping = () => {
     router.push("/")
@@ -15,10 +27,6 @@ const OrderSuccessStep = () => {
 
   const handleViewOrders = () => {
     router.push("/account/orders")
-  }
-
-  if (!isOpen) {
-    return null
   }
 
   return (

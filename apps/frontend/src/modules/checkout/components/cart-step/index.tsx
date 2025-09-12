@@ -3,7 +3,7 @@
 import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { useCart, useDeleteCartItem, useUpdateCartItem } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 interface CartProps {
   initialCart: HttpTypes.StoreCart
@@ -12,7 +12,6 @@ interface CartProps {
 export default function CartStep({ initialCart }: CartProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const isOpen = searchParams.get("step") === "cart"
 
   const { data: cart } = useCart(initialCart.id)
   const currentCart = cart || initialCart
@@ -45,10 +44,6 @@ export default function CartStep({ initialCart }: CartProps) {
     const params = new URLSearchParams(searchParams.toString())
     params.set("step", "shipping-address")
     router.push(`?${params.toString()}`)
-  }
-
-  if (!isOpen) {
-    return null
   }
 
   return (

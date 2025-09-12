@@ -95,7 +95,7 @@ const ShippingAddress = () => {
           required: "City is required",
         })}
         error={errors.shipping_address?.city}
-        autoComplete="address-level2"
+        autoComplete="city"
         required
         data-testid="shipping-city-input"
       />

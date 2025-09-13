@@ -1,16 +1,11 @@
 import { sdk } from "@lib/config"
-import { HttpTypes } from "@medusajs/types"
+import { CompleteOrderParams } from "@modules/checkout/types"
 
 export async function completeOrder({
   cart,
   shippingMethodId,
   providerId,
-}: {
-  cart: HttpTypes.StoreCart
-  shippingMethodId: string
-  providerId: string
-  isBuyNow?: boolean
-}) {
+}: CompleteOrderParams) {
   await sdk.store.cart.addShippingMethod(cart.id, {
     option_id: shippingMethodId,
   })

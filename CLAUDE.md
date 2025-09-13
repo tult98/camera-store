@@ -58,14 +58,21 @@ Each module follows this organization:
 modules/[module-name]/
 ├── apiCalls/    # API call functions (client-side)
 ├── components/  # React components
-│   ├── single-component.tsx           # Simple component
+│   ├── simple-component.tsx           # Simple component (single file)
 │   └── complex-component/             # Component with children
 │       ├── index.tsx                  # Main component
 │       └── child-component.tsx        # Child components
 ├── hooks/       # Custom React hooks (optional)
 ├── store/       # State management (optional)
-└── types/       # Module-specific types (optional)
+└── types/       # Shared business logic types only (optional)
 ```
+
+#### Component Architecture Guidelines
+- **Component Props**: Keep interface definitions with their components, not in types/
+- **Shared Types**: Only put shared business logic types in types/ directory
+- **Simple Components**: Single .tsx files for components without children
+- **Complex Components**: Use directories only for components with multiple child components
+- **Naming**: Use kebab-case for component files and directories
 
 ## Key Patterns
 

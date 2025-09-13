@@ -5,17 +5,15 @@ import { sdk } from "@lib/config"
 import { useToast } from "@lib/providers/toast-provider"
 import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
+import ShippingAddress from "@modules/checkout/components/shipping-address"
+import { ShippingAddressFormData } from "@modules/checkout/types"
 import { useMutation } from "@tanstack/react-query"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { FormProvider, useForm } from "react-hook-form"
-import ShippingAddress, { ShippingAddressFormData } from "../shipping-address"
 
 const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const router = useRouter()
   const { showToast } = useToast()
-  const searchParams = useSearchParams()
-
-  const step = searchParams.get("step")
 
   const methods = useForm<ShippingAddressFormData>({
     mode: "onBlur",

@@ -1,10 +1,6 @@
-import { HttpTypes } from "@medusajs/types"
 import FormInput from "@modules/common/components/form-input"
+import { ShippingAddressFormData } from "@modules/checkout/types"
 import { useFormContext } from "react-hook-form"
-
-export interface ShippingAddressFormData extends HttpTypes.StoreUpdateCart {
-  shipping_address?: HttpTypes.StoreAddAddress
-}
 
 const ShippingAddress = () => {
   const {

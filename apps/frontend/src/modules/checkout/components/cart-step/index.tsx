@@ -6,11 +6,11 @@ import { formatPrice } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { useRouter, useSearchParams } from "next/navigation"
 
-interface CartProps {
+interface CartStepProps {
   initialCart: HttpTypes.StoreCart
 }
 
-export default function CartStep({ initialCart }: CartProps) {
+export default function CartStep({ initialCart }: CartStepProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
 

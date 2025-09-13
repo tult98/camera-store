@@ -20,7 +20,7 @@ export default function Checkout({ cart, isBuyNow }: CheckoutClientProps) {
           <CheckoutProgress />
           <CheckoutForm cart={cart} isBuyNow={isBuyNow} />
         </div>
-        <CheckoutSummary cart={cart} />
+        <CheckoutSummary initialCart={cart} />
       </div>
     </div>
   )

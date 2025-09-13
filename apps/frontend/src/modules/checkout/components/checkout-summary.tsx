@@ -1,10 +1,14 @@
+import { useCart } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 
 import ItemsPreviewTemplate from "@modules/cart/templates/preview"
 import CartTotals from "@modules/common/components/cart-totals"
 
-const CheckoutSummary = ({ cart }: { cart: HttpTypes.StoreCart }) => {
+const CheckoutSummary = ({ initialCart }: { initialCart: HttpTypes.StoreCart }) => {
+  const { data: cart } = useCart(initialCart.id)
+  const currentCart = cart || initialCart
+
   return (
     <div className="md:sticky md:top-0 border border-gray-200 p-4 md:p-6 rounded-lg overflow-hidden">
       <div className="w-full flex flex-col space-y-4 md:space-y-6">
@@ -14,12 +18,12 @@ const CheckoutSummary = ({ cart }: { cart: HttpTypes.StoreCart }) => {
 
         {/* Items */}
         <div className="space-y-3 md:space-y-4 overflow-x-auto">
-          <ItemsPreviewTemplate cart={cart} />
+          <ItemsPreviewTemplate cart={currentCart} />
         </div>
 
         {/* Totals */}
         <div className="pt-3 md:pt-4">
-          <CartTotals totals={cart} />
+          <CartTotals totals={currentCart} />
         </div>
       </div>
     </div>

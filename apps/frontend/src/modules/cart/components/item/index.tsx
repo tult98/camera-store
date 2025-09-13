@@ -1,6 +1,6 @@
 "use client"
 
-import { updateLineItem } from "@lib/data/cart"
+import { useUpdateCartItem } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
 import { clx } from "@medusajs/ui"
 import CartItemSelect from "@modules/cart/components/cart-item-select"
@@ -12,32 +12,24 @@ import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Spinner from "@modules/common/icons/spinner"
 import Thumbnail from "@modules/products/components/thumbnail"
-import { useState } from "react"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
   type?: "full" | "preview"
   currencyCode: string
+  cartId?: string
 }
 
-const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
-  const [updating, setUpdating] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
+  const updateCartItem = useUpdateCartItem(cartId || '')
 
-  const changeQuantity = async (quantity: number) => {
-    setError(null)
-    setUpdating(true)
-
-    await updateLineItem({
+  const changeQuantity = (quantity: number) => {
+    if (!cartId) return
+    
+    updateCartItem.mutate({
       lineId: item.id,
       quantity,
     })
-      .catch((err) => {
-        setError(err.message)
-      })
-      .finally(() => {
-        setUpdating(false)
-      })
   }
 
   // TODO: Update this to grab the actual max inventory
@@ -95,9 +87,9 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
                 1
               </option>
             </CartItemSelect>
-            {updating && <Spinner />}
+            {updateCartItem.isPending && <Spinner />}
           </div>
-          <ErrorMessage error={error} data-testid="product-error-message" />
+          <ErrorMessage error={updateCartItem.error?.message || null} data-testid="product-error-message" />
         </td>
       )}
 

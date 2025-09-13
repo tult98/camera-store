@@ -2,6 +2,7 @@
 
 import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { useCart, useDeleteCartItem, useUpdateCartItem } from "@lib/hooks/use-cart"
+import { formatPrice } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -93,15 +94,7 @@ export default function CartStep({ initialCart }: CartProps) {
                       </p>
                     )}
                     <p className="text-lg font-bold text-gray-900 mt-2">
-                      {currentCart.currency_code === 'VND' ? 
-                        `${((item.unit_price || 0) / 100).toLocaleString('vi-VN')} đ` :
-                        ((item.unit_price || 0) / 100).toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: currentCart.currency_code || 'USD',
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0
-                        })
-                      }
+                      {formatPrice(item.unit_price || 0, currentCart.currency_code || 'USD')}
                     </p>
                   </div>
                 </div>
@@ -181,7 +174,7 @@ export default function CartStep({ initialCart }: CartProps) {
                     </p>
                   )}
                   <p className="text-lg font-semibold text-base-content mt-1">
-                    ${((item.unit_price || 0) / 100).toFixed(2)}
+                    {formatPrice(item.total || 0, currentCart.currency_code || 'USD')}
                   </p>
                 </div>
 

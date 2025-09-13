@@ -3,6 +3,7 @@ import {
   ContainerRegistrationKeys,
   QueryContext,
 } from "@medusajs/framework/utils";
+import { getAllCategoryIds } from "src/utils/category-hierarchy";
 
 export async function GET(
   req: MedusaRequest,
@@ -16,7 +17,7 @@ export async function GET(
       throw new Error("region_id and currency_code are required");
     }
 
-    // Get services
+    // Get query service
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY);
 
     // Get categories that have hero banners (stored in metadata)
@@ -45,22 +46,27 @@ export async function GET(
 
     const categoriesWithDetails = await Promise.all(
       featuredCategories.map(async (category) => {
-        // Get top 8 products from the category (simplified for now)
-        const categoryProductsResult = await query.graph({
+        // Get all category IDs including child categories
+        const categoryIds = await getAllCategoryIds(query, category.id);
+
+        // Get top 8 products from the category and its children with calculated prices
+        const productsResult = await query.graph({
           entity: "product",
           fields: [
             "id",
             "title",
             "handle",
+            "status",
             "description",
-            "thumbnail",
             "images.*",
             "variants.*",
             "variants.calculated_price.*",
+            "thumbnail"
           ],
           filters: {
+            categories: { id: { $in: categoryIds } },
             status: "published",
-          },
+          } as unknown as undefined,
           context: {
             variants: {
               calculated_price: QueryContext({
@@ -69,9 +75,12 @@ export async function GET(
               }),
             },
           },
+          pagination: {
+            take: 8,
+          },
         });
 
-        const selectedProducts = categoryProductsResult.data.slice(0, 8);
+        const productsWithPrices = productsResult.data || [];
 
         return {
           id: category.id,
@@ -80,16 +89,23 @@ export async function GET(
           category_handle: category.handle,
           hero_image_url: category.metadata?.["hero_image_url"],
           display_order: Number(category.metadata?.["display_order"]) || 0,
-          products: selectedProducts,
+          products: productsWithPrices,
         };
       })
     );
 
     res.json({
-      featured_categories: categoriesWithDetails,
+      featured_categories: categoriesWithDetails.filter(
+        (category) => category.products.length > 0
+      ),
     });
   } catch (error) {
-    console.error("Error fetching featured categories:", error);
+    const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+    logger.error(
+      `Error fetching featured categories: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
     res.status(500).json({
       error: "Failed to fetch featured categories",
     });

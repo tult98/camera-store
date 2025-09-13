@@ -61,7 +61,7 @@ export async function GET(
             "images.*",
             "variants.*",
             "variants.calculated_price.*",
-            "thumbnail"
+            "thumbnail",
           ],
           filters: {
             categories: { id: { $in: categoryIds } },

@@ -30,7 +30,7 @@ const HomePage = ({ featuredCategories }: HomePageProps) => {
             <FeaturedCategorySection
               key={category.id || index}
               title={category.category_name}
-              heroImage={category.hero_image_url}
+              heroImage={category.hero_image_url!}
               categoryLink={`/categories/${category.category_handle}`}
               products={category.products}
             />

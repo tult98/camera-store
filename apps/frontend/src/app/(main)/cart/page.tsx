@@ -1,8 +1,6 @@
 import { retrieveCart } from "@lib/data/cart"
-import { retrieveCustomer } from "@lib/data/customer"
-import CartTemplate from "@modules/cart/templates"
+import CartClient from "@modules/cart/components/cart-client"
 import { Metadata } from "next"
-import { notFound } from "next/navigation"
 
 // Force dynamic rendering due to cookies usage
 export const dynamic = 'force-dynamic'
@@ -13,12 +11,9 @@ export const metadata: Metadata = {
 }
 
 export default async function Cart() {
-  const cart = await retrieveCart().catch((error) => {
-    console.error(error)
-    return notFound()
-  })
+  // Fetch only cart data server-side for faster initial load
+  // Customer data is not critical and can be fetched client-side
+  const cart = await retrieveCart().catch(() => null)
 
-  const customer = await retrieveCustomer()
-
-  return <CartTemplate cart={cart} customer={customer} />
+  return <CartClient initialCart={cart} />
 }

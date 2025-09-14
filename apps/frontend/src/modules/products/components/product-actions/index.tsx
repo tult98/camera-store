@@ -6,6 +6,7 @@ import { useToast } from "@lib/providers/toast-provider"
 import { HttpTypes } from "@medusajs/types"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
+import { useAddToCart } from "@modules/shared/hooks"
 import { useMutation } from "@tanstack/react-query"
 import { isEqual } from "lodash"
 import { useRouter } from "next/navigation"
@@ -31,10 +32,12 @@ export default function ProductActions({
   disabled,
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
-  const [isAdding, setIsAdding] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const router = useRouter()
   const { showToast } = useToast()
+
+  // Add to cart mutation
+  const addToCartMutation = useAddToCart()
 
   // Buy Now mutation using React Query
   const buyNowMutation = useMutation({
@@ -110,18 +113,13 @@ export default function ProductActions({
   const actionsRef = useRef<HTMLDivElement>(null)
 
   // add the selected variant to the cart
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!selectedVariant?.id) return
 
-    setIsAdding(true)
-
-    // await addToCart({
-    //   variantId: selectedVariant.id,
-    //   quantity: quantity,
-    //   countryCode,
-    // })
-
-    setIsAdding(false)
+    addToCartMutation.mutate({
+      variantId: selectedVariant.id,
+      quantity: quantity,
+    })
   }
 
   // handle buy now - create new cart and go to checkout
@@ -155,7 +153,7 @@ export default function ProductActions({
                       updateOption={setOptionValue}
                       title={option.title ?? ""}
                       data-testid="product-options"
-                      disabled={!!disabled || isAdding}
+                      disabled={!!disabled || addToCartMutation.isPending}
                     />
                   </div>
                 )
@@ -216,16 +214,17 @@ export default function ProductActions({
               disabled={
                 !selectedVariant ||
                 !!disabled ||
-                isAdding ||
+                addToCartMutation.isPending ||
                 !isValidVariant ||
                 !inStock
               }
               className="btn btn-outline h-12 px-6"
               data-testid="add-product-button"
             >
-              {isAdding ? (
+              {addToCartMutation.isPending && (
                 <span className="loading loading-spinner loading-sm"></span>
-              ) : !inStock && selectedVariant && isValidVariant ? (
+              )}
+              {!inStock && selectedVariant && isValidVariant ? (
                 "Out of stock"
               ) : (
                 <>
@@ -268,9 +267,9 @@ export default function ProductActions({
           updateOptions={setOptionValue}
           inStock={inStock}
           handleAddToCart={handleAddToCart}
-          isAdding={isAdding}
+          isAdding={addToCartMutation.isPending}
           show={false}
-          optionsDisabled={!!disabled || isAdding}
+          optionsDisabled={!!disabled || addToCartMutation.isPending}
         />
       </div>
     </>

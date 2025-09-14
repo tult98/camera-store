@@ -1,22 +1,65 @@
-import { Heading, Text } from "@medusajs/ui"
-
-import InteractiveLink from "@modules/common/components/interactive-link"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { ShoppingCartIcon, CameraIcon, SparklesIcon } from "@heroicons/react/24/outline"
 
 const EmptyCartMessage = () => {
+  const categories = [
+    { name: "Cameras", href: "/categories/cameras", icon: CameraIcon },
+    { name: "Lenses", href: "/categories/lenses", icon: SparklesIcon },
+    { name: "All Products", href: "/store", icon: ShoppingCartIcon },
+  ]
+
   return (
-    <div className="py-48 px-2 flex flex-col justify-center items-start" data-testid="empty-cart-message">
-      <Heading
-        level="h1"
-        className="flex flex-row text-3xl-regular gap-x-2 items-baseline"
-      >
-        Cart
-      </Heading>
-      <Text className="text-base-regular mt-4 mb-6 max-w-[32rem]">
-        You don&apos;t have anything in your cart. Let&apos;s change that, use
-        the link below to start browsing our products.
-      </Text>
-      <div>
-        <InteractiveLink href="/categories/cameras">Explore cameras</InteractiveLink>
+    <div className="min-h-[60vh] flex items-center justify-center" data-testid="empty-cart-message">
+      <div className="text-center max-w-2xl mx-auto px-4">
+        <div className="mb-8">
+          <div className="relative inline-block">
+            <ShoppingCartIcon className="w-24 h-24 text-base-content/20" />
+            <div className="absolute -bottom-2 -right-2 bg-base-200 rounded-full p-2">
+              <span className="text-2xl">😔</span>
+            </div>
+          </div>
+        </div>
+        
+        <h2 className="text-3xl font-bold text-base-content mb-4">
+          Your Cart is Empty
+        </h2>
+        
+        <p className="text-lg text-base-content/70 mb-8 max-w-md mx-auto">
+          Looks like you haven&apos;t added any camera gear to your cart yet. 
+          Let&apos;s find the perfect equipment for your photography needs!
+        </p>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {categories.map((category) => (
+            <LocalizedClientLink
+              key={category.name}
+              href={category.href}
+              className="card bg-base-200 hover:bg-base-300 transition-colors"
+            >
+              <div className="card-body items-center text-center p-6">
+                <category.icon className="w-8 h-8 text-primary mb-2" />
+                <h3 className="card-title text-base">{category.name}</h3>
+              </div>
+            </LocalizedClientLink>
+          ))}
+        </div>
+        
+        <LocalizedClientLink href="/store">
+          <button className="btn btn-primary btn-lg">
+            Start Shopping
+            <ShoppingCartIcon className="w-5 h-5 ml-2" />
+          </button>
+        </LocalizedClientLink>
+        
+        <div className="mt-12 p-6 bg-base-200 rounded-lg">
+          <h3 className="font-semibold text-base-content mb-2">
+            🎯 Pro Tip
+          </h3>
+          <p className="text-sm text-base-content/70">
+            Create an account to save items to your wishlist and get personalized recommendations 
+            based on your photography style!
+          </p>
+        </div>
       </div>
     </div>
   )

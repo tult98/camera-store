@@ -1,12 +1,9 @@
 "use client"
 
-import { Button, Heading } from "@medusajs/ui"
-
-import CartTotals from "@modules/common/components/cart-totals"
-import Divider from "@modules/common/components/divider"
-import DiscountCode from "@modules/checkout/components/discount-code"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { ArrowRightIcon } from "@heroicons/react/24/outline"
 import { HttpTypes } from "@medusajs/types"
+import CartTotals from "@modules/common/components/cart-totals"
+import Link from "next/link"
 
 type SummaryProps = {
   cart: HttpTypes.StoreCart & {
@@ -14,33 +11,33 @@ type SummaryProps = {
   }
 }
 
-function getCheckoutStep(cart: HttpTypes.StoreCart) {
-  if (!cart?.shipping_address?.address_1 || !cart.email) {
-    return "address"
-  } else if (cart?.shipping_methods?.length === 0) {
-    return "delivery"
-  } else {
-    return "payment"
-  }
-}
-
+// TODO: Check the current step based on the cart data instead of URL's params later.
 const Summary = ({ cart }: SummaryProps) => {
-  const step = getCheckoutStep(cart)
-
   return (
-    <div className="flex flex-col gap-y-4">
-      <Heading level="h2" className="text-[2rem] leading-[2.75rem]">
-        Summary
-      </Heading>
-      <DiscountCode cart={cart} />
-      <Divider />
-      <CartTotals totals={cart} />
-      <LocalizedClientLink
-        href={"/checkout?step=" + step}
-        data-testid="checkout-button"
-      >
-        <Button className="w-full h-10">Go to checkout</Button>
-      </LocalizedClientLink>
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-base-content">Order Summary</h2>
+      <div className="space-y-4">
+        <div className="divider my-4"></div>
+        <CartTotals totals={cart} />
+        <div className="divider my-4"></div>
+        <div className="flex flex-col gap-2">
+          <Link
+            href="/checkout"
+            data-testid="checkout-button"
+            className="w-full"
+          >
+            <button className="btn btn-primary btn-block">
+              Proceed to Checkout
+              <ArrowRightIcon className="w-5 h-5 ml-2" />
+            </button>
+          </Link>
+          <Link href="/" className="w-full">
+            <button className="btn btn-outline btn-block">
+              Continue Shopping
+            </button>
+          </Link>
+        </div>
+      </div>
     </div>
   )
 }

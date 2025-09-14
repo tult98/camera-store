@@ -11,7 +11,6 @@ type SummaryProps = {
   }
 }
 
-// TODO: Check the current step based on the cart data instead of URL's params later.
 const Summary = ({ cart }: SummaryProps) => {
   return (
     <div className="space-y-6">

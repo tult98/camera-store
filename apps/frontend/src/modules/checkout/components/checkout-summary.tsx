@@ -2,7 +2,7 @@ import { useCart } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 
-import ItemsPreviewTemplate from "@modules/cart/templates/preview"
+import ItemsPreviewTemplate from "@modules/cart/components/cart-items-preview"
 import CartTotals from "@modules/common/components/cart-totals"
 
 const CheckoutSummary = ({ initialCart }: { initialCart: HttpTypes.StoreCart }) => {

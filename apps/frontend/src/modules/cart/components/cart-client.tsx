@@ -3,7 +3,7 @@
 import { useCart } from '@lib/hooks/use-cart'
 import { getCartId } from '@modules/shared/utils/cart-cookies'
 import { useEffect, useState } from 'react'
-import CartTemplate from '../templates'
+import CartTemplate from './cart-template'
 import SkeletonCartPage from '@modules/skeletons/templates/skeleton-cart-page'
 import { HttpTypes } from "@medusajs/types"
 

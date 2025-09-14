@@ -1,14 +1,13 @@
 "use client"
 
-import { useUpdateCartItem, useDeleteCartItem } from "@lib/hooks/use-cart"
+import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
+import { useDeleteCartItem, useUpdateCartItem } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
 import LineItemUnitPrice from "@modules/common/components/line-item-unit-price"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import Thumbnail from "@modules/products/components/thumbnail"
-import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
 import Image from "next/image"
+import Link from "next/link"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
@@ -18,12 +17,12 @@ type ItemProps = {
 }
 
 const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
-  const updateCartItem = useUpdateCartItem(cartId || '')
-  const deleteCartItem = useDeleteCartItem(cartId || '')
+  const updateCartItem = useUpdateCartItem(cartId || "")
+  const deleteCartItem = useDeleteCartItem(cartId || "")
 
   const changeQuantity = (quantity: number) => {
     if (!cartId || quantity < 1) return
-    
+
     updateCartItem.mutate({
       lineId: item.id,
       quantity,
@@ -35,15 +34,17 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
     deleteCartItem.mutate(item.id)
   }
 
-  const isUpdating = updateCartItem.isPending && updateCartItem.variables?.lineId === item.id
-  const isDeleting = deleteCartItem.isPending && deleteCartItem.variables === item.id
+  const isUpdating =
+    updateCartItem.isPending && updateCartItem.variables?.lineId === item.id
+  const isDeleting =
+    deleteCartItem.isPending && deleteCartItem.variables === item.id
 
   const maxQuantity = 10
 
   if (type === "preview") {
     return (
       <div className="flex items-center gap-4 p-4 border-b border-base-200">
-        <LocalizedClientLink
+        <Link
           href={`/products/${item.product_handle}`}
           className="flex-shrink-0"
         >
@@ -51,7 +52,7 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
             {item.thumbnail ? (
               <Image
                 src={item.thumbnail}
-                alt={item.product_title || ''}
+                alt={item.product_title || ""}
                 fill
                 className="object-cover rounded-lg"
               />
@@ -59,15 +60,17 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
               <div className="w-full h-full bg-base-200 rounded-lg" />
             )}
           </div>
-        </LocalizedClientLink>
-        
+        </Link>
+
         <div className="flex-grow min-w-0">
           <h3 className="text-sm font-medium text-base-content truncate">
             {item.product_title}
           </h3>
           <LineItemOptions variant={item.variant} />
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm text-base-content/70">{item.quantity}x</span>
+            <span className="text-sm text-base-content/70">
+              {item.quantity}x
+            </span>
             <LineItemUnitPrice
               item={item}
               style="tight"
@@ -75,12 +78,8 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
             />
           </div>
         </div>
-        
-        <LineItemPrice
-          item={item}
-          style="tight"
-          currencyCode={currencyCode}
-        />
+
+        <LineItemPrice item={item} style="tight" currencyCode={currencyCode} />
       </div>
     )
   }
@@ -91,7 +90,7 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
       <div className="md:hidden card bg-base-100 border border-base-300">
         <div className="card-body p-4">
           <div className="flex gap-4">
-            <LocalizedClientLink
+            <Link
               href={`/products/${item.product_handle}`}
               className="flex-shrink-0"
             >
@@ -99,27 +98,43 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
                 {item.thumbnail ? (
                   <Image
                     src={item.thumbnail}
-                    alt={item.product_title || ''}
+                    alt={item.product_title || ""}
                     fill
                     className="object-cover rounded-lg"
                   />
                 ) : (
                   <div className="w-full h-full bg-base-200 rounded-lg flex items-center justify-center">
-                    <svg className="w-8 h-8 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-8 h-8 text-base-content/30"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                   </div>
                 )}
               </div>
-            </LocalizedClientLink>
-            
+            </Link>
+
             <div className="flex-grow min-w-0">
-              <LocalizedClientLink href={`/products/${item.product_handle}`}>
-                <h3 className="font-semibold text-base-content line-clamp-2" data-testid="product-title">
+              <Link href={`/products/${item.product_handle}`}>
+                <h3
+                  className="font-semibold text-base-content line-clamp-2"
+                  data-testid="product-title"
+                >
                   {item.product_title}
                 </h3>
-              </LocalizedClientLink>
-              <LineItemOptions variant={item.variant} data-testid="product-variant" />
+              </Link>
+              <LineItemOptions
+                variant={item.variant}
+                data-testid="product-variant"
+              />
               <div className="mt-2">
                 <LineItemUnitPrice
                   item={item}
@@ -129,7 +144,7 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between mt-4">
             <div className="join">
               <button
@@ -149,14 +164,18 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
               </div>
               <button
                 onClick={() => changeQuantity((item.quantity || 1) + 1)}
-                disabled={isUpdating || isDeleting || (item.quantity || 1) >= maxQuantity}
+                disabled={
+                  isUpdating ||
+                  isDeleting ||
+                  (item.quantity || 1) >= maxQuantity
+                }
                 className="btn btn-sm join-item"
                 aria-label="Increase quantity"
               >
                 <PlusIcon className="w-4 h-4" />
               </button>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <div className="text-xs text-base-content/60">Total</div>
@@ -185,9 +204,12 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden md:grid md:grid-cols-12 md:gap-4 md:items-center md:py-4 md:border-b md:border-base-200" data-testid="product-row">
+      <div
+        className="hidden md:grid md:grid-cols-12 md:gap-4 md:items-center md:py-4 md:border-b md:border-base-200"
+        data-testid="product-row"
+      >
         <div className="col-span-5 flex items-center gap-4">
-          <LocalizedClientLink
+          <Link
             href={`/products/${item.product_handle}`}
             className="flex-shrink-0"
           >
@@ -195,30 +217,46 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
               {item.thumbnail ? (
                 <Image
                   src={item.thumbnail}
-                  alt={item.product_title || ''}
+                  alt={item.product_title || ""}
                   fill
                   className="object-cover rounded-lg"
                 />
               ) : (
                 <div className="w-full h-full bg-base-200 rounded-lg flex items-center justify-center">
-                  <svg className="w-8 h-8 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="w-8 h-8 text-base-content/30"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
               )}
             </div>
-          </LocalizedClientLink>
-          
+          </Link>
+
           <div className="flex-grow min-w-0">
-            <LocalizedClientLink href={`/products/${item.product_handle}`}>
-              <h3 className="font-semibold text-base-content hover:text-primary transition-colors" data-testid="product-title">
+            <Link href={`/products/${item.product_handle}`}>
+              <h3
+                className="font-semibold text-base-content hover:text-primary transition-colors"
+                data-testid="product-title"
+              >
                 {item.product_title}
               </h3>
-            </LocalizedClientLink>
-            <LineItemOptions variant={item.variant} data-testid="product-variant" />
+            </Link>
+            <LineItemOptions
+              variant={item.variant}
+              data-testid="product-variant"
+            />
           </div>
         </div>
-        
+
         <div className="col-span-2 text-center">
           <LineItemUnitPrice
             item={item}
@@ -226,7 +264,7 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
             currencyCode={currencyCode}
           />
         </div>
-        
+
         <div className="col-span-2 flex justify-center items-center">
           <div className="join">
             <button
@@ -247,7 +285,9 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
             </div>
             <button
               onClick={() => changeQuantity((item.quantity || 1) + 1)}
-              disabled={isUpdating || isDeleting || (item.quantity || 1) >= maxQuantity}
+              disabled={
+                isUpdating || isDeleting || (item.quantity || 1) >= maxQuantity
+              }
               className="btn btn-sm join-item"
               aria-label="Increase quantity"
             >
@@ -255,7 +295,7 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
             </button>
           </div>
         </div>
-        
+
         <div className="col-span-1 flex justify-center items-center">
           <button
             onClick={handleDelete}
@@ -271,7 +311,7 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
             )}
           </button>
         </div>
-        
+
         <div className="col-span-2 text-right">
           <LineItemPrice
             item={item}

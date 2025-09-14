@@ -1,8 +1,8 @@
 import { ShoppingBagIcon } from "@heroicons/react/24/outline"
 import { HttpTypes } from "@medusajs/types"
-import EmptyCartMessage from "../components/empty-cart-message"
-import ItemsTemplate from "./items"
-import Summary from "./summary"
+import EmptyCartMessage from "./empty-cart-message"
+import ItemsTemplate from "./cart-items"
+import Summary from "./cart-summary"
 
 const CartTemplate = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
   return (

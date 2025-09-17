@@ -39,6 +39,7 @@ export class ProductsService {
         "variants.*",
         "variants.calculated_price.*",
         "categories.*",
+        "categories.parent_category.*",
         "tags.*",
         "images.*",
       ],

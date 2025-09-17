@@ -22,7 +22,9 @@ export const generateProductBreadcrumbs = (
     const primaryCategory = product.categories[0]
     
     // Add parent categories if they exist (assuming nested structure)
-    if (primaryCategory.parent_category) {
+    if (primaryCategory.parent_category && 
+        primaryCategory.parent_category.name && 
+        primaryCategory.parent_category.handle) {
       breadcrumbs.push({
         title: primaryCategory.parent_category.name,
         href: `/categories/${primaryCategory.parent_category.handle}`

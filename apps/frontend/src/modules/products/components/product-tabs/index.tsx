@@ -2,6 +2,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 import { useState } from "react"
+import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct & {
@@ -86,7 +87,13 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
                           {spec.label}
                         </td>
                         <td className="text-base-content/80 w-3/5 break-words">
-                          {spec.value as string}
+                          {spec.value === true ? (
+                            <CheckCircleIcon className="w-5 h-5 text-success" />
+                          ) : spec.value === false ? (
+                            <XCircleIcon className="w-5 h-5 text-error" />
+                          ) : (
+                            (spec.value as string)
+                          )}
                         </td>
                       </tr>
                     ))}

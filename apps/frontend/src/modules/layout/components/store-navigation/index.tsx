@@ -1,11 +1,13 @@
 import Link from "next/link"
 import { getCategoriesForNavigation } from "@lib/data/categories"
+import { retrieveCart } from "@lib/data/cart"
 import { ChevronDownIcon } from "@heroicons/react/24/outline"
 import CartDropdown from "./cart-dropdown"
 
 // Navigation component for category-based navigation matching the image design
 const StoreNavigation = async () => {
   const categories = await getCategoriesForNavigation()
+  const cart = await retrieveCart()
 
   return (
     <div className="navbar bg-base-100 shadow-sm px-6 relative z-10">
@@ -89,7 +91,7 @@ const StoreNavigation = async () => {
       </div>
 
       <div className="navbar-end">
-        <CartDropdown />
+        <CartDropdown cart={cart} />
       </div>
     </div>
   )

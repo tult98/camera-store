@@ -1,12 +1,25 @@
 "use client"
 
 import { ShoppingCartIcon } from "@heroicons/react/24/outline"
+import { useCart } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
+import { getCartId } from "@modules/shared/utils/cart-cookies"
 import Link from "next/link"
 
-const CartDropdown = ({ cart }: { cart?: HttpTypes.StoreCart | null }) => {
-  // Calculate total items count from cart
-  const lineProductsCount = cart?.items?.length || 0
+const CartDropdown = ({
+  cart: initialCart,
+}: {
+  cart?: HttpTypes.StoreCart | null
+}) => {
+  // Get cart ID from cookies
+  const cartId = getCartId()
+
+  // Use React Query to fetch cart data - this will auto-update when cart changes
+  const { data: cart } = useCart(cartId || undefined, undefined, initialCart)
+
+  // Calculate total items count from cart (prefer React Query data, fallback to initial)
+  const lineProductsCount =
+    cart?.items?.length || initialCart?.items?.length || 0
 
   return (
     <Link href="/cart">

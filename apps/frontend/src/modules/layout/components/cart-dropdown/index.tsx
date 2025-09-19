@@ -6,6 +6,7 @@ import {
   PopoverPanel,
   Transition,
 } from "@headlessui/react"
+import { useCart } from "@lib/hooks/use-cart"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
@@ -14,11 +15,12 @@ import LineItemOptions from "@modules/common/components/line-item-options"
 import LineItemPrice from "@modules/common/components/line-item-price"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "@modules/products/components/thumbnail"
+import { getCartId } from "@modules/shared/utils/cart-cookies"
 import { usePathname } from "next/navigation"
 import { Fragment, useEffect, useRef, useState } from "react"
 
 const CartDropdown = ({
-  cart: cartState,
+  cart: initialCart,
 }: {
   cart?: HttpTypes.StoreCart | null
 }) => {
@@ -29,6 +31,16 @@ const CartDropdown = ({
 
   const open = () => setCartDropdownOpen(true)
   const close = () => setCartDropdownOpen(false)
+
+  // Get cart ID from cookies
+  const cartId = getCartId()
+
+  // Use React Query to get real-time cart updates
+  const { data: cartState } = useCart(
+    cartId || undefined,
+    undefined,
+    initialCart
+  )
 
   const totalItems =
     cartState?.items?.reduce((acc, item) => {

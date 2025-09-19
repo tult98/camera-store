@@ -6,9 +6,10 @@ import { useProductBreadcrumbs } from "@modules/layout/components/breadcrumbs/us
 
 type ProductInfoProps = {
   product: HttpTypes.StoreProduct
+  selectedVariant?: HttpTypes.StoreProductVariant
 }
 
-const ProductInfo = ({ product }: ProductInfoProps) => {
+const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
   // Set breadcrumbs in the layout context
   useProductBreadcrumbs(product)
 
@@ -24,7 +25,11 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         </h1>
         
         <div className="bg-base-100/80 rounded-lg p-3">
-          <ProductPrice product={product} mode="range" />
+          <ProductPrice 
+            product={product} 
+            variant={selectedVariant}
+            mode={selectedVariant ? "single" : "range"}
+          />
         </div>
       </div>
     </div>

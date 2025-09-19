@@ -1,8 +1,7 @@
 import React, { Suspense } from "react"
 
 import ImageGallery from "@modules/products/components/image-gallery"
-import ProductActions from "@modules/products/components/product-actions"
-import ProductInfo from "@modules/products/templates/product-info"
+import ProductDetailsWrapper from "@modules/products/templates/product-details-wrapper"
 import ProductTabs from "@modules/products/components/product-tabs"
 import { notFound } from "next/navigation"
 import ProductActionsWrapper from "./product-actions-wrapper"
@@ -34,17 +33,19 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
         
         {/* Right Side - Product Information */}
         <div className="w-full lg:w-3/5 flex flex-col gap-y-8 pt-8 lg:pt-0">
-          <ProductInfo product={product} />
-          
           <Suspense
             fallback={
-              <ProductActions
+              <ProductDetailsWrapper
                 disabled={true}
                 product={product}
               />
             }
           >
-            <ProductActionsWrapper id={product.id} region={region} />
+            <ProductActionsWrapper 
+              id={product.id} 
+              region={region}
+              baseProduct={product}
+            />
           </Suspense>
         </div>
       </div>

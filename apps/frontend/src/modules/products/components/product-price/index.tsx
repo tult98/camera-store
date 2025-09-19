@@ -16,7 +16,9 @@ export default function ProductPrice({
     const priceRange = getPriceRange(product)
 
     if (!priceRange) {
-      return <div className="block w-32 h-12 bg-base-300 animate-pulse rounded" />
+      return (
+        <div className="block w-32 h-12 bg-base-300 animate-pulse rounded" />
+      )
     }
 
     return (
@@ -26,16 +28,25 @@ export default function ProductPrice({
             <span className="text-xl lg:text-2xl font-semibold text-primary">
               {priceRange.hasRange ? (
                 <>
-                  <span data-testid="min-price" data-value={priceRange.minPrice.calculated_price_number}>
+                  <span
+                    data-testid="min-price"
+                    data-value={priceRange.minPrice.calculated_price_number}
+                  >
                     {priceRange.minPrice.calculated_price}
                   </span>
                   <span className="text-primary mx-2">-</span>
-                  <span data-testid="max-price" data-value={priceRange.maxPrice.calculated_price_number}>
+                  <span
+                    data-testid="max-price"
+                    data-value={priceRange.maxPrice.calculated_price_number}
+                  >
                     {priceRange.maxPrice.calculated_price}
                   </span>
                 </>
               ) : (
-                <span data-testid="single-price" data-value={priceRange.minPrice.calculated_price_number}>
+                <span
+                  data-testid="single-price"
+                  data-value={priceRange.minPrice.calculated_price_number}
+                >
                   {priceRange.minPrice.calculated_price}
                 </span>
               )}
@@ -53,7 +64,8 @@ export default function ProductPrice({
             <span className="text-xs line-through">
               {priceRange.hasRange ? (
                 <>
-                  {priceRange.minPrice.original_price} - {priceRange.maxPrice.original_price}
+                  {priceRange.minPrice.original_price} -{" "}
+                  {priceRange.maxPrice.original_price}
                 </>
               ) : (
                 priceRange.minPrice.original_price

@@ -1,16 +1,18 @@
 import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
-import ProductActions from "@modules/products/components/product-actions"
+import ProductDetailsWrapper from "@modules/products/templates/product-details-wrapper"
 
 /**
- * Fetches real time pricing for a product and renders the product actions component.
+ * Fetches real time pricing for a product and renders the product details wrapper component.
  */
 export default async function ProductActionsWrapper({
   id,
   region,
+  baseProduct,
 }: {
   id: string
   region: HttpTypes.StoreRegion
+  baseProduct: HttpTypes.StoreProduct
 }) {
   const { product } = await sdk.store.product.retrieve(
     id,
@@ -22,8 +24,8 @@ export default async function ProductActionsWrapper({
   )
 
   if (!product) {
-    return null
+    return <ProductDetailsWrapper product={baseProduct} disabled />
   }
 
-  return <ProductActions product={product} />
+  return <ProductDetailsWrapper product={product} />
 }

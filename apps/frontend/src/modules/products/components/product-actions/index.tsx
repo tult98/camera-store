@@ -16,6 +16,8 @@ import MobileActions from "./mobile-actions"
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
   disabled?: boolean
+  onOptionsChange?: (options: Record<string, string | undefined>) => void
+  initialOptions?: Record<string, string | undefined>
 }
 
 const optionsAsKeymap = (
@@ -30,8 +32,10 @@ const optionsAsKeymap = (
 export default function ProductActions({
   product,
   disabled,
+  onOptionsChange,
+  initialOptions = {},
 }: ProductActionsProps) {
-  const [options, setOptions] = useState<Record<string, string | undefined>>({})
+  const [options, setOptions] = useState<Record<string, string | undefined>>(initialOptions)
   const [quantity, setQuantity] = useState(1)
   const router = useRouter()
   const { showToast } = useToast()
@@ -72,10 +76,12 @@ export default function ProductActions({
 
   // update the options when a variant is selected
   const setOptionValue = (optionId: string, value: string) => {
-    setOptions((prev) => ({
-      ...prev,
+    const newOptions = {
+      ...options,
       [optionId]: value,
-    }))
+    }
+    setOptions(newOptions)
+    onOptionsChange?.(newOptions)
   }
 
   //check if the selected options produce a valid variant

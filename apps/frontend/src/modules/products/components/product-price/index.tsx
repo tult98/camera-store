@@ -1,6 +1,4 @@
-import { clx } from "@medusajs/ui"
-
-import { getProductPrice, getPriceRange } from "@lib/util/get-product-price"
+import { getPriceRange, getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 
 export default function ProductPrice({
@@ -23,9 +21,8 @@ export default function ProductPrice({
 
     return (
       <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <div className="flex items-baseline gap-2">
-            <span className="text-xl lg:text-2xl font-semibold text-primary">
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-semibold text-primary">
               {priceRange.hasRange ? (
                 <>
                   <span
@@ -51,7 +48,6 @@ export default function ProductPrice({
                 </span>
               )}
             </span>
-          </div>
           {priceRange.hasSalePrice && priceRange.percentage_diff && (
             <span className="badge badge-secondary text-xs">
               -{priceRange.percentage_diff}%
@@ -60,8 +56,8 @@ export default function ProductPrice({
         </div>
         {priceRange.hasSalePrice && (
           <div className="flex items-center gap-2 text-base-content/60">
-            <span className="text-xs">Giá gốc:</span>
-            <span className="text-xs line-through">
+            <span className="text-sm">Original price:</span>
+            <span className="text-sm line-through">
               {priceRange.hasRange ? (
                 <>
                   {priceRange.minPrice.original_price} -{" "}
@@ -92,13 +88,7 @@ export default function ProductPrice({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-2">
-        <span
-          className={clx("text-xl font-semibold", {
-            "text-primary": selectedPrice.price_type === "sale",
-            "text-base-content": selectedPrice.price_type !== "sale",
-          })}
-        >
-          {!variant && "Từ "}
+        <span className="text-xl font-semibold text-primary">
           <span
             data-testid="product-price"
             data-value={selectedPrice.calculated_price_number}
@@ -114,7 +104,7 @@ export default function ProductPrice({
       </div>
       {selectedPrice.price_type === "sale" && (
         <div className="flex items-center gap-2 text-base-content/60">
-          <span className="text-sm">Giá gốc:</span>
+          <span className="text-sm">Original price:</span>
           <span
             className="text-sm line-through"
             data-testid="original-product-price"

@@ -1,4 +1,6 @@
-import { getFeaturedCategories } from "@lib/data/featured-categories"
+import { FeaturedCategoriesResponse } from "@camera-store/shared-types"
+import { sdk } from "@lib/config"
+import { getDefaultRegion } from "@lib/data/regions"
 import HomePage from "@modules/home/templates/home-page"
 import { Metadata } from "next"
 
@@ -12,8 +14,23 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
+  const defaultRegion = await getDefaultRegion()
+
+  if (!defaultRegion) {
+    throw new Error("No region found")
+  }
+
   const { featured_categories: featuredCategories } =
-    await getFeaturedCategories()
+    await sdk.client.fetch<FeaturedCategoriesResponse>(
+      `/store/featured-categories`,
+      {
+        method: "GET",
+        headers: {
+          region_id: defaultRegion.id,
+          currency_code: defaultRegion.currency_code,
+        },
+      }
+    )
 
   return <HomePage featuredCategories={featuredCategories} />
 }

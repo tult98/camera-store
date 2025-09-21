@@ -25,10 +25,6 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
     router.push("/")
   }
 
-  const handleViewOrders = () => {
-    router.push("/account/orders")
-  }
-
   return (
     <div className="bg-white rounded-lg shadow-sm">
       <div className="text-center py-16 px-8">
@@ -48,13 +44,10 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
           order details and tracking information shortly.
         </Text>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-          <button onClick={handleViewOrders} className="btn btn-primary flex-1">
-            View My Orders
-          </button>
+        <div className="flex justify-center max-w-md mx-auto">
           <button
             onClick={handleContinueShopping}
-            className="btn btn-outline flex-1"
+            className="btn btn-primary px-8"
           >
             Continue Shopping
           </button>

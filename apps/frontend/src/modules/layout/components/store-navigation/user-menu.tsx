@@ -29,8 +29,6 @@ const UserMenu = () => {
               <li className="menu-title">
                 <span>Welcome, {userName}</span>
               </li>
-              <li><Link href="/account" onClick={() => setIsOpen(false)}>My Account</Link></li>
-              <li><Link href="/orders" onClick={() => setIsOpen(false)}>My Orders</Link></li>
               <li><Link href="/wishlist" onClick={() => setIsOpen(false)}>Wishlist</Link></li>
               <li><hr className="my-1" /></li>
               <li><button onClick={() => setIsOpen(false)}>Sign Out</button></li>
@@ -39,8 +37,6 @@ const UserMenu = () => {
             <>
               <li><Link href="/login" onClick={() => setIsOpen(false)}>Sign In</Link></li>
               <li><Link href="/register" onClick={() => setIsOpen(false)}>Create Account</Link></li>
-              <li><hr className="my-1" /></li>
-              <li><Link href="/orders/guest" onClick={() => setIsOpen(false)}>Track Order</Link></li>
             </>
           )}
         </ul>

@@ -35,12 +35,6 @@ export const generateProductBreadcrumbs = (
       title: primaryCategory.name,
       href: `/categories/${primaryCategory.handle}`
     })
-  } else if (product.collection) {
-    // Fallback to collection if no categories
-    breadcrumbs.push({
-      title: product.collection.title,
-      href: `/collections/${product.collection.handle}`
-    })
   }
 
   // Add the current product (no href as it's the current page)

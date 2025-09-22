@@ -3,16 +3,16 @@
 import { useCart } from '@lib/hooks/use-cart'
 import { getCartId } from '@modules/shared/utils/cart-cookies'
 import { useEffect, useState, useMemo } from 'react'
-import CartTemplate from './cart-template'
+import CartLayout from './cart-layout'
 import SkeletonCartPage from '@modules/skeletons/templates/skeleton-cart-page'
 import { HttpTypes } from "@medusajs/types"
 import { useLayoutBreadcrumbs } from '@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs'
 
-type CartClientProps = {
+type CartPageProps = {
   initialCart?: HttpTypes.StoreCart | null
 }
 
-export default function CartClient({ initialCart }: CartClientProps) {
+export default function CartPage({ initialCart }: CartPageProps) {
   const [cartId, setCartId] = useState<string | null>(null)
   
   // Set breadcrumbs for cart page with memoized context
@@ -46,5 +46,5 @@ export default function CartClient({ initialCart }: CartClientProps) {
     console.error('Error loading cart:', cartError)
   }
   
-  return <CartTemplate cart={cart || null} />
+  return <CartLayout cart={cart || null} />
 }

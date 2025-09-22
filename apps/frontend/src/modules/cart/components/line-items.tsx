@@ -1,13 +1,13 @@
 import repeat from "@lib/util/repeat"
 import { HttpTypes } from "@medusajs/types"
-import Item from "./cart-item"
+import LineItem from "./line-item"
 import SkeletonLineItem from "@modules/skeletons/components/skeleton-line-item"
 
-type ItemsTemplateProps = {
+type LineItemsProps = {
   cart?: HttpTypes.StoreCart
 }
 
-const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
+const LineItems = ({ cart }: LineItemsProps) => {
   const items = cart?.items
   
   return (
@@ -28,7 +28,7 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
               })
               .map((item) => {
                 return (
-                  <Item
+                  <LineItem
                     key={item.id}
                     item={item}
                     currencyCode={cart?.currency_code || 'USD'}
@@ -44,4 +44,4 @@ const ItemsTemplate = ({ cart }: ItemsTemplateProps) => {
   )
 }
 
-export default ItemsTemplate
+export default LineItems

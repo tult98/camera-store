@@ -16,7 +16,7 @@ type ItemProps = {
   cartId?: string
 }
 
-const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
+const LineItem = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
   const updateCartItem = useUpdateCartItem(cartId || "")
   const deleteCartItem = useDeleteCartItem(cartId || "")
 
@@ -330,4 +330,4 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
   )
 }
 
-export default Item
+export default LineItem

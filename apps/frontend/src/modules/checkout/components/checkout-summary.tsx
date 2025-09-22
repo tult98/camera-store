@@ -2,7 +2,7 @@ import { useCart } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 
-import ItemsPreviewTemplate from "@modules/cart/components/cart-items-preview"
+import LineItemsPreview from "@modules/cart/components/line-items-preview"
 import CartTotals from "@modules/common/components/cart-totals"
 
 const CheckoutSummary = ({ initialCart }: { initialCart: HttpTypes.StoreCart }) => {
@@ -18,7 +18,7 @@ const CheckoutSummary = ({ initialCart }: { initialCart: HttpTypes.StoreCart }) 
 
         {/* Items */}
         <div className="space-y-3 md:space-y-4 overflow-x-auto">
-          <ItemsPreviewTemplate cart={currentCart} />
+          <LineItemsPreview cart={currentCart} />
         </div>
 
         {/* Totals */}

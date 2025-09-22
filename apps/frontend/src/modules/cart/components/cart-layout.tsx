@@ -1,10 +1,10 @@
 import { ShoppingBagIcon } from "@heroicons/react/24/outline"
 import { HttpTypes } from "@medusajs/types"
 import EmptyCartMessage from "./empty-cart-message"
-import ItemsTemplate from "./cart-items"
-import Summary from "./cart-summary"
+import LineItems from "./line-items"
+import OrderSummary from "./order-summary"
 
-const CartTemplate = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
+const CartLayout = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
   return (
     <div className="min-h-screen bg-base-100">
       <div className="container mx-auto px-4 py-8 md:py-12">
@@ -27,7 +27,7 @@ const CartTemplate = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
               <div className="space-y-6">
                 <div className="card bg-base-100 border border-base-300">
                   <div className="card-body p-4 md:p-6">
-                    <ItemsTemplate cart={cart} />
+                    <LineItems cart={cart} />
                   </div>
                 </div>
               </div>
@@ -36,7 +36,7 @@ const CartTemplate = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
                 {cart && cart.region && (
                   <div className="card bg-base-100 border border-base-300">
                     <div className="card-body">
-                      <Summary cart={cart as any} />
+                      <OrderSummary cart={cart as any} />
                     </div>
                   </div>
                 )}
@@ -51,4 +51,4 @@ const CartTemplate = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
   )
 }
 
-export default CartTemplate
+export default CartLayout

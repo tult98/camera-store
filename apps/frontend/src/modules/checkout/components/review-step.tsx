@@ -6,7 +6,7 @@ import { useToast } from "@lib/providers/toast-provider"
 import { formatPrice } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
-import ItemsPreviewTemplate from "@modules/cart/components/cart-items-preview"
+import LineItemsPreview from "@modules/cart/components/line-items-preview"
 import { completeOrder } from "@modules/checkout/apiCalls/orders"
 import CartTotals from "@modules/common/components/cart-totals"
 import { useMutation, useQueries } from "@tanstack/react-query"
@@ -133,7 +133,7 @@ const ReviewStep = ({
 
               {/* Items */}
               <div className="mb-6">
-                <ItemsPreviewTemplate cart={cart} />
+                <LineItemsPreview cart={cart} />
               </div>
 
               {/* Shipping Options */}

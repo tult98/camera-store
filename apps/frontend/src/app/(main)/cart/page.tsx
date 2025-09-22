@@ -1,5 +1,5 @@
 import { retrieveCart } from "@lib/data/cart"
-import CartClient from "@modules/cart/components/cart-client"
+import CartPage from "@modules/cart/components/cart-page"
 import { Metadata } from "next"
 
 // Force dynamic rendering due to cookies usage
@@ -15,5 +15,5 @@ export default async function Cart() {
   // Customer data is not critical and can be fetched client-side
   const cart = await retrieveCart().catch(() => null)
 
-  return <CartClient initialCart={cart} />
+  return <CartPage initialCart={cart} />
 }

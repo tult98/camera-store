@@ -5,13 +5,13 @@ import { HttpTypes } from "@medusajs/types"
 import CartTotals from "@modules/common/components/cart-totals"
 import Link from "next/link"
 
-type SummaryProps = {
+type OrderSummaryProps = {
   cart: HttpTypes.StoreCart & {
     promotions: HttpTypes.StorePromotion[]
   }
 }
 
-const Summary = ({ cart }: SummaryProps) => {
+const OrderSummary = ({ cart }: OrderSummaryProps) => {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-base-content">Order Summary</h2>
@@ -41,4 +41,4 @@ const Summary = ({ cart }: SummaryProps) => {
   )
 }
 
-export default Summary
+export default OrderSummary

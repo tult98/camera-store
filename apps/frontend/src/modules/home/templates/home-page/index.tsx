@@ -38,7 +38,7 @@ const HomePage = ({ featuredCategories }: HomePageProps) => {
         ) : (
           <div className="text-center py-12">
             <h1 className="text-4xl font-bold mb-4 text-base-content">
-              Welcome to <span className="text-primary">Camera Store</span>
+              Welcome to <span className="text-primary">PH Camera</span>
             </h1>
             <p className="text-lg text-base-content/70">
               Premium quality mirrorless cameras and lenses for photography

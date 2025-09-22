@@ -8,7 +8,7 @@ import { Metadata } from "next"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Camera Store | Premium Mirrorless Cameras & Lenses",
+  title: "PH Camera | Premium Mirrorless Cameras & Lenses",
   description:
     "Discover the latest cameras, lenses, and accessories. Premium quality mirrorless cameras for photography enthusiasts and professionals.",
 }

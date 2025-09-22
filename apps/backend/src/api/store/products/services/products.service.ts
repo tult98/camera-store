@@ -19,8 +19,6 @@ interface ProductAttributeData {
   attribute_values: Record<string, unknown>;
 }
 
-
-
 export class ProductsService {
   constructor(private container: MedusaContainer) {}
 
@@ -34,15 +32,7 @@ export class ProductsService {
 
     const result = await query.graph({
       entity: "product",
-      fields: [
-        "*",
-        "variants.*",
-        "variants.calculated_price.*",
-        "categories.*",
-        "categories.parent_category.*",
-        "tags.*",
-        "images.*",
-      ],
+      fields: ["id"],
       filters: { handle },
       context: {
         variants: {
@@ -67,9 +57,10 @@ export class ProductsService {
         PRODUCT_ATTRIBUTES_MODULE
       );
 
-      const productAttributes = await productAttributesService.listProductAttributes({
-        product_id: [product.id],
-      });
+      const productAttributes =
+        await productAttributesService.listProductAttributes({
+          product_id: [product.id],
+        });
 
       logger.debug(
         `Retrieved ${productAttributes.length} product attributes for product ${product.id}`
@@ -96,11 +87,13 @@ export class ProductsService {
       if (template?.attribute_definitions && attributesData.attribute_values) {
         const templateDefinitions = template.attribute_definitions;
         if (Array.isArray(templateDefinitions)) {
-          for (const [key, value] of Object.entries(attributesData.attribute_values)) {
+          for (const [key, value] of Object.entries(
+            attributesData.attribute_values
+          )) {
             const definition = templateDefinitions.find(
               (def: any) => def.key === key
             );
-            
+
             if (definition?.label && value !== null && value !== undefined) {
               formattedAttributes.push({
                 attribute_name: definition.label,

@@ -1,29 +1,31 @@
 "use client"
 
-import { useEffect, useMemo, useCallback } from 'react'
-import { useBreadcrumbContext } from '../breadcrumb-provider'
-import { BreadcrumbItem } from './index'
-import {
-  generateProductBreadcrumbs,
-  generateCategoryBreadcrumbs,
-  generateCollectionBreadcrumbs,
-  generateSearchBreadcrumbs,
-  generateAccountBreadcrumbs,
-  generateCheckoutBreadcrumbs,
-  generatePathBreadcrumbs
-} from './utils'
-import { usePathname } from 'next/navigation'
 import { HttpTypes } from "@medusajs/types"
+import { usePathname } from "next/navigation"
+import { useCallback, useEffect, useMemo } from "react"
+import { useBreadcrumbContext } from "../breadcrumb-provider"
+import { BreadcrumbItem } from "./index"
+import {
+  generateCategoryBreadcrumbs,
+  generateCheckoutBreadcrumbs,
+  generatePathBreadcrumbs,
+  generateProductBreadcrumbs
+} from "./utils"
 
-type BreadcrumbContext = 
-  | { type: 'product'; product: HttpTypes.StoreProduct }
-  | { type: 'category'; categoryName: string; categoryHandle: string; parentCategories?: Array<{ name: string; handle: string }> }
-  | { type: 'collection'; collection: HttpTypes.StoreCollection }
-  | { type: 'search'; query?: string; categoryFilter?: string; resultsCount?: number }
-  | { type: 'account'; currentPage: string; pageTitle?: string }
-  | { type: 'checkout'; currentStep: "information" | "shipping" | "payment" | "confirmation" }
-  | { type: 'custom'; items: BreadcrumbItem[] }
-  | { type: 'auto'; customTitles?: Record<string, string> }
+type BreadcrumbContext =
+  | { type: "product"; product: HttpTypes.StoreProduct }
+  | {
+      type: "category"
+      categoryName: string
+      categoryHandle: string
+      parentCategories?: Array<{ name: string; handle: string }>
+    }
+  | {
+      type: "checkout"
+      currentStep: "cart" | "shipping-address" | "review" | "success"
+    }
+  | { type: "custom"; items: BreadcrumbItem[] }
+  | { type: "auto"; customTitles?: Record<string, string> }
 
 interface UseLayoutBreadcrumbsOptions {
   loading?: boolean
@@ -74,49 +76,30 @@ export const useLayoutBreadcrumbs = (
       items = generatePathBreadcrumbs(pathname)
     } else {
       switch (context.type) {
-        case 'product':
+        case "product":
           items = generateProductBreadcrumbs(context.product)
           break
-        
-        case 'category':
+
+        case "category":
           items = generateCategoryBreadcrumbs(
             context.categoryName,
             context.categoryHandle,
             context.parentCategories
           )
           break
-        
-        case 'collection':
-          items = generateCollectionBreadcrumbs(context.collection)
-          break
-        
-        case 'search':
-          items = generateSearchBreadcrumbs(
-            context.query,
-            context.categoryFilter,
-            context.resultsCount
-          )
-          break
-        
-        case 'account':
-          items = generateAccountBreadcrumbs(
-            context.currentPage,
-            context.pageTitle
-          )
-          break
-        
-        case 'checkout':
+
+        case "checkout":
           items = generateCheckoutBreadcrumbs(context.currentStep)
           break
-        
-        case 'custom':
+
+        case "custom":
           items = context.items
           break
-        
-        case 'auto':
+
+        case "auto":
           items = generatePathBreadcrumbs(pathname, context.customTitles)
           break
-        
+
         default:
           items = []
       }
@@ -124,7 +107,6 @@ export const useLayoutBreadcrumbs = (
 
     // Set the breadcrumb items in the context
     breadcrumbContext.setItems(items)
-
   }, [context, pathname])
 
   // Memoize helper functions to prevent infinite re-renders
@@ -132,24 +114,33 @@ export const useLayoutBreadcrumbs = (
     breadcrumbContext.setItems([])
   }, [breadcrumbContext.setItems])
 
-  const setBreadcrumbs = useCallback((items: BreadcrumbItem[]) => {
-    breadcrumbContext.setItems(items)
-  }, [breadcrumbContext.setItems])
+  const setBreadcrumbs = useCallback(
+    (items: BreadcrumbItem[]) => {
+      breadcrumbContext.setItems(items)
+    },
+    [breadcrumbContext.setItems]
+  )
 
-  const setLoadingHelper = useCallback((loading: boolean) => {
-    breadcrumbContext.setLoading(loading)
-  }, [breadcrumbContext.setLoading])
+  const setLoadingHelper = useCallback(
+    (loading: boolean) => {
+      breadcrumbContext.setLoading(loading)
+    },
+    [breadcrumbContext.setLoading]
+  )
 
-  const setVariantHelper = useCallback((variant: "default" | "compact" | "minimal") => {
-    breadcrumbContext.setVariant(variant)
-  }, [breadcrumbContext.setVariant])
+  const setVariantHelper = useCallback(
+    (variant: "default" | "compact" | "minimal") => {
+      breadcrumbContext.setVariant(variant)
+    },
+    [breadcrumbContext.setVariant]
+  )
 
   // Return helper to clear breadcrumbs (useful for pages that shouldn't show them)
   return {
     clearBreadcrumbs,
     setBreadcrumbs,
     setLoading: setLoadingHelper,
-    setVariant: setVariantHelper
+    setVariant: setVariantHelper,
   }
 }
 
@@ -158,8 +149,14 @@ export const useProductBreadcrumbs = (
   product: HttpTypes.StoreProduct,
   options: UseLayoutBreadcrumbsOptions = {}
 ) => {
-  const context = useMemo(() => ({ type: 'product' as const, product }), [product])
-  const memoizedOptions = useMemo(() => options, [options.loading, options.variant, options.showHome, options.maxItems])
+  const context = useMemo(
+    () => ({ type: "product" as const, product }),
+    [product]
+  )
+  const memoizedOptions = useMemo(
+    () => options,
+    [options.loading, options.variant, options.showHome, options.maxItems]
+  )
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }
 
@@ -169,63 +166,36 @@ export const useCategoryBreadcrumbs = (
   parentCategories?: Array<{ name: string; handle: string }>,
   options: UseLayoutBreadcrumbsOptions = {}
 ) => {
-  const context = useMemo(() => ({ 
-    type: 'category' as const, 
-    categoryName, 
-    categoryHandle, 
-    parentCategories 
-  }), [categoryName, categoryHandle, parentCategories])
-  const memoizedOptions = useMemo(() => options, [options.loading, options.variant, options.showHome, options.maxItems])
-  return useLayoutBreadcrumbs(context, memoizedOptions)
-}
-
-export const useCollectionBreadcrumbs = (
-  collection: HttpTypes.StoreCollection,
-  options: UseLayoutBreadcrumbsOptions = {}
-) => {
-  const context = useMemo(() => ({ type: 'collection' as const, collection }), [collection])
-  const memoizedOptions = useMemo(() => options, [options.loading, options.variant, options.showHome, options.maxItems])
-  return useLayoutBreadcrumbs(context, memoizedOptions)
-}
-
-export const useSearchBreadcrumbs = (
-  query?: string,
-  categoryFilter?: string,
-  resultsCount?: number,
-  options: UseLayoutBreadcrumbsOptions = {}
-) => {
-  const context = useMemo(() => ({ 
-    type: 'search' as const, 
-    query, 
-    categoryFilter, 
-    resultsCount 
-  }), [query, categoryFilter, resultsCount])
-  const memoizedOptions = useMemo(() => options, [options.loading, options.variant, options.showHome, options.maxItems])
-  return useLayoutBreadcrumbs(context, memoizedOptions)
-}
-
-export const useAccountBreadcrumbs = (
-  currentPage: string,
-  pageTitle?: string,
-  options: UseLayoutBreadcrumbsOptions = {}
-) => {
-  const context = useMemo(() => ({ 
-    type: 'account' as const, 
-    currentPage, 
-    pageTitle 
-  }), [currentPage, pageTitle])
-  const memoizedOptions = useMemo(() => options, [options.loading, options.variant, options.showHome, options.maxItems])
+  const context = useMemo(
+    () => ({
+      type: "category" as const,
+      categoryName,
+      categoryHandle,
+      parentCategories,
+    }),
+    [categoryName, categoryHandle, parentCategories]
+  )
+  const memoizedOptions = useMemo(
+    () => options,
+    [options.loading, options.variant, options.showHome, options.maxItems]
+  )
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }
 
 export const useCheckoutBreadcrumbs = (
-  currentStep: "information" | "shipping" | "payment" | "confirmation",
+  currentStep: "cart" | "shipping-address" | "review" | "success",
   options: UseLayoutBreadcrumbsOptions = {}
 ) => {
-  const context = useMemo(() => ({ 
-    type: 'checkout' as const, 
-    currentStep 
-  }), [currentStep])
-  const memoizedOptions = useMemo(() => options, [options.loading, options.variant, options.showHome, options.maxItems])
+  const context = useMemo(
+    () => ({
+      type: "checkout" as const,
+      currentStep,
+    }),
+    [currentStep]
+  )
+  const memoizedOptions = useMemo(
+    () => options,
+    [options.loading, options.variant, options.showHome, options.maxItems]
+  )
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }

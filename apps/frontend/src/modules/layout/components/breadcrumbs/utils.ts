@@ -1,18 +1,11 @@
 import { HttpTypes } from "@medusajs/types"
 import { BreadcrumbItem } from "./index"
 
-export interface BreadcrumbConfig {
-  includeHome?: boolean
-  maxItems?: number
-  variant?: "default" | "compact" | "minimal"
-}
-
 /**
  * Generate breadcrumbs for a product page
  */
 export const generateProductBreadcrumbs = (
-  product: HttpTypes.StoreProduct,
-  config: BreadcrumbConfig = {}
+  product: HttpTypes.StoreProduct
 ): BreadcrumbItem[] => {
   const breadcrumbs: BreadcrumbItem[] = []
 
@@ -51,7 +44,7 @@ export const generateProductBreadcrumbs = (
  */
 export const generateCategoryBreadcrumbs = (
   categoryName: string,
-  categoryHandle: string,
+  _categoryHandle: string,
   parentCategories: Array<{ name: string; handle: string }> = []
 ): BreadcrumbItem[] => {
   const breadcrumbs: BreadcrumbItem[] = []
@@ -74,105 +67,25 @@ export const generateCategoryBreadcrumbs = (
 }
 
 /**
- * Generate breadcrumbs for a collection page
- */
-export const generateCollectionBreadcrumbs = (
-  collection: HttpTypes.StoreCollection
-): BreadcrumbItem[] => {
-  return [
-    {
-      title: "Collections",
-      href: "/collections"
-    },
-    {
-      title: collection.title,
-      isActive: true
-    }
-  ]
-}
-
-/**
- * Generate breadcrumbs for search results
- */
-export const generateSearchBreadcrumbs = (
-  query?: string,
-  categoryFilter?: string,
-  resultsCount?: number
-): BreadcrumbItem[] => {
-  const breadcrumbs: BreadcrumbItem[] = []
-
-  if (categoryFilter) {
-    breadcrumbs.push({
-      title: categoryFilter,
-      href: `/categories/${categoryFilter.toLowerCase().replace(/\s+/g, '-')}`
-    })
-  }
-
-  if (query) {
-    breadcrumbs.push({
-      title: `Search: "${query}"${resultsCount !== undefined ? ` (${resultsCount})` : ''}`,
-      isActive: true
-    })
-  } else {
-    breadcrumbs.push({
-      title: "Search Results",
-      isActive: true
-    })
-  }
-
-  return breadcrumbs
-}
-
-/**
- * Generate breadcrumbs for account pages
- */
-export const generateAccountBreadcrumbs = (
-  currentPage: string,
-  pageTitle?: string
-): BreadcrumbItem[] => {
-  const breadcrumbs: BreadcrumbItem[] = [
-    {
-      title: "Account",
-      href: "/account"
-    }
-  ]
-
-  if (currentPage !== "dashboard") {
-    breadcrumbs.push({
-      title: pageTitle || currentPage.charAt(0).toUpperCase() + currentPage.slice(1),
-      isActive: true
-    })
-  } else {
-    breadcrumbs[0].isActive = true
-  }
-
-  return breadcrumbs
-}
-
-/**
  * Generate breadcrumbs for checkout flow
  */
 export const generateCheckoutBreadcrumbs = (
-  currentStep: "information" | "shipping" | "payment" | "confirmation"
+  currentStep: "cart" | "shipping-address" | "review" | "success"
 ): BreadcrumbItem[] => {
   const steps = [
-    { key: "information", title: "Information", href: "/checkout" },
-    { key: "shipping", title: "Shipping", href: "/checkout/shipping" },
-    { key: "payment", title: "Payment", href: "/checkout/payment" },
-    { key: "confirmation", title: "Confirmation" }
+    { key: "cart", title: "Cart", href: "/checkout?step=cart" },
+    { key: "shipping-address", title: "Shipping Address", href: "/checkout?step=shipping-address" },
+    { key: "review", title: "Review", href: "/checkout?step=review" },
+    { key: "success", title: "Order Complete", href: undefined }
   ]
 
-  return [
-    {
-      title: "Cart",
-      href: "/cart"
-    },
-    ...steps.map((step, index) => ({
+  return steps
+    .slice(0, steps.findIndex(s => s.key === currentStep) + 1)
+    .map((step, index, arr) => ({
       title: step.title,
-      href: step.key === currentStep ? undefined : step.href,
-      isActive: step.key === currentStep
+      href: index === arr.length - 1 ? undefined : step.href,
+      isActive: index === arr.length - 1
     }))
-  ]
 }
 
 /**
@@ -199,12 +112,3 @@ export const generatePathBreadcrumbs = (
   return breadcrumbs
 }
 
-/**
- * Utility to format category name for display
- */
-export const formatCategoryName = (name: string): string => {
-  return name
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}

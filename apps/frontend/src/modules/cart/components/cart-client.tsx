@@ -2,10 +2,11 @@
 
 import { useCart } from '@lib/hooks/use-cart'
 import { getCartId } from '@modules/shared/utils/cart-cookies'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import CartTemplate from './cart-template'
 import SkeletonCartPage from '@modules/skeletons/templates/skeleton-cart-page'
 import { HttpTypes } from "@medusajs/types"
+import { useLayoutBreadcrumbs } from '@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs'
 
 type CartClientProps = {
   initialCart?: HttpTypes.StoreCart | null
@@ -13,6 +14,16 @@ type CartClientProps = {
 
 export default function CartClient({ initialCart }: CartClientProps) {
   const [cartId, setCartId] = useState<string | null>(null)
+  
+  // Set breadcrumbs for cart page with memoized context
+  const breadcrumbContext = useMemo(
+    () => ({
+      type: 'custom' as const,
+      items: [{ title: 'Cart', isActive: true }]
+    }),
+    []
+  )
+  useLayoutBreadcrumbs(breadcrumbContext)
   
   // Get cart ID on client side
   useEffect(() => {

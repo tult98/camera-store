@@ -1,8 +1,9 @@
 "use server"
 
-import { getDefaultRegion } from "./regions"
 import { apiClient } from "@lib/api-client"
+import { sdk } from "@lib/config"
 import { HttpTypes } from "@medusajs/types"
+import { getDefaultRegion } from "./regions"
 
 export const retrieveProduct = async (
   handle: string
@@ -28,7 +29,13 @@ export const retrieveProduct = async (
       }
     )
 
-    return response.product
+    const { product } = await sdk.store.product.retrieve(response.product.id, {
+      fields:
+        "*variants.calculated_price,*variants.inventory_quantity,+metadata,+tags,+images",
+      region_id: region.id,
+    })
+
+    return product
   } catch (error) {
     console.error(`Failed to retrieve product with handle ${handle}:`, error)
     return null

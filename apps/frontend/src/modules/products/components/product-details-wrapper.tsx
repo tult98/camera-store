@@ -3,7 +3,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { useState, useMemo, useCallback } from "react"
 import { isEqual } from "lodash"
-import ProductInfo from "@modules/products/templates/product-info"
+import ProductInfo from "@modules/products/components/product-info"
 import ProductActions from "@modules/products/components/product-actions"
 
 type ProductDetailsWrapperProps = {

@@ -1,6 +1,5 @@
 import { retrieveProduct } from "@lib/data/products"
-import { getDefaultRegion } from "@lib/data/regions"
-import ProductTemplate from "@modules/products/templates"
+import ProductDetail from "@modules/products/components/product-detail"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
@@ -11,13 +10,8 @@ type Props = {
   params: Promise<{ handle: string }>
 }
 
-export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params
-  const { handle } = params
-
-  if (!handle) {
-    notFound()
-  }
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { handle } = await params
 
   const product = await retrieveProduct(handle)
 
@@ -26,29 +20,18 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${product.title} | Camera Store`,
+    title: `${product.title} | PH Camera`,
     description: product.description || `${product.title}`,
     openGraph: {
-      title: `${product.title} | Camera Store`,
+      title: `${product.title} | PH Camera`,
       description: product.description || `${product.title}`,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
   }
 }
 
-export default async function ProductPage(props: Props) {
-  const params = await props.params
-  const { handle } = params
-
-  if (!handle) {
-    notFound()
-  }
-
-  const region = await getDefaultRegion()
-
-  if (!region) {
-    notFound()
-  }
+export default async function ProductPage({ params }: Props) {
+  const { handle } = await params
 
   const product = await retrieveProduct(handle)
 
@@ -56,5 +39,5 @@ export default async function ProductPage(props: Props) {
     notFound()
   }
 
-  return <ProductTemplate product={product} region={region} />
+  return <ProductDetail product={product} />
 }

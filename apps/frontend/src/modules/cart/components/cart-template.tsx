@@ -23,18 +23,18 @@ const CartTemplate = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
 
         <div data-testid="cart-container">
           {cart?.items?.length ? (
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
               <div className="space-y-6">
-                <div className="card bg-base-100 shadow-lg">
+                <div className="card bg-base-100 border border-base-300">
                   <div className="card-body p-4 md:p-6">
                     <ItemsTemplate cart={cart} />
                   </div>
                 </div>
               </div>
 
-              <div className="lg:sticky lg:top-20 h-fit">
+              <div className="xl:sticky xl:top-20 h-fit">
                 {cart && cart.region && (
-                  <div className="card bg-base-100 shadow-lg">
+                  <div className="card bg-base-100 border border-base-300">
                     <div className="card-body">
                       <Summary cart={cart as any} />
                     </div>

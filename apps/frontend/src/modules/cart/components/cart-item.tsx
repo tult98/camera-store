@@ -43,44 +43,50 @@ const Item = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
 
   if (type === "preview") {
     return (
-      <div className="flex items-center gap-4 p-4 border-b border-base-200">
-        <Link
-          href={`/products/${item.product_handle}`}
-          className="flex-shrink-0"
-        >
-          <div className="w-16 h-16 relative">
-            {item.thumbnail ? (
-              <Image
-                src={item.thumbnail}
-                alt={item.product_title || ""}
-                fill
-                className="object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-full h-full bg-base-200 rounded-lg" />
-            )}
-          </div>
-        </Link>
+      <tr className="border-b border-base-200">
+        <td className="p-4">
+          <div className="flex items-center gap-4">
+            <Link
+              href={`/products/${item.product_handle}`}
+              className="flex-shrink-0"
+            >
+              <div className="w-16 h-16 relative">
+                {item.thumbnail ? (
+                  <Image
+                    src={item.thumbnail}
+                    alt={item.product_title || ""}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-base-200 rounded-lg" />
+                )}
+              </div>
+            </Link>
 
-        <div className="flex-grow min-w-0">
-          <h3 className="text-sm font-medium text-base-content truncate">
-            {item.product_title}
-          </h3>
-          <LineItemOptions variant={item.variant} />
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm text-base-content/70">
-              {item.quantity}x
-            </span>
-            <LineItemUnitPrice
-              item={item}
-              style="tight"
-              currencyCode={currencyCode}
-            />
-          </div>
-        </div>
+            <div className="flex-grow min-w-0">
+              <h3 className="text-sm font-medium text-base-content truncate">
+                {item.product_title}
+              </h3>
+              <LineItemOptions variant={item.variant} />
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-base-content/70">
+                  {item.quantity}x
+                </span>
+                <LineItemUnitPrice
+                  item={item}
+                  style="tight"
+                  currencyCode={currencyCode}
+                />
+              </div>
+            </div>
 
-        <LineItemPrice item={item} style="tight" currencyCode={currencyCode} />
-      </div>
+            <div className="text-right">
+              <LineItemPrice item={item} style="tight" currencyCode={currencyCode} />
+            </div>
+          </div>
+        </td>
+      </tr>
     )
   }
 

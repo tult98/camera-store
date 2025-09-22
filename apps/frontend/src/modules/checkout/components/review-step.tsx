@@ -85,9 +85,9 @@ const ReviewStep = ({
 
   const completeOrderMutation = useMutation({
     mutationFn: completeOrder,
-    onSuccess: () => {
+    onSuccess: (order) => {
       setTimeout(() => {
-        router.push("/checkout?step=success")
+        router.push(`/checkout?step=success&order_id=${order?.id || ''}`)
       }, 500)
     },
     onError: (error) => {

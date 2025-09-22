@@ -1,13 +1,18 @@
 "use client"
 
 import { CheckCircleIcon } from "@heroicons/react/24/solid"
+import { DocumentDuplicateIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline"
 import { Heading, Text } from "@medusajs/ui"
 import { deleteCookie } from "cookies-next/client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
+import { useToast } from "@lib/providers/toast-provider"
 
 const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { showToast } = useToast()
+  const orderId = searchParams.get("order_id")
 
   // Delete cart cookie when user navigates away from success page
   useEffect(() => {
@@ -25,6 +30,21 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
     router.push("/")
   }
 
+  const handleCopyOrderId = async () => {
+    if (!orderId) return
+    
+    try {
+      await navigator.clipboard.writeText(orderId)
+      showToast("Order ID copied to clipboard!", "success")
+    } catch (err) {
+      showToast("Failed to copy order ID", "error")
+    }
+  }
+
+  const handleMessengerRedirect = () => {
+    window.open("https://m.me/your-page", "_blank")
+  }
+
   return (
     <div className="bg-white rounded-lg shadow-sm">
       <div className="text-center py-16 px-8">
@@ -39,15 +59,43 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
           Order Placed Successfully!
         </Heading>
 
-        <Text className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-          Thank you for your order. You will receive a confirmation email with
-          order details and tracking information shortly.
+        <Text className="text-lg text-gray-600 mb-6 max-w-md mx-auto">
+          Your order has been created. To complete your purchase and start shipping, please send a deposit payment using the order ID below.
         </Text>
 
-        <div className="flex justify-center max-w-md mx-auto">
+        {orderId && (
+          <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/30 rounded-xl p-8 mb-8 max-w-lg mx-auto shadow-sm">
+            <div className="text-center">
+              <Text className="text-sm font-semibold text-primary uppercase tracking-wide mb-3">
+                Your Order ID
+              </Text>
+              <div className="bg-white rounded-lg p-4 border-2 border-primary/20 mb-4">
+                <Text className="text-2xl font-bold text-primary font-mono tracking-wider">
+                  #{orderId}
+                </Text>
+              </div>
+              <button
+                onClick={handleCopyOrderId}
+                className="btn btn-primary btn-sm gap-2 px-6"
+              >
+                <DocumentDuplicateIcon className="w-4 h-4" />
+                Copy Order ID
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+          <button
+            onClick={handleMessengerRedirect}
+            className="btn btn-primary px-8 flex-1"
+          >
+            <ArrowTopRightOnSquareIcon className="w-5 h-5 mr-2" />
+            Send Deposit via Messenger
+          </button>
           <button
             onClick={handleContinueShopping}
-            className="btn btn-primary px-8"
+            className="btn btn-outline px-6 flex-1"
           >
             Continue Shopping
           </button>
@@ -64,10 +112,10 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
               </div>
               <div>
                 <Text className="font-medium text-base-content">
-                  Order Confirmation
+                  Copy Your Order ID
                 </Text>
                 <Text className="text-sm text-gray-600">
-                  You'll receive an email confirmation with your order details
+                  Use the copy button above to save your order ID
                 </Text>
               </div>
             </div>
@@ -77,10 +125,10 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
               </div>
               <div>
                 <Text className="font-medium text-base-content">
-                  Order Processing
+                  Send Deposit Payment
                 </Text>
                 <Text className="text-sm text-gray-600">
-                  We'll prepare your items for shipping
+                  Click 'Send Deposit via Messenger' and share your order ID with us to complete payment
                 </Text>
               </div>
             </div>
@@ -90,10 +138,10 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
               </div>
               <div>
                 <Text className="font-medium text-base-content">
-                  Shipping Updates
+                  Order Processing & Shipping
                 </Text>
                 <Text className="text-sm text-gray-600">
-                  Track your package with the tracking number we'll send you
+                  Once deposit is received, we'll prepare and ship your items with tracking updates
                 </Text>
               </div>
             </div>

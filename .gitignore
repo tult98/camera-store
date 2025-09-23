@@ -125,7 +125,6 @@ temp/
 .pnp.*
 
 # Medusa specific
-.medusa/
 uploads
 /dist
 medusa-config.js

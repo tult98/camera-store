@@ -32,7 +32,7 @@ export class ProductsService {
 
     const result = await query.graph({
       entity: "product",
-      fields: ["id"],
+      fields: ["id", "product_attributes.*"],
       filters: { handle },
       context: {
         variants: {

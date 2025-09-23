@@ -13,10 +13,7 @@ export interface Product {
   categories?: Array<{ id: string }>;
   tags?: Array<{ value: string }>;
   images?: Array<{ url: string }>;
-  product_attributes?: Array<{
-    attribute_name: string;
-    value: unknown;
-  }>;
+  product_attributes?: Record<string, unknown>;
 }
 
 export interface ProductAttributesService {

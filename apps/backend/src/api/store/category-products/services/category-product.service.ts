@@ -1,17 +1,17 @@
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import type { MedusaContainer } from "@medusajs/framework/types";
 import { PRODUCT_ATTRIBUTES_MODULE } from "src/modules/product-attributes/index";
-import { 
+import {
   getAllCategoryIds,
   resolveQueryInstance,
 } from "src/utils/category-hierarchy";
 import { toPaginatedResponse } from "src/utils/pagination";
 
-import type { 
-  Product, 
-  ProductAttributesService, 
+import type {
+  Product,
+  ProductAttributesService,
   CategoryProductsParams,
-  ProductProcessingContext
+  ProductProcessingContext,
 } from "../types/category-products.types";
 import { ProductQueryBuilderService } from "./product-query-builder.service";
 import { FilterPipeline } from "../filters/filter-pipeline";
@@ -35,7 +35,9 @@ export class CategoryProductService {
 
     const { itemsPerPage, offset } = {
       itemsPerPage: Math.min(Math.max(1, Number(page_size) || 24), 100),
-      offset: (Math.max(1, Number(page) || 1) - 1) * Math.min(Math.max(1, Number(page_size) || 24), 100)
+      offset:
+        (Math.max(1, Number(page) || 1) - 1) *
+        Math.min(Math.max(1, Number(page_size) || 24), 100),
     };
 
     const categoryIds = await getAllCategoryIds(query, category_id);
@@ -54,7 +56,10 @@ export class CategoryProductService {
       categoryIds,
     };
 
-    const queryFilters = ProductQueryBuilderService.buildQueryFilters(categoryIds, filters);
+    const queryFilters = ProductQueryBuilderService.buildQueryFilters(
+      categoryIds,
+      filters
+    );
     const sortOrder = ProductQueryBuilderService.buildSortOrder(order_by);
     const graphQuery = ProductQueryBuilderService.buildGraphQuery(
       queryFilters,
@@ -75,7 +80,10 @@ export class CategoryProductService {
       .applySorting(order_by)
       .getResults();
 
-    const paginatedProducts = processedProducts.slice(offset, offset + itemsPerPage);
+    const paginatedProducts = processedProducts.slice(
+      offset,
+      offset + itemsPerPage
+    );
 
     return toPaginatedResponse(
       paginatedProducts,
@@ -85,23 +93,33 @@ export class CategoryProductService {
     );
   }
 
-  private async attachProductAttributes(products: Product[]): Promise<Product[]> {
+  private async attachProductAttributes(
+    products: Product[]
+  ): Promise<Product[]> {
     try {
       const logger = this.container.resolve(ContainerRegistrationKeys.LOGGER);
       const productAttributesService = this.container.resolve(
         PRODUCT_ATTRIBUTES_MODULE
-      ) as ProductAttributesService;
+      ) as unknown as ProductAttributesService;
 
       const productIds = products.map((p: Product) => p.id);
-      const productAttributes = await productAttributesService.listProductAttributes({
-        product_id: productIds,
-      });
+      const productAttributes =
+        await productAttributesService.listProductAttributes({
+          product_id: productIds,
+        });
 
       logger.debug(`Retrieved ${productAttributes.length} product attributes`);
 
       const attributesMap = new Map<string, Record<string, unknown>>();
       for (const attr of productAttributes) {
-        attributesMap.set(attr.product_id, attr.attribute_values || {});
+        const attributeValues = (attr.attribute_values as Array<{ attribute_name: string; value: unknown }>)?.reduce(
+          (acc, item) => {
+            acc[item.attribute_name] = item.value;
+            return acc;
+          },
+          {} as Record<string, unknown>
+        ) || {};
+        attributesMap.set(attr.product_id, attributeValues);
       }
 
       return products.map((product: Product) => ({
@@ -111,7 +129,9 @@ export class CategoryProductService {
     } catch (error) {
       const logger = this.container.resolve(ContainerRegistrationKeys.LOGGER);
       logger.error(
-        `Error handling product attributes: ${error instanceof Error ? error.message : String(error)}`
+        `Error handling product attributes: ${
+          error instanceof Error ? error.message : String(error)
+        }`
       );
       return products;
     }

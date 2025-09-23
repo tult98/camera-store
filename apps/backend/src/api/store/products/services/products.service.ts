@@ -73,7 +73,7 @@ export class ProductsService {
       if (!attributesData) {
         return {
           ...product,
-          product_attributes: [],
+          product_attributes: {},
         };
       }
 
@@ -83,7 +83,7 @@ export class ProductsService {
       );
 
       // Transform raw attribute_values to label/value pairs
-      const formattedAttributes = [];
+      const formattedAttributes: Record<string, unknown> = {};
       if (template?.attribute_definitions && attributesData.attribute_values) {
         const templateDefinitions = template.attribute_definitions;
         if (Array.isArray(templateDefinitions)) {
@@ -95,10 +95,7 @@ export class ProductsService {
             );
 
             if (definition?.label && value !== null && value !== undefined) {
-              formattedAttributes.push({
-                attribute_name: definition.label,
-                value: value,
-              });
+              formattedAttributes[definition.label] = value;
             }
           }
         }
@@ -116,7 +113,7 @@ export class ProductsService {
       );
       return {
         ...product,
-        product_attributes: [],
+        product_attributes: {},
       };
     }
   }

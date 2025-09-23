@@ -1,5 +1,5 @@
 [phases.build]
-cmds = ['yarn nx build backend', 'chmod +x apps/backend/deploy.sh']
+cmds = ['yarn nx build backend --skip-nx-cache', 'chmod +x apps/backend/deploy.sh']
 
 [start]
 cmd = 'yarn nx start backend'

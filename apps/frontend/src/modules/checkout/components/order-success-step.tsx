@@ -1,12 +1,16 @@
 "use client"
 
+import {
+  ArrowTopRightOnSquareIcon,
+  DocumentDuplicateIcon,
+} from "@heroicons/react/24/outline"
 import { CheckCircleIcon } from "@heroicons/react/24/solid"
-import { DocumentDuplicateIcon, ArrowTopRightOnSquareIcon } from "@heroicons/react/24/outline"
+import { useToast } from "@lib/providers/toast-provider"
+import { getMessengerUrl, isMessengerConfigured } from "@lib/util/messenger"
 import { Heading, Text } from "@medusajs/ui"
 import { deleteCookie } from "cookies-next/client"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
-import { useToast } from "@lib/providers/toast-provider"
 
 const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
   const router = useRouter()
@@ -32,7 +36,7 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
 
   const handleCopyOrderId = async () => {
     if (!orderId) return
-    
+
     try {
       await navigator.clipboard.writeText(orderId)
       showToast("Order ID copied to clipboard!", "success")
@@ -42,7 +46,14 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
   }
 
   const handleMessengerRedirect = () => {
-    window.open("https://m.me/your-page", "_blank")
+    const messengerUrl = getMessengerUrl({ orderId: orderId || undefined })
+
+    if (!messengerUrl) {
+      showToast("Messenger is not configured. Please contact support.", "error")
+      return
+    }
+
+    window.open(messengerUrl, "_blank")
   }
 
   return (
@@ -60,11 +71,12 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
         </Heading>
 
         <Text className="text-lg text-gray-600 mb-6 max-w-md mx-auto">
-          Your order has been created. To complete your purchase and start shipping, please send a deposit payment using the order ID below.
+          Your order has been created. To complete your purchase and start
+          shipping, please send a deposit payment using the order ID below.
         </Text>
 
         {orderId && (
-          <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/30 rounded-xl p-8 mb-8 max-w-lg mx-auto shadow-sm">
+          <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/30 rounded-xl p-8 mb-8 w-fit mx-auto shadow-sm">
             <div className="text-center">
               <Text className="text-sm font-semibold text-primary uppercase tracking-wide mb-3">
                 Your Order ID
@@ -85,18 +97,17 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
-          <button
-            onClick={handleMessengerRedirect}
-            className="btn btn-primary px-8 flex-1"
-          >
-            <ArrowTopRightOnSquareIcon className="w-5 h-5 mr-2" />
-            Send Deposit via Messenger
-          </button>
-          <button
-            onClick={handleContinueShopping}
-            className="btn btn-outline px-6 flex-1"
-          >
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mx-auto">
+          {isMessengerConfigured() && (
+            <button
+              onClick={handleMessengerRedirect}
+              className="btn btn-primary flex items-center"
+            >
+              <ArrowTopRightOnSquareIcon className="w-5 h-5 mr-2" />
+              Send Deposit via Messenger
+            </button>
+          )}
+          <button onClick={handleContinueShopping} className="btn btn-outline">
             Continue Shopping
           </button>
         </div>
@@ -128,7 +139,8 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
                   Send Deposit Payment
                 </Text>
                 <Text className="text-sm text-gray-600">
-                  Click 'Send Deposit via Messenger' and share your order ID with us to complete payment
+                  Click 'Send Deposit via Messenger' and share your order ID
+                  with us to complete payment
                 </Text>
               </div>
             </div>
@@ -141,7 +153,8 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
                   Order Processing & Shipping
                 </Text>
                 <Text className="text-sm text-gray-600">
-                  Once deposit is received, we'll prepare and ship your items with tracking updates
+                  Once deposit is received, we'll prepare and ship your items
+                  with tracking updates
                 </Text>
               </div>
             </div>

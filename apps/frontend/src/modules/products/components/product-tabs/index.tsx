@@ -6,10 +6,7 @@ import { CheckCircleIcon, XCircleIcon } from "@heroicons/react/24/solid"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct & {
-    product_attributes?: Array<{
-      attribute_name: string
-      value: unknown
-    }>
+    product_attributes?: Record<string, unknown>
   }
 }
 
@@ -18,12 +15,12 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 
   // Extract technical specifications from product_attributes
   const getTechnicalSpecs = () => {
-    if (!product.product_attributes || product.product_attributes.length === 0)
+    if (!product.product_attributes || Object.keys(product.product_attributes).length === 0)
       return null
 
-    const specs = product.product_attributes.map((attr) => ({
-      label: attr.attribute_name,
-      value: attr.value,
+    const specs = Object.entries(product.product_attributes).map(([key, value]) => ({
+      label: key,
+      value: value,
     }))
 
     return specs.length > 0 ? specs : null
@@ -91,8 +88,10 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
                             <CheckCircleIcon className="w-5 h-5 text-success" />
                           ) : spec.value === false ? (
                             <XCircleIcon className="w-5 h-5 text-error" />
+                          ) : typeof spec.value === 'object' && spec.value !== null ? (
+                            JSON.stringify(spec.value)
                           ) : (
-                            (spec.value as string)
+                            String(spec.value || '')
                           )}
                         </td>
                       </tr>

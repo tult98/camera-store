@@ -2429,6 +2429,7 @@ __metadata:
     "@hookform/resolvers": ^5.2.1
     "@medusajs/admin-sdk": 2.8.8
     "@medusajs/cli": 2.8.8
+    "@medusajs/file-s3": ^2.10.3
     "@medusajs/framework": 2.8.8
     "@medusajs/js-sdk": latest
     "@medusajs/medusa": 2.8.8
@@ -4701,6 +4702,19 @@ __metadata:
   peerDependencies:
     "@medusajs/framework": 2.8.8
   checksum: f11dfca73f6650d290122361e7de4ca9b70f485be0ef913f4b5620e1653ddf87a2b641786252728f9c85a6fc0fdecc6e8066566e4e32b11829d603bbbc6c2311
+  languageName: node
+  linkType: hard
+
+"@medusajs/file-s3@npm:^2.10.3":
+  version: 2.10.3
+  resolution: "@medusajs/file-s3@npm:2.10.3"
+  dependencies:
+    "@aws-sdk/client-s3": ^3.556.0
+    "@aws-sdk/s3-request-presigner": ^3.556.0
+    ulid: ^2.3.0
+  peerDependencies:
+    "@medusajs/framework": 2.10.3
+  checksum: 97792a395ff79558a25289e79148a9d46e526c91a748eba8ce8e017181ba37a72d1552786b9cd1a58776605919607e54dca19a98add0cba23c7fe9c419ee6b9b
   languageName: node
   linkType: hard
 

@@ -23,6 +23,7 @@
     "@hookform/resolvers": "^5.2.1",
     "@medusajs/admin-sdk": "2.8.8",
     "@medusajs/cli": "2.8.8",
+    "@medusajs/file-s3": "^2.10.3",
     "@medusajs/framework": "2.8.8",
     "@medusajs/js-sdk": "latest",
     "@medusajs/medusa": "2.8.8",

@@ -165,3 +165,5 @@ Thumbs.db
 
 .gemini-clipboard/
 .playwright-mcp/
+
+apps/backend/static/*

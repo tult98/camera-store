@@ -23,20 +23,20 @@ module.exports = defineConfig({
       resolve: "./src/modules/product-attributes",
       key: "productAttributes"
     },
-    {
-      resolve: "@medusajs/file",
-      options: {
-        providers: [
-          {
-            resolve: "@medusajs/file-local",
-            id: "local",
-            options: {
-              upload_dir: "static/uploads",
-              backend_url: process.env['MEDUSA_BACKEND_URL'] || "http://localhost:9000"
-            }
-          }
-        ]
-      }
-    }
+    // {
+    //   resolve: "@medusajs/file",
+    //   options: {
+    //     providers: [
+    //       {
+    //         resolve: "@medusajs/file-local",
+    //         id: "local",
+    //         options: {
+    //           upload_dir: "static/uploads",
+    //           backend_url: process.env['MEDUSA_BACKEND_URL'] || "http://localhost:9000"
+    //         }
+    //       }
+    //     ]
+    //   }
+    // }
   ]
 })

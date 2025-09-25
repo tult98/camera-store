@@ -288,7 +288,7 @@ const validatedParams = validator.validate();
 
 ### Frontend
 - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`
-- `MEDUSA_BACKEND_URL` (default: http://localhost:9000)
+- `NEXT_PUBLIC_MEDUSA_BACKEND_URL` (default: http://localhost:9000)
 
 ## Deployment (GitHub Actions → Railway)
 1. Nx detects affected projects

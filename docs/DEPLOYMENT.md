@@ -57,7 +57,7 @@ AUTH_CORS=https://your-frontend-domain.com
 **Frontend Service:**
 ```env
 NODE_ENV=production
-MEDUSA_BACKEND_URL=https://your-backend-domain.railway.app
+NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://your-backend-domain.railway.app
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_your_publishable_key
 NEXT_PUBLIC_BASE_URL=https://your-frontend-domain.com
 NEXT_PUBLIC_DEFAULT_REGION=us

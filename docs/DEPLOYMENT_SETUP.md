@@ -47,7 +47,7 @@ AUTH_CORS=https://your-frontend-url.com
 #### Frontend Service Environment Variables
 ```env
 NODE_ENV=production
-MEDUSA_BACKEND_URL=https://your-backend-url.railway.app
+NEXT_PUBLIC_MEDUSA_BACKEND_URL=https://your-backend-url.railway.app
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_your_key
 NEXT_PUBLIC_BASE_URL=https://your-frontend-url.com
 NEXT_PUBLIC_DEFAULT_REGION=us
@@ -88,7 +88,7 @@ railway status
 - `AUTH_CORS` - Frontend domain(s)
 
 ### Required for Frontend  
-- `MEDUSA_BACKEND_URL` - Backend service URL
+- `NEXT_PUBLIC_MEDUSA_BACKEND_URL` - Backend service URL
 - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` - From Medusa admin
 - `NEXT_PUBLIC_BASE_URL` - Frontend domain
 

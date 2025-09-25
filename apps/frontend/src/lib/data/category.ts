@@ -3,7 +3,7 @@ import {
   CategoryProductsResponse
 } from '@camera-store/shared-types'
 
-const API_BASE_URL = process.env['MEDUSA_BACKEND_URL'] || 'http://localhost:9000'
+const API_BASE_URL = process.env['NEXT_PUBLIC_MEDUSA_BACKEND_URL'] || 'http://localhost:9000'
 
 export async function fetchCategoryProducts(
   request: CategoryProductsRequest

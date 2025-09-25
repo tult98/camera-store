@@ -109,7 +109,7 @@ Create `apps/frontend/.env.local`:
 
 ```env
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_your_publishable_key_here
-MEDUSA_BACKEND_URL=http://localhost:9000
+NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000
 NEXT_PUBLIC_STRIPE_KEY=pk_test_your_stripe_key_here
 ```
 

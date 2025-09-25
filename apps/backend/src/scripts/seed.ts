@@ -9,7 +9,6 @@ import {
   createInventoryLevelsWorkflow,
   createProductCategoriesWorkflow,
   createProductsWorkflow,
-  createProductTypesWorkflow,
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
   createShippingOptionsWorkflow,
@@ -39,12 +38,12 @@ export default async function seedDemoData({ container }: ExecArgs) {
     PRODUCT_ATTRIBUTES_MODULE
   );
 
-  const countries = ["vn"]; // Vietnam only - no tax calculations needed
+  const countries = ["ph"]; // Philippines only - no tax calculations needed
 
   logger.info("Seeding store data...");
   const [store] = await storeModuleService.listStores();
   let defaultSalesChannel = await salesChannelModuleService.listSalesChannels({
-    name: "Default Sales Channel",
+    name: "Online Store",
   });
 
   if (!defaultSalesChannel.length) {
@@ -55,7 +54,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       input: {
         salesChannelsData: [
           {
-            name: "Default Sales Channel",
+            name: "Online Store",
           },
         ],
       },
@@ -69,7 +68,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       update: {
         supported_currencies: [
           {
-            currency_code: "vnd",
+            currency_code: "php",
             is_default: true,
           },
         ],
@@ -83,8 +82,8 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       regions: [
         {
-          name: "Vietnam",
-          currency_code: "vnd",
+          name: "Philippines",
+          currency_code: "php",
           countries,
           payment_providers: ["pp_system_default"],
         },
@@ -103,11 +102,11 @@ export default async function seedDemoData({ container }: ExecArgs) {
     input: {
       locations: [
         {
-          name: "Fujifilm Hanoi Store",
+          name: "Manila, Philippines",
           address: {
-            city: "Hanoi",
-            country_code: "VN",
-            address_1: "Hanoi, Vietnam",
+            city: "Manila",
+            country_code: "PH",
+            address_1: "588 Binondo, Manila, Philippines",
           },
         },
       ],
@@ -127,7 +126,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         input: {
           data: [
             {
-              name: "Default Shipping Profile",
+              name: "Standard Shipping",
               type: "default",
             },
           ],
@@ -137,14 +136,14 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
 
   const fulfillmentSet = await fulfillmentModuleService.createFulfillmentSets({
-    name: "Shipping from Hanoi Store",
+    name: "Shipping from Manila Store",
     type: "shipping",
     service_zones: [
       {
-        name: "Vietnam",
+        name: "Philippines",
         geo_zones: [
           {
-            country_code: "vn",
+            country_code: "ph",
             type: "country",
           },
         ],
@@ -173,20 +172,20 @@ export default async function seedDemoData({ container }: ExecArgs) {
   await createShippingOptionsWorkflow(container).run({
     input: [
       {
-        name: "Store Delivery",
+        name: "Standard Delivery",
         price_type: "flat",
         provider_id: "manual_manual",
         service_zone_id: fulfillmentSet.service_zones[0].id,
         shipping_profile_id: shippingProfile.id,
         type: {
-          label: "Store Delivery",
-          description: "We ensure safe and fast delivery.",
-          code: "store-delivery",
+          label: "Standard Delivery",
+          description: "Shipping charges will be calculated separately.",
+          code: "standard-delivery",
         },
         prices: [
           {
-            currency_code: "vnd",
-            amount: 50000, // 50,000 VND
+            currency_code: "php",
+            amount: 0, // Free - shipping charged separately
           },
         ],
         rules: [
@@ -286,29 +285,6 @@ NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}
 
   logger.info("Seeding product data...");
 
-  // Create product types
-  logger.info("Creating product types...");
-  const { result: productTypeResult } = await createProductTypesWorkflow(
-    container
-  ).run({
-    input: {
-      product_types: [
-        { value: "camera" },
-        { value: "lens" },
-        { value: "tripod" },
-        { value: "filter" },
-        { value: "battery" },
-        { value: "charger" },
-        { value: "memory-card" },
-        { value: "bag" },
-        { value: "strap" },
-        { value: "microphone" },
-        { value: "light" },
-        { value: "accessory" },
-      ],
-    },
-  });
-
   // First create main categories with featured metadata
   const { result: mainCategoryResult } = await createProductCategoriesWorkflow(
     container
@@ -325,12 +301,6 @@ NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}
   const lensesCategory = mainCategoryResult.find(
     (cat) => cat.name === "Lenses"
   );
-  const accessoriesCategory = mainCategoryResult.find(
-    (cat) => cat.name === "Accessories"
-  );
-  const audioVideoCategory = mainCategoryResult.find(
-    (cat) => cat.name === "Audio & Video"
-  );
 
   const { result: subCategoryResult } = await createProductCategoriesWorkflow(
     container
@@ -339,8 +309,6 @@ NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}
       product_categories: generateSubCategories({
         camerasCategory: camerasCategory!,
         lensesCategory: lensesCategory!,
-        accessoriesCategory: accessoriesCategory!,
-        audioVideoCategory: audioVideoCategory!,
       }),
     },
   });
@@ -350,7 +318,6 @@ NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=${publishableApiKey.token}
   await createProductsWorkflow(container).run({
     input: {
       products: generateProductsData({
-        productTypeResult,
         categoryResult,
         shippingProfile,
         defaultSalesChannel,

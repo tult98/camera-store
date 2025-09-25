@@ -29,7 +29,7 @@ export default async function resetDatabase({ container }: ExecArgs) {
     
     // Create admin user
     logger.info('Creating admin user...')
-    execSync('npx medusa user --email admin@example.com --password Admin@123', { stdio: 'inherit' })
+    execSync('npx medusa user --email lethanhtu1551998@gmail.com --password Admin@123', { stdio: 'inherit' })
     logger.info('Admin user created successfully.')
     
     // Run seeding process

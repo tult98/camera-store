@@ -1,91 +1,15 @@
 import { ProductStatus } from "@medusajs/framework/utils";
 import {
   ProductCategoryDTO,
-  ProductTypeDTO,
   SalesChannelDTO,
   ShippingProfileDTO,
 } from "@medusajs/types";
 
-// Product image mapping - using curated camera-specific images
-const productImages = {
-  "fujifilm-x100vi": {
-    thumbnail:
-      "https://product.hstatic.net/200000354621/product/fujifilm-x100vi-8_83775f59e5d24883ab17813bb7aa4573_master.jpg",
-    images: [
-      "https://product.hstatic.net/1000234350/product/x100vi_black_1_ffe2e87abb9e402e9a5dda4af7b0af55_master.jpeg",
-      "https://fujifilmshop.vn/wp-content/uploads/2024/08/may-anh-fujifilm-x100vi-7-1000x1000-1.jpg",
-      "https://shopusa.fujifilm-x.com/media/catalog/product/1/6/16821822_PT14_Image_X100__top_Silver_4.jpg?quality=90&bg-color=255,255,255&fit=bounds&height=700&width=700&canvas=700:700",
-      "https://cdn.vjshop.vn/may-anh/compact/fujifilm/fujifilm-x100vi-limited-edition/fujifilm-x100vi-limited-edition-9-500x500.jpg",
-    ],
-  },
-  "canon-eos-r5": {
-    thumbnail:
-      "https://product.hstatic.net/200000782117/product/canon_eos_r5_mark_ii__body-7_fb5bd2f64a3d450ca437717e02db96f3_master.jpg",
-    images: [
-      "https://product.hstatic.net/200000782117/product/canon_eos_r5_mark_ii__body_e9f1cda1e9444a7caad31eaa3516cf28_master.jpg",
-      "https://images2.jessops.com/ce-images/PRODUCT/PRODUCT_ENLARGED/ACANOCM195365326_001.jpg?image=600",
-      "https://img.photographyblog.com/reviews/canon_eos_r5/canon_eos_r5_01.jpg",
-    ],
-  },
-  "sony-a7-iv": {
-    thumbnail:
-      "https://product.hstatic.net/200000782117/product/_mg_1061_1e909b0ed77c43dc9fb0660e8a2c448b_master.jpg",
-    images: [
-      "https://tokyocamera.vn/wp-content/uploads/2021/11/1634813170_1668836.jpg",
-      "https://thecamerastore.com/cdn/shop/products/Sony-a7-IV-Body-03_1000x.jpg?v=1669310609",
-      "https://tokyocamera.vn/wp-content/uploads/2021/11/1634813219_IMG_1627569.jpg",
-    ],
-  },
-  "canon-rf-50mm-f1-2l-usm": {
-    thumbnail:
-      "https://tokyocamera.vn/wp-content/uploads/2021/04/Canon-RF-50mm-f1.2L-USM-3.jpg",
-    images: [
-      "https://giangduydat.vn/upload/rf%2050mm%20introduce%2001.jpg",
-      "https://tokyocamera.vn/wp-content/uploads/2021/04/Canon-RF-50mm-f1.2L-USM-3.jpg",
-    ],
-  },
-  "gopro-hero-12-black": {
-    thumbnail:
-      "https://product.hstatic.net/1000340975/product/gopro-hero-12-black-8-1-500x500_14d1098430e54689968762e6882e146b_master.jpg",
-    images: [
-      "https://product.hstatic.net/1000333506/product/camera-gopro-hero-12-black-5_62b72485fa4c4608965d06f95a8a23e7.jpg",
-      "https://product.hstatic.net/1000333506/product/camera-gopro-hero-12-black-5_62b72485fa4c4608965d06f95a8a23e7.jpg",
-    ],
-  },
-  "leica-m11": {
-    thumbnail:
-      "https://leicavietnam.com/store/product/images/detail/13036272/20208_Leica_M11_Monochrom_front_1024x1024.jpg",
-    images: [
-      "https://leicavietnam.com/store/product/images/detail/13036272/20208_Leica_M11_Monochrom_front_1024x1024.jpg",
-      "https://leicavietnam.com/store/product/images/detail/13036272/20208_Leica_M11_Monochrom_right_1024x1024.jpg",
-      "https://leicavietnam.com/store/product/images/detail/13036272/20208_Leica_M11_Monochrom_back_1024x1024__1_.jpg",
-    ],
-  },
-  "fujifilm-instax-mini-12": {
-    thumbnail:
-      "https://product.hstatic.net/200000664119/product/analog_house_instax_mini_12_used_da_qua_su_dung_4f3e4b634bc04f22941c6582dd07e560.jpg",
-    images: [
-      "https://product.hstatic.net/200000664119/product/analog_house_instax_mini_12_used_da_qua_su_dung_4f3e4b634bc04f22941c6582dd07e560.jpg",
-      "https://asset.fujifilm.com/www/vn/files/2023-03/ad008e20927a795f323f584689d317c6/thumb_mini12_01.png",
-      "https://product.hstatic.net/200000409445/product/2_e7451886a27c4361981b06ecd1727542_master.jpg",
-    ],
-  },
-  "sony-fe-24-70mm-f2-8-gm-ii": {
-    thumbnail: "https://giangduydat.vn/product/sony-fe-24-70mm-f28-gm-ii.jpg",
-    images: [
-      "https://giangduydat.vn/product/sony-fe-24-70mm-f28-gm-ii.jpg",
-      "https://cdn.vjshop.vn/ong-kinh/mirrorless/sony/sony-fe-24-70mm-f28-gm/sony-fe-24-70mm-f28-gm-lens1.jpg",
-    ],
-  },
-};
-
 export const generateProductsData = ({
-  productTypeResult,
   categoryResult,
   shippingProfile,
   defaultSalesChannel,
 }: {
-  productTypeResult: ProductTypeDTO[];
   categoryResult: ProductCategoryDTO[];
   shippingProfile: ShippingProfileDTO;
   defaultSalesChannel: SalesChannelDTO[];
@@ -93,7 +17,6 @@ export const generateProductsData = ({
   return [
     {
       title: "Fujifilm X100VI",
-      type_id: productTypeResult.find((type) => type.value === "camera")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Mirrorless Cameras")!.id,
       ],
@@ -149,10 +72,6 @@ export const generateProductsData = ({
       handle: "fujifilm-x100vi",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["fujifilm-x100vi"].thumbnail,
-      images: productImages["fujifilm-x100vi"].images.map((url) => ({
-        url,
-      })),
       options: [
         {
           title: "Color",
@@ -168,8 +87,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 3800000000, // 38,000,000 VND
-              currency_code: "vnd",
+              amount: 64000,
+              currency_code: "php",
             },
           ],
         },
@@ -181,8 +100,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 3800000000, // 38,000,000 VND
-              currency_code: "vnd",
+              amount: 65000,
+              currency_code: "php",
             },
           ],
         },
@@ -195,7 +114,6 @@ export const generateProductsData = ({
     },
     {
       title: "Canon EOS R5",
-      type_id: productTypeResult.find((type) => type.value === "camera")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Mirrorless Cameras")!.id,
       ],
@@ -282,8 +200,6 @@ export const generateProductsData = ({
       handle: "canon-eos-r5",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["canon-eos-r5"].thumbnail,
-      images: productImages["canon-eos-r5"].images.map((url) => ({ url })),
       options: [
         {
           title: "Kit",
@@ -299,8 +215,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 9500000000, // 95,000,000 VND
-              currency_code: "vnd",
+              amount: 95000,
+              currency_code: "php",
             },
           ],
         },
@@ -312,8 +228,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 12800000000, // 128,000,000 VND
-              currency_code: "vnd",
+              amount: 128000,
+              currency_code: "php",
             },
           ],
         },
@@ -326,7 +242,6 @@ export const generateProductsData = ({
     },
     {
       title: "Sony A7 IV",
-      type_id: productTypeResult.find((type) => type.value === "camera")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Mirrorless Cameras")!.id,
       ],
@@ -417,8 +332,6 @@ export const generateProductsData = ({
       handle: "sony-a7-iv",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["sony-a7-iv"].thumbnail,
-      images: productImages["sony-a7-iv"].images.map((url) => ({ url })),
       options: [
         {
           title: "Kit",
@@ -434,8 +347,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 6200000000, // 62,000,000 VND
-              currency_code: "vnd",
+              amount: 62000,
+              currency_code: "php",
             },
           ],
         },
@@ -447,8 +360,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 7500000000, // 75,000,000 VND
-              currency_code: "vnd",
+              amount: 75000,
+              currency_code: "php",
             },
           ],
         },
@@ -461,7 +374,6 @@ export const generateProductsData = ({
     },
     {
       title: "Canon RF 50mm f/1.2L USM",
-      type_id: productTypeResult.find((type) => type.value === "lens")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Prime Lenses")!.id,
       ],
@@ -551,10 +463,6 @@ export const generateProductsData = ({
       handle: "canon-rf-50mm-f1-2l-usm",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["canon-rf-50mm-f1-2l-usm"].thumbnail,
-      images: productImages["canon-rf-50mm-f1-2l-usm"].images.map((url) => ({
-        url,
-      })),
       options: [
         {
           title: "Condition",
@@ -570,8 +478,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 5800000000, // 58,000,000 VND
-              currency_code: "vnd",
+              amount: 580000,
+              currency_code: "php",
             },
           ],
         },
@@ -583,8 +491,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 5200000000, // 52,000,000 VND
-              currency_code: "vnd",
+              amount: 520000,
+              currency_code: "php",
             },
           ],
         },
@@ -597,7 +505,6 @@ export const generateProductsData = ({
     },
     {
       title: "GoPro Hero 12 Black",
-      type_id: productTypeResult.find((type) => type.value === "camera")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Action Cameras")!.id,
       ],
@@ -706,10 +613,6 @@ export const generateProductsData = ({
       handle: "gopro-hero-12-black",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["gopro-hero-12-black"].thumbnail,
-      images: productImages["gopro-hero-12-black"].images.map((url) => ({
-        url,
-      })),
       options: [
         {
           title: "Package",
@@ -725,8 +628,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 1050000000, // 10,500,000 VND
-              currency_code: "vnd",
+              amount: 105000,
+              currency_code: "php",
             },
           ],
         },
@@ -738,8 +641,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 1450000000, // 14,500,000 VND
-              currency_code: "vnd",
+              amount: 145000,
+              currency_code: "php",
             },
           ],
         },
@@ -752,7 +655,6 @@ export const generateProductsData = ({
     },
     {
       title: "Leica M11",
-      type_id: productTypeResult.find((type) => type.value === "camera")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Film Cameras")!.id,
       ],
@@ -865,8 +767,6 @@ export const generateProductsData = ({
       handle: "leica-m11",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["leica-m11"].thumbnail,
-      images: productImages["leica-m11"].images.map((url) => ({ url })),
       options: [
         {
           title: "Color",
@@ -882,8 +782,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 20500000000, // 205,000,000 VND
-              currency_code: "vnd",
+              amount: 205000,
+              currency_code: "php",
             },
           ],
         },
@@ -895,8 +795,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 21000000000, // 210,000,000 VND
-              currency_code: "vnd",
+              amount: 210000,
+              currency_code: "php",
             },
           ],
         },
@@ -909,7 +809,6 @@ export const generateProductsData = ({
     },
     {
       title: "Fujifilm Instax Mini 12",
-      type_id: productTypeResult.find((type) => type.value === "camera")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Instant Cameras")!.id,
       ],
@@ -1009,10 +908,6 @@ export const generateProductsData = ({
       handle: "fujifilm-instax-mini-12",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["fujifilm-instax-mini-12"].thumbnail,
-      images: productImages["fujifilm-instax-mini-12"].images.map((url) => ({
-        url,
-      })),
       options: [
         {
           title: "Color",
@@ -1034,8 +929,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 190000000, // 1,900,000 VND
-              currency_code: "vnd",
+              amount: 190000,
+              currency_code: "php",
             },
           ],
         },
@@ -1047,8 +942,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 190000000, // 1,900,000 VND
-              currency_code: "vnd",
+              amount: 190000,
+              currency_code: "php",
             },
           ],
         },
@@ -1060,8 +955,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 190000000, // 1,900,000 VND
-              currency_code: "vnd",
+              amount: 190000,
+              currency_code: "php",
             },
           ],
         },
@@ -1073,8 +968,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 190000000, // 1,900,000 VND
-              currency_code: "vnd",
+              amount: 190000,
+              currency_code: "php",
             },
           ],
         },
@@ -1086,8 +981,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 190000000, // 1,900,000 VND
-              currency_code: "vnd",
+              amount: 190000,
+              currency_code: "php",
             },
           ],
         },
@@ -1100,7 +995,6 @@ export const generateProductsData = ({
     },
     {
       title: "Sony FE 24-70mm f/2.8 GM II",
-      type_id: productTypeResult.find((type) => type.value === "lens")?.id!,
       category_ids: [
         categoryResult.find((cat) => cat.name === "Zoom Lenses")!.id,
       ],
@@ -1211,10 +1105,6 @@ export const generateProductsData = ({
       handle: "sony-fe-24-70mm-f2-8-gm-ii",
       status: ProductStatus.PUBLISHED,
       shipping_profile_id: shippingProfile.id,
-      thumbnail: productImages["sony-fe-24-70mm-f2-8-gm-ii"].thumbnail,
-      images: productImages["sony-fe-24-70mm-f2-8-gm-ii"].images.map((url) => ({
-        url,
-      })),
       options: [
         {
           title: "Condition",
@@ -1230,8 +1120,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 6800000000, // 68,000,000 VND
-              currency_code: "vnd",
+              amount: 680000,
+              currency_code: "php",
             },
           ],
         },
@@ -1243,8 +1133,8 @@ export const generateProductsData = ({
           },
           prices: [
             {
-              amount: 6200000000, // 62,000,000 VND
-              currency_code: "vnd",
+              amount: 620000,
+              currency_code: "php",
             },
           ],
         },

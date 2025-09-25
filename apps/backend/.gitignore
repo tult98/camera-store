@@ -24,3 +24,9 @@ build
 !.yarn/versions
 
 /public
+
+# Medusa client and types
+.medusa/client/*
+.medusa/server/*
+.medusa/types/index.d.ts
+.medusa/types/query-entry-points.d.ts

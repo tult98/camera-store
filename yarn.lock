@@ -2459,6 +2459,7 @@ __metadata:
     "@swc/jest": ^0.2.36
     "@tailwindcss/postcss": ^4.1.12
     "@tanstack/react-query": ^5.85.5
+    "@tanstack/react-query-devtools": ^5.90.2
     "@tiptap/core": ^3.3.0
     "@tiptap/extension-blockquote": ^3.3.0
     "@tiptap/extension-bold": ^3.3.0
@@ -11975,6 +11976,25 @@ __metadata:
   version: 5.85.5
   resolution: "@tanstack/query-core@npm:5.85.5"
   checksum: 2bd2b028fcdd5a5608ea4ec3459fea27d72f83d18c586e9dc109869d3f534bbc01430251027a0b2adaf9ab324e63c17d782cc91dc50ba1910f43feec932f5c1c
+  languageName: node
+  linkType: hard
+
+"@tanstack/query-devtools@npm:5.90.1":
+  version: 5.90.1
+  resolution: "@tanstack/query-devtools@npm:5.90.1"
+  checksum: 2c17d0c46f11b4839e5112c15ef925385899defca649a32fbb1a6bd093055b7102584f800615a372bead72875d7ec61b5d782c8fd1971f0e1b3655ff3c448641
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-query-devtools@npm:^5.90.2":
+  version: 5.90.2
+  resolution: "@tanstack/react-query-devtools@npm:5.90.2"
+  dependencies:
+    "@tanstack/query-devtools": 5.90.1
+  peerDependencies:
+    "@tanstack/react-query": ^5.90.2
+    react: ^18 || ^19
+  checksum: e4133b3964b21ed74701e4568c0abd67001dfaa8b46d718d1404c4de36535df0b9269caad464ce455ed980bdbf364c15d67ec5040816dd24db5dbb83550b78b0
   languageName: node
   linkType: hard
 

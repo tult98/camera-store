@@ -103,6 +103,7 @@
     "@rspack/core": "^1.0.0",
     "@swc/core": "1.5.7",
     "@swc/jest": "^0.2.36",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "@types/jest": "^29.5.13",
     "@types/lodash": "^4.14.195",
     "@types/node": "^20.0.0",

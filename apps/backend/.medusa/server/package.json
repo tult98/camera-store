@@ -1,8 +1,0 @@
-{
-  "name": "backend",
-  "private": true,
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.39.1",
-    "@typescript-eslint/parser": "^8.39.1"
-  }
-}

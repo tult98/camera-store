@@ -112,14 +112,7 @@ export class CategoryProductService {
 
       const attributesMap = new Map<string, Record<string, unknown>>();
       for (const attr of productAttributes) {
-        const attributeValues = (attr.attribute_values as Array<{ attribute_name: string; value: unknown }>)?.reduce(
-          (acc, item) => {
-            acc[item.attribute_name] = item.value;
-            return acc;
-          },
-          {} as Record<string, unknown>
-        ) || {};
-        attributesMap.set(attr.product_id, attributeValues);
+        attributesMap.set(attr.product_id, attr.attribute_values || {});
       }
 
       return products.map((product: Product) => ({

@@ -19,10 +19,7 @@ export interface Product {
 export interface ProductAttributesService {
   listProductAttributes(params: { product_id: string[] }): Promise<Array<{
     product_id: string;
-    attribute_values: Array<{
-      attribute_name: string;
-      value: unknown;
-    }>;
+    attribute_values: Record<string, unknown>;
   }>>;
 }
 

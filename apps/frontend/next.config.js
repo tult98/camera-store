@@ -115,6 +115,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "ph-camera.sgp1.digitaloceanspaces.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ph-camera.sgp1.cdn.digitaloceanspaces.com",
       }
     ],
   },

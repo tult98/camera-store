@@ -32,7 +32,7 @@ export function aggregateTermFacet(
   }
 
   // Convert to response format, showing all values with their filtered counts
-  const values = Array.from(allValues).map(value => ({
+  const values = Array.from(allValues).map((value) => ({
     value,
     label: value,
     count: valueCounts.get(value) || 0,

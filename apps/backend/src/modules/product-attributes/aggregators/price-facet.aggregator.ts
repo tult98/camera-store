@@ -1,4 +1,7 @@
-import { ContainerRegistrationKeys, QueryContext } from "@medusajs/framework/utils";
+import {
+  ContainerRegistrationKeys,
+  QueryContext,
+} from "@medusajs/framework/utils";
 import { Logger } from "@medusajs/framework/types";
 import type { FacetAggregation } from "../types/facet.types";
 import { calculatePriceStep } from "../utils/facet-calculators";
@@ -21,17 +24,13 @@ export async function aggregatePriceFacet(
 
     // Use query.graph to get products with proper pricing context
     const query = container.resolve(ContainerRegistrationKeys.QUERY);
-    const productIds = products.map(p => p.id);
-    
+    const productIds = products.map((p) => p.id);
+
     const result = await query.graph({
       entity: "product",
-      fields: [
-        "id",
-        "variants.*",
-        "variants.calculated_price.*"
-      ],
+      fields: ["id", "variants.*", "variants.calculated_price.*"],
       filters: {
-        id: productIds
+        id: productIds,
       },
       context: {
         variants: {
@@ -44,7 +43,7 @@ export async function aggregatePriceFacet(
     });
 
     const productsWithPrices = result.data || [];
-    
+
     // Extract all prices from variants
     const prices: number[] = [];
 

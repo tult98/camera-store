@@ -15,7 +15,7 @@ export function aggregateBooleanFacet(
   // Check if any base products have true/false values to determine available options
   let hasTrue = false;
   let hasFalse = false;
-  
+
   for (const pa of baseProductAttributes) {
     const value = pa.attribute_values[key];
     if (value === true || value === "true") {

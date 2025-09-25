@@ -21,7 +21,6 @@ module.exports = defineConfig({
   modules: [
     {
       resolve: "./src/modules/product-attributes",
-      key: "productAttributes",
     },
     // Only include file module in production
     ...(process.env["NODE_ENV"] === "production"

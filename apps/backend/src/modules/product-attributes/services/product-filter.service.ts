@@ -1,4 +1,7 @@
-import { Modules, ContainerRegistrationKeys, QueryContext } from "@medusajs/framework/utils";
+import {
+  ContainerRegistrationKeys,
+  QueryContext,
+} from "@medusajs/framework/utils";
 import { Logger } from "@medusajs/framework/types";
 import { getAllCategoryIds } from "../../../utils/category-hierarchy";
 import { PRODUCT_ATTRIBUTES_MODULE } from "../index";
@@ -38,20 +41,17 @@ export class ProductFilterService {
     // Get all products in category and child categories with pricing data
     const result = await query.graph({
       entity: "product",
-      fields: [
-        "*",
-        "variants.*",
-        "variants.calculated_price.*"
-      ],
+      fields: ["*", "variants.*", "variants.calculated_price.*"],
       filters: {
         categories: { id: categoryIds },
-        status: "published"
+        status: "published",
       },
       context: {
         variants: {
           calculated_price: QueryContext({
             region_id: pricingContext?.region_id || DEFAULT_REGION_ID,
-            currency_code: pricingContext?.currency_code || DEFAULT_CURRENCY_CODE,
+            currency_code:
+              pricingContext?.currency_code || DEFAULT_CURRENCY_CODE,
           }),
         },
       },
@@ -74,7 +74,11 @@ export class ProductFilterService {
     );
 
     // Get base products first
-    let products = await this.getBaseProducts(categoryId, container, pricingContext);
+    let products = await this.getBaseProducts(
+      categoryId,
+      container,
+      pricingContext
+    );
 
     // If no filters applied, return all products
     if (Object.keys(appliedFilters).length === 0) {
@@ -98,7 +102,11 @@ export class ProductFilterService {
       return products;
     }
 
-    return await this.filterByAttributes(products, attributeFilters, productAttributesService);
+    return await this.filterByAttributes(
+      products,
+      attributeFilters,
+      productAttributesService
+    );
   }
 
   /**
@@ -112,9 +120,9 @@ export class ProductFilterService {
       // Check if any variant matches the price filter
       return product.variants?.some((variant: any) => {
         const price = variant.calculated_price?.calculated_amount || 0;
-        
+
         if (price === 0) return false;
-        
+
         if (priceFilter.min !== undefined && price < priceFilter.min * 100) {
           return false;
         }

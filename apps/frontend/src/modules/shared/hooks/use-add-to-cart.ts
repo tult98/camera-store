@@ -2,9 +2,9 @@
 
 import { useDefaultRegion } from "@lib/hooks/use-default-region"
 import { useToast } from "@lib/providers/toast-provider"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { addItemToCart, createCart, getCart } from "../apiCalls/cart"
-import { getCartId, setCartId } from "../utils/cart-cookies"
+import { useCartStore } from "../store/cart-store"
 
 interface AddToCartParams {
   variantId: string
@@ -16,9 +16,9 @@ interface AddToCartParams {
  * Handles cart creation if needed and adds items
  */
 export function useAddToCart() {
-  const queryClient = useQueryClient()
   const { showToast } = useToast()
   const { defaultRegion } = useDefaultRegion()
+  const { cartId, setCartId } = useCartStore()
 
   return useMutation({
     mutationFn: async ({ variantId, quantity }: AddToCartParams) => {
@@ -31,44 +31,41 @@ export function useAddToCart() {
       }
 
       // Get existing cart ID or create new cart
-      let cartId = getCartId()
+      let currentCartId = cartId
 
-      if (!cartId) {
+      if (!currentCartId) {
         // Create new cart
         const cart = await createCart(
           defaultRegion.id,
           defaultRegion.currency_code
         )
-        cartId = cart.id
-        setCartId(cartId)
+        currentCartId = cart.id
       } else {
         // Verify existing cart still exists
-        const existingCart = await getCart(cartId)
+        const existingCart = await getCart(currentCartId)
         if (!existingCart) {
           // Cart doesn't exist anymore, create new one
           const cart = await createCart(
             defaultRegion.id,
             defaultRegion.currency_code
           )
-          cartId = cart.id
-          setCartId(cartId)
+          currentCartId = cart.id
+          setCartId(currentCartId)
         }
       }
 
       // Add item to cart
-      const updatedCart = await addItemToCart(cartId, variantId, quantity)
+      const updatedCart = await addItemToCart(
+        currentCartId,
+        variantId,
+        quantity
+      )
       return updatedCart
     },
     onSuccess: (updatedCart) => {
-      // Update the cart data directly in the query cache
-      const cartId = getCartId()
-      if (cartId && updatedCart) {
-        queryClient.setQueryData(['cart', cartId], updatedCart)
-        queryClient.setQueryData(['cart', cartId, undefined], updatedCart)
-      }
-      
-      // Invalidate cart-related queries to refetch data
-      queryClient.invalidateQueries({ queryKey: ["cart"] })
+      // React Query will automatically refetch cart data when cartId changes
+      // No manual cache management needed anymore
+      setCartId(updatedCart.id)
       showToast("Product added to cart successfully!", "success")
     },
     onError: (error: any) => {

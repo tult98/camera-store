@@ -3,7 +3,7 @@
 import { ShoppingCartIcon } from "@heroicons/react/24/outline"
 import { useCart } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
-import { getCartId } from "@modules/shared/utils/cart-cookies"
+import { useCartId } from "@modules/shared/hooks/use-cart-id"
 import Link from "next/link"
 
 const CartDropdown = ({
@@ -11,8 +11,8 @@ const CartDropdown = ({
 }: {
   cart?: HttpTypes.StoreCart | null
 }) => {
-  // Get cart ID from cookies
-  const cartId = getCartId()
+  // Get cart ID from global state - reactive to changes
+  const cartId = useCartId()
 
   // Use React Query to fetch cart data - this will auto-update when cart changes
   const { data: cart } = useCart(cartId || undefined, undefined, initialCart)

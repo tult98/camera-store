@@ -1,8 +1,8 @@
 'use client'
 
 import { useCart } from '@lib/hooks/use-cart'
-import { getCartId } from '@modules/shared/utils/cart-cookies'
-import { useEffect, useState, useMemo } from 'react'
+import { useCartId } from '@modules/shared/hooks/use-cart-id'
+import { useMemo } from 'react'
 import CartLayout from './cart-layout'
 import SkeletonCartPage from '@modules/skeletons/templates/skeleton-cart-page'
 import { HttpTypes } from "@medusajs/types"
@@ -13,7 +13,8 @@ type CartPageProps = {
 }
 
 export default function CartPage({ initialCart }: CartPageProps) {
-  const [cartId, setCartId] = useState<string | null>(null)
+  // Get cart ID from global state - reactive to changes
+  const cartId = useCartId()
   
   // Set breadcrumbs for cart page with memoized context
   const breadcrumbContext = useMemo(
@@ -25,12 +26,7 @@ export default function CartPage({ initialCart }: CartPageProps) {
   )
   useLayoutBreadcrumbs(breadcrumbContext)
   
-  // Get cart ID on client side
-  useEffect(() => {
-    setCartId(getCartId())
-  }, [])
-  
-  // Use React Query with initial data from server
+  // Use React Query with initial data from server - automatically refetches when cartId changes
   const { data: cart, isLoading: cartLoading, error: cartError } = useCart(
     cartId || undefined,
     undefined,

@@ -21,33 +21,41 @@ export const convertToLocale = ({
     return amount.toString()
   }
 
-  // Convert amount from cents to major currency unit
-  const convertedAmount = amount / 100
+  const convertedAmount = amount
 
   // Use Vietnamese locale for VND currency
-  const displayLocale = currency_code.toUpperCase() === 'VND' ? 'vi-VN' : locale
+  const displayLocale = currency_code.toUpperCase() === "VND" ? "vi-VN" : locale
 
   return new Intl.NumberFormat(displayLocale, {
     style: "currency",
     currency: currency_code,
-    minimumFractionDigits: minimumFractionDigits ?? (currency_code.toUpperCase() === 'VND' ? 0 : undefined),
-    maximumFractionDigits: maximumFractionDigits ?? (currency_code.toUpperCase() === 'VND' ? 0 : undefined),
-    ...(compact && { notation: "compact" as const })
+    minimumFractionDigits:
+      minimumFractionDigits ??
+      (currency_code.toUpperCase() === "VND" ? 0 : undefined),
+    maximumFractionDigits:
+      maximumFractionDigits ??
+      (currency_code.toUpperCase() === "VND" ? 0 : undefined),
+    ...(compact && { notation: "compact" as const }),
   }).format(convertedAmount)
 }
 
-export const formatPrice = (amount: number, currency: string, compact = false) => {
+export const formatPrice = (
+  amount: number,
+  currency: string,
+  compact = false
+) => {
   // Convert amount from cents to major currency unit
-  const convertedAmount = amount / 100
-  
+  const convertedAmount = amount
+
   // Use Vietnamese locale for VND currency
-  const displayLocale = currency.toUpperCase() === 'VND' ? 'vi-VN' : 'en-US'
-  
+  const displayLocale = currency.toUpperCase() === "VND" ? "vi-VN" : "en-US"
+
   return new Intl.NumberFormat(displayLocale, {
     style: "currency",
     currency: currency.toUpperCase(),
-    minimumFractionDigits: currency.toUpperCase() === 'VND' ? 0 : (convertedAmount % 1 === 0 ? 0 : 2),
-    maximumFractionDigits: currency.toUpperCase() === 'VND' ? 0 : 2,
-    ...(compact && { notation: "compact" as const })
+    minimumFractionDigits:
+      currency.toUpperCase() === "VND" ? 0 : convertedAmount % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: currency.toUpperCase() === "VND" ? 0 : 2,
+    ...(compact && { notation: "compact" as const }),
   }).format(convertedAmount)
 }

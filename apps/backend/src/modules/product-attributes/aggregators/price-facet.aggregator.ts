@@ -66,8 +66,8 @@ export async function aggregatePriceFacet(
     const maxPrice = Math.max(...prices);
 
     // Convert from cents to dollars for display
-    const minPriceDollars = Math.floor(minPrice / 100);
-    const maxPriceDollars = Math.ceil(maxPrice / 100);
+    const minPriceDollars = Math.floor(minPrice);
+    const maxPriceDollars = Math.ceil(maxPrice);
 
     return {
       facet_key: "price",

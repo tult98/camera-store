@@ -1,21 +1,18 @@
 import Medusa from "@medusajs/js-sdk"
 
 // Defaults to standard port for Medusa server
-let MEDUSA_BACKEND_URL = "http://localhost:9000"
-
-if (process.env["MEDUSA_BACKEND_URL"]) {
-  MEDUSA_BACKEND_URL = process.env["MEDUSA_BACKEND_URL"]
+if (!process.env.MEDUSA_BACKEND_URL) {
+  throw new Error("MEDUSA_BACKEND_URL is required")
 }
 
-const publishableKey = process.env["NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY"]
-if (!publishableKey) {
+if (!process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY) {
   throw new Error("NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY is required")
 }
 
 export const sdk = new Medusa({
-  baseUrl: MEDUSA_BACKEND_URL,
+  baseUrl: process.env.MEDUSA_BACKEND_URL,
   debug: process.env.NODE_ENV === "development",
-  publishableKey,
+  publishableKey: process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY,
 })
 
 export { cameraStoreApi } from "./api-client"

@@ -2,7 +2,7 @@
 
 import { useDefaultRegion } from "@lib/hooks/use-default-region"
 import { useToast } from "@lib/providers/toast-provider"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { addItemToCart, createCart, getCart } from "../apiCalls/cart"
 import { useCartStore } from "../store/cart-store"
 
@@ -19,6 +19,7 @@ export function useAddToCart() {
   const { showToast } = useToast()
   const { defaultRegion } = useDefaultRegion()
   const { cartId, setCartId } = useCartStore()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({ variantId, quantity }: AddToCartParams) => {
@@ -65,7 +66,11 @@ export function useAddToCart() {
     onSuccess: (updatedCart) => {
       // React Query will automatically refetch cart data when cartId changes
       // No manual cache management needed anymore
-      setCartId(updatedCart.id)
+      if (updatedCart.id !== cartId) {
+        setCartId(updatedCart.id)
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["cart"] })
+      }
       showToast("Product added to cart successfully!", "success")
     },
     onError: (error: any) => {

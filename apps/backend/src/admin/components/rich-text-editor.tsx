@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-} from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -76,7 +71,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       Image.configure({
         inline: true,
         HTMLAttributes: {
-          class: "max-w-full h-auto rounded-lg",
+          class: "rich-text-editor-image",
         },
       }),
       Youtube.configure({
@@ -110,32 +105,29 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   });
 
   const handleLinkSubmit = useCallback(
-    (data: { type: 'link' | 'video'; url: string; text?: string }) => {
+    (data: { type: "link" | "video"; url: string; text?: string }) => {
       if (!editor) return;
 
-      if (data.type === 'video') {
+      if (data.type === "video") {
         // Extract video ID from various YouTube URL formats
-        let videoId = '';
+        let videoId = "";
         const url = data.url;
-        
-        if (url.includes('youtube.com/watch?v=')) {
-          videoId = url.split('v=')[1]?.split('&')[0] || '';
-        } else if (url.includes('youtu.be/')) {
-          videoId = url.split('youtu.be/')[1]?.split('?')[0] || '';
-        } else if (url.includes('vimeo.com/')) {
+
+        if (url.includes("youtube.com/watch?v=")) {
+          videoId = url.split("v=")[1]?.split("&")[0] || "";
+        } else if (url.includes("youtu.be/")) {
+          videoId = url.split("youtu.be/")[1]?.split("?")[0] || "";
+        } else if (url.includes("vimeo.com/")) {
           // For Vimeo, insert iframe directly
-          const vimeoId = url.split('vimeo.com/')[1]?.split('?')[0]?.split('/')[0] || '';
+          const vimeoId =
+            url.split("vimeo.com/")[1]?.split("?")[0]?.split("/")[0] || "";
           if (vimeoId) {
             const iframeHtml = `<iframe src="https://player.vimeo.com/video/${vimeoId}" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-            editor
-              .chain()
-              .focus()
-              .insertContent(iframeHtml)
-              .run();
+            editor.chain().focus().insertContent(iframeHtml).run();
           }
           return;
         }
-        
+
         if (videoId) {
           editor
             .chain()
@@ -148,14 +140,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       } else {
         // Handle regular link
         const { from, to } = editor.state.selection;
-        const selectedText = editor.state.doc.textBetween(from, to, ' ');
-        
+        const selectedText = editor.state.doc.textBetween(from, to, " ");
+
         if (selectedText) {
           // If text is selected, make it a link
           editor
             .chain()
             .focus()
-            .extendMarkRange('link')
+            .extendMarkRange("link")
             .setLink({ href: data.url })
             .run();
         } else {
@@ -163,7 +155,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           editor
             .chain()
             .focus()
-            .insertContent(`<a href="${data.url}" target="_blank" rel="noopener noreferrer">${data.text || data.url}</a>`)
+            .insertContent(
+              `<a href="${
+                data.url
+              }" target="_blank" rel="noopener noreferrer">${
+                data.text || data.url
+              }</a>`
+            )
             .run();
         }
       }

@@ -1,0 +1,71 @@
+{
+  "name": "admin-dashboard",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/admin-dashboard/src",
+  "projectType": "application",
+  "tags": ["scope:admin", "type:app"],
+  "targets": {
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "admin-dashboard:build",
+        "port": 3000
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "admin-dashboard:build:development"
+        },
+        "production": {
+          "buildTarget": "admin-dashboard:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/admin-dashboard"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "admin-dashboard:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "admin-dashboard:build:development"
+        },
+        "production": {
+          "buildTarget": "admin-dashboard:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/admin-dashboard/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "type-check": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit",
+        "cwd": "apps/admin-dashboard"
+      }
+    }
+  }
+}

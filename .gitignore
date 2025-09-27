@@ -167,3 +167,5 @@ Thumbs.db
 .playwright-mcp/
 
 apps/backend/static/*
+vite.config.*.timestamp*
+vitest.config.*.timestamp*

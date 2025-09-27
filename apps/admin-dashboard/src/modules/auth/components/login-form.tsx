@@ -1,15 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { FormInput } from '../../shared/components/ui/form-input';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { loginUser } from '../apiCalls/login';
+import { getCurrentUser } from '../apiCalls/user';
 import { loginSchema, type LoginSchemaType } from '../types';
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const {
     control,
@@ -26,7 +28,11 @@ export const LoginForm: React.FC = () => {
 
   const loginMutation = useMutation({
     mutationFn: loginUser,
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.prefetchQuery({
+        queryKey: ['current-user'],
+        queryFn: getCurrentUser,
+      });
       navigate('/');
     },
   });

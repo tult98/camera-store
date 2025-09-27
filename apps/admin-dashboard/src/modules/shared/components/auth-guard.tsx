@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useCurrentUser } from '../hooks/use-current-user';
 import { LoadingIcon } from './ui/loading-icon';
 
@@ -9,6 +9,7 @@ interface AuthGuardProps {
 
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const { data: user, isLoading, isError } = useCurrentUser();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -19,7 +20,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   }
 
   if (isError || !user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return children;

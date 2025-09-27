@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FormInput } from '../../shared/components/ui/form-input';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { loginUser } from '../apiCalls/login';
@@ -72,6 +72,7 @@ export const LoginForm: React.FC = () => {
               label="Email"
               placeholder="Enter your email"
               disabled={isFormLoading}
+              inputClassName="!px-4 !py-3"
             />
 
             <FormInput
@@ -81,6 +82,7 @@ export const LoginForm: React.FC = () => {
               label="Password"
               placeholder="Enter your password"
               disabled={isFormLoading}
+              inputClassName="!px-4 !py-3"
             />
 
             <div className="pt-2">

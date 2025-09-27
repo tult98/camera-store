@@ -15,7 +15,9 @@ interface FormInputProps<TFormData extends FieldValues = FieldValues> {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  inputClassName?: string;
   shouldUnregister?: boolean;
+  required?: boolean;
 }
 
 const FormInputInner = <TFormData extends FieldValues = FieldValues>(
@@ -27,7 +29,9 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     placeholder,
     disabled = false,
     className = '',
+    inputClassName = '',
     shouldUnregister = true,
+    required = false,
   }: FormInputProps<TFormData>,
   ref: React.Ref<HTMLInputElement>
 ) => {
@@ -49,7 +53,8 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
   const inputClasses = cn(
     'input-base input-focus',
     disabled && 'input-disabled',
-    showErrorState && 'input-error'
+    showErrorState && 'input-error',
+    inputClassName
   );
 
   const togglePasswordVisibility = useCallback(() => {
@@ -60,7 +65,10 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     <div className={cn('w-full', className)}>
       {label && (
         <label className="label-wrapper" htmlFor={name}>
-          <span className="label-text">{label}</span>
+          <span className="label-text">
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </span>
         </label>
       )}
 

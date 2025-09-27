@@ -1,7 +1,7 @@
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import React, { useState, useCallback } from 'react';
-import { Control, Path, useController, FieldValues } from 'react-hook-form';
 import { cn } from '@modules/shared/utils/cn';
+import React, { useCallback, useState } from 'react';
+import { Control, FieldValues, Path, useController } from 'react-hook-form';
 
 /**
  * A reusable form input component with React Hook Form integration
@@ -18,21 +18,21 @@ interface FormInputProps<TFormData extends FieldValues = FieldValues> {
   shouldUnregister?: boolean;
 }
 
-export const FormInput = React.forwardRef<
-  HTMLInputElement,
-  FormInputProps<any>
->(function FormInput<TFormData extends FieldValues = FieldValues>({
-  name,
-  control,
-  type = 'text',
-  label,
-  placeholder,
-  disabled = false,
-  className = '',
-  shouldUnregister = true,
-}: FormInputProps<TFormData>, ref: React.Ref<HTMLInputElement>) {
+const FormInputInner = <TFormData extends FieldValues = FieldValues>(
+  {
+    name,
+    control,
+    type = 'text',
+    label,
+    placeholder,
+    disabled = false,
+    className = '',
+    shouldUnregister = true,
+  }: FormInputProps<TFormData>,
+  ref: React.Ref<HTMLInputElement>
+) => {
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const {
     field,
     fieldState: { error, isTouched },
@@ -53,7 +53,7 @@ export const FormInput = React.forwardRef<
   );
 
   const togglePasswordVisibility = useCallback(() => {
-    setShowPassword(prev => !prev);
+    setShowPassword((prev) => !prev);
   }, []);
 
   return (
@@ -63,20 +63,20 @@ export const FormInput = React.forwardRef<
           <span className="label-text">{label}</span>
         </label>
       )}
-      
+
       <div className="relative">
         <input
           {...field}
           ref={ref}
           id={name}
-        type={inputType}
+          type={inputType}
           placeholder={placeholder}
           disabled={disabled}
           className={inputClasses}
           aria-invalid={showErrorState}
           aria-describedby={showErrorState ? `${name}-error` : undefined}
         />
-        
+
         {type === 'password' && (
           <button
             type="button"
@@ -96,7 +96,7 @@ export const FormInput = React.forwardRef<
 
       {showErrorState && (
         <div className="mt-1">
-          <span 
+          <span
             id={`${name}-error`}
             className="input-error-message"
             role="alert"
@@ -107,6 +107,11 @@ export const FormInput = React.forwardRef<
       )}
     </div>
   );
-});
+};
 
-FormInput.displayName = 'FormInput';
+const _FormInput = React.forwardRef(FormInputInner);
+_FormInput.displayName = 'FormInput';
+
+export const FormInput = _FormInput as <TFormData extends FieldValues = FieldValues>(
+  props: FormInputProps<TFormData> & { ref?: React.Ref<HTMLInputElement> }
+) => React.ReactElement;

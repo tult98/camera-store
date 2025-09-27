@@ -1,23 +1,20 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import { FormInput } from '../../shared/components/ui/form-input';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
+import { loginUser } from '../apiCalls/login';
 import { loginSchema, type LoginSchemaType } from '../types';
 
-interface LoginFormProps {
-  onSubmit?: (data: LoginSchemaType) => void;
-  isLoading?: boolean;
-}
+export const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
 
-export const LoginForm: React.FC<LoginFormProps> = ({ 
-  onSubmit, 
-  isLoading = false 
-}) => {
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting }
+    formState: { isSubmitting },
   } = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
@@ -27,22 +24,39 @@ export const LoginForm: React.FC<LoginFormProps> = ({
     },
   });
 
+  const loginMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: () => {
+      navigate('/');
+    },
+  });
+
   const handleFormSubmit = (data: LoginSchemaType) => {
-    onSubmit?.(data);
+    loginMutation.mutate(data);
   };
 
-  const isFormLoading = isLoading || isSubmitting;
+  const isFormLoading = loginMutation.isPending || isSubmitting;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-8 py-10">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-500 mt-2 text-sm">Sign in to access the admin panel</p>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Admin Dashboard
+            </h1>
+            <p className="text-gray-500 mt-2 text-sm">
+              Sign in to access the admin panel
+            </p>
           </div>
-          
+
           <form className="space-y-5" onSubmit={handleSubmit(handleFormSubmit)}>
+            {loginMutation.error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                {loginMutation.error.message ||
+                  'Login failed. Please check your credentials and try again.'}
+              </div>
+            )}
             <FormInput
               name="email"
               control={control}
@@ -51,7 +65,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
               placeholder="Enter your email"
               disabled={isFormLoading}
             />
-            
+
             <FormInput
               name="password"
               control={control}

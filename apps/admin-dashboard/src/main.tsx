@@ -1,7 +1,9 @@
 import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
-import { QueryProvider } from './providers/query-provider';
+import { QueryProvider } from './modules/shared/providers/query-provider';
+import { ToastProvider } from './modules/shared/providers/toast-provider';
+import { ToastContainer } from './modules/shared/components/ui/toast/toast-container';
 import App from './app/app';
 import './styles/globals.css';
 
@@ -12,9 +14,12 @@ const root = ReactDOM.createRoot(
 root.render(
   <StrictMode>
     <QueryProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+        <ToastContainer />
+      </ToastProvider>
     </QueryProvider>
   </StrictMode>
 );

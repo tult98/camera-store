@@ -1,0 +1,81 @@
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormInput } from '../../shared/components/ui/form-input';
+import { LoadingIcon } from '../../shared/components/ui/loading-icon';
+import { loginSchema, type LoginSchemaType } from '../types';
+
+interface LoginFormProps {
+  onSubmit?: (data: LoginSchemaType) => void;
+  isLoading?: boolean;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({ 
+  onSubmit, 
+  isLoading = false 
+}) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting }
+  } = useForm<LoginSchemaType>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const handleFormSubmit = (data: LoginSchemaType) => {
+    onSubmit?.(data);
+  };
+
+  const isFormLoading = isLoading || isSubmitting;
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-8 py-10">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-500 mt-2 text-sm">Sign in to access the admin panel</p>
+          </div>
+          
+          <form className="space-y-5" onSubmit={handleSubmit(handleFormSubmit)}>
+            <FormInput
+              name="email"
+              control={control}
+              type="email"
+              label="Email"
+              placeholder="Enter your email"
+              disabled={isFormLoading}
+            />
+            
+            <FormInput
+              name="password"
+              control={control}
+              type="password"
+              label="Password"
+              placeholder="Enter your password"
+              disabled={isFormLoading}
+            />
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isFormLoading}
+                className="w-full bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {isFormLoading && (
+                  <LoadingIcon size="md" color="white" className="mr-2" />
+                )}
+                Sign In
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};

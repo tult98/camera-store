@@ -1,8 +1,10 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { LoginForm } from '../modules/auth/components/login-form';
 
 export function AppRouter() {
   return (
     <Routes>
+      <Route path="/login" element={<LoginForm />} />
       <Route path="/" element={<div>Admin Dashboard Home</div>} />
       <Route path="/products" element={<div>Products</div>} />
       <Route path="/orders" element={<div>Orders</div>} />

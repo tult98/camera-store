@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FormInput } from '../../shared/components/ui/form-input';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { loginUser } from '../apiCalls/login';
@@ -11,6 +11,7 @@ import { loginSchema, type LoginSchemaType } from '../types';
 
 export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
 
   const {
@@ -33,7 +34,8 @@ export const LoginForm: React.FC = () => {
         queryKey: ['current-user'],
         queryFn: getCurrentUser,
       });
-      navigate('/');
+      const returnTo = location.state?.from?.pathname || '/';
+      navigate(returnTo);
     },
   });
 

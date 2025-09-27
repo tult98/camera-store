@@ -11,7 +11,7 @@ export interface CategoryFormData {
 }
 
 export const categorySchema = z.object({
-  title: z
+  name: z
     .string()
     .min(1, 'Title is required')
     .max(100, 'Title must be less than 100 characters'),
@@ -29,12 +29,24 @@ export const categorySchema = z.object({
     .boolean(),
   is_internal: z
     .boolean(),
-  is_featured: z
-    .boolean(),
-  hero_image_url: z
+  parent_category_id: z
     .string()
     .optional()
     .or(z.literal('')),
+  rank: z
+    .number()
+    .optional(),
+  metadata: z
+    .object({
+      is_featured: z
+        .boolean()
+        .optional(),
+      hero_image_url: z
+        .string()
+        .optional()
+        .or(z.literal('')),
+    })
+    .optional(),
 });
 
 export type CategorySchemaType = z.infer<typeof categorySchema>;

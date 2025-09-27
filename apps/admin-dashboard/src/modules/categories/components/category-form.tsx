@@ -20,22 +20,24 @@ export const CategoryForm: React.FC = () => {
     resolver: zodResolver(categorySchema),
     mode: 'onChange',
     defaultValues: {
-      title: '',
+      name: '',
       handle: '',
       description: '',
       is_active: true,
       is_internal: false,
-      is_featured: false,
-      hero_image_url: '',
+      metadata: {
+        is_featured: false,
+        hero_image_url: '',
+      },
     },
   });
 
-  const title = watch('title');
+  const name = watch('name');
 
-  // Auto-generate handle from title
+  // Auto-generate handle from name
   useEffect(() => {
-    if (title) {
-      const generatedHandle = title
+    if (name) {
+      const generatedHandle = name
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
@@ -43,7 +45,7 @@ export const CategoryForm: React.FC = () => {
         .trim();
       setValue('handle', generatedHandle);
     }
-  }, [title, setValue]);
+  }, [name, setValue]);
 
   const handleFormSubmit = (data: CategorySchemaType) => {
     console.log('Category form data:', data);
@@ -53,7 +55,7 @@ export const CategoryForm: React.FC = () => {
     <form className="space-y-4" onSubmit={handleSubmit(handleFormSubmit)}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormInput
-          name="title"
+          name="name"
           control={control}
           type="text"
           label="Title"
@@ -95,7 +97,7 @@ export const CategoryForm: React.FC = () => {
         />
 
         <FormSwitch
-          name="is_featured"
+          name="metadata.is_featured"
           control={control}
           label="Featured"
           description="Mark this category as featured on the homepage"
@@ -104,7 +106,7 @@ export const CategoryForm: React.FC = () => {
       </div>
 
       <FormImageUpload
-        name="hero_image_url"
+        name="metadata.hero_image_url"
         control={control}
         label="Hero Image"
         disabled={isSubmitting}

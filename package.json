@@ -69,6 +69,7 @@
     "@types/multer": "^2.0.0",
     "awilix": "^8.0.1",
     "cookies-next": "^6.1.0",
+    "daisyui": "latest",
     "express": "^4.21.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.542.0",

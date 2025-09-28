@@ -15,10 +15,10 @@ const StoreNavigation = async () => {
       <div className="navbar-start">
         <Link href="/" className="flex items-center text-xl font-bold">
           <Image
-            src="/logo1.png"
+            src="/logo.png"
             alt="PHCameras Logo"
-            width={48}
-            height={48}
+            width={64}
+            height={64}
             className="mr-3"
           />
         </Link>

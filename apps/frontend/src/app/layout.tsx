@@ -5,9 +5,9 @@ import "styles/globals.css"
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
   icons: {
-    icon: '/logo2.png',
-    shortcut: '/logo2.png',
-    apple: '/logo2.png',
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
   },
 }
 

@@ -2516,6 +2516,7 @@ __metadata:
     awilix: ^8.0.1
     babel-loader: ^8.2.3
     cookies-next: ^6.1.0
+    daisyui: latest
     eslint: ^8.57.0
     eslint-config-next: 15.0.3
     eslint-plugin-import: 2.31.0
@@ -17242,6 +17243,13 @@ __metadata:
     typescript:
       optional: true
   checksum: d28a53076565198486c2e39e346d4002f47aba946ffc0806d077225bcc64221943260ade40d819094851e28e5f59823a9e7c4cb3195dfcceb7b95aff685e3316
+  languageName: node
+  linkType: hard
+
+"daisyui@npm:latest":
+  version: 5.1.25
+  resolution: "daisyui@npm:5.1.25"
+  checksum: 26213b67c0d766a2a9058782b8e29a0a12d9e273b67f5e77d06f2c04e9e7809d03e303d86d1174e4eff1740aa34a6c1db90ed6410e71b6c4792379d9e169066c
   languageName: node
   linkType: hard
 

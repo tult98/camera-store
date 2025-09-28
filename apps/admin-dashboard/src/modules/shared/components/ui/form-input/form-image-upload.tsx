@@ -1,7 +1,10 @@
 import { CloudArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { uploadFile } from '@modules/shared/apiCalls/upload';
 import { cn } from '@modules/shared/utils/cn';
+import { useMutation } from '@tanstack/react-query';
 import React, { useCallback, useState } from 'react';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { LoadingIcon } from '../loading-icon';
 
 interface FormImageUploadProps<TFormData extends FieldValues = FieldValues> {
   name: Path<TFormData>;
@@ -47,6 +50,29 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
   const hasError = !!error;
   const showErrorState = hasError && isTouched;
 
+  const handleRemoveFile = useCallback(() => {
+    setSelectedFile(null);
+    setPreview('');
+    setValidationError('');
+    field.onChange('');
+
+    // Clean up preview URL
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
+  }, [field, preview]);
+
+  const uploadMutation = useMutation({
+    mutationFn: uploadFile,
+    onSuccess: (uploadedFile) => {
+      field.onChange(uploadedFile.url);
+    },
+    onError: () => {
+      setValidationError('Failed to upload file. Please try again.');
+      handleRemoveFile();
+    },
+  });
+
   const handleFileSelect = useCallback(
     (file: File) => {
       // Clear previous validation error
@@ -55,7 +81,9 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
       // Validate file type
       const allowedTypes = accept.split(',').map((type) => type.trim());
       if (!allowedTypes.includes(file.type)) {
-        setValidationError('Please select a valid image file (SVG, PNG, JPG, or GIF)');
+        setValidationError(
+          'Please select a valid image file (SVG, PNG, JPG, or GIF)'
+        );
         return;
       }
 
@@ -72,10 +100,10 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
       const previewUrl = URL.createObjectURL(file);
       setPreview(previewUrl);
 
-      // Store filename in form value
-      field.onChange(file.name);
+      // Trigger the upload
+      uploadMutation.mutate(file);
     },
-    [field, accept, maxSizeInMB]
+    [accept, maxSizeInMB, uploadMutation]
   );
 
   const handleDrop = useCallback(
@@ -121,23 +149,17 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
     [handleFileSelect]
   );
 
-  const handleRemoveFile = useCallback(() => {
-    setSelectedFile(null);
-    setPreview('');
-    setValidationError('');
-    field.onChange('');
-
-    // Clean up preview URL
-    if (preview) {
-      URL.revokeObjectURL(preview);
-    }
-  }, [field, preview]);
-
   const handleClick = useCallback(() => {
-    if (!disabled && ref && 'current' in ref && ref.current) {
+    if (
+      !disabled &&
+      !uploadMutation.isPending &&
+      ref &&
+      'current' in ref &&
+      ref.current
+    ) {
       ref.current.click();
     }
-  }, [disabled, ref]);
+  }, [disabled, uploadMutation.isPending, ref]);
 
   const dropZoneClasses = cn(
     'border-2 border-dashed border-gray-300 rounded-lg p-8',
@@ -170,10 +192,10 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
       {!selectedFile ? (
         <div
           className={dropZoneClasses}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onClick={handleClick}
+          onDrop={!uploadMutation.isPending ? handleDrop : undefined}
+          onDragOver={!uploadMutation.isPending ? handleDragOver : undefined}
+          onDragLeave={!uploadMutation.isPending ? handleDragLeave : undefined}
+          onClick={!uploadMutation.isPending ? handleClick : undefined}
         >
           <CloudArrowUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 font-medium mb-2">{placeholder}</p>
@@ -182,14 +204,19 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
           </p>
         </div>
       ) : (
-        <div className="border border-gray-200 rounded-lg p-4 bg-white">
+        <div className="border border-gray-200 rounded-lg p-4 bg-white relative">
+          {uploadMutation.isPending && (
+            <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg z-10">
+              <LoadingIcon className="w-6 h-6" />
+            </div>
+          )}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {preview && (
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-12 h-12 object-cover rounded border"
+                  className="w-12 h-12 object-cover rounded border border-gray-200"
                 />
               )}
               <div>
@@ -204,7 +231,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
             <button
               type="button"
               onClick={handleRemoveFile}
-              disabled={disabled}
+              disabled={disabled || uploadMutation.isPending}
               className="p-1 text-gray-400 hover:text-red-500 transition-colors"
             >
               <XMarkIcon className="w-5 h-5" />
@@ -237,10 +264,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
 
       {validationError && (
         <div className="mt-1">
-          <span
-            className="input-error-message"
-            role="alert"
-          >
+          <span className="input-error-message" role="alert">
             {validationError}
           </span>
         </div>

@@ -1,13 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { FormInput } from '../../shared/components/ui/form-input';
+import { FormAsyncSelect } from '../../shared/components/ui/form-input/form-async-select';
 import { FormImageUpload } from '../../shared/components/ui/form-input/form-image-upload';
 import { FormSwitch } from '../../shared/components/ui/form-input/form-switch';
 import { FormTextarea } from '../../shared/components/ui/form-input/form-textarea';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
+import { useToast } from '../../shared/hooks/use-toast';
+import {
+  createCategory,
+  fetchCategories,
+  searchCategories,
+} from '../apiCalls/categories';
 import { categorySchema, type CategorySchemaType } from '../types';
-
 
 export const CategoryForm: React.FC = () => {
   const {
@@ -15,16 +23,19 @@ export const CategoryForm: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
+    reset,
+    trigger,
     formState: { isSubmitting },
   } = useForm<CategorySchemaType>({
     resolver: zodResolver(categorySchema),
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
       name: '',
       handle: '',
       description: '',
       is_active: true,
       is_internal: false,
+      parent_category_id: '',
       metadata: {
         is_featured: false,
         hero_image_url: '',
@@ -32,7 +43,23 @@ export const CategoryForm: React.FC = () => {
     },
   });
 
+  const queryClient = useQueryClient();
+  const { success, error } = useToast();
+  const navigate = useNavigate();
+
   const name = watch('name');
+
+  // Fetch initial categories for default options
+  const { data: initialCategories = [] } = useQuery({
+    queryKey: ['categories', 'initial'],
+    queryFn: () => fetchCategories(''),
+  });
+
+  // Convert to select options format
+  const defaultCategoryOptions = initialCategories.map((cat) => ({
+    value: cat.id,
+    label: cat.name,
+  }));
 
   // Auto-generate handle from name
   useEffect(() => {
@@ -47,8 +74,52 @@ export const CategoryForm: React.FC = () => {
     }
   }, [name, setValue]);
 
-  const handleFormSubmit = (data: CategorySchemaType) => {
-    console.log('Category form data:', data);
+  const loadParentCategories = async (inputValue: string) => {
+    try {
+      const options = await searchCategories(inputValue);
+      return options;
+    } catch (error) {
+      console.error('Error loading parent categories:', error);
+      return [];
+    }
+  };
+
+  const createCategoryMutation = useMutation({
+    mutationFn: createCategory,
+    onSuccess: (newCategory) => {
+      // Invalidate categories queries to refresh lists
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+
+      // Show success toast
+      success(
+        'Category created',
+        `"${newCategory.name}" has been created successfully`
+      );
+      
+
+      // Reset form
+      reset();
+      
+      // Redirect to categories page
+      navigate('/categories');
+    },
+    onError: (err: Error) => {
+      // Show error toast
+      error(
+        'Failed to create category',
+        err.message || 'An unexpected error occurred'
+      );
+    },
+  });
+
+  const handleFormSubmit = async (data: CategorySchemaType) => {
+    // Trigger validation and mark fields as touched
+    const isValid = await trigger();
+    
+    if (isValid) {
+      createCategoryMutation.mutate(data);
+    }
+    // If not valid, errors will now show because fields are marked as touched
   };
 
   return (
@@ -59,7 +130,7 @@ export const CategoryForm: React.FC = () => {
           control={control}
           type="text"
           label="Title"
-          disabled={isSubmitting}
+          disabled={isSubmitting || createCategoryMutation.isPending}
           required={true}
         />
 
@@ -68,9 +139,27 @@ export const CategoryForm: React.FC = () => {
           control={control}
           type="text"
           label="Handle"
-          disabled={isSubmitting}
+          disabled={isSubmitting || createCategoryMutation.isPending}
         />
       </div>
+
+      <FormAsyncSelect
+        name="parent_category_id"
+        control={control}
+        loadOptions={loadParentCategories}
+        label="Parent Category"
+        placeholder="Search and select a parent category..."
+        disabled={isSubmitting}
+        defaultOptions={defaultCategoryOptions}
+        cacheOptions={true}
+        debounceTime={500}
+        loadingMessage="Loading categories..."
+        noOptionsMessage={(obj) =>
+          obj.inputValue
+            ? `No categories found for "${obj.inputValue}"`
+            : 'No categories available'
+        }
+      />
 
       <FormTextarea
         name="description"
@@ -86,14 +175,14 @@ export const CategoryForm: React.FC = () => {
           name="is_active"
           control={control}
           label="Active"
-          disabled={isSubmitting}
+          disabled={isSubmitting || createCategoryMutation.isPending}
         />
 
         <FormSwitch
           name="is_internal"
           control={control}
           label="Internal"
-          disabled={isSubmitting}
+          disabled={isSubmitting || createCategoryMutation.isPending}
         />
 
         <FormSwitch
@@ -101,7 +190,7 @@ export const CategoryForm: React.FC = () => {
           control={control}
           label="Featured"
           description="Mark this category as featured on the homepage"
-          disabled={isSubmitting}
+          disabled={isSubmitting || createCategoryMutation.isPending}
         />
       </div>
 
@@ -119,19 +208,19 @@ export const CategoryForm: React.FC = () => {
         <button
           type="button"
           className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          disabled={isSubmitting}
+          disabled={isSubmitting || createCategoryMutation.isPending}
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || createCategoryMutation.isPending}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {isSubmitting && (
+          {(isSubmitting || createCategoryMutation.isPending) && (
             <LoadingIcon size="md" color="white" className="mr-2" />
           )}
-          Create Category
+          {createCategoryMutation.isPending ? 'Creating...' : 'Create Category'}
         </button>
       </div>
     </form>

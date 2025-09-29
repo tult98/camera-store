@@ -13,13 +13,12 @@ const StoreNavigation = async () => {
   return (
     <div className="navbar bg-base-100 shadow-sm px-6 relative z-10">
       <div className="navbar-start">
-        <Link href="/" className="flex items-center text-xl font-bold">
+        <Link href="/" className="relative flex items-center text-xl font-bold h-8 w-24">
           <Image
             src="/logo.png"
             alt="PHCameras Logo"
-            width={64}
-            height={64}
-            className="mr-3"
+            fill
+            className="object-contain"
           />
         </Link>
 

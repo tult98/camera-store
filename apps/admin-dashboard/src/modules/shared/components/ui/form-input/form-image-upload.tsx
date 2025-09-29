@@ -2,7 +2,7 @@ import { CloudArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { uploadFile } from '@modules/shared/apiCalls/upload';
 import { cn } from '@modules/shared/utils/cn';
 import { useMutation } from '@tanstack/react-query';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
 import { LoadingIcon } from '../loading-icon';
 
@@ -50,16 +50,29 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
   const hasError = !!error;
   const showErrorState = hasError && isTouched;
 
+  // Load initial preview for existing images (edit mode)
+  useEffect(() => {
+    // If we have a field value (existing image) but no selected file, show the existing image
+    if (field.value && !selectedFile) {
+      setPreview(field.value);
+    } else if (!field.value && !selectedFile) {
+      // Clear preview if no field value and no selected file
+      setPreview('');
+    }
+  }, [field.value, selectedFile]);
+
   const handleRemoveFile = useCallback(() => {
     setSelectedFile(null);
-    setPreview('');
     setValidationError('');
     field.onChange('');
 
-    // Clean up preview URL
-    if (preview) {
+    // Clean up preview URL only if it was created from a file (blob URL)
+    if (preview && preview.startsWith('blob:')) {
       URL.revokeObjectURL(preview);
     }
+    
+    // Clear preview after cleanup
+    setPreview('');
   }, [field, preview]);
 
   const uploadMutation = useMutation({
@@ -189,7 +202,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
         </label>
       )}
 
-      {!selectedFile ? (
+      {!selectedFile && !preview ? (
         <div
           className={dropZoneClasses}
           onDrop={!uploadMutation.isPending ? handleDrop : undefined}
@@ -221,11 +234,17 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
               )}
               <div>
                 <p className="text-sm font-medium text-gray-900">
-                  {selectedFile.name}
+                  {selectedFile ? selectedFile.name : 'Current image'}
                 </p>
-                <p className="text-xs text-gray-500">
-                  {formatFileSize(selectedFile.size)}
-                </p>
+                {selectedFile ? (
+                  <p className="text-xs text-gray-500">
+                    {formatFileSize(selectedFile.size)}
+                  </p>
+                ) : (
+                  <p className="text-xs text-gray-500">
+                    Existing image
+                  </p>
+                )}
               </div>
             </div>
             <button

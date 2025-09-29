@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { FormInput } from '../../shared/components/ui/form-input';
@@ -14,10 +14,21 @@ import {
   createCategory,
   fetchCategories,
   searchCategories,
+  updateCategory,
 } from '../apiCalls/categories';
 import { categorySchema, type CategorySchemaType } from '../types';
 
-export const CategoryForm: React.FC = () => {
+interface CategoryFormProps {
+  initialData?: CategorySchemaType;
+  isEditMode?: boolean;
+  categoryId?: string;
+}
+
+export const CategoryForm: React.FC<CategoryFormProps> = ({
+  initialData,
+  isEditMode = false,
+  categoryId,
+}) => {
   const {
     control,
     handleSubmit,
@@ -29,7 +40,7 @@ export const CategoryForm: React.FC = () => {
   } = useForm<CategorySchemaType>({
     resolver: zodResolver(categorySchema),
     mode: 'onBlur',
-    defaultValues: {
+    defaultValues: initialData || {
       name: '',
       handle: '',
       description: '',
@@ -61,7 +72,7 @@ export const CategoryForm: React.FC = () => {
     label: cat.name,
   }));
 
-  // Auto-generate handle from name
+  // Auto-generate handle from name (only in create mode)
   useEffect(() => {
     if (name) {
       const generatedHandle = name
@@ -72,17 +83,30 @@ export const CategoryForm: React.FC = () => {
         .trim();
       setValue('handle', generatedHandle);
     }
-  }, [name, setValue]);
+  }, [name, setValue, isEditMode]);
 
-  const loadParentCategories = async (inputValue: string) => {
-    try {
-      const options = await searchCategories(inputValue);
-      return options;
-    } catch (error) {
-      console.error('Error loading parent categories:', error);
-      return [];
-    }
-  };
+  const loadParentCategories = useCallback(
+    async (inputValue: string) => {
+      // If no input and we have default options, return them instead of making API call
+      if (!inputValue || inputValue.trim().length === 0) {
+        return defaultCategoryOptions;
+      }
+
+      // Only search if user typed at least 2 characters
+      if (inputValue.trim().length < 2) {
+        return defaultCategoryOptions;
+      }
+
+      try {
+        const options = await searchCategories(inputValue);
+        return options;
+      } catch (error) {
+        console.error('Error loading parent categories:', error);
+        return defaultCategoryOptions; // Fallback to default options on error
+      }
+    },
+    [defaultCategoryOptions]
+  );
 
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
@@ -95,11 +119,10 @@ export const CategoryForm: React.FC = () => {
         'Category created',
         `"${newCategory.name}" has been created successfully`
       );
-      
 
       // Reset form
       reset();
-      
+
       // Redirect to categories page
       navigate('/categories');
     },
@@ -112,12 +135,38 @@ export const CategoryForm: React.FC = () => {
     },
   });
 
+  const updateCategoryMutation = useMutation({
+    mutationFn: (data: CategorySchemaType) => updateCategory(categoryId!, data),
+    onSuccess: (updatedCategory) => {
+      // Invalidate categories queries to refresh lists
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['category', categoryId] });
+
+      // Show success toast
+      success(
+        'Category updated',
+        `"${updatedCategory.name}" has been updated successfully`
+      );
+    },
+    onError: (err: Error) => {
+      // Show error toast
+      error(
+        'Failed to update category',
+        err.message || 'An unexpected error occurred'
+      );
+    },
+  });
+
   const handleFormSubmit = async (data: CategorySchemaType) => {
     // Trigger validation and mark fields as touched
     const isValid = await trigger();
-    
+
     if (isValid) {
-      createCategoryMutation.mutate(data);
+      if (isEditMode) {
+        updateCategoryMutation.mutate(data);
+      } else {
+        createCategoryMutation.mutate(data);
+      }
     }
     // If not valid, errors will now show because fields are marked as touched
   };
@@ -130,7 +179,11 @@ export const CategoryForm: React.FC = () => {
           control={control}
           type="text"
           label="Title"
-          disabled={isSubmitting || createCategoryMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending
+          }
           required={true}
         />
 
@@ -139,7 +192,11 @@ export const CategoryForm: React.FC = () => {
           control={control}
           type="text"
           label="Handle"
-          disabled={isSubmitting || createCategoryMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending
+          }
         />
       </div>
 
@@ -175,14 +232,22 @@ export const CategoryForm: React.FC = () => {
           name="is_active"
           control={control}
           label="Active"
-          disabled={isSubmitting || createCategoryMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending
+          }
         />
 
         <FormSwitch
           name="is_internal"
           control={control}
           label="Internal"
-          disabled={isSubmitting || createCategoryMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending
+          }
         />
 
         <FormSwitch
@@ -190,7 +255,11 @@ export const CategoryForm: React.FC = () => {
           control={control}
           label="Featured"
           description="Mark this category as featured on the homepage"
-          disabled={isSubmitting || createCategoryMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending
+          }
         />
       </div>
 
@@ -201,26 +270,41 @@ export const CategoryForm: React.FC = () => {
         disabled={isSubmitting}
         placeholder="Click to upload or drag and drop"
         maxSizeInMB={10}
-        maxDimensions="MAX. 800×400px"
       />
 
       <div className="flex justify-end space-x-4 pt-4">
         <button
           type="button"
           className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          disabled={isSubmitting || createCategoryMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending
+          }
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSubmitting || createCategoryMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending
+          }
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {(isSubmitting || createCategoryMutation.isPending) && (
+          {(isSubmitting ||
+            createCategoryMutation.isPending ||
+            updateCategoryMutation.isPending) && (
             <LoadingIcon size="md" color="white" className="mr-2" />
           )}
-          {createCategoryMutation.isPending ? 'Creating...' : 'Create Category'}
+          {isEditMode
+            ? updateCategoryMutation.isPending
+              ? 'Updating...'
+              : 'Update Category'
+            : createCategoryMutation.isPending
+            ? 'Creating...'
+            : 'Create Category'}
         </button>
       </div>
     </form>

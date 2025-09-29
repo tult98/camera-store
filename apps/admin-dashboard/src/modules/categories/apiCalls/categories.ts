@@ -19,6 +19,16 @@ export const searchCategories = async (inputValue: string) => {
   }));
 };
 
+export const fetchCategoryById = async (id: string) => {
+  const response = await sdk.admin.productCategory.retrieve(id);
+  return response.product_category;
+};
+
+export const updateCategory = async (id: string, data: CategorySchemaType) => {
+  const response = await sdk.admin.productCategory.update(id, data);
+  return response.product_category;
+};
+
 export const createCategory = async (data: CategorySchemaType) => {
   const response = await sdk.admin.productCategory.create(data);
   return response.product_category;

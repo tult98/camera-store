@@ -27,13 +27,6 @@ interface DataTableProps<T> {
   getSubRows?: (row: T) => T[] | undefined;
 }
 
-const TableEmptyState = ({ message }: { message: string }) => (
-  <div className="text-center py-12">
-    <div className="text-gray-500 text-lg mb-2">No data available</div>
-    <div className="text-gray-400 text-sm">{message}</div>
-  </div>
-);
-
 export function DataTable<T>({
   data,
   columns,
@@ -75,19 +68,6 @@ export function DataTable<T>({
     manualSorting: false,
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <LoadingIcon />
-        <span className="ml-2 text-gray-500">Loading...</span>
-      </div>
-    );
-  }
-
-  if (data.length === 0) {
-    return <TableEmptyState message={emptyMessage} />;
-  }
-
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table className="w-full text-sm text-left rtl:text-right text-gray-500">
@@ -128,7 +108,24 @@ export function DataTable<T>({
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row, index) => (
+          {isLoading ? (
+            <tr>
+              <td colSpan={columns.length} className="text-center py-12">
+                <div className="flex items-center justify-center">
+                  <LoadingIcon />
+                  <span className="ml-2 text-gray-500">Loading...</span>
+                </div>
+              </td>
+            </tr>
+          ) : data.length === 0 ? (
+            <tr>
+              <td colSpan={columns.length} className="text-center py-12">
+                <div className="text-gray-500 text-lg mb-2">No data available</div>
+                <div className="text-gray-400 text-sm">{emptyMessage}</div>
+              </td>
+            </tr>
+          ) : (
+            table.getRowModel().rows.map((row, index) => (
             <tr
               key={row.id}
               onClick={() => onRowClick?.(row.original)}
@@ -175,10 +172,11 @@ export function DataTable<T>({
                 </td>
               ))}
             </tr>
-          ))}
+          ))
+          )}
         </tbody>
       </table>
-      {enablePagination && <Pagination table={table} />}
+      {enablePagination && !isLoading && data.length > 0 && <Pagination table={table} />}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { CategoriesPage } from '../../modules/categories/components/categories-page';
+import { EditCategoryPage } from '../../modules/categories/components/edit-category-page';
 import { NewCategoryPage } from '../../modules/categories/components/new-category-page';
 import { DashboardPage } from '../../modules/dashboard/components/dashboard-page';
 import { AuthGuard } from '../../modules/shared/components/auth-guard';
@@ -14,6 +15,7 @@ export const ProtectedRoutes: React.FC = () => {
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/categories/new" element={<NewCategoryPage />} />
+          <Route path="/categories/:id/edit" element={<EditCategoryPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

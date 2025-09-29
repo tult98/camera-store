@@ -233,7 +233,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
       )}
 
       <AsyncSelect
-        ref={ref}
+        ref={ref as any}
         inputId={name}
         name={name}
         value={currentValue}

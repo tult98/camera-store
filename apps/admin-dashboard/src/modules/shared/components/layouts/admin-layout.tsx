@@ -1,10 +1,11 @@
 import { UserIcon } from '@heroicons/react/24/solid';
 import { AdminUser } from '@medusajs/types';
 import { useCurrentUser } from '@modules/shared/hooks/use-current-user';
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { navigationItems } from '@modules/shared/config/navigation-config';
 import { NavigationItem } from '../navigation-item';
+import { UserProfileDropdown } from '../user-profile-dropdown';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,7 @@ const getFullName = (user: AdminUser) => {
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { data, isLoading } = useCurrentUser();
   const location = useLocation();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const user = data?.user || ({} as AdminUser);
 
@@ -52,10 +54,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         </div>
 
         {/* User Profile Section */}
-        <div className="border-t border-gray-200 p-4">
-          <div className="flex items-center space-x-3">
+        <div className="border-t border-gray-200 p-4 relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="w-full flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors"
+          >
             {/* Avatar */}
-            <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+            <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
               {isLoading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse" />
               ) : user?.avatar_url ? (
@@ -65,12 +70,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <UserIcon className="w-6 h-6 text-gray-600" />
+                <UserIcon className="w-full h-full text-gray-600" />
               )}
             </div>
 
             {/* User Info */}
-            <div className="flex-1">
+            <div className="flex-1 text-left">
               {isLoading ? (
                 <>
                   <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mb-1" />
@@ -87,7 +92,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </>
               )}
             </div>
-          </div>
+          </button>
+
+          {/* Dropdown Menu */}
+          <UserProfileDropdown isOpen={dropdownOpen} onClose={() => setDropdownOpen(false)} />
         </div>
       </div>
 

@@ -1,6 +1,10 @@
-import { useCallback, useRef, useState } from "react";
-import { Editor } from "@tiptap/react";
-import { validateImageFile, validateImageUrl, getBackendUrl, SUPPORTED_IMAGE_TYPES } from "../utils/editor-utils";
+import { Editor } from '@tiptap/react';
+import { useCallback, useRef, useState } from 'react';
+import {
+  SUPPORTED_IMAGE_TYPES,
+  validateImageFile,
+  validateImageUrl
+} from '../utils/editor-utils';
 
 interface UseImageUploadProps {
   editor: Editor | null;
@@ -28,29 +32,26 @@ export const useImageUpload = ({ editor, onError }: UseImageUploadProps) => {
       setUploadProgress(20);
 
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append('files', file);
 
       try {
         setUploadProgress(50);
-        const response = await fetch("/admin/uploads/image", {
-          method: "POST",
+        const response = await fetch('/admin/uploads', {
+          method: 'POST',
           body: formData,
         });
 
         setUploadProgress(80);
 
         if (!response.ok) {
-          throw new Error("Upload failed");
+          throw new Error('Upload failed');
         }
 
         const data = await response.json();
         setUploadProgress(100);
 
-        const altText = file.name.replace(/\.[^/.]+$/, "");
-        const backendUrl = getBackendUrl();
-        const imageUrl = data.url.startsWith("http")
-          ? data.url
-          : `${backendUrl}${data.url}`;
+        const altText = file.name.replace(/\.[^/.]+$/, '');
+        const imageUrl = data.files[0].url;
 
         if (editor) {
           editor
@@ -66,13 +67,13 @@ export const useImageUpload = ({ editor, onError }: UseImageUploadProps) => {
         const errorMessage =
           uploadError instanceof Error
             ? uploadError.message
-            : "Failed to upload image. Please try again.";
+            : 'Failed to upload image. Please try again.';
         onError(errorMessage);
       } finally {
         setIsUploading(false);
         setUploadProgress(0);
         if (fileInputRef.current) {
-          fileInputRef.current.value = "";
+          fileInputRef.current.value = '';
         }
       }
     },

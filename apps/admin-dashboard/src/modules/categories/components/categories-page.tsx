@@ -3,9 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DataTable } from '../../shared/components/ui/data-table';
 import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
 import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
+import { DataTable } from '../../shared/components/ui/data-table';
 import { deleteCategory, fetchCategories } from '../apiCalls/categories';
 
 interface CategoryDisplay {
@@ -23,7 +23,10 @@ export const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [categoryToDelete, setCategoryToDelete] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ['categories'],
@@ -110,7 +113,7 @@ export const CategoriesPage: React.FC = () => {
       id: 'actions',
       cell: ({ row }) => {
         const category = row.original;
-        
+
         return (
           <ActionDropdown
             actions={[
@@ -136,7 +139,10 @@ export const CategoriesPage: React.FC = () => {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          onClick={() => navigate('/categories/new')}
+        >
           Add Category
         </button>
       </div>

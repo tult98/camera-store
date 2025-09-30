@@ -94,11 +94,7 @@ export const ActionDropdown: React.FC<ActionDropdownProps> = ({
                 type="button"
               >
                 {action.icon && <action.icon className="w-4 h-4 mr-3" />}
-                <span>
-                  {action.loading && action.label.includes('Delete')
-                    ? 'Deleting...'
-                    : action.label}
-                </span>
+                <span>{action.label}</span>
               </button>
             );
           })}
@@ -115,7 +111,7 @@ export const ActionDropdown: React.FC<ActionDropdownProps> = ({
           <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
         ) : (
           <button
-            className="text-gray-400 hover:text-gray-600 p-1 rounded transition-colors"
+            className="text-gray-400 hover:text-gray-600 p-1 rounded transition-colors hover:cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Actions menu"
             type="button"

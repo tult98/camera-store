@@ -1,10 +1,11 @@
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from '../../shared/components/ui/data-table';
 import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
+import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
 import { deleteCategory, fetchCategories } from '../apiCalls/categories';
 
 interface CategoryDisplay {
@@ -21,6 +22,8 @@ type CategoryFromAPI = Awaited<ReturnType<typeof fetchCategories>>[0];
 export const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ['categories'],
@@ -31,8 +34,21 @@ export const CategoriesPage: React.FC = () => {
     mutationFn: deleteCategory,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setDeleteModalOpen(false);
+      setCategoryToDelete(null);
     },
   });
+
+  const handleDeleteClick = (category: CategoryDisplay) => {
+    setCategoryToDelete({ id: category.id, name: category.name });
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (categoryToDelete) {
+      await deleteMutation.mutateAsync(categoryToDelete.id);
+    }
+  };
 
   const transformCategory = (category: CategoryFromAPI): CategoryDisplay => {
     const transformed: CategoryDisplay = {
@@ -107,8 +123,7 @@ export const CategoriesPage: React.FC = () => {
                 icon: TrashIcon,
                 label: 'Delete',
                 variant: 'danger',
-                onClick: () => deleteMutation.mutate(category.id),
-                loading: deleteMutation.isPending,
+                onClick: () => handleDeleteClick(category),
               },
             ]}
           />
@@ -134,6 +149,18 @@ export const CategoriesPage: React.FC = () => {
         pageSize={10}
         enableExpanding={true}
         getSubRows={(row) => row.subRows}
+      />
+
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete category"
+        description={`Are you sure you want to delete "${categoryToDelete?.name}"? This action cannot be undone and may affect related products.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        loading={deleteMutation.isPending}
       />
     </div>
   );

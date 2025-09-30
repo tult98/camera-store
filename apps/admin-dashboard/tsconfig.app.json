@@ -8,7 +8,11 @@
       "@nx/react/typings/image.d.ts",
       "vite/client"
     ],
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "exclude": [
     "src/**/*.spec.ts",

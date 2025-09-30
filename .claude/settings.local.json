@@ -10,7 +10,10 @@
       "WebFetch(domain:docs.medusajs.com)",
       "Bash(npx medusa:*)",
       "mcp__context7__get-library-docs",
-      "mcp__context7__resolve-library-id"
+      "mcp__context7__resolve-library-id",
+      "Bash(pnpm lint:*)",
+      "Bash(git commit:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

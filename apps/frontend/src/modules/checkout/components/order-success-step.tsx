@@ -58,37 +58,37 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm">
-      <div className="text-center py-16 px-8">
+      <div className="text-center py-8 px-4 sm:py-16 sm:px-8">
         <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
           <CheckCircleIcon className="h-12 w-12 text-green-600" />
         </div>
 
         <Heading
           level="h1"
-          className="text-3xl font-bold text-base-content mb-4"
+          className="text-2xl sm:text-3xl font-bold text-base-content mb-4"
         >
           Order Placed Successfully!
         </Heading>
 
-        <Text className="text-lg text-gray-600 mb-6 max-w-md mx-auto">
+        <Text className="text-base sm:text-lg text-gray-600 mb-6 max-w-md mx-auto px-2">
           Your order has been created. To complete your purchase and start
           shipping, please send a deposit payment using the order ID below.
         </Text>
 
         {orderId && (
-          <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/30 rounded-xl p-8 mb-8 w-fit mx-auto shadow-sm">
+          <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/30 rounded-xl p-4 sm:p-8 mb-8 w-full max-w-md mx-auto shadow-sm">
             <div className="text-center">
               <Text className="text-sm font-semibold text-primary uppercase tracking-wide mb-3">
                 Your Order ID
               </Text>
-              <div className="bg-white rounded-lg p-4 border-2 border-primary/20 mb-4">
-                <Text className="text-2xl font-bold text-primary font-mono tracking-wider">
+              <div className="bg-white rounded-lg p-3 sm:p-4 border-2 border-primary/20 mb-4">
+                <Text className="text-lg sm:text-2xl font-bold text-primary font-mono tracking-wider break-all">
                   #{orderId}
                 </Text>
               </div>
               <button
                 onClick={handleCopyOrderId}
-                className="btn btn-primary btn-sm gap-2 px-6"
+                className="btn btn-primary btn-sm gap-2 px-4 sm:px-6 w-full sm:w-auto"
               >
                 <DocumentDuplicateIcon className="w-4 h-4" />
                 Copy Order ID
@@ -97,23 +97,23 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mx-auto">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mx-auto max-w-md sm:max-w-none">
           {isMessengerConfigured() && (
             <button
               onClick={handleMessengerRedirect}
-              className="btn btn-primary flex items-center"
+              className="btn btn-primary flex items-center justify-center w-full sm:w-auto"
             >
               <ArrowTopRightOnSquareIcon className="w-5 h-5 mr-2" />
               Send Deposit via Messenger
             </button>
           )}
-          <button onClick={handleContinueShopping} className="btn btn-outline">
+          <button onClick={handleContinueShopping} className="btn btn-outline w-full sm:w-auto">
             Continue Shopping
           </button>
         </div>
 
-        <div className="mt-12 p-6 bg-base-100 rounded-lg border border-base-200 max-w-2xl mx-auto">
-          <Heading level="h3" className="text-lg font-semibold mb-4 text-left">
+        <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-base-100 rounded-lg border border-base-200 max-w-2xl mx-auto">
+          <Heading level="h3" className="text-base sm:text-lg font-semibold mb-4 text-left">
             What happens next?
           </Heading>
           <div className="space-y-3 text-left">
@@ -122,10 +122,10 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
                 <span className="text-xs font-semibold text-primary">1</span>
               </div>
               <div>
-                <Text className="font-medium text-base-content">
+                <Text className="text-sm sm:text-base font-medium text-base-content">
                   Copy Your Order ID
                 </Text>
-                <Text className="text-sm text-gray-600">
+                <Text className="text-xs sm:text-sm text-gray-600">
                   Use the copy button above to save your order ID
                 </Text>
               </div>
@@ -135,10 +135,10 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
                 <span className="text-xs font-semibold text-primary">2</span>
               </div>
               <div>
-                <Text className="font-medium text-base-content">
+                <Text className="text-sm sm:text-base font-medium text-base-content">
                   Send Deposit Payment
                 </Text>
-                <Text className="text-sm text-gray-600">
+                <Text className="text-xs sm:text-sm text-gray-600">
                   Click 'Send Deposit via Messenger' and share your order ID
                   with us to complete payment
                 </Text>
@@ -149,10 +149,10 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
                 <span className="text-xs font-semibold text-primary">3</span>
               </div>
               <div>
-                <Text className="font-medium text-base-content">
+                <Text className="text-sm sm:text-base font-medium text-base-content">
                   Order Processing & Shipping
                 </Text>
-                <Text className="text-sm text-gray-600">
+                <Text className="text-xs sm:text-sm text-gray-600">
                   Once deposit is received, we'll prepare and ship your items
                   with tracking updates
                 </Text>

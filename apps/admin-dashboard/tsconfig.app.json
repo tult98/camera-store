@@ -9,10 +9,6 @@
       "vite/client"
     ],
     "noPropertyAccessFromIndexSignature": false,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
   },
   "exclude": [
     "src/**/*.spec.ts",

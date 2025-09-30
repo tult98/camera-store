@@ -74,9 +74,9 @@ export const generateCheckoutBreadcrumbs = (
 ): BreadcrumbItem[] => {
   const steps = [
     { key: "cart", title: "Cart", href: "/checkout?step=cart" },
-    { key: "shipping-address", title: "Shipping Address", href: "/checkout?step=shipping-address" },
+    { key: "shipping-address", title: "Shipping", href: "/checkout?step=shipping-address" },
     { key: "review", title: "Review", href: "/checkout?step=review" },
-    { key: "success", title: "Order Complete", href: undefined }
+    { key: "success", title: "Complete", href: undefined }
   ]
 
   return steps

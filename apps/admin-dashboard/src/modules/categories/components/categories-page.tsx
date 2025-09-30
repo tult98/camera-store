@@ -1,68 +1,45 @@
+import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import React, { useState } from 'react';
+import React from 'react';
 import { DataTable } from '../../shared/components/ui/data-table';
+import { fetchCategories } from '../apiCalls/categories';
 
-interface Category {
+interface CategoryDisplay {
   id: string;
   name: string;
   handle: string;
   status: 'Active' | 'Inactive';
   visibility: 'Public' | 'Private';
-  subRows?: Category[];
+  subRows?: CategoryDisplay[];
 }
 
-const mockCategories: Category[] = [
-  {
-    id: '1',
-    name: 'Cameras',
-    handle: '/cameras',
-    status: 'Active',
-    visibility: 'Public',
-  },
-  {
-    id: '2',
-    name: 'Lenses',
-    handle: '/lenses',
-    status: 'Active',
-    visibility: 'Public',
-    subRows: [
-      {
-        id: '3',
-        name: 'Prime Lenses',
-        handle: '/prime-lenses',
-        status: 'Active',
-        visibility: 'Public',
-      },
-      {
-        id: '4',
-        name: 'Zoom Lenses',
-        handle: '/zoom-lenses',
-        status: 'Active',
-        visibility: 'Public',
-      },
-      {
-        id: '5',
-        name: 'Macro Lenses',
-        handle: '/macro-lenses',
-        status: 'Active',
-        visibility: 'Public',
-      },
-      {
-        id: '6',
-        name: 'Telephoto Lenses',
-        handle: '/telephoto-lenses',
-        status: 'Active',
-        visibility: 'Public',
-      },
-    ],
-  },
-];
+type CategoryFromAPI = Awaited<ReturnType<typeof fetchCategories>>[0];
 
 export const CategoriesPage: React.FC = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [showEmpty, setShowEmpty] = useState(false);
+  const { data: categories = [], isLoading } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => fetchCategories('', 'null'),
+  });
 
-  const columns: ColumnDef<Category>[] = [
+  const transformCategory = (category: CategoryFromAPI): CategoryDisplay => {
+    const transformed: CategoryDisplay = {
+      id: category.id,
+      name: category.name,
+      handle: category.handle,
+      status: category.is_active ? 'Active' : 'Inactive',
+      visibility: category.is_internal ? 'Private' : 'Public',
+    };
+
+    if (category.category_children && category.category_children.length > 0) {
+      transformed.subRows = category.category_children.map(transformCategory);
+    }
+
+    return transformed;
+  };
+
+  const displayCategories = categories.map(transformCategory);
+
+  const columns: ColumnDef<CategoryDisplay>[] = [
     {
       accessorKey: 'name',
       header: 'Name',
@@ -104,14 +81,23 @@ export const CategoriesPage: React.FC = () => {
       id: 'actions',
       cell: () => (
         <button className="text-gray-400 hover:text-gray-600">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+            />
           </svg>
         </button>
       ),
     },
   ];
-
 
   return (
     <div className="space-y-6 p-6">
@@ -122,23 +108,8 @@ export const CategoriesPage: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex space-x-4 mb-4">
-        <button
-          onClick={() => setIsLoading(!isLoading)}
-          className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm"
-        >
-          Toggle Loading
-        </button>
-        <button
-          onClick={() => setShowEmpty(!showEmpty)}
-          className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-sm"
-        >
-          Toggle Empty State
-        </button>
-      </div>
-
       <DataTable
-        data={showEmpty ? [] : mockCategories}
+        data={displayCategories}
         columns={columns}
         isLoading={isLoading}
         emptyMessage="No categories found. Create your first category to get started."

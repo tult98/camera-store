@@ -1,19 +1,27 @@
 import { sdk } from '@modules/shared/api/medusa-client';
 import type { CategorySchemaType } from '../types';
 
-export const fetchCategories = async (query: string = '') => {
-  const response = await sdk.admin.productCategory.list({
+export const fetchCategories = async (
+  query: string = '',
+  parentCategoryId?: string | null
+) => {
+  const params: Parameters<typeof sdk.admin.productCategory.list>[0] = {
     q: query,
-    limit: 20,
-  });
-  
+    limit: 100,
+    include_descendants_tree: true,
+    parent_category_id: parentCategoryId,
+    fields: '*category_children',
+  };
+
+  const response = await sdk.admin.productCategory.list(params);
+
   return response.product_categories || [];
 };
 
 export const searchCategories = async (inputValue: string) => {
   const categories = await fetchCategories(inputValue);
-  
-  return categories.map(category => ({
+
+  return categories.map((category) => ({
     value: category.id,
     label: category.name,
   }));

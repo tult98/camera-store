@@ -11,7 +11,7 @@ const StoreNavigation = async () => {
   const cart = await retrieveCart()
 
   return (
-    <div className="navbar bg-base-100 shadow-sm px-6 relative z-10">
+    <div className="navbar bg-base-100 shadow-sm px-6 relative z-50">
       <div className="navbar-start">
         <Link href="/" className="relative flex items-center text-xl font-bold h-8 w-24">
           <Image
@@ -30,7 +30,7 @@ const StoreNavigation = async () => {
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 mt-1 z-50"
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 mt-1 z-[9999]"
           >
             {categories.map((category) => (
               <li key={category.id}>
@@ -82,7 +82,7 @@ const StoreNavigation = async () => {
                     <Link href={category.href}>{category.title}</Link>
                     <ChevronDownIcon className="w-4 h-4 ml-1 transition-transform group-hover/nav:rotate-180" />
                   </div>
-                  <ul className="p-2 shadow bg-base-100 rounded-box w-56 z-50 absolute top-full left-0 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-200">
+                  <ul className="p-2 shadow bg-base-100 rounded-box w-56 z-[9999] absolute top-full left-0 opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-200">
                     {category.dropdown.map((subCategory) => (
                       <li key={subCategory.id}>
                         <Link

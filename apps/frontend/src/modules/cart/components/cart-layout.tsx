@@ -7,7 +7,7 @@ import OrderSummary from "./order-summary"
 const CartLayout = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
   return (
     <div className="min-h-screen bg-base-100">
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="container mx-auto py-8 md:py-12">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-base-content flex items-center gap-3">
             <ShoppingBagIcon className="w-8 h-8 md:w-10 md:h-10" />

@@ -149,7 +149,7 @@ export default function CategoryProductCard({
             {productAttributes.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {productAttributes.slice(0, 3).map((attr, idx) => (
-                  <span key={idx} className="badge badge-xs badge-ghost">
+                  <span key={idx} className="rounded-lg badge-xs badge-ghost">
                     {attr.value}
                   </span>
                 ))}

@@ -1,8 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DataTable } from '../../shared/components/ui/data-table';
-import { fetchCategories } from '../apiCalls/categories';
+import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
+import { deleteCategory, fetchCategories } from '../apiCalls/categories';
 
 interface CategoryDisplay {
   id: string;
@@ -16,9 +19,19 @@ interface CategoryDisplay {
 type CategoryFromAPI = Awaited<ReturnType<typeof fetchCategories>>[0];
 
 export const CategoriesPage: React.FC = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: () => fetchCategories('', 'null'),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
   });
 
   const transformCategory = (category: CategoryFromAPI): CategoryDisplay => {
@@ -79,23 +92,28 @@ export const CategoriesPage: React.FC = () => {
     },
     {
       id: 'actions',
-      cell: () => (
-        <button className="text-gray-400 hover:text-gray-600">
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-            />
-          </svg>
-        </button>
-      ),
+      cell: ({ row }) => {
+        const category = row.original;
+        
+        return (
+          <ActionDropdown
+            actions={[
+              {
+                icon: PencilIcon,
+                label: 'Edit',
+                onClick: () => navigate(`/categories/${category.id}/edit`),
+              },
+              {
+                icon: TrashIcon,
+                label: 'Delete',
+                variant: 'danger',
+                onClick: () => deleteMutation.mutate(category.id),
+                loading: deleteMutation.isPending,
+              },
+            ]}
+          />
+        );
+      },
     },
   ];
 

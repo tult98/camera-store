@@ -41,3 +41,8 @@ export const createCategory = async (data: CategorySchemaType) => {
   const response = await sdk.admin.productCategory.create(data);
   return response.product_category;
 };
+
+export const deleteCategory = async (id: string) => {
+  await sdk.admin.productCategory.delete(id);
+  return { id };
+};

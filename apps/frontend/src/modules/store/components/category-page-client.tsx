@@ -175,7 +175,7 @@ export default function CategoryPageClient({
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 min-w-0 p-6 lg:p-8 w-full">
+        <div className="flex-1 min-w-0 lg:p-8 w-full">
           {/* Desktop Category Header */}
           <div className="hidden lg:block mb-8">
             <div className="flex items-end justify-between">
@@ -209,11 +209,15 @@ export default function CategoryPageClient({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <SortDropdown
-                    sortBy={sortBy as any}
-                    onSortChange={handleSortChange}
-                  />
-                  <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+                  <div className="flex-1 lg:flex-initial">
+                    <SortDropdown
+                      sortBy={sortBy as any}
+                      onSortChange={handleSortChange}
+                    />
+                  </div>
+                  <div className="hidden lg:block">
+                    <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+                  </div>
                 </div>
               </div>
             </div>

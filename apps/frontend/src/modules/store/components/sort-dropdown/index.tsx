@@ -20,22 +20,25 @@ export default function SortDropdown({ sortBy, onSortChange }: SortDropdownProps
   const currentSort = sortOptions.find(option => option.value === sortBy)
 
   return (
-    <div className="dropdown dropdown-end">
+    <div className="dropdown lg:dropdown-end">
       <div 
         tabIndex={0} 
         role="button" 
-        className="btn btn-outline btn-primary hover:btn-primary transition-all duration-200 gap-2 min-w-[200px] justify-between"
+        className="btn btn-outline btn-primary hover:btn-primary transition-all duration-200 gap-2 min-w-[120px] sm:min-w-[200px] justify-between max-w-full"
         aria-label="Sort products"
         aria-haspopup="true"
         aria-expanded="false"
       >
-        <div className="flex items-center gap-2">
-          <Bars3BottomLeftIcon className="w-4 h-4" />
-          <span className="text-sm font-medium">Sort: {currentSort?.label}</span>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Bars3BottomLeftIcon className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm font-medium truncate">
+            <span className="hidden sm:inline">Sort: {currentSort?.label}</span>
+            <span className="sm:hidden">{currentSort?.label}</span>
+          </span>
         </div>
-        <ChevronDownIcon className="w-4 h-4" />
+        <ChevronDownIcon className="w-4 h-4 flex-shrink-0" />
       </div>
-      <div className="dropdown-content z-50 bg-base-100 shadow-xl rounded-2xl border border-base-300 p-2 mt-2 w-72">
+      <div className="dropdown-content z-50 bg-base-100 shadow-xl rounded-2xl border border-base-300 p-2 mt-2 w-full sm:w-72 max-w-sm">
         <div className="p-2 border-b border-base-300 mb-2">
           <h3 className="font-semibold text-sm text-base-content/80">Sort Products By</h3>
         </div>

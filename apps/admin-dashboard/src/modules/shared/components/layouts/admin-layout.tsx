@@ -6,6 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { navigationItems } from '@modules/shared/config/navigation-config';
 import { NavigationItem } from '../navigation-item';
 import { UserProfileDropdown } from '../user-profile-dropdown';
+import { Breadcrumb } from '../breadcrumb';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -102,7 +103,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-8 min-h-full w-full">
-          <div className="bg-white h-full rounded-lg shadow-sm border border-gray-200">{children}</div>
+          <div className="bg-white h-full rounded-lg shadow-sm border border-gray-200">
+            <div className="p-6">
+              <Breadcrumb />
+              {children}
+            </div>
+          </div>
         </div>
       </div>
     </div>

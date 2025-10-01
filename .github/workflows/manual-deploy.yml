@@ -26,6 +26,7 @@ jobs:
   quality-checks:
     runs-on: ubuntu-latest
     if: inputs.run_quality_checks
+    environment: staging
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

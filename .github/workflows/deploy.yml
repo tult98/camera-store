@@ -22,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Enable Corepack
         run: corepack enable
@@ -36,9 +36,15 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE_SHA="${{ github.event.pull_request.base.sha }}"
           else
-            BASE_SHA="HEAD~1"
+            # For push events, use the SHA before the push to capture all commits
+            BASE_SHA="${{ github.event.before }}"
+            # Fallback to HEAD~1 for first push to new branch (when before is all zeros)
+            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+              BASE_SHA="HEAD~1"
+            fi
           fi
 
+          echo "Base SHA for comparison: $BASE_SHA"
           AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,frontend)
 
           echo "Affected apps: $AFFECTED_APPS"
@@ -68,7 +74,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
 
       - name: Enable Corepack
         run: corepack enable
@@ -91,36 +97,34 @@ jobs:
     needs: [setup, quality-checks]
     if: needs.setup.outputs.affected-backend == 'true' && always() && needs.quality-checks.result == 'success'
     environment: staging
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Deploy to Railway
-        uses: bervProject/railway-deploy@main
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        with:
-          service: ${{ vars.RAILWAY_BACKEND_SERVICE_NAME }}
+      - name: Deploy Backend to Railway
+        run: railway up --service=${{ vars.RAILWAY_BACKEND_SERVICE_NAME }}
 
   deploy-frontend:
     runs-on: ubuntu-latest
     needs: [setup, quality-checks]
     if: needs.setup.outputs.affected-frontend == 'true' && always() && needs.quality-checks.result == 'success'
     environment: staging
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Deploy to Railway
-        uses: bervProject/railway-deploy@main
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        with:
-          service: ${{ vars.RAILWAY_FRONTEND_SERVICE_NAME }}
+      - name: Deploy Frontend to Railway
+        run: railway up --service=${{ vars.RAILWAY_FRONTEND_SERVICE_NAME }}
 
   deploy-status:
     runs-on: ubuntu-latest

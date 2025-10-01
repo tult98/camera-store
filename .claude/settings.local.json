@@ -13,7 +13,9 @@
       "mcp__context7__resolve-library-id",
       "Bash(pnpm lint:*)",
       "Bash(git commit:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

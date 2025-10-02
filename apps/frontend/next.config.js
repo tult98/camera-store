@@ -8,7 +8,9 @@ checkEnvVariables()
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    trustHost: true,
+    serverActions: {
+      allowedOrigins: ["staging.phcamera.com"],
+    },
   },
   logging: {
     fetches: {
@@ -122,7 +124,7 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "ph-camera.sgp1.cdn.digitaloceanspaces.com",
-      }
+      },
     ],
   },
 }

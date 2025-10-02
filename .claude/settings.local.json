@@ -15,7 +15,10 @@
       "Bash(git commit:*)",
       "Bash(mkdir:*)",
       "Bash(find:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }

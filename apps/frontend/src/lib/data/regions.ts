@@ -42,20 +42,26 @@ export const getDefaultRegion = async (): Promise<HttpTypes.StoreRegion | null> 
   try {
     // Return cached default region if available
     if (defaultRegion) {
+      console.log("Returning cached default region:", defaultRegion.id, defaultRegion.currency_code)
       return defaultRegion
     }
 
+    console.log("Fetching regions from API...")
     const regions = await listRegions()
+    console.log("Regions API response:", regions?.length ? `${regions.length} regions found` : "No regions returned")
     
     if (!regions || regions.length === 0) {
+      console.error("No regions available - this will cause featured-categories to fail")
       return null
     }
 
     // For single-region store, use the first region as default
     defaultRegion = regions[0]
+    console.log("Set default region:", defaultRegion.id, defaultRegion.currency_code)
     return defaultRegion
   } catch (e: any) {
     console.error("Error fetching default region:", e)
+    console.error("Stack trace:", e.stack)
     return null
   }
 }

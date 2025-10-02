@@ -14,7 +14,10 @@ export async function GET(
     const currencyCode = req.headers["currency_code"] as string;
 
     if (!regionId || !currencyCode) {
-      throw new Error("region_id and currency_code are required");
+      const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
+      logger.error(`Missing headers - region_id: ${regionId ? "present" : "missing"}, currency_code: ${currencyCode ? "present" : "missing"}`);
+      logger.error("Request headers:", JSON.stringify(req.headers));
+      throw new Error("region_id and currency_code headers are required");
     }
 
     // Get query service

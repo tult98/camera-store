@@ -7,6 +7,9 @@ checkEnvVariables()
  */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    trustHost: true,
+  },
   logging: {
     fetches: {
       fullUrl: true,

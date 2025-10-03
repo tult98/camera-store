@@ -16,7 +16,7 @@ export async function GET(
     if (!regionId || !currencyCode) {
       const logger = req.scope.resolve(ContainerRegistrationKeys.LOGGER);
       logger.error(`Missing headers - region_id: ${regionId ? "present" : "missing"}, currency_code: ${currencyCode ? "present" : "missing"}`);
-      logger.error("Request headers:", JSON.stringify(req.headers));
+      logger.error(`Request headers: ${JSON.stringify(req.headers)}`);
       throw new Error("region_id and currency_code headers are required");
     }
 

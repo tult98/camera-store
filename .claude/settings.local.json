@@ -5,8 +5,6 @@
       "Bash(yarn dev)",
       "Bash(node:*)",
       "Bash(git add:*)",
-      "mcp__medusa__ask_medusa_question",
-      "mcp__medusa__search_medusa_sources",
       "WebFetch(domain:docs.medusajs.com)",
       "Bash(npx medusa:*)",
       "mcp__context7__get-library-docs",
@@ -18,7 +16,8 @@
       "Bash(cat:*)",
       "Bash(curl:*)",
       "Bash(grep:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(yarn add tailwind-merge clsx)"
     ],
     "deny": []
   }

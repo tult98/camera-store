@@ -1,4 +1,4 @@
-# Claude Command: Commit
+# Claude Command: Generate a commit
 
 This command helps you create well-formatted commits with conventional commit messages and emoji.
 
@@ -19,9 +19,8 @@ Or with options:
 ## What This Command Does
 
 1. Unless specified with `--no-verify`, automatically runs pre-commit checks:
-   - `pnpm lint` to ensure code quality
-   - `pnpm build` to verify the build succeeds
-   - `pnpm generate:docs` to update documentation
+   - `yarn nx affected --target=lint --fix` to lint and fix only affected projects
+   - `yarn nx affected --target=build` to verify affected projects build successfully
 2. Checks which files are staged with `git status`
 3. If 0 files are staged, automatically adds all modified and new files with `git add`
 4. Performs a `git diff` to understand what changes are being committed
@@ -31,7 +30,7 @@ Or with options:
 
 ## Best Practices for Commits
 
-- **Verify before committing**: Ensure code is linted, builds correctly, and documentation is updated
+- **Verify before committing**: Ensure code is linted and builds correctly
 - **Atomic commits**: Each commit should contain related changes that serve a single purpose
 - **Split large changes**: If changes touch multiple concerns, split them into separate commits
 - **Conventional commit format**: Use the format `<type>: <description>` where type is one of:
@@ -154,11 +153,11 @@ Example of splitting commits:
 
 ## Command Options
 
-- `--no-verify`: Skip running the pre-commit checks (lint, build, generate:docs)
+- `--no-verify`: Skip running the pre-commit checks (lint, build)
 
 ## Important Notes
 
-- By default, pre-commit checks (`pnpm lint`, `pnpm build`, `pnpm generate:docs`) will run to ensure code quality
+- By default, pre-commit checks (`yarn nx affected --target=lint --fix`, `yarn nx affected --target=build`) will run to ensure code quality
 - If these checks fail, you'll be asked if you want to proceed with the commit anyway or fix the issues first
 - If specific files are already staged, the command will only commit those files
 - If no files are staged, it will automatically stage all modified and new files

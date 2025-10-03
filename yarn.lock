@@ -2515,6 +2515,7 @@ __metadata:
     autoprefixer: 10.4.13
     awilix: ^8.0.1
     babel-loader: ^8.2.3
+    clsx: ^2.1.1
     cookies-next: ^6.1.0
     daisyui: latest
     eslint: ^8.57.0
@@ -2544,6 +2545,7 @@ __metadata:
     react-select: ^5.10.2
     server-only: ^0.0.1
     swiper: ^11.2.10
+    tailwind-merge: ^3.3.1
     tailwindcss: ^4.1.12
     ts-node: ^10.9.2
     tslib: ^2.3.0
@@ -16348,7 +16350,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clsx@npm:^2.0.0":
+"clsx@npm:^2.0.0, clsx@npm:^2.1.1":
   version: 2.1.1
   resolution: "clsx@npm:2.1.1"
   checksum: acd3e1ab9d8a433ecb3cc2f6a05ab95fe50b4a3cfc5ba47abb6cbf3754585fcb87b84e90c822a1f256c4198e3b41c7f6c391577ffc8678ad587fc0976b24fd57
@@ -29018,6 +29020,13 @@ __metadata:
   version: 2.6.0
   resolution: "tailwind-merge@npm:2.6.0"
   checksum: 18976c4096920bc6125f1dc837479805de996d86bcc636f98436f65c297003bde89ffe51dfd325b7c97fc71b1dbba8505459dd96010e7b181badd29aea996440
+  languageName: node
+  linkType: hard
+
+"tailwind-merge@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "tailwind-merge@npm:3.3.1"
+  checksum: ace3675227d86f1def95b25b7f6793268a6ab2f340b43ef64ad25646588d2b1d87714cd60db6947bfdb5bb85be3bb6ce1802021620c541ef7a9c3faa05915f2b
   languageName: node
   linkType: hard
 

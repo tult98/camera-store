@@ -105,14 +105,14 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] overflow-y-auto"
+      className="fixed inset-0 overflow-y-auto shadow-2xl"
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
       role="dialog"
       aria-modal="true"
     >
       <div
-        className="fixed inset-0 backdrop-blur-[2px]"
+        className="fixed inset-0 bg-gray-200 opacity-50"
         onClick={handleBackdropClick}
       />
 

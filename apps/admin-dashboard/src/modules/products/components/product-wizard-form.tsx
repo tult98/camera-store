@@ -12,7 +12,7 @@ interface ProductWizardFormProps {
 export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   isEditMode = false,
 }) => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
 
   const wizardSteps = [

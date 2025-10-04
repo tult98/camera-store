@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
 const imageSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
   url: z.string(),
-  isThumbnail: z.boolean().optional(),
 });
 
 export const productSchema = z.object({
@@ -12,6 +11,9 @@ export const productSchema = z.object({
   handle: z.string().optional(),
   description: z.string().optional(),
   images: z.array(imageSchema).optional(),
+  status: z.enum(['draft', 'proposed', 'published', 'rejected']),
+  thumbnail: z.string().optional(),
+  category_ids: z.array(z.string()).optional(),
 });
 
 export type ProductSchemaType = z.infer<typeof productSchema>;

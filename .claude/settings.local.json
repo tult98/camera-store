@@ -17,7 +17,9 @@
       "Bash(curl:*)",
       "Bash(grep:*)",
       "Bash(git push:*)",
-      "Bash(yarn add tailwind-merge clsx)"
+      "Bash(yarn add tailwind-merge clsx)",
+      "mcp__v0__getChat",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": []
   }

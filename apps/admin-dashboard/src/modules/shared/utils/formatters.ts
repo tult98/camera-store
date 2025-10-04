@@ -28,3 +28,14 @@ export const formatPrice = (amount: number, currency = 'USD'): string => {
 export const formatNumber = (num: number): string => {
   return new Intl.NumberFormat('en-US').format(num);
 };
+
+export const generateHandle = (title: string): string => {
+  if (!title) return '';
+
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+};

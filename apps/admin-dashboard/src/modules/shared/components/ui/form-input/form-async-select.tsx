@@ -1,5 +1,5 @@
 import { cn } from '@modules/shared/utils/cn';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
 import { StylesConfig } from 'react-select';
 import AsyncSelect from 'react-select/async';
@@ -24,6 +24,7 @@ interface FormAsyncSelectProps<TFormData extends FieldValues = FieldValues> {
   debounceTime?: number;
   loadingMessage?: string | (() => string);
   noOptionsMessage?: string | ((obj: { inputValue: string }) => string);
+  isMulti?: boolean;
 }
 
 const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
@@ -42,6 +43,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     debounceTime = 300,
     loadingMessage = 'Loading...',
     noOptionsMessage = 'No options found',
+    isMulti = false,
   }: FormAsyncSelectProps<TFormData>,
   ref: React.Ref<HTMLSelectElement>
 ) => {
@@ -84,7 +86,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     [loadOptions, debounceTime, debouncePromise]
   );
 
-  const customStyles: StylesConfig<SelectOption, false> = {
+  const customStyles: StylesConfig<SelectOption, boolean> = {
     control: (provided, state) => ({
       ...provided,
       minHeight: 'auto',
@@ -107,7 +109,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     }),
     valueContainer: (provided) => ({
       ...provided,
-      padding: '6px 8px',
+      padding: '4px 8px',
     }),
     input: (provided) => ({
       ...provided,
@@ -182,6 +184,27 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
       color: '#6b7280',
       fontSize: '14px',
     }),
+    multiValue: (provided) => ({
+      ...provided,
+      backgroundColor: '#eff6ff',
+      borderRadius: '4px',
+      margin: '1px 2px',
+    }),
+    multiValueLabel: (provided) => ({
+      ...provided,
+      color: '#1e40af',
+      fontSize: '14px',
+      padding: '2px 6px',
+    }),
+    multiValueRemove: (provided) => ({
+      ...provided,
+      color: '#6b7280',
+      cursor: 'pointer',
+      ':hover': {
+        backgroundColor: '#dbeafe',
+        color: '#ef4444',
+      },
+    }),
   };
 
   const handleLoadOptions = React.useCallback(
@@ -197,29 +220,42 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     [debouncedLoadOptions]
   );
 
-  const [currentValue, setCurrentValue] = React.useState<SelectOption | null>(
-    null
-  );
+  const [currentValue, setCurrentValue] = React.useState<
+    SelectOption | SelectOption[] | null
+  >(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadCurrentValue = async () => {
       if (field.value) {
         try {
           const options = await loadOptions('');
-          const foundOption = options.find((opt) => opt.value === field.value);
-          if (foundOption) {
-            setCurrentValue(foundOption);
+
+          if (isMulti) {
+            const values = Array.isArray(field.value)
+              ? field.value
+              : [field.value];
+            const selectedOptions = options.filter((opt) =>
+              (values as string[]).includes(opt.value)
+            );
+            setCurrentValue(selectedOptions);
+          } else {
+            const foundOption = options.find(
+              (opt) => opt.value === field.value
+            );
+            if (foundOption) {
+              setCurrentValue(foundOption);
+            }
           }
         } catch (error) {
           console.error('Error loading current value:', error);
         }
       } else {
-        setCurrentValue(null);
+        setCurrentValue(isMulti ? [] : null);
       }
     };
 
     loadCurrentValue();
-  }, [field.value, loadOptions]);
+  }, [field.value, loadOptions, isMulti]);
 
   return (
     <div className={cn('w-full', className)}>
@@ -238,8 +274,18 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
         name={name}
         value={currentValue}
         onChange={(selectedOption) => {
-          field.onChange(selectedOption?.value || '');
-          setCurrentValue(selectedOption);
+          if (isMulti) {
+            const values = Array.isArray(selectedOption)
+              ? selectedOption.map((opt) => opt.value)
+              : [];
+            field.onChange(values);
+            setCurrentValue((selectedOption as SelectOption[] | null) || []);
+          } else {
+            field.onChange(
+              (selectedOption as SelectOption | null)?.value || ''
+            );
+            setCurrentValue(selectedOption as SelectOption | null);
+          }
         }}
         onBlur={field.onBlur}
         loadOptions={handleLoadOptions}
@@ -247,6 +293,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
         cacheOptions={cacheOptions}
         placeholder={placeholder}
         isDisabled={disabled}
+        isMulti={isMulti}
         styles={customStyles}
         loadingMessage={
           typeof loadingMessage === 'function'
@@ -287,5 +334,7 @@ _FormAsyncSelect.displayName = 'FormAsyncSelect';
 export const FormAsyncSelect = _FormAsyncSelect as <
   TFormData extends FieldValues = FieldValues
 >(
-  props: FormAsyncSelectProps<TFormData> & { ref?: React.Ref<HTMLSelectElement> }
+  props: FormAsyncSelectProps<TFormData> & {
+    ref?: React.Ref<HTMLSelectElement>;
+  }
 ) => React.ReactElement;

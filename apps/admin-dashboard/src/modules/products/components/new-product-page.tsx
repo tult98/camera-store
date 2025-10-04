@@ -1,5 +1,5 @@
+import { ProductWizardForm } from '@/modules/products/components/product-wizard-form';
 import React from 'react';
-import { ProductForm } from './product-form';
 
 export const NewProductPage: React.FC = () => {
   return (
@@ -11,7 +11,7 @@ export const NewProductPage: React.FC = () => {
         </p>
       </div>
 
-      <ProductForm />
+      <ProductWizardForm />
     </div>
   );
 };

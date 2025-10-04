@@ -1,8 +1,8 @@
-import React, { useCallback } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
 import { cn } from '@modules/shared/utils/cn';
-import { editorExtensions } from './config/extensions';
+import { EditorContent, useEditor } from '@tiptap/react';
+import React, { useCallback } from 'react';
 import { Toolbar } from './components/toolbar';
+import { editorExtensions } from './config/extensions';
 import './styles/editor.css';
 
 interface RichTextEditorProps {

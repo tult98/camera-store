@@ -17,23 +17,24 @@ interface ImageItem {
   id: string;
   url?: string;
   preview: string;
-  isThumbnail: boolean;
 }
 
 export interface ProductImageModalProps {
   isOpen: boolean;
   onClose: () => void;
-  images: Array<{ id: string; url: string; isThumbnail?: boolean }>;
-  onSave: (
-    images: Array<{ id: string; url: string; isThumbnail?: boolean }>
-  ) => void;
+  images: Array<{ id: string; url: string }>;
+  thumbnail?: string;
+  onSave: (images: Array<{ id?: string; url: string }>) => void;
+  onThumbnailChange: (thumbnailUrl: string) => void;
 }
 
 export const ProductImageModal: React.FC<ProductImageModalProps> = ({
   isOpen,
   onClose,
   images: initialImages,
+  thumbnail,
   onSave,
+  onThumbnailChange,
 }) => {
   const toast = useToast();
 
@@ -42,7 +43,6 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
       id: img.id,
       url: img.url,
       preview: img.url,
-      isThumbnail: img.isThumbnail || false,
     }))
   );
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -109,7 +109,6 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
       const newImages: ImageItem[] = validFiles.map((file) => ({
         id: `temp-${Date.now()}-${Math.random()}`,
         preview: URL.createObjectURL(file),
-        isThumbnail: false,
       }));
 
       setImageItems((prev) => [...prev, ...newImages]);
@@ -170,12 +169,10 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
 
   const handleMakeThumbnail = () => {
     const selectedId = Array.from(selectedIds)[0];
-    setImageItems((prev) =>
-      prev.map((item) => ({
-        ...item,
-        isThumbnail: item.id === selectedId,
-      }))
-    );
+    const selectedImage = imageItems.find((item) => item.id === selectedId);
+    if (selectedImage?.url) {
+      onThumbnailChange(selectedImage.url);
+    }
     setSelectedIds(new Set());
   };
 
@@ -201,7 +198,6 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
       .map((item) => ({
         id: item.id,
         url: item.url!,
-        isThumbnail: item.isThumbnail,
       }));
     onSave(finalImages);
     onClose();
@@ -271,9 +267,9 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
                         key={item.id}
                         className={cn(
                           'relative group cursor-pointer rounded-lg overflow-hidden border-2',
-                          item.isThumbnail && selectedIds.has(item.id)
+                          item.url === thumbnail && selectedIds.has(item.id)
                             ? 'border-blue-500 ring-2 ring-green-400'
-                            : item.isThumbnail
+                            : item.url === thumbnail
                             ? 'border-green-500 hover:border-green-600'
                             : selectedIds.has(item.id)
                             ? 'border-blue-500'
@@ -287,7 +283,7 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
                           className="w-full h-48 object-cover"
                         />
 
-                        {item.isThumbnail && (
+                        {item.url === thumbnail && (
                           <div className="absolute top-2 left-2 bg-green-600 text-white p-1.5 rounded-full shadow-lg">
                             <BookmarkIcon className="w-4 h-4" />
                           </div>

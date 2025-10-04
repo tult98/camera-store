@@ -10,6 +10,7 @@ import { FormSwitch } from '../../shared/components/ui/form-input/form-switch';
 import { FormTextarea } from '../../shared/components/ui/form-input/form-textarea';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { useToast } from '../../shared/hooks/use-toast';
+import { generateHandle } from '../../shared/utils/formatters';
 import {
   createCategory,
   fetchCategories,
@@ -74,14 +75,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
 
   // Auto-generate handle from name (only in create mode)
   useEffect(() => {
-    if (name) {
-      const generatedHandle = name
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-      setValue('handle', generatedHandle);
+    if (!isEditMode) {
+      setValue('handle', generateHandle(name));
     }
   }, [name, setValue, isEditMode]);
 

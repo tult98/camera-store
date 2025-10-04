@@ -29,6 +29,33 @@ export const formatNumber = (num: number): string => {
   return new Intl.NumberFormat('en-US').format(num);
 };
 
+export const getCurrencySymbol = (currencyCode: string): string => {
+  const currencySymbols: Record<string, string> = {
+    usd: '$',
+    eur: '€',
+    gbp: '£',
+    jpy: '¥',
+    cny: '¥',
+    php: '₱',
+    inr: '₹',
+    krw: '₩',
+    aud: 'A$',
+    cad: 'C$',
+    chf: 'Fr',
+    hkd: 'HK$',
+    sgd: 'S$',
+    nzd: 'NZ$',
+    mxn: 'Mex$',
+    brl: 'R$',
+    rub: '₽',
+    thb: '฿',
+    try: '₺',
+    zar: 'R',
+  };
+
+  return currencySymbols[currencyCode.toLowerCase()] || currencyCode.toUpperCase();
+};
+
 export const generateHandle = (title: string): string => {
   if (!title) return '';
 

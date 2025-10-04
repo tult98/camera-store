@@ -1,9 +1,10 @@
+import { AdminProduct } from '@medusajs/types';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { WizardNavigation } from '../../shared/components/ui/wizard-navigation';
 import { AttributeTemplateStep } from './wizard-steps/attribute-template-step';
-import { OptionsVariantsStep } from './wizard-steps/options-variants-step';
 import { ProductBasicsStep } from './wizard-steps/product-basics-step';
-import { AdminProduct } from '@medusajs/types';
+import { OrganizationVariantsStep } from '@/modules/products/components/wizard-steps/organization-variants-step';
 
 interface ProductWizardFormProps {
   isEditMode?: boolean;
@@ -13,6 +14,7 @@ interface ProductWizardFormProps {
 export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   isEditMode = false,
 }) => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [product, setProduct] = useState<AdminProduct | null>(null);
@@ -20,7 +22,7 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   const wizardSteps = [
     { label: 'Product Basics', completed: completedSteps.has(1) },
     { label: 'Attribute Template', completed: completedSteps.has(2) },
-    { label: 'Options & Variants', completed: completedSteps.has(3) },
+    { label: 'Organization & Variants', completed: completedSteps.has(3) },
   ];
 
   const handleNext = async () => {
@@ -42,7 +44,9 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
     }
   };
 
-  console.log('====================product: ', product);
+  const onRedirectToProductList = () => {
+    navigate('/products');
+  };
 
   const renderCurrentStep = () => {
     switch (currentStep) {
@@ -65,7 +69,13 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
           />
         );
       case 3:
-        return <OptionsVariantsStep />;
+        return (
+          <OrganizationVariantsStep
+            product={product}
+            onNext={onRedirectToProductList}
+            onBack={handleBack}
+          />
+        );
       default:
         return null;
     }

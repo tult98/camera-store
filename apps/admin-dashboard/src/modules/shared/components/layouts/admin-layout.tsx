@@ -7,6 +7,7 @@ import { navigationItems } from '@modules/shared/config/navigation-config';
 import { NavigationItem } from '../navigation-item';
 import { UserProfileDropdown } from '../user-profile-dropdown';
 import { Breadcrumb } from '../breadcrumb';
+import { useStores } from '@/modules/shared/hooks/use-stores';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const { data, isLoading } = useCurrentUser();
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  useStores();
 
   const user = data?.user || ({} as AdminUser);
 

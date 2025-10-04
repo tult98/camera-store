@@ -18,6 +18,8 @@ interface FormInputProps<TFormData extends FieldValues = FieldValues> {
   inputClassName?: string;
   shouldUnregister?: boolean;
   required?: boolean;
+  prefix?: string;
+  formatNumber?: boolean;
 }
 
 const FormInputInner = <TFormData extends FieldValues = FieldValues>(
@@ -32,6 +34,8 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     inputClassName = '',
     shouldUnregister = true,
     required = false,
+    prefix,
+    formatNumber = false,
   }: FormInputProps<TFormData>,
   ref: React.Ref<HTMLInputElement>
 ) => {
@@ -46,6 +50,32 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     shouldUnregister,
   });
 
+  const formatNumberValue = (value: number | string): string => {
+    if (value === '' || value === null || value === undefined) return '';
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numValue)) return '';
+    return numValue.toLocaleString('en-US');
+  };
+
+  const parseNumberValue = (value: string): number => {
+    const cleanValue = value.replace(/,/g, '');
+    const numValue = parseFloat(cleanValue);
+    return isNaN(numValue) ? 0 : numValue;
+  };
+
+  const displayValue = formatNumber && type === 'number'
+    ? formatNumberValue(field.value)
+    : field.value;
+
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (formatNumber && type === 'number') {
+      const numericValue = parseNumberValue(e.target.value);
+      field.onChange(numericValue);
+    } else {
+      field.onChange(e);
+    }
+  };
+
   const inputType = type === 'password' && showPassword ? 'text' : type;
   const hasError = !!error;
   const showErrorState = hasError && isTouched;
@@ -54,6 +84,7 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     'input-base input-focus',
     disabled && 'input-disabled',
     showErrorState && 'input-error',
+    prefix && '!pl-6',
     inputClassName
   );
 
@@ -73,11 +104,18 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
       )}
 
       <div className="relative">
+        {prefix && (
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+            {prefix}
+          </span>
+        )}
         <input
           {...field}
+          value={displayValue}
+          onChange={handleNumberChange}
           ref={ref}
           id={name}
-          type={inputType}
+          type={formatNumber && type === 'number' ? 'text' : inputType}
           placeholder={placeholder}
           disabled={disabled}
           className={inputClasses}

@@ -21,6 +21,29 @@ export const productSchema = z.object({
       })
     )
     .optional(),
+  status: z.enum(['draft', 'proposed', 'published', 'rejected']).optional(),
+  category_ids: z.array(z.string()).optional(),
+  variants: z
+    .array(
+      z.object({
+        title: z.string(),
+        prices: z.array(
+          z.object({
+            amount: z.number(),
+            currency_code: z.string(),
+          })
+        ),
+        options: z.record(z.string(), z.string()),
+      })
+    )
+    .optional(),
+  sales_channels: z
+    .array(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export type ProductSchemaType = z.infer<typeof productSchema>;

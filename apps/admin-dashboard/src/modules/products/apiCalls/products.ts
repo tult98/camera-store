@@ -31,6 +31,17 @@ export const transformFormDataToPayload = (
   };
 };
 
+export const transformDataToUpdateProductPayload = (
+  formData: ProductSchemaType
+) => {
+  return {
+    categories: formData.category_ids?.map((id) => ({ id })),
+    status: formData.status,
+    variants: formData.variants,
+    sales_channels: formData.sales_channels,
+  };
+};
+
 export const createProduct = async (formData: ProductSchemaType) => {
   const payload = transformFormDataToPayload(formData);
   return await sdk.admin.product.create(payload);

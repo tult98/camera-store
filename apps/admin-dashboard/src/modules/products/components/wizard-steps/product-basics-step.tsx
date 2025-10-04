@@ -1,7 +1,6 @@
-import { PhotoIcon } from '@heroicons/react/24/outline';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { searchCategories } from '../../../categories/apiCalls/categories';
 import { FormInput } from '../../../shared/components/ui/form-input';
@@ -12,7 +11,7 @@ import { useToast } from '../../../shared/hooks/use-toast';
 import { generateHandle } from '../../../shared/utils/formatters';
 import { createProduct } from '../../apiCalls/products';
 import { productSchema, type ProductSchemaType } from '../../types';
-import { ProductImageModal } from '../product-image-modal';
+import { MediaUploadSection } from './product-basics-step/media-upload-section';
 
 interface ProductBasicsStepProps {
   initialData?: ProductSchemaType;
@@ -69,8 +68,6 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     },
   });
 
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-
   const imagesArray = images?.map((image) => ({
     id: image.id || image.url,
     url: image.url,
@@ -88,6 +85,13 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
 
   const handleThumbnailUpdate = (thumbnailUrl: string) => {
     setValue('thumbnail', thumbnailUrl);
+  };
+
+  const handleDeleteImages = (imageIds: string[]) => {
+    const updatedImages = images?.filter(
+      (img) => !imageIds.includes(img.id || img.url)
+    );
+    setValue('images', updatedImages || []);
   };
 
   const onSubmit = async (data: ProductSchemaType) => {
@@ -166,28 +170,13 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
             minHeight={200}
             maxHeight={500}
           />
-
-          <div className="border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div>
-                <h3 className="text-sm font-medium text-gray-900">Media</h3>
-                <p className="text-xs text-gray-500 mt-1">
-                  Add images to showcase your product
-                </p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsImageModalOpen(true)}
-              className="w-full flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors"
-              disabled={isSubmitting}
-            >
-              <PhotoIcon className="w-5 h-5 text-gray-400 mr-2" />
-              <span className="text-sm text-gray-600">Add Media</span>
-            </button>
-          </div>
-
+          <MediaUploadSection
+            images={imagesArray}
+            thumbnail={thumbnail}
+            onSave={handleImagesUpdate}
+            onMakeThumbnail={handleThumbnailUpdate}
+            onDeleteImages={handleDeleteImages}
+          />
           <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-200">
             {currentStep > 1 && onBack && (
               <button
@@ -210,15 +199,6 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
           </div>
         </form>
       </div>
-
-      <ProductImageModal
-        isOpen={isImageModalOpen}
-        onClose={() => setIsImageModalOpen(false)}
-        images={imagesArray || []}
-        thumbnail={thumbnail}
-        onSave={handleImagesUpdate}
-        onThumbnailChange={handleThumbnailUpdate}
-      />
     </div>
   );
 };

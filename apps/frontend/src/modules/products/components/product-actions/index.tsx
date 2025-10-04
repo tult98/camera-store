@@ -35,7 +35,8 @@ export default function ProductActions({
   onOptionsChange,
   initialOptions = {},
 }: ProductActionsProps) {
-  const [options, setOptions] = useState<Record<string, string | undefined>>(initialOptions)
+  const [options, setOptions] =
+    useState<Record<string, string | undefined>>(initialOptions)
   const [quantity, setQuantity] = useState(1)
   const router = useRouter()
   const { showToast } = useToast()
@@ -65,14 +66,25 @@ export default function ProductActions({
     },
   })
 
+  const isDefaultOption =
+    product?.options?.length === 1 &&
+    product.options[0].title === "Default option" &&
+    product.options[0].values?.length === 1 &&
+    product.options[0].values[0].value === "Default option value"
+
   const selectedVariant = useMemo(() => {
     if (!product?.variants?.length) return
+
+    // If the product have default option, return the first variant
+    if (isDefaultOption) {
+      return product.variants[0]
+    }
 
     return product.variants.find((v) => {
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
     })
-  }, [product.variants, options])
+  }, [product.variants, options, isDefaultOption])
 
   // update the options when a variant is selected
   const setOptionValue = (optionId: string, value: string) => {
@@ -86,6 +98,9 @@ export default function ProductActions({
 
   //check if the selected options produce a valid variant
   const isValidVariant = useMemo(() => {
+    if (isDefaultOption) {
+      return true
+    }
     return product.variants?.some((v) => {
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
@@ -148,7 +163,7 @@ export default function ProductActions({
     <>
       <div className="flex flex-col gap-y-2" ref={actionsRef}>
         <div>
-          {(product.variants?.length ?? 0) > 1 && (
+          {!isDefaultOption && (
             <div className="flex flex-col gap-y-4">
               {(product.options || []).map((option) => {
                 return (

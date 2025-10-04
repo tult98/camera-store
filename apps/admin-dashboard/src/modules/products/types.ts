@@ -14,6 +14,14 @@ export const productSchema = z.object({
   status: z.enum(['draft', 'proposed', 'published', 'rejected']),
   thumbnail: z.string().optional(),
   category_ids: z.array(z.string()).optional(),
+  options: z
+    .array(
+      z.object({
+        title: z.string(),
+        values: z.array(z.string()),
+      })
+    )
+    .optional(),
 });
 
 export type ProductSchemaType = z.infer<typeof productSchema>;

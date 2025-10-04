@@ -37,7 +37,10 @@ export const transformDataToUpdateProductPayload = (
   return {
     categories: formData.category_ids?.map((id) => ({ id })),
     status: formData.status,
-    variants: formData.variants,
+    variants: formData.variants?.map((variant) => ({
+      ...variant,
+      manage_inventory: false,
+    })),
     sales_channels: formData.sales_channels,
   };
 };

@@ -3,6 +3,7 @@ import { WizardNavigation } from '../../shared/components/ui/wizard-navigation';
 import { AttributeTemplateStep } from './wizard-steps/attribute-template-step';
 import { OptionsVariantsStep } from './wizard-steps/options-variants-step';
 import { ProductBasicsStep } from './wizard-steps/product-basics-step';
+import { AdminProduct } from '@medusajs/types';
 
 interface ProductWizardFormProps {
   isEditMode?: boolean;
@@ -12,8 +13,9 @@ interface ProductWizardFormProps {
 export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   isEditMode = false,
 }) => {
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [product, setProduct] = useState<AdminProduct | null>(null);
 
   const wizardSteps = [
     { label: 'Product Basics', completed: completedSteps.has(1) },
@@ -40,6 +42,8 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
     }
   };
 
+  console.log('====================product: ', product);
+
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1:
@@ -49,10 +53,17 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
             onNext={handleNext}
             onBack={handleBack}
             currentStep={currentStep}
+            setProduct={setProduct}
           />
         );
       case 2:
-        return <AttributeTemplateStep />;
+        return (
+          <AttributeTemplateStep
+            product={product}
+            onNext={handleNext}
+            onBack={handleBack}
+          />
+        );
       case 3:
         return <OptionsVariantsStep />;
       default:

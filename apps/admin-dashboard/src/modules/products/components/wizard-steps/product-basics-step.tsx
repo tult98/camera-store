@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AdminProduct } from '@medusajs/types';
 import { useMutation } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FormInput } from '../../../shared/components/ui/form-input';
 import { FormRichTextEditor } from '../../../shared/components/ui/form-input/form-rich-text-editor';
+import { LoadingIcon } from '../../../shared/components/ui/loading-icon';
 import { useToast } from '../../../shared/hooks/use-toast';
 import { generateHandle } from '../../../shared/utils/formatters';
 import { createProduct } from '../../apiCalls/products';
@@ -17,12 +19,14 @@ interface ProductBasicsStepProps {
   onNext?: () => void;
   onBack?: () => void;
   currentStep?: number;
+  setProduct: React.Dispatch<React.SetStateAction<AdminProduct | null>>;
 }
 
 export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
   onNext,
   onBack,
   currentStep = 1,
+  setProduct,
 }) => {
   const toast = useToast();
 
@@ -51,7 +55,8 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
 
   const createProductMutation = useMutation({
     mutationFn: createProduct,
-    onSuccess: () => {
+    onSuccess: (response) => {
+      setProduct(response.product);
       toast.success(
         `Product created`,
         `"${title}" has been created successfully`
@@ -165,8 +170,11 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
               >
+                {isSubmitting && (
+                  <LoadingIcon size="sm" color="white" className="mr-2" />
+                )}
                 Next
               </button>
             </div>

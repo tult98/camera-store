@@ -1,7 +1,21 @@
 import { sdk } from '@modules/shared/api/medusa-client';
 
+interface AttributeDefinition {
+  key: string;
+  label: string;
+  type: string;
+}
+
+export interface AttributeTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  code: string;
+  attribute_definitions: Array<AttributeDefinition>;
+}
+
 interface FetchAttributeTemplatesResponse {
-  attribute_templates: Array<{ id: string; name: string }>;
+  attribute_templates: Array<AttributeTemplate>;
   count: number;
   limit: number;
   offset: number;

@@ -1,7 +1,5 @@
 import { FormSelect } from '@/modules/shared/components/ui/form-input/form-select';
-import { useQuery } from '@tanstack/react-query';
 import { Control, FieldValues, Path } from 'react-hook-form';
-import { fetchAttributeTemplates } from '../../../apiCalls/attribute-templates';
 
 interface AttributeTemplateInputProps<
   TFormData extends FieldValues = FieldValues
@@ -12,6 +10,7 @@ interface AttributeTemplateInputProps<
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
+  options: { value: string; label: string }[];
 }
 
 export const AttributeTemplateInput = <
@@ -23,21 +22,13 @@ export const AttributeTemplateInput = <
   placeholder = 'Choose a template...',
   disabled = false,
   required = false,
+  options,
 }: AttributeTemplateInputProps<TFormData>) => {
-  const { data: templatesData } = useQuery({
-    queryKey: ['attribute-templates'],
-    queryFn: fetchAttributeTemplates,
-    staleTime: 5 * 60 * 1000,
-  });
-
   return (
     <FormSelect
       name={name}
       control={control}
-      options={templatesData?.attribute_templates.map((template) => ({
-        value: template.id,
-        label: template.name,
-      }))}
+      options={options}
       label={label}
       placeholder={placeholder}
       disabled={disabled}

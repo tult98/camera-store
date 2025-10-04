@@ -2,16 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { searchCategories } from '../../../categories/apiCalls/categories';
 import { FormInput } from '../../../shared/components/ui/form-input';
-import { FormAsyncSelect } from '../../../shared/components/ui/form-input/form-async-select';
 import { FormRichTextEditor } from '../../../shared/components/ui/form-input/form-rich-text-editor';
-import { FormSelect } from '../../../shared/components/ui/form-input/form-select';
 import { useToast } from '../../../shared/hooks/use-toast';
 import { generateHandle } from '../../../shared/utils/formatters';
 import { createProduct } from '../../apiCalls/products';
 import { productSchema, type ProductSchemaType } from '../../types';
 import { MediaUploadSection } from './product-basics-step/media-upload-section';
+import { ProductOptionsSection } from './product-basics-step/product-options-section';
 
 interface ProductBasicsStepProps {
   initialData?: ProductSchemaType;
@@ -43,8 +41,6 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
       handle: '',
       description: '',
       images: [],
-      status: 'draft',
-      category_ids: [],
       options: [],
     },
   });
@@ -135,32 +131,6 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
             disabled={isSubmitting}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormSelect
-              name="status"
-              control={control}
-              label="Status"
-              options={[
-                { value: 'draft', label: 'Draft' },
-                { value: 'proposed', label: 'Proposed' },
-                { value: 'published', label: 'Published' },
-                { value: 'rejected', label: 'Rejected' },
-              ]}
-              placeholder="Select status"
-              disabled={isSubmitting}
-            />
-
-            <FormAsyncSelect
-              isMulti
-              name="category_ids"
-              control={control}
-              label="Category"
-              loadOptions={searchCategories}
-              placeholder="Search and select category"
-              disabled={isSubmitting}
-            />
-          </div>
-
           <FormRichTextEditor
             name="description"
             control={control}
@@ -176,6 +146,10 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
             onSave={handleImagesUpdate}
             onMakeThumbnail={handleThumbnailUpdate}
             onDeleteImages={handleDeleteImages}
+          />
+          <ProductOptionsSection
+            control={control}
+            isSubmitting={isSubmitting}
           />
           <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-200">
             {currentStep > 1 && onBack && (

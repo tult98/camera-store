@@ -11,9 +11,7 @@ export const productSchema = z.object({
   handle: z.string().optional(),
   description: z.string().optional(),
   images: z.array(imageSchema).optional(),
-  status: z.enum(['draft', 'proposed', 'published', 'rejected']),
   thumbnail: z.string().optional(),
-  category_ids: z.array(z.string()).optional(),
   options: z
     .array(
       z.object({

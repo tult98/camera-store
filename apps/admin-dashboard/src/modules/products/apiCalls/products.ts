@@ -17,13 +17,17 @@ export interface CreateProductPayload {
 export const transformFormDataToPayload = (
   formData: ProductSchemaType
 ): CreateProductPayload => {
-  const { category_ids, ...rest } = formData;
+  const options =
+    formData?.options && formData.options.length > 0
+      ? formData.options
+      : ([
+          { title: 'Default option', values: ['Default option value'] },
+        ] as AdminCreateProductOption[]);
 
   return {
-    ...rest,
-    categories: category_ids?.map((id) => ({ id })),
-    images: rest.images?.map((image) => ({ url: image.url })),
-    options: rest.options || [],
+    ...formData,
+    images: formData.images?.map((image) => ({ url: image.url })),
+    options,
   };
 };
 

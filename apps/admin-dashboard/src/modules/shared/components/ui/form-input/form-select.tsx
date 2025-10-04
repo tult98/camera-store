@@ -1,7 +1,14 @@
 import { cn } from '@modules/shared/utils/cn';
 import React from 'react';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
-import Select, { StylesConfig } from 'react-select';
+import Select, {
+  ActionMeta,
+  MultiValue,
+  SelectInstance,
+  SingleValue,
+  StylesConfig,
+} from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 
 export interface SelectOption {
   value: string;
@@ -11,28 +18,34 @@ export interface SelectOption {
 interface FormSelectProps<TFormData extends FieldValues = FieldValues> {
   name: Path<TFormData>;
   control: Control<TFormData>;
-  options: SelectOption[];
+  options?: SelectOption[];
   label?: string;
   placeholder?: string;
   disabled?: boolean;
   className?: string;
   shouldUnregister?: boolean;
   required?: boolean;
+  isMulti?: boolean;
+  isCreatable?: boolean;
+  isClearable?: boolean;
 }
 
 const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
   {
     name,
     control,
-    options,
+    options = [],
     label,
     placeholder,
     disabled = false,
     className = '',
     shouldUnregister = true,
     required = false,
+    isMulti = false,
+    isCreatable = false,
+    isClearable = false,
   }: FormSelectProps<TFormData>,
-  ref: React.Ref<any>
+  ref: React.Ref<SelectInstance<SelectOption>>
 ) => {
   const {
     field,
@@ -46,12 +59,12 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
   const hasError = !!error;
   const showErrorState = hasError && isTouched;
 
-  const customStyles: StylesConfig<SelectOption, false> = {
+  const customStyles: StylesConfig<SelectOption | undefined, boolean> = {
     control: (provided, state) => ({
       ...provided,
-      minHeight: 'auto',
+      minHeight: '38px',
       height: 'auto',
-      padding: '2px 4px',
+      padding: '0',
       border: showErrorState
         ? '1px solid #ef4444'
         : state.isFocused
@@ -69,7 +82,7 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
     }),
     valueContainer: (provided) => ({
       ...provided,
-      padding: '6px 8px',
+      padding: '0.25rem 0.5rem',
     }),
     input: (provided) => ({
       ...provided,
@@ -87,11 +100,38 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
       color: '#111827',
       margin: 0,
     }),
+    multiValue: (provided) => ({
+      ...provided,
+      backgroundColor: '#eff6ff',
+      borderRadius: '4px',
+      padding: '1px',
+    }),
+    multiValueLabel: (provided) => ({
+      ...provided,
+      color: '#1e40af',
+      padding: '1px 6px',
+    }),
+    multiValueRemove: (provided) => ({
+      ...provided,
+      color: '#1e40af',
+      ':hover': {
+        backgroundColor: '#dbeafe',
+        color: '#1e3a8a',
+      },
+    }),
     indicatorsContainer: (provided) => ({
       ...provided,
       height: 'auto',
     }),
     dropdownIndicator: (provided) => ({
+      ...provided,
+      color: '#9ca3af',
+      padding: '4px',
+      '&:hover': {
+        color: '#6b7280',
+      },
+    }),
+    clearIndicator: (provided) => ({
       ...provided,
       color: '#9ca3af',
       padding: '4px',
@@ -132,6 +172,45 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
     }),
   };
 
+  const getSelectValue = () => {
+    if (isMulti) {
+      if (isCreatable) {
+        return (field.value || []).map((val: string) => ({
+          value: val,
+          label: val,
+        }));
+      }
+      return (field.value || [])
+        .map((val: string) => options.find((option) => option.value === val))
+        .filter(Boolean);
+    }
+    if (isCreatable && field.value) {
+      return { value: field.value, label: field.value };
+    }
+    return options.find((option) => option.value === field.value) || null;
+  };
+
+  const handleSelectChange = (
+    newValue:
+      | MultiValue<SelectOption | undefined>
+      | SingleValue<SelectOption | undefined>,
+    _actionMeta: ActionMeta<SelectOption | undefined>
+  ) => {
+    if (isMulti) {
+      const values = newValue as MultiValue<SelectOption | undefined>;
+      field.onChange(
+        values
+          .filter((option): option is SelectOption => option !== undefined)
+          .map((option) => option.value)
+      );
+    } else {
+      const value = newValue as SingleValue<SelectOption | undefined>;
+      field.onChange(value?.value || '');
+    }
+  };
+
+  const SelectComponent = isCreatable ? CreatableSelect : Select;
+
   return (
     <div className={cn('w-full', className)}>
       {label && (
@@ -143,18 +222,18 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
         </label>
       )}
 
-      <Select
-        ref={ref}
+      <SelectComponent
+        ref={ref as any}
         inputId={name}
         name={name}
-        value={options.find((option) => option.value === field.value) || null}
-        onChange={(selectedOption) => {
-          field.onChange(selectedOption?.value || '');
-        }}
+        value={getSelectValue()}
+        onChange={handleSelectChange}
         onBlur={field.onBlur}
         options={options}
         placeholder={placeholder}
         isDisabled={disabled}
+        isMulti={isMulti}
+        isClearable={isClearable}
         styles={customStyles}
         aria-invalid={showErrorState}
         aria-describedby={showErrorState ? `${name}-error` : undefined}
@@ -185,5 +264,7 @@ _FormSelect.displayName = 'FormSelect';
 export const FormSelect = _FormSelect as <
   TFormData extends FieldValues = FieldValues
 >(
-  props: FormSelectProps<TFormData> & { ref?: React.Ref<any> }
+  props: FormSelectProps<TFormData> & {
+    ref?: React.Ref<SelectInstance<SelectOption>>;
+  }
 ) => React.ReactElement;

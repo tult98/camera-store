@@ -1,9 +1,14 @@
-import { BookmarkIcon, CheckIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
+import {
+  BookmarkIcon,
+  CheckIcon,
+  CloudArrowUpIcon,
+} from '@heroicons/react/24/outline';
 import { LoadingIcon } from '@modules/shared/components/ui/loading-icon';
 import { useToast } from '@modules/shared/hooks/use-toast';
 import { cn } from '@modules/shared/utils/cn';
 import { useMutation } from '@tanstack/react-query';
 import React, { useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { uploadImages } from '../../../apiCalls/uploads';
 
 interface MediaUploadSectionProps {
@@ -118,7 +123,9 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
 
   const handleMakeThumbnail = () => {
     const selectedId = Array.from(selectedIds)[0];
-    const selectedImage = images.find((img) => (img.id || img.url) === selectedId);
+    const selectedImage = images.find(
+      (img) => (img.id || img.url) === selectedId
+    );
     if (selectedImage?.url) {
       onMakeThumbnail(selectedImage.url);
     }
@@ -228,28 +235,30 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
         </div>
       </div>
 
-      {selectedIds.size > 0 && (
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="bg-gray-900 text-white rounded-full px-6 py-3 flex items-center space-x-4 shadow-lg">
-            <span className="text-sm">{selectedIds.size} selected</span>
-            <div className="h-6 w-px bg-gray-600" />
-            <button
-              onClick={handleMakeThumbnail}
-              disabled={selectedIds.size !== 1}
-              className="px-4 py-1 hover:bg-gray-800 rounded transition-colors text-sm flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
-            >
-              Make thumbnail
-            </button>
-            <div className="h-6 w-px bg-gray-600" />
-            <button
-              onClick={handleDeleteSelected}
-              className="px-4 py-1 hover:bg-gray-800 rounded transition-colors text-sm flex items-center"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      )}
+      {selectedIds.size > 0 &&
+        createPortal(
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+            <div className="bg-gray-900 text-white rounded-full px-6 py-3 flex items-center space-x-4 shadow-lg">
+              <span className="text-sm">{selectedIds.size} selected</span>
+              <div className="h-6 w-px bg-gray-600" />
+              <button
+                onClick={handleMakeThumbnail}
+                disabled={selectedIds.size !== 1}
+                className="px-4 py-1 hover:bg-gray-800 rounded transition-colors text-sm flex items-center disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+              >
+                Make thumbnail
+              </button>
+              <div className="h-6 w-px bg-gray-600" />
+              <button
+                onClick={handleDeleteSelected}
+                className="px-4 py-1 hover:bg-gray-800 rounded transition-colors text-sm flex items-center"
+              >
+                Delete
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

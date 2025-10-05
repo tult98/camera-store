@@ -1,0 +1,9 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "nixpacksConfigPath": "admin-dashboard.nixpacks.toml",
+    "watchPaths": [
+      "apps/admin-dashboard/**"
+    ]
+  }
+}

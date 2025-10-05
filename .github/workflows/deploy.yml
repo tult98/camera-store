@@ -13,6 +13,7 @@ jobs:
     outputs:
       affected-backend: ${{ steps.affected.outputs.backend }}
       affected-frontend: ${{ steps.affected.outputs.frontend }}
+      affected-admin-dashboard: ${{ steps.affected.outputs.admin-dashboard }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,7 +46,7 @@ jobs:
           fi
 
           echo "Base SHA for comparison: $BASE_SHA"
-          AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,frontend)
+          AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,frontend,admin-dashboard)
 
           echo "Affected apps: $AFFECTED_APPS"
 
@@ -61,10 +62,16 @@ jobs:
             echo "frontend=false" >> $GITHUB_OUTPUT
           fi
 
+          if echo "$AFFECTED_APPS" | grep -q "admin-dashboard"; then
+            echo "admin-dashboard=true" >> $GITHUB_OUTPUT
+          else
+            echo "admin-dashboard=false" >> $GITHUB_OUTPUT
+          fi
+
   quality-checks:
     runs-on: ubuntu-latest
     needs: setup
-    if: needs.setup.outputs.affected-backend == 'true' || needs.setup.outputs.affected-frontend == 'true'
+    if: needs.setup.outputs.affected-backend == 'true' || needs.setup.outputs.affected-frontend == 'true' || needs.setup.outputs.affected-admin-dashboard == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -126,9 +133,26 @@ jobs:
       - name: Deploy Frontend to Railway
         run: railway up --service=${{ vars.RAILWAY_FRONTEND_SERVICE_NAME }}
 
+  deploy-admin-dashboard:
+    runs-on: ubuntu-latest
+    needs: [setup, quality-checks]
+    if: needs.setup.outputs.affected-admin-dashboard == 'true' && always() && needs.quality-checks.result == 'success'
+    environment: staging
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy Admin Dashboard to Railway
+        run: railway up --service=${{ vars.RAILWAY_ADMIN_DASHBOARD_SERVICE_NAME }}
+
   deploy-status:
     runs-on: ubuntu-latest
-    needs: [setup, deploy-backend, deploy-frontend]
+    needs: [setup, deploy-backend, deploy-frontend, deploy-admin-dashboard]
     if: always()
     steps:
       - name: Deployment Status
@@ -136,6 +160,7 @@ jobs:
           echo "🚀 Deployment Summary:"
           echo "Backend affected: ${{ needs.setup.outputs.affected-backend }}"
           echo "Frontend affected: ${{ needs.setup.outputs.affected-frontend }}"
+          echo "Admin Dashboard affected: ${{ needs.setup.outputs.affected-admin-dashboard }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Environment: staging"
 
@@ -153,4 +178,12 @@ jobs:
             echo "❌ Frontend deployment failed"
           else
             echo "⏭️ Frontend deployment skipped (not affected)"
+          fi
+
+          if [ "${{ needs.deploy-admin-dashboard.result }}" = "success" ]; then
+            echo "✅ Admin Dashboard deployment successful"
+          elif [ "${{ needs.setup.outputs.affected-admin-dashboard }}" = "true" ]; then
+            echo "❌ Admin Dashboard deployment failed"
+          else
+            echo "⏭️ Admin Dashboard deployment skipped (not affected)"
           fi

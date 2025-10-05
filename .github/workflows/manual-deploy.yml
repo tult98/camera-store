@@ -13,6 +13,11 @@ on:
         required: true
         default: true
         type: boolean
+      deploy_admin_dashboard:
+        description: 'Deploy Admin Dashboard'
+        required: true
+        default: true
+        type: boolean
       run_quality_checks:
         description: 'Run quality checks before deployment'
         required: true
@@ -68,6 +73,18 @@ jobs:
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
+      - name: Run linting on admin-dashboard
+        if: inputs.deploy_admin_dashboard
+        run: yarn nx lint admin-dashboard
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
+
+      - name: Run type checking on admin-dashboard
+        if: inputs.deploy_admin_dashboard
+        run: yarn nx type-check admin-dashboard
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
+
   deploy-backend:
     runs-on: ubuntu-latest
     needs: quality-checks
@@ -102,9 +119,26 @@ jobs:
       - name: Deploy Frontend to Railway
         run: railway up --service=${{ vars.RAILWAY_FRONTEND_SERVICE_NAME }}
 
+  deploy-admin-dashboard:
+    runs-on: ubuntu-latest
+    needs: quality-checks
+    if: inputs.deploy_admin_dashboard && (always() && (needs.quality-checks.result == 'success' || needs.quality-checks.result == 'skipped'))
+    environment: staging
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy Admin Dashboard to Railway
+        run: railway up --service=${{ vars.RAILWAY_ADMIN_DASHBOARD_SERVICE_NAME }}
+
   deploy-status:
     runs-on: ubuntu-latest
-    needs: [quality-checks, deploy-backend, deploy-frontend]
+    needs: [quality-checks, deploy-backend, deploy-frontend, deploy-admin-dashboard]
     if: always()
     steps:
       - name: Manual Deployment Status
@@ -112,6 +146,7 @@ jobs:
           echo "🚀 Manual Deployment Summary:"
           echo "Backend deployment requested: ${{ inputs.deploy_backend }}"
           echo "Frontend deployment requested: ${{ inputs.deploy_frontend }}"
+          echo "Admin Dashboard deployment requested: ${{ inputs.deploy_admin_dashboard }}"
           echo "Quality checks enabled: ${{ inputs.run_quality_checks }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Environment: staging"
@@ -143,6 +178,20 @@ jobs:
             fi
           else
             echo "⏭️ Frontend deployment not requested"
+          fi
+
+          if [ "${{ inputs.deploy_admin_dashboard }}" = "true" ]; then
+            if [ "${{ needs.deploy-admin-dashboard.result }}" = "success" ]; then
+              echo "✅ Admin Dashboard deployment successful"
+            elif [ "${{ needs.deploy-admin-dashboard.result }}" = "failure" ]; then
+              echo "❌ Admin Dashboard deployment failed"
+            elif [ "${{ needs.deploy-admin-dashboard.result }}" = "cancelled" ]; then
+              echo "🟡 Admin Dashboard deployment cancelled"
+            else
+              echo "⏭️ Admin Dashboard deployment skipped"
+            fi
+          else
+            echo "⏭️ Admin Dashboard deployment not requested"
           fi
 
           if [ "${{ inputs.run_quality_checks }}" = "true" ]; then

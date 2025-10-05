@@ -1,5 +1,10 @@
 import { fetchAttributeTemplates } from '@/modules/products/apiCalls/attribute-templates';
-import { createProductAttributes } from '@/modules/products/apiCalls/product-attributes';
+import {
+  createProductAttributes,
+  fetchProductAttributes,
+  ProductAttribute,
+  updateProductAttributes,
+} from '@/modules/products/apiCalls/product-attributes';
 import { FormInput } from '@/modules/shared/components/ui/form-input';
 import { FormSwitch } from '@/modules/shared/components/ui/form-input/form-switch';
 import { LoadingIcon } from '@/modules/shared/components/ui/loading-icon';
@@ -26,27 +31,37 @@ interface AttributeTemplateStepProps {
   product: AdminProduct | null;
   onNext: () => void;
   onBack: () => void;
+  initialValues: ProductAttribute | null;
 }
 
 export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   product,
   onNext,
   onBack,
+  initialValues,
 }) => {
   const { data: templatesData } = useQuery({
     queryKey: ['attribute-templates'],
     queryFn: fetchAttributeTemplates,
   });
 
-  const { control, watch, handleSubmit } = useForm<AttributeTemplateSchemaType>({
-    resolver: zodResolver(attributeTemplateSchema),
-    mode: 'onBlur',
-    defaultValues: {
-      product_id: product?.id || '',
-      template_id: '',
-      attribute_values: {},
-    },
-  });
+  const { control, watch, handleSubmit } = useForm<AttributeTemplateSchemaType>(
+    {
+      resolver: zodResolver(attributeTemplateSchema),
+      mode: 'onBlur',
+      defaultValues: initialValues
+        ? {
+            ...initialValues,
+            attribute_values: initialValues.attribute_values as Record<
+              string,
+              string | boolean
+            >,
+          }
+        : {
+            attribute_values: {} as Record<string, string | boolean>,
+          },
+    }
+  );
 
   const attributeTemplateId = watch('template_id');
 
@@ -54,7 +69,9 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
     (template) => template.id === attributeTemplateId
   );
 
-  const saveAttributesMutation = useMutation({
+  const isUpdateMode = !!initialValues?.id;
+
+  const createMutation = useMutation({
     mutationFn: createProductAttributes,
     onSuccess: () => {
       toast.success('Product attributes saved successfully!');
@@ -65,18 +82,35 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
     },
   });
 
-  const onSubmit = (data: AttributeTemplateSchemaType) => {
-    if (!product?.id || !data.template_id) {
-      toast.error('Product ID and template are required');
-      return;
-    }
+  const updateMutation = useMutation({
+    mutationFn: updateProductAttributes,
+    onSuccess: () => {
+      toast.success('Product attributes updated successfully!');
+      onNext();
+    },
+    onError: () => {
+      toast.error('Failed to update attributes. Please try again.');
+    },
+  });
 
-    saveAttributesMutation.mutate({
-      product_id: product.id,
-      template_id: data.template_id,
-      attribute_values: data.attribute_values || {},
-    });
+  const onSubmit = (data: AttributeTemplateSchemaType) => {
+    if (isUpdateMode) {
+      updateMutation.mutate({
+        id: initialValues.id,
+        product_id: data.product_id,
+        template_id: data.template_id,
+        attribute_values: data.attribute_values || {},
+      });
+    } else {
+      createMutation.mutate({
+        product_id: product?.id!,
+        template_id: data.template_id!,
+        attribute_values: data.attribute_values || {},
+      });
+    }
   };
+
+  const isPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -100,7 +134,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
           />
 
           {selectedAttributeTemplate && (
-            <div className="space-y-4 mt-6">
+            <div key={selectedAttributeTemplate.id} className="space-y-4 mt-6">
               <h3 className="text-base font-medium text-gray-700">
                 Attribute Values
               </h3>
@@ -148,10 +182,10 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
         </button>
         <button
           type="submit"
-          disabled={saveAttributesMutation.isPending || !selectedAttributeTemplate}
+          disabled={isPending || !selectedAttributeTemplate}
           className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {saveAttributesMutation.isPending && (
+          {isPending && (
             <LoadingIcon size="sm" color="white" className="mr-2" />
           )}
           Next
@@ -160,3 +194,34 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
     </form>
   );
 };
+
+const AttributeTemplateStepWrapper = ({
+  product,
+  onNext,
+  onBack,
+}: {
+  product: AdminProduct | null;
+  onNext: () => void;
+  onBack: () => void;
+}) => {
+  const { data: existingAttributesData, isLoading } = useQuery({
+    queryKey: ['product-attributes', product?.id],
+    queryFn: () => fetchProductAttributes(product!.id),
+    enabled: !!product?.id,
+  });
+
+  if (isLoading && !existingAttributesData) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <AttributeTemplateStep
+      initialValues={existingAttributesData?.product_attributes[0] || null}
+      product={product}
+      onNext={onNext}
+      onBack={onBack}
+    />
+  );
+};
+
+export default AttributeTemplateStepWrapper;

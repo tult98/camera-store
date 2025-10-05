@@ -5,6 +5,7 @@ import { EditCategoryPage } from '../../modules/categories/components/edit-categ
 import { NewCategoryPage } from '../../modules/categories/components/new-category-page';
 import { DashboardPage } from '../../modules/dashboard/components/dashboard-page';
 import { NewProductPage } from '../../modules/products/components/new-product-page';
+import { EditProductPage } from '../../modules/products/components/edit-product-page';
 import { AuthGuard } from '../../modules/shared/components/auth-guard';
 import { AdminLayout } from '../../modules/shared/components/layouts/admin-layout';
 import { NotFoundPage } from '../../modules/shared/components/not-found-page';
@@ -19,6 +20,7 @@ export const ProtectedRoutes: React.FC = () => {
           <Route path="/categories/:id/edit" element={<EditCategoryPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/products/new" element={<NewProductPage />} />
+          <Route path="/products/:id/edit" element={<EditProductPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AdminLayout>

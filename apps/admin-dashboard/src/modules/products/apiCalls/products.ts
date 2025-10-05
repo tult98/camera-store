@@ -1,5 +1,8 @@
 import { sdk } from '@/modules/shared/api/medusa-client';
-import { AdminCreateProductOption, ProductStatus } from '@medusajs/types';
+import {
+  AdminCreateProductOption,
+  ProductStatus,
+} from '@medusajs/types';
 import { ProductSchemaType } from '../types';
 
 export interface CreateProductPayload {
@@ -45,7 +48,29 @@ export const transformDataToUpdateProductPayload = (
   };
 };
 
+export const fetchProduct = async (productId: string) => {
+  return await sdk.admin.product.retrieve(productId, {
+    fields: '*categories',
+  });
+};
+
 export const createProduct = async (formData: ProductSchemaType) => {
   const payload = transformFormDataToPayload(formData);
   return await sdk.admin.product.create(payload);
+};
+
+export const updateProduct = async (
+  productId: string,
+  formData: ProductSchemaType
+) => {
+  const payload = {
+    title: formData.title,
+    subtitle: formData.subtitle,
+    handle: formData.handle,
+    description: formData.description,
+    thumbnail: formData.thumbnail,
+    images: formData.images?.map((image) => ({ url: image.url })),
+    options: formData.options,
+  };
+  return await sdk.admin.product.update(productId, payload);
 };

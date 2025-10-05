@@ -27,36 +27,63 @@ const statusOptions: SelectOption[] = [
   { value: 'rejected', label: 'Rejected' },
 ];
 
+const getFormDefaultValues = (
+  initialValues: AdminProduct | null,
+  defaultSalesChannelId: string | null,
+  defaultCurrencyCode: string
+): Partial<ProductSchemaType> => ({
+  title: initialValues?.title,
+  status:
+    (initialValues?.status as
+      | 'draft'
+      | 'proposed'
+      | 'published'
+      | 'rejected') || 'draft',
+  category_ids: initialValues?.categories?.map((cat) => cat.id) || [],
+  sales_channels: defaultSalesChannelId ? [{ id: defaultSalesChannelId }] : [],
+  variants:
+    initialValues?.variants?.map((variant) => ({
+      title: variant.title || '',
+      prices: variant.prices?.map((price) => ({
+        amount: price.amount,
+        currency_code: price.currency_code,
+      })) || [{ amount: 0, currency_code: defaultCurrencyCode }],
+      options:
+        variant.options?.reduce((acc, opt) => {
+          if (opt.option?.title) {
+            acc[opt.option.title] = opt.value;
+          }
+          return acc;
+        }, {} as Record<string, string>) || {},
+    })) || [],
+});
+
 export const OrganizationVariantsStep: React.FC<
   OrganizationVariantsStepProps
 > = ({ product, onNext, onBack }) => {
   const toast = useToast();
   const { defaultSalesChannelId, defaultCurrencyCode } = useStores();
 
-  useEffect(() => {
-    if (!product) {
-      toast.dismissAll();
-      toast.error('Error', 'Product not found');
-    }
-  }, [product]);
-
   const { control, handleSubmit, setValue } = useForm<ProductSchemaType>({
     resolver: zodResolver(productSchema),
     mode: 'onBlur',
-    defaultValues: {
-      title: product?.title,
-      status: 'draft',
-      category_ids: [],
-      sales_channels: [],
-      variants: [],
-    },
+    defaultValues: getFormDefaultValues(
+      product,
+      defaultSalesChannelId,
+      defaultCurrencyCode
+    ),
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'variants',
   });
 
   useEffect(() => {
-    if (defaultSalesChannelId) {
+    if (!product && defaultSalesChannelId) {
       setValue('sales_channels', [{ id: defaultSalesChannelId }]);
     }
-  }, [defaultSalesChannelId]);
+  }, [product, defaultSalesChannelId, setValue]);
 
   const onAppendVariant = useCallback(() => {
     append({
@@ -64,12 +91,7 @@ export const OrganizationVariantsStep: React.FC<
       prices: [{ amount: 0, currency_code: defaultCurrencyCode }],
       options: {},
     });
-  }, [defaultCurrencyCode]);
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'variants',
-  });
+  }, [append, defaultCurrencyCode]);
 
   const { data: categories = [] } = useQuery({
     queryKey: ['categories'],

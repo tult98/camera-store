@@ -1,10 +1,13 @@
 import { AdminProduct } from '@medusajs/types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WizardNavigation } from '../../shared/components/ui/wizard-navigation';
-import { AttributeTemplateStep } from './wizard-steps/attribute-template-step';
+import AttributeTemplateStep from './wizard-steps/attribute-template-step';
 import { ProductBasicsStep } from './wizard-steps/product-basics-step';
 import { OrganizationVariantsStep } from '@/modules/products/components/wizard-steps/organization-variants-step';
+import { useQuery } from '@tanstack/react-query';
+import { fetchProduct } from '../apiCalls/products';
+import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 
 interface ProductWizardFormProps {
   isEditMode?: boolean;
@@ -13,11 +16,24 @@ interface ProductWizardFormProps {
 
 export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   isEditMode = false,
+  productId,
 }) => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [product, setProduct] = useState<AdminProduct | null>(null);
+
+  const { data: fetchedProduct, isLoading: isLoadingProduct } = useQuery({
+    queryKey: ['product', productId],
+    queryFn: () => fetchProduct(productId!),
+    enabled: isEditMode && !!productId,
+  });
+
+  useEffect(() => {
+    if (fetchedProduct?.product) {
+      setProduct(fetchedProduct.product);
+    }
+  }, [fetchedProduct]);
 
   const wizardSteps = [
     { label: 'Product Basics', completed: completedSteps.has(1) },
@@ -54,6 +70,8 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
         return (
           <ProductBasicsStep
             isEditMode={isEditMode}
+            productId={productId}
+            initialData={product}
             onNext={handleNext}
             onBack={handleBack}
             currentStep={currentStep}
@@ -80,6 +98,15 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
         return null;
     }
   };
+
+  if (isEditMode && isLoadingProduct) {
+    return (
+      <div className="w-full flex items-center justify-center py-12">
+        <LoadingIcon size="lg" />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <WizardNavigation

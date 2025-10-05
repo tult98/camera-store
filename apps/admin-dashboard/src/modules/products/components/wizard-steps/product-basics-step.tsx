@@ -8,14 +8,15 @@ import { FormRichTextEditor } from '../../../shared/components/ui/form-input/for
 import { LoadingIcon } from '../../../shared/components/ui/loading-icon';
 import { useToast } from '../../../shared/hooks/use-toast';
 import { generateHandle } from '../../../shared/utils/formatters';
-import { createProduct } from '../../apiCalls/products';
+import { createProduct, updateProduct } from '../../apiCalls/products';
 import { productSchema, type ProductSchemaType } from '../../types';
 import { MediaUploadSection } from './product-basics-step/media-upload-section';
 import { ProductOptionsSection } from './product-basics-step/product-options-section';
 
 interface ProductBasicsStepProps {
-  initialData?: ProductSchemaType;
+  initialData?: AdminProduct | null;
   isEditMode?: boolean;
+  productId?: string;
   onNext?: () => void;
   onBack?: () => void;
   currentStep?: number;
@@ -23,6 +24,9 @@ interface ProductBasicsStepProps {
 }
 
 export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
+  initialData,
+  isEditMode = false,
+  productId,
   onNext,
   onBack,
   currentStep = 1,
@@ -30,24 +34,52 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
 }) => {
   const toast = useToast();
 
-  const {
-    control,
-    watch,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm<ProductSchemaType>({
-    resolver: zodResolver(productSchema),
-    mode: 'onBlur',
-    defaultValues: {
+  const getDefaultValues = (): Partial<ProductSchemaType> => {
+    if (isEditMode && initialData) {
+      return {
+        title: initialData.title || '',
+        subtitle: initialData.subtitle || '',
+        handle: initialData.handle || '',
+        description: initialData.description || '',
+        images:
+          initialData.images?.map((img) => ({ id: img.id, url: img.url })) ||
+          [],
+        thumbnail: initialData.thumbnail || '',
+        options:
+          initialData.options?.map((opt) => ({
+            title: opt.title,
+            values: opt.values?.map((v) => v.value) || [],
+          })) || [],
+      };
+    }
+    return {
       title: '',
       subtitle: '',
       handle: '',
       description: '',
       images: [],
       options: [],
-    },
+    };
+  };
+
+  const {
+    control,
+    watch,
+    setValue,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm<ProductSchemaType>({
+    resolver: zodResolver(productSchema),
+    mode: 'onBlur',
+    defaultValues: getDefaultValues(),
   });
+
+  useEffect(() => {
+    if (isEditMode && initialData) {
+      reset(getDefaultValues());
+    }
+  }, [isEditMode, initialData]);
 
   const title = watch('title');
   const images = watch('images');
@@ -65,6 +97,25 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     onError: (error) => {
       const errorMessage =
         error.message || 'Failed to create product. Please try again.';
+      toast.error('Error', errorMessage);
+    },
+  });
+
+  const updateProductMutation = useMutation({
+    mutationFn: (data: ProductSchemaType) => updateProduct(productId!, data),
+    onSuccess: (response) => {
+      setProduct({
+        categories: initialData?.categories,
+        ...response.product
+      });
+      toast.success(
+        `Product updated`,
+        `"${title}" has been updated successfully`
+      );
+    },
+    onError: (error) => {
+      const errorMessage =
+        error.message || 'Failed to update product. Please try again.';
       toast.error('Error', errorMessage);
     },
   });
@@ -96,7 +147,11 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
   };
 
   const onSubmit = async (data: ProductSchemaType) => {
-    await createProductMutation.mutateAsync(data);
+    if (isEditMode) {
+      await updateProductMutation.mutateAsync(data);
+    } else {
+      await createProductMutation.mutateAsync(data);
+    }
     onNext?.();
   };
 
@@ -170,7 +225,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
                 {isSubmitting && (
                   <LoadingIcon size="sm" color="white" className="mr-2" />

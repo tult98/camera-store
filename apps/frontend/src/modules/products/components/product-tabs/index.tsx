@@ -13,8 +13,6 @@ type ProductTabsProps = {
 const ProductTabs = ({ product }: ProductTabsProps) => {
   const [activeTab, setActiveTab] = useState("description")
 
-  console.log('=================', product)
-
   // Extract technical specifications from product_attributes
   const getTechnicalSpecs = () => {
     if (!product.product_attributes || Object.keys(product.product_attributes).length === 0)

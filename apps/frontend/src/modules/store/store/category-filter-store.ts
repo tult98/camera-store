@@ -296,7 +296,7 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
     const orderBy = sortMapping[state.sortBy] || 'price'
     
     // Flatten metadata filters to root level for backend compatibility
-    const flattenedFilters = { ...state.filters }
+    const flattenedFilters: Record<string, any> = { ...state.filters }
     if (state.filters.metadata) {
       Object.entries(state.filters.metadata).forEach(([key, value]) => {
         flattenedFilters[key] = value

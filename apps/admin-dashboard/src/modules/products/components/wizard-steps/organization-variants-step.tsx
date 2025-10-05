@@ -38,7 +38,7 @@ const getFormDefaultValues = (
       | 'draft'
       | 'proposed'
       | 'published'
-      | 'rejected') || 'draft',
+      | 'rejected') || 'published',
   category_ids: initialValues?.categories?.map((cat) => cat.id) || [],
   sales_channels: defaultSalesChannelId ? [{ id: defaultSalesChannelId }] : [],
   variants:

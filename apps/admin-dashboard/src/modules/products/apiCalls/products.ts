@@ -74,3 +74,16 @@ export const updateProduct = async (
   };
   return await sdk.admin.product.update(productId, payload);
 };
+
+export const fetchProducts = async () => {
+  const response = await sdk.admin.product.list({
+    fields: '*variants',
+    limit: 100,
+  });
+  return response.products || [];
+};
+
+export const deleteProduct = async (id: string) => {
+  await sdk.admin.product.delete(id);
+  return { id };
+};

@@ -1,4 +1,4 @@
-import { HomeIcon, TagIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, TagIcon, CubeIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 
 export interface BreadcrumbChild {
@@ -27,6 +27,18 @@ export const navigationItems: NavigationItem[] = [
     icon: HomeIcon,
     breadcrumbConfig: {
       showInBreadcrumb: false,
+    },
+  },
+  {
+    id: 'products',
+    label: 'Products',
+    path: '/products',
+    icon: CubeIcon,
+    breadcrumbConfig: {
+      children: [
+        { path: '/products/new', label: 'New Product' },
+        { path: '/products/:id/edit', label: 'Edit Product', dynamic: true },
+      ],
     },
   },
   {

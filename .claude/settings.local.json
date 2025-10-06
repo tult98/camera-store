@@ -21,7 +21,8 @@
       "mcp__v0__getChat",
       "mcp__ide__getDiagnostics",
       "Bash(yarn nx affected:*)",
-      "Bash(yarn nx type-check:*)"
+      "Bash(yarn nx type-check:*)",
+      "WebSearch"
     ],
     "deny": []
   }

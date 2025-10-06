@@ -7,6 +7,7 @@ import { DashboardPage } from '../../modules/dashboard/components/dashboard-page
 import { ProductsPage } from '../../modules/products/components/products-page';
 import { NewProductPage } from '../../modules/products/components/new-product-page';
 import { EditProductPage } from '../../modules/products/components/edit-product-page';
+import { AttributeTemplatesPage } from '../../modules/attribute-templates/components/attribute-templates-page';
 import { AuthGuard } from '../../modules/shared/components/auth-guard';
 import { AdminLayout } from '../../modules/shared/components/layouts/admin-layout';
 import { NotFoundPage } from '../../modules/shared/components/not-found-page';
@@ -23,6 +24,7 @@ export const ProtectedRoutes: React.FC = () => {
           <Route path="/products/new" element={<NewProductPage />} />
           <Route path="/products/:id/edit" element={<EditProductPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/attribute-templates" element={<AttributeTemplatesPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AdminLayout>

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminProduct } from '@medusajs/types';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FormInput } from '../../../shared/components/ui/form-input';
@@ -33,6 +33,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
   setProduct,
 }) => {
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   const getDefaultValues = (): Partial<ProductSchemaType> => {
     if (isEditMode && initialData) {
@@ -89,6 +90,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     mutationFn: createProduct,
     onSuccess: (response) => {
       setProduct(response.product);
+      queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(
         `Product created`,
         `"${title}" has been created successfully`
@@ -108,6 +110,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
         categories: initialData?.categories,
         ...response.product
       });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(
         `Product updated`,
         `"${title}" has been updated successfully`

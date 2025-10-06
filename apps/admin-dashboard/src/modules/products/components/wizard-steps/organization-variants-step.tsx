@@ -4,7 +4,7 @@ import { useStores } from '@/modules/shared/hooks/use-stores';
 import { useToast } from '@/modules/shared/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminProduct, AdminUpdateProduct } from '@medusajs/types';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { fetchCategories } from '../../../categories/apiCalls/categories';
@@ -62,6 +62,7 @@ export const OrganizationVariantsStep: React.FC<
   OrganizationVariantsStepProps
 > = ({ product, onNext, onBack }) => {
   const toast = useToast();
+  const queryClient = useQueryClient();
   const { defaultSalesChannelId, defaultCurrencyCode } = useStores();
 
   const { control, handleSubmit, setValue } = useForm<ProductSchemaType>({
@@ -109,6 +110,7 @@ export const OrganizationVariantsStep: React.FC<
       return await sdk.admin.product.update(product.id, data);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success('Success', 'Product updated successfully');
       onNext?.();
     },

@@ -11,7 +11,7 @@ import { LoadingIcon } from '@/modules/shared/components/ui/loading-icon';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminProduct } from '@medusajs/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -21,7 +21,7 @@ const attributeTemplateSchema = z.object({
   product_id: z.string().optional(),
   template_id: z.string().optional(),
   attribute_values: z
-    .record(z.string(), z.union([z.string(), z.boolean()]))
+    .record(z.string(), z.union([z.string(), z.boolean(), z.number()]))
     .optional(),
 });
 
@@ -45,25 +45,61 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
     queryFn: fetchAttributeTemplates,
   });
 
-  const { control, watch, handleSubmit } = useForm<AttributeTemplateSchemaType>(
-    {
-      resolver: zodResolver(attributeTemplateSchema),
-      mode: 'onBlur',
-      defaultValues: initialValues
-        ? {
-            ...initialValues,
-            attribute_values: initialValues.attribute_values as Record<
-              string,
-              string | boolean
-            >,
-          }
-        : {
-            attribute_values: {} as Record<string, string | boolean>,
-          },
-    }
-  );
+  const {
+    control,
+    watch,
+    handleSubmit,
+    setValue,
+    formState: { isDirty },
+  } = useForm<AttributeTemplateSchemaType>({
+    resolver: zodResolver(attributeTemplateSchema),
+    mode: 'onBlur',
+    defaultValues: initialValues
+      ? {
+          ...initialValues,
+          attribute_values: initialValues.attribute_values as Record<
+            string,
+            string | boolean
+          >,
+        }
+      : {
+          attribute_values: {} as Record<string, string | boolean>,
+        },
+  });
 
   const attributeTemplateId = watch('template_id');
+
+  useEffect(() => {
+    // select a new attribute template
+    if (isDirty && attributeTemplateId !== initialValues?.template_id) {
+      const selectedAttributeTemplate = templatesData?.attribute_templates.find(
+        (template) => template.id === attributeTemplateId
+      );
+      if (selectedAttributeTemplate) {
+        setValue(
+          'attribute_values',
+          selectedAttributeTemplate.attribute_definitions.reduce(
+            (acc, attr) => {
+              if (attr.type === 'boolean') {
+                acc[attr.key] = false;
+              } else {
+                acc[attr.key] = '';
+              }
+              return acc;
+            },
+            {} as Record<string, string | boolean>
+          )
+        );
+      }
+    }
+    // switch back to the initial attribute template
+    if (isDirty && attributeTemplateId === initialValues?.template_id) {
+      setValue(
+        'attribute_values',
+        initialValues?.attribute_values as Record<string, string | boolean>
+      );
+    }
+  }, [isDirty, attributeTemplateId, initialValues?.template_id, templatesData]);
 
   const selectedAttributeTemplate = templatesData?.attribute_templates.find(
     (template) => template.id === attributeTemplateId
@@ -99,13 +135,13 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
         id: initialValues.id,
         product_id: data.product_id,
         template_id: data.template_id,
-        attribute_values: data.attribute_values || {},
+        attribute_values: data.attribute_values || ({} as any),
       });
     } else {
       createMutation.mutate({
         product_id: product?.id!,
         template_id: data.template_id!,
-        attribute_values: data.attribute_values || {},
+        attribute_values: data.attribute_values || ({} as any),
       });
     }
   };

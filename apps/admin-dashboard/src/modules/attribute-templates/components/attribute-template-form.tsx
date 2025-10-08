@@ -29,8 +29,7 @@ export const AttributeTemplateForm: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
-    getValues,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting },
   } = useForm<AttributeTemplateSchemaType>({
     resolver: zodResolver(attributeTemplateSchema),
     mode: 'onBlur',
@@ -42,9 +41,6 @@ export const AttributeTemplateForm: React.FC = () => {
       attribute_definitions: [],
     },
   });
-
-  console.log('===================errors:', errors);
-  console.log('===================getValues:', getValues());
 
   const { fields, append, remove } = useFieldArray({
     control,

@@ -1,7 +1,7 @@
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { cn } from '@modules/shared/utils/cn';
 import React, { useCallback, useState } from 'react';
-import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
 
 /**
  * A reusable form input component with React Hook Form integration
@@ -32,7 +32,7 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     disabled = false,
     className = '',
     inputClassName = '',
-    shouldUnregister = true,
+    shouldUnregister = false,
     required = false,
     prefix,
     formatNumber = false,
@@ -49,6 +49,8 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     control,
     shouldUnregister,
   });
+
+  const { isSubmitted } = useFormState({ control });
 
   const formatNumberValue = (value: number | string): string => {
     if (value === '' || value === null || value === undefined) return '';
@@ -78,7 +80,7 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
 
   const inputType = type === 'password' && showPassword ? 'text' : type;
   const hasError = !!error;
-  const showErrorState = hasError && isTouched;
+  const showErrorState = hasError && (isTouched || isSubmitted);
 
   const inputClasses = cn(
     'input-base input-focus',

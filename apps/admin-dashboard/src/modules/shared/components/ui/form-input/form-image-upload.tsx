@@ -3,7 +3,7 @@ import { uploadFile } from '@modules/shared/apiCalls/upload';
 import { cn } from '@modules/shared/utils/cn';
 import { useMutation } from '@tanstack/react-query';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
 import { LoadingIcon } from '../loading-icon';
 
 interface FormImageUploadProps<TFormData extends FieldValues = FieldValues> {
@@ -42,13 +42,15 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
     control,
   });
 
+  const { isSubmitted } = useFormState({ control });
+
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>('');
   const [validationError, setValidationError] = useState<string>('');
 
   const hasError = !!error;
-  const showErrorState = hasError && isTouched;
+  const showErrorState = hasError && (isTouched || isSubmitted);
 
   // Load initial preview for existing images (edit mode)
   useEffect(() => {

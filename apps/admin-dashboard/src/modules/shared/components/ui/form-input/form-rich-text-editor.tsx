@@ -1,6 +1,6 @@
 import { cn } from '@modules/shared/utils/cn';
 import React from 'react';
-import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
 import { RichTextEditor } from '../../rich-text-editor';
 
 interface FormRichTextEditorProps<TFormData extends FieldValues = FieldValues> {
@@ -25,7 +25,7 @@ const FormRichTextEditorInner = <TFormData extends FieldValues = FieldValues>(
     placeholder = 'Start writing...',
     disabled = false,
     className = '',
-    shouldUnregister = true,
+    shouldUnregister = false,
     required = false,
     minHeight = 200,
     maxHeight = 500,
@@ -42,8 +42,10 @@ const FormRichTextEditorInner = <TFormData extends FieldValues = FieldValues>(
     shouldUnregister,
   });
 
+  const { isSubmitted } = useFormState({ control });
+
   const hasError = !!error;
-  const showErrorState = hasError && isTouched;
+  const showErrorState = hasError && (isTouched || isSubmitted);
 
   const handleChange = (html: string) => {
     field.onChange(html);

@@ -1,6 +1,6 @@
 import { cn } from '@modules/shared/utils/cn';
 import React, { useEffect } from 'react';
-import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
 import { StylesConfig } from 'react-select';
 import AsyncSelect from 'react-select/async';
 
@@ -36,7 +36,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     placeholder,
     disabled = false,
     className = '',
-    shouldUnregister = true,
+    shouldUnregister = false,
     required = false,
     defaultOptions = true,
     cacheOptions = true,
@@ -56,8 +56,10 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     shouldUnregister,
   });
 
+  const { isSubmitted } = useFormState({ control });
+
   const hasError = !!error;
-  const showErrorState = hasError && isTouched;
+  const showErrorState = hasError && (isTouched || isSubmitted);
 
   const debouncePromise = React.useCallback(
     (fn: (inputValue: string) => Promise<SelectOption[]>, time: number) => {

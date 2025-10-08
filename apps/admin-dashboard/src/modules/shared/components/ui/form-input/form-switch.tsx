@@ -1,6 +1,6 @@
 import { cn } from '@modules/shared/utils/cn';
 import React from 'react';
-import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
 
 interface FormSwitchProps<TFormData extends FieldValues = FieldValues> {
   name: Path<TFormData>;
@@ -22,7 +22,7 @@ const FormSwitchInner = <TFormData extends FieldValues = FieldValues>(
     description,
     disabled = false,
     className = '',
-    shouldUnregister = true,
+    shouldUnregister = false,
     required = false,
     labelPosition = 'right',
   }: FormSwitchProps<TFormData>,
@@ -37,8 +37,10 @@ const FormSwitchInner = <TFormData extends FieldValues = FieldValues>(
     shouldUnregister,
   });
 
+  const { isSubmitted } = useFormState({ control });
+
   const hasError = !!error;
-  const showErrorState = hasError && isTouched;
+  const showErrorState = hasError && (isTouched || isSubmitted);
   const isChecked = !!field.value;
 
   const handleToggle = () => {

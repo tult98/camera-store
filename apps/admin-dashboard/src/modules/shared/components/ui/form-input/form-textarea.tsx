@@ -1,6 +1,6 @@
 import { cn } from '@modules/shared/utils/cn';
 import React from 'react';
-import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
 
 interface FormTextareaProps<TFormData extends FieldValues = FieldValues> {
   name: Path<TFormData>;
@@ -23,7 +23,7 @@ const FormTextareaInner = <TFormData extends FieldValues = FieldValues>(
     placeholder,
     disabled = false,
     className = '',
-    shouldUnregister = true,
+    shouldUnregister = false,
     required = false,
     rows = 4,
     resize = 'vertical',
@@ -39,8 +39,10 @@ const FormTextareaInner = <TFormData extends FieldValues = FieldValues>(
     shouldUnregister,
   });
 
+  const { isSubmitted } = useFormState({ control });
+
   const hasError = !!error;
-  const showErrorState = hasError && isTouched;
+  const showErrorState = hasError && (isTouched || isSubmitted);
 
   const textareaClasses = cn(
     'input-base input-focus',

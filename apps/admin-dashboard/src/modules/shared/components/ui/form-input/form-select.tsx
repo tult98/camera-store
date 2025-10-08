@@ -1,6 +1,6 @@
 import { cn } from '@modules/shared/utils/cn';
 import React from 'react';
-import { Control, FieldValues, Path, useController } from 'react-hook-form';
+import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
 import Select, {
   ActionMeta,
   MultiValue,
@@ -39,7 +39,7 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
     placeholder,
     disabled = false,
     className = '',
-    shouldUnregister = true,
+    shouldUnregister = false,
     required = false,
     isMulti = false,
     isCreatable = false,
@@ -56,8 +56,10 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
     shouldUnregister,
   });
 
+  const { isSubmitted } = useFormState({ control });
+
   const hasError = !!error;
-  const showErrorState = hasError && isTouched;
+  const showErrorState = hasError && (isTouched || isSubmitted);
 
   const customStyles: StylesConfig<SelectOption | undefined, boolean> = {
     control: (provided, state) => ({

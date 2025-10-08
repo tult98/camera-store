@@ -1,11 +1,15 @@
 import { sdk } from '@modules/shared/api/medusa-client';
-import type { AttributeTemplate } from '../types';
+import type { AttributeTemplate, AttributeTemplateSchemaType } from '../types';
 
 interface FetchAttributeTemplatesResponse {
   attribute_templates: AttributeTemplate[];
   count: number;
   limit: number;
   offset: number;
+}
+
+interface CreateAttributeTemplateResponse {
+  attribute_template: AttributeTemplate;
 }
 
 export const fetchAttributeTemplates =
@@ -23,6 +27,20 @@ export const fetchAttributeTemplates =
 
     return response.attribute_templates || [];
   };
+
+export const createAttributeTemplate = async (
+  data: AttributeTemplateSchemaType
+): Promise<AttributeTemplate> => {
+  const response = await sdk.client.fetch<CreateAttributeTemplateResponse>(
+    '/admin/attribute-templates',
+    {
+      method: 'POST',
+      body: data,
+    }
+  );
+
+  return response.attribute_template;
+};
 
 export const deleteAttributeTemplate = async (id: string): Promise<void> => {
   await sdk.client.fetch(`/admin/attribute-templates/${id}`, {

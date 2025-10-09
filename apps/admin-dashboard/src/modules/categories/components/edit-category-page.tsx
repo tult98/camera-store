@@ -1,6 +1,8 @@
+import { FetchError } from '@medusajs/js-sdk';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { ErrorState } from '../../shared/components/ui/error-state';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { fetchCategoryById } from '../apiCalls/categories';
 import type { CategorySchemaType } from '../types';
@@ -13,7 +15,7 @@ export const EditCategoryPage: React.FC = () => {
     data: category,
     isLoading,
     error,
-  } = useQuery({
+  } = useQuery<any, FetchError>({
     queryKey: ['category', id],
     queryFn: () => fetchCategoryById(id!),
     enabled: !!id,
@@ -31,31 +33,23 @@ export const EditCategoryPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <h2 className="text-red-800 font-semibold mb-2">
-            Error Loading Category
-          </h2>
-          <p className="text-red-600">
-            {error instanceof Error
-              ? error.message
-              : 'Failed to load category data'}
-          </p>
-        </div>
-      </div>
+      <ErrorState
+        code={error.status}
+        message={error.message || 'Failed to load category data'}
+        actionLabel="Back to Categories"
+        actionPath="/categories"
+      />
     );
   }
 
   if (!category) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <h2 className="text-yellow-800 font-semibold mb-2">
-            Category Not Found
-          </h2>
-          <p className="text-yellow-600">No category found with ID: {id}</p>
-        </div>
-      </div>
+      <ErrorState
+        code={404}
+        message={`No category found with ID: ${id}`}
+        actionLabel="Back to Categories"
+        actionPath="/categories"
+      />
     );
   }
 

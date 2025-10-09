@@ -1,6 +1,6 @@
 import { cn } from '@modules/shared/utils/cn';
 import { EditorContent, useEditor } from '@tiptap/react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Toolbar } from './components/toolbar';
 import { editorExtensions } from './config/extensions';
 import './styles/editor.css';
@@ -41,6 +41,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
 
   const handleError = useCallback(
     (errorMessage: string) => {

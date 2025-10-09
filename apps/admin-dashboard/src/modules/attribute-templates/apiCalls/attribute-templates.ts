@@ -42,6 +42,34 @@ export const createAttributeTemplate = async (
   return response.attribute_template;
 };
 
+export const fetchAttributeTemplateById = async (
+  id: string
+): Promise<AttributeTemplate> => {
+  const response = await sdk.client.fetch<{ attribute_template: AttributeTemplate }>(
+    `/admin/attribute-templates/${id}`,
+    {
+      method: 'GET',
+    }
+  );
+
+  return response.attribute_template;
+};
+
+export const updateAttributeTemplate = async (
+  id: string,
+  data: AttributeTemplateSchemaType
+): Promise<AttributeTemplate> => {
+  const response = await sdk.client.fetch<{ attribute_template: AttributeTemplate }>(
+    `/admin/attribute-templates/${id}`,
+    {
+      method: 'PUT',
+      body: data,
+    }
+  );
+
+  return response.attribute_template;
+};
+
 export const deleteAttributeTemplate = async (id: string): Promise<void> => {
   await sdk.client.fetch(`/admin/attribute-templates/${id}`, {
     method: 'DELETE',

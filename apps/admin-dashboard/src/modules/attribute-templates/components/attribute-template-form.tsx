@@ -12,7 +12,7 @@ import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { useToast } from '../../shared/hooks/use-toast';
 import { cn } from '../../shared/utils/cn';
 import { generateHandle } from '../../shared/utils/formatters';
-import { createAttributeTemplate } from '../apiCalls/attribute-templates';
+import { createAttributeTemplate, updateAttributeTemplate } from '../apiCalls/attribute-templates';
 import {
   attributeTemplateSchema,
   type AttributeTemplateSchemaType,
@@ -23,7 +23,17 @@ const typeOptions = [
   { value: 'boolean', label: 'Boolean' },
 ];
 
-export const AttributeTemplateForm: React.FC = () => {
+interface AttributeTemplateFormProps {
+  initialData?: AttributeTemplateSchemaType;
+  isEditMode?: boolean;
+  templateId?: string;
+}
+
+export const AttributeTemplateForm: React.FC<AttributeTemplateFormProps> = ({
+  initialData,
+  isEditMode = false,
+  templateId,
+}) => {
   const {
     control,
     handleSubmit,
@@ -33,7 +43,7 @@ export const AttributeTemplateForm: React.FC = () => {
   } = useForm<AttributeTemplateSchemaType>({
     resolver: zodResolver(attributeTemplateSchema),
     mode: 'onBlur',
-    defaultValues: {
+    defaultValues: initialData || {
       name: '',
       code: '',
       description: '',
@@ -54,8 +64,10 @@ export const AttributeTemplateForm: React.FC = () => {
   const name = watch('name');
 
   useEffect(() => {
-    setValue('code', generateHandle(name));
-  }, [name, setValue]);
+    if (!isEditMode) {
+      setValue('code', generateHandle(name));
+    }
+  }, [name, setValue, isEditMode]);
 
   const createMutation = useMutation({
     mutationFn: createAttributeTemplate,
@@ -75,8 +87,32 @@ export const AttributeTemplateForm: React.FC = () => {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: (data: AttributeTemplateSchemaType) =>
+      updateAttributeTemplate(templateId!, data),
+    onSuccess: (updatedTemplate) => {
+      queryClient.invalidateQueries({ queryKey: ['attribute-templates'] });
+      queryClient.invalidateQueries({ queryKey: ['attribute-template', templateId] });
+      success(
+        'Template updated',
+        `"${updatedTemplate.name}" has been updated successfully`
+      );
+      navigate('/attribute-templates');
+    },
+    onError: (err: Error) => {
+      error(
+        'Failed to update template',
+        err.message || 'An unexpected error occurred'
+      );
+    },
+  });
+
   const onSubmit = (data: AttributeTemplateSchemaType) => {
-    createMutation.mutate(data);
+    if (isEditMode) {
+      updateMutation.mutate(data);
+    } else {
+      createMutation.mutate(data);
+    }
   };
 
   return (
@@ -93,7 +129,7 @@ export const AttributeTemplateForm: React.FC = () => {
             type="text"
             label="Template Name"
             placeholder="Enter template name"
-            disabled={isSubmitting || createMutation.isPending}
+            disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
             required={true}
           />
 
@@ -102,7 +138,7 @@ export const AttributeTemplateForm: React.FC = () => {
             control={control}
             label="Description"
             placeholder="Enter template description (optional)"
-            disabled={isSubmitting || createMutation.isPending}
+            disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
             rows={3}
           />
 
@@ -111,7 +147,7 @@ export const AttributeTemplateForm: React.FC = () => {
             control={control}
             label="Active"
             description="Activate this template for use in products"
-            disabled={isSubmitting || createMutation.isPending}
+            disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
           />
         </div>
       </div>
@@ -157,7 +193,7 @@ export const AttributeTemplateForm: React.FC = () => {
                         type="text"
                         label="Attribute Name"
                         placeholder="e.g., Sensor Size, Mount Type"
-                        disabled={isSubmitting || createMutation.isPending}
+                        disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
                       />
                       <FormSelect
                         name={`attribute_definitions.${index}.type`}
@@ -165,7 +201,7 @@ export const AttributeTemplateForm: React.FC = () => {
                         options={typeOptions}
                         label="Type"
                         placeholder="Select type"
-                        disabled={isSubmitting || createMutation.isPending}
+                        disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
                       />
                     </div>
                     <button
@@ -200,19 +236,25 @@ export const AttributeTemplateForm: React.FC = () => {
           type="button"
           onClick={() => navigate('/attribute-templates')}
           className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          disabled={isSubmitting || createMutation.isPending}
+          disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSubmitting || createMutation.isPending}
+          disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {(isSubmitting || createMutation.isPending) && (
+          {(isSubmitting || createMutation.isPending || updateMutation.isPending) && (
             <LoadingIcon size="md" color="white" className="mr-2" />
           )}
-          {createMutation.isPending ? 'Creating...' : 'Create Template'}
+          {isEditMode
+            ? updateMutation.isPending
+              ? 'Updating...'
+              : 'Update Template'
+            : createMutation.isPending
+            ? 'Creating...'
+            : 'Create Template'}
         </button>
       </div>
     </form>

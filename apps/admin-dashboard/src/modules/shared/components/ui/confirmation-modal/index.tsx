@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { cn } from '@modules/shared/utils/cn';
+import { LoadingIcon } from '../loading-icon';
 
 export interface ConfirmationModalProps {
   isOpen: boolean;
@@ -150,14 +151,15 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             <button
               type="button"
               className={cn(
-                'inline-flex w-full justify-center rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm sm:w-auto transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
+                'inline-flex w-full justify-center items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm sm:w-auto transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2',
                 buttonStyles,
                 loading && 'opacity-50 cursor-not-allowed'
               )}
               onClick={handleConfirm}
               disabled={loading}
             >
-              {loading ? 'Processing...' : confirmText}
+              {loading && <LoadingIcon size="sm" color="white" />}
+              {confirmText}
             </button>
             <button
               type="button"

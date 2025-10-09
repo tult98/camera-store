@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
 import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
 import { DataTable } from '../../shared/components/ui/data-table';
+import { useToast } from '../../shared/hooks/use-toast';
 import {
   deleteAttributeTemplate,
   fetchAttributeTemplates,
@@ -18,6 +19,7 @@ import type {
 export const AttributeTemplatesPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { success, error } = useToast();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<{
     id: string;
@@ -34,7 +36,17 @@ export const AttributeTemplatesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attribute-templates'] });
       setDeleteModalOpen(false);
+      success(
+        'Template deleted',
+        `"${templateToDelete?.name}" has been deleted successfully`
+      );
       setTemplateToDelete(null);
+    },
+    onError: (err: Error) => {
+      error(
+        'Failed to delete template',
+        err.message || 'An unexpected error occurred'
+      );
     },
   });
 

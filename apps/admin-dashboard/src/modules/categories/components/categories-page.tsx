@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
 import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
 import { DataTable } from '../../shared/components/ui/data-table';
+import { useToast } from '../../shared/hooks/use-toast';
 import { deleteCategory, fetchCategories } from '../apiCalls/categories';
 
 interface CategoryDisplay {
@@ -22,6 +23,7 @@ type CategoryFromAPI = Awaited<ReturnType<typeof fetchCategories>>[0];
 export const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { success, error } = useToast();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<{
     id: string;
@@ -38,7 +40,17 @@ export const CategoriesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setDeleteModalOpen(false);
+      success(
+        'Category deleted',
+        `"${categoryToDelete?.name}" has been deleted successfully`
+      );
       setCategoryToDelete(null);
+    },
+    onError: (err: Error) => {
+      error(
+        'Failed to delete category',
+        err.message || 'An unexpected error occurred'
+      );
     },
   });
 

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
 import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
 import { DataTable } from '../../shared/components/ui/data-table';
+import { useToast } from '../../shared/hooks/use-toast';
 import { deleteProduct, fetchProducts } from '../apiCalls/products';
 
 interface ProductDisplay {
@@ -21,6 +22,7 @@ type ProductFromAPI = Awaited<ReturnType<typeof fetchProducts>>[0];
 export const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { success, error } = useToast();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<{
     id: string;
@@ -37,7 +39,17 @@ export const ProductsPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setDeleteModalOpen(false);
+      success(
+        'Product deleted',
+        `"${productToDelete?.title}" has been deleted successfully`
+      );
       setProductToDelete(null);
+    },
+    onError: (err: Error) => {
+      error(
+        'Failed to delete product',
+        err.message || 'An unexpected error occurred'
+      );
     },
   });
 

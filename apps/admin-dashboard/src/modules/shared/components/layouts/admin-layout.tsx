@@ -104,9 +104,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-8 min-h-full w-full">
-          <div className="bg-white h-full rounded-lg shadow-sm border border-gray-200">
-            <div className="p-6">
+        <div className="p-8 min-h-full w-full flex flex-col">
+          <div className="bg-white flex-1 rounded-lg shadow-sm border border-gray-200 flex flex-col">
+            <div className="p-6 h-full flex-1 flex flex-col">
               <Breadcrumb />
               {children}
             </div>

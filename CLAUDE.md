@@ -52,6 +52,20 @@ apps/frontend/src/
 └── types/       # TypeScript definitions
 ```
 
+## MedusaJS Reference Documentation
+
+For MedusaJS v2 patterns and best practices, always consult these files before implementing backend features:
+- `.claude/context/medusa/api-routes.md` - API route patterns, error handling, validation
+- `.claude/context/medusa/workflows.md` - Workflow patterns and best practices
+- `.claude/context/medusa/modules.md` - Custom module development
+- `.claude/context/medusa/database-patterns.md` - Database queries and patterns
+- `.claude/context/medusa/admin-extensions.md` - Admin UI extensions
+- `.claude/context/medusa/data-models.md` - Data model definitions
+- `.claude/context/medusa/module-links.md` - Module relationship patterns
+- `.claude/context/medusa/troubleshooting.md` - Common issues and solutions
+
+These contain project-specific patterns and official MedusaJS v2 approaches.
+
 ### Module Structure
 Each module follows this organization:
 ```

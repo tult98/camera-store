@@ -1,13 +1,13 @@
+import { useStores } from '@/modules/shared/hooks/use-stores';
 import { UserIcon } from '@heroicons/react/24/solid';
 import { AdminUser } from '@medusajs/types';
+import { navigationItems } from '@modules/shared/config/navigation-config';
 import { useCurrentUser } from '@modules/shared/hooks/use-current-user';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { navigationItems } from '@modules/shared/config/navigation-config';
+import { Breadcrumb } from '../breadcrumb';
 import { NavigationItem } from '../navigation-item';
 import { UserProfileDropdown } from '../user-profile-dropdown';
-import { Breadcrumb } from '../breadcrumb';
-import { useStores } from '@/modules/shared/hooks/use-stores';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -45,13 +45,21 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="flex-1 overflow-y-auto py-4">
           <nav className="px-3">
             <div className="space-y-1">
-              {navigationItems.map((item) => (
-                <NavigationItem
-                  key={item.id}
-                  item={item}
-                  isActive={location.pathname === item.path}
-                />
-              ))}
+              {navigationItems.map((item) => {
+                const isExactMatch = item.path && location.pathname === item.path;
+                const isChildActive = item.children?.some(
+                  (child) =>
+                    child.path && (location.pathname === child.path ||
+                    location.pathname.startsWith(child.path + '/'))
+                );
+                return (
+                  <NavigationItem
+                    key={item.id}
+                    item={item}
+                    isActive={Boolean(isExactMatch || isChildActive)}
+                  />
+                );
+              })}
             </div>
           </nav>
         </div>
@@ -98,7 +106,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </button>
 
           {/* Dropdown Menu */}
-          <UserProfileDropdown isOpen={dropdownOpen} onClose={() => setDropdownOpen(false)} />
+          <UserProfileDropdown
+            isOpen={dropdownOpen}
+            onClose={() => setDropdownOpen(false)}
+          />
         </div>
       </div>
 

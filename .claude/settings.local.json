@@ -22,7 +22,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(yarn nx affected:*)",
       "Bash(yarn nx type-check:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(git log:*)"
     ],
     "deny": []
   }

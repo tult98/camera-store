@@ -1,4 +1,11 @@
-import { HomeIcon, TagIcon, CubeIcon, RectangleStackIcon } from '@heroicons/react/24/outline';
+import {
+  Cog6ToothIcon,
+  CubeIcon,
+  HomeIcon,
+  PhotoIcon,
+  RectangleStackIcon,
+  TagIcon,
+} from '@heroicons/react/24/outline';
 import React from 'react';
 
 export interface BreadcrumbChild {
@@ -10,9 +17,10 @@ export interface BreadcrumbChild {
 export interface NavigationItem {
   id: string;
   label: string;
-  path: string;
+  path?: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number | string;
+  children?: NavigationItem[];
   breadcrumbConfig?: {
     showInBreadcrumb?: boolean;
     children?: BreadcrumbChild[];
@@ -61,8 +69,25 @@ export const navigationItems: NavigationItem[] = [
     breadcrumbConfig: {
       children: [
         { path: '/attribute-templates/new', label: 'New Template' },
-        { path: '/attribute-templates/:id/edit', label: 'Edit Template', dynamic: true },
+        {
+          path: '/attribute-templates/:id/edit',
+          label: 'Edit Template',
+          dynamic: true,
+        },
       ],
     },
+  },
+  {
+    id: 'settings',
+    label: 'Settings',
+    icon: Cog6ToothIcon,
+    children: [
+      {
+        id: 'banner',
+        label: 'Banner',
+        path: '/settings/banner',
+        icon: PhotoIcon,
+      },
+    ],
   },
 ];

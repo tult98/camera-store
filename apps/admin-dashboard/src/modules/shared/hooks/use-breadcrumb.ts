@@ -26,6 +26,7 @@ export const useBreadcrumb = () => {
 
     for (const navItem of navigationItems) {
       if (
+        !navItem.path ||
         navItem.path === '/' ||
         navItem.breadcrumbConfig?.showInBreadcrumb === false
       ) {

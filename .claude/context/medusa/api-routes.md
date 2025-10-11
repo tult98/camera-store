@@ -324,38 +324,110 @@ export const POST = async (
 
 ## Error Handling Patterns
 
-### Structured Error Responses
+MedusaJS v2 provides built-in error handling through the `MedusaError` class. The framework automatically catches and handles errors, so you typically don't need try/catch blocks in routes.
+
+### When to Use MedusaError
+
+Only throw `MedusaError` explicitly for:
+- **Validation errors**: Invalid input data
+- **Business logic errors**: Resource not found, unauthorized access, conflicts
+- **Custom error conditions**: Application-specific error scenarios
+
+For database operations and service calls, let the framework handle errors automatically.
+
+### MedusaError Types and Status Codes
 
 ```typescript
-// src/api/utils/errors.ts
-export class APIError extends Error {
-  constructor(
-    public message: string,
-    public status: number = 400,
-    public type: string = "invalid_request",
-    public details?: any
-  ) {
-    super(message)
-    this.name = "APIError"
+import { MedusaError } from "@medusajs/framework/utils"
+
+// Common error types:
+MedusaError.Types.INVALID_DATA       // 400 - Validation/input errors
+MedusaError.Types.NOT_FOUND          // 404 - Resource doesn't exist
+MedusaError.Types.UNAUTHORIZED       // 401 - Authentication required
+MedusaError.Types.NOT_ALLOWED        // 403 - Insufficient permissions
+MedusaError.Types.CONFLICT           // 409 - Request conflicts with state
+MedusaError.Types.DB_ERROR          // 500 - Database issues
+```
+
+### Basic Error Throwing
+
+```typescript
+import { MedusaError } from "@medusajs/framework/utils"
+
+// Validation error
+export const GET = async (
+  req: MedusaRequest,
+  res: MedusaResponse
+) => {
+  const { q } = req.query
+
+  if (!q) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "The `q` query parameter is required"
+    )
   }
+
+  // Rest of the logic - no try/catch needed
+  const productService = req.scope.resolve("productModuleService")
+  const products = await productService.listProducts({
+    title: { $ilike: `%${q}%` }
+  })
+
+  res.json({ products })
 }
 
-export const handleAPIError = (error: any, res: MedusaResponse) => {
-  const logger = res.locals.container?.resolve("logger")
-  
-  if (error instanceof APIError) {
-    res.status(error.status).json({
-      type: error.type,
-      message: error.message,
-      ...(error.details && { details: error.details })
-    })
-  } else {
-    logger?.error("Unexpected API error:", error)
-    res.status(500).json({
-      type: "internal_server_error",
-      message: "An internal server error occurred"
-    })
+// Not found error
+export const GET = async (
+  req: MedusaRequest,
+  res: MedusaResponse
+) => {
+  const { id } = req.params
+  const productService = req.scope.resolve("productModuleService")
+
+  const product = await productService.retrieveProduct(id)
+
+  if (!product) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Product with id ${id} not found`
+    )
   }
+
+  res.json({ product })
+}
+```
+
+### Automatic Error Handling
+
+For standard operations, the framework handles errors automatically:
+
+```typescript
+// NO try/catch needed - framework handles database/service errors
+export const GET = async (
+  req: MedusaRequest,
+  res: MedusaResponse
+) => {
+  const bannerService = req.scope.resolve(BANNER_MODULE)
+
+  // Framework automatically handles any errors from this call
+  const [banners] = await bannerService.listAndCountBanners(
+    { is_active: true },
+    { take: 1 }
+  )
+
+  res.json({ banner: banners[0] || null })
+}
+```
+
+### Error Response Format
+
+MedusaJS automatically formats errors as:
+
+```json
+{
+  "type": "not_found",
+  "message": "Product with id prod_123 not found"
 }
 ```
 

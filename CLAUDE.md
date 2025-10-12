@@ -200,9 +200,8 @@ logger.debug(`Found ${count} items: ${JSON.stringify(data)}`);
 ### Design Verification
 After frontend changes:
 1. Navigate to affected pages
-2. Check against `/context/design-principles.md`
-3. Take screenshots for evidence
-4. Check console for errors
+2. Take screenshots for evidence
+3. Check console for errors
 
 ## Specialized Patterns
 

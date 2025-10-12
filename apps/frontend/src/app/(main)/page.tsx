@@ -1,5 +1,6 @@
 import { FeaturedCategoriesResponse } from "@camera-store/shared-types"
 import { sdk } from "@lib/config"
+import { getActiveBanner } from "@lib/data/banners"
 import { getDefaultRegion } from "@lib/data/regions"
 import HomePage from "@modules/home/templates/home-page"
 import { Metadata } from "next"
@@ -21,31 +22,39 @@ export default async function Home() {
     console.error("Home page: No region found - cannot fetch featured categories")
     throw new Error("No region found")
   }
-  
+
   console.log("Home page: Using region:", defaultRegion.id, defaultRegion.currency_code)
 
   try {
+    const bannerPromise = getActiveBanner()
+
     console.log("Home page: Fetching featured categories with headers:", {
       region_id: defaultRegion.id,
       currency_code: defaultRegion.currency_code,
     })
-    
-    const { featured_categories: featuredCategories } =
-      await sdk.client.fetch<FeaturedCategoriesResponse>(
-        `/store/featured-categories`,
-        {
-          method: "GET",
-          headers: {
-            region_id: defaultRegion.id,
-            currency_code: defaultRegion.currency_code,
-          },
-        }
-      )
+
+    const featuredCategoriesPromise = sdk.client.fetch<FeaturedCategoriesResponse>(
+      `/store/featured-categories`,
+      {
+        method: "GET",
+        headers: {
+          region_id: defaultRegion.id,
+          currency_code: defaultRegion.currency_code,
+        },
+      }
+    )
+
+    const [banner, { featured_categories: featuredCategories }] = await Promise.all([
+      bannerPromise,
+      featuredCategoriesPromise,
+    ])
 
     console.log("Home page: Featured categories fetched successfully:", featuredCategories?.length || 0)
-    return <HomePage featuredCategories={featuredCategories} />
+    console.log("Home page: Banner fetched:", banner ? "Yes" : "No")
+
+    return <HomePage banner={banner} featuredCategories={featuredCategories} />
   } catch (error) {
-    console.error("Home page: Error fetching featured categories:", error)
+    console.error("Home page: Error fetching data:", error)
     throw error
   }
 }

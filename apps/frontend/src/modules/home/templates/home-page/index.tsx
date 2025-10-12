@@ -3,8 +3,11 @@
 import { useEffect } from "react"
 import { useLayoutBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
 import FeaturedCategorySection from "@modules/home/components/featured-category-section"
+import BannerSlider from "@modules/home/components/banner-slider"
+import { BannerData } from "@lib/data/banners"
 
 interface HomePageProps {
+  banner?: BannerData | null
   featuredCategories: Array<{
     id?: string
     category_name: string
@@ -14,16 +17,16 @@ interface HomePageProps {
   }>
 }
 
-const HomePage = ({ featuredCategories }: HomePageProps) => {
-  // Clear breadcrumbs on home page - home page shouldn't show breadcrumbs
+const HomePage = ({ banner, featuredCategories }: HomePageProps) => {
   const { clearBreadcrumbs } = useLayoutBreadcrumbs()
-  
+
   useEffect(() => {
     clearBreadcrumbs()
   }, [clearBreadcrumbs])
 
   return (
     <div className="min-h-screen bg-base-100">
+      {banner && <BannerSlider banner={banner} />}
       <div className="py-8">
         {featuredCategories.length > 0 ? (
           featuredCategories.map((category, index) => (

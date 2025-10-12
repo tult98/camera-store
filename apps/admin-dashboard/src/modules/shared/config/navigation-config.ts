@@ -1,6 +1,7 @@
 import {
   Cog6ToothIcon,
   CubeIcon,
+  GlobeAmericasIcon,
   HomeIcon,
   PhotoIcon,
   RectangleStackIcon,
@@ -80,13 +81,26 @@ export const navigationItems: NavigationItem[] = [
   {
     id: 'settings',
     label: 'Settings',
+    path: '/settings',
     icon: Cog6ToothIcon,
+    breadcrumbConfig: {
+      children: [
+        { path: '/settings/banner', label: 'Banner' },
+        { path: '/settings/regions', label: 'Regions' },
+      ],
+    },
     children: [
       {
         id: 'banner',
         label: 'Banner',
         path: '/settings/banner',
         icon: PhotoIcon,
+      },
+      {
+        id: 'regions',
+        label: 'Regions',
+        path: '/settings/regions',
+        icon: GlobeAmericasIcon,
       },
     ],
   },

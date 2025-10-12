@@ -11,6 +11,7 @@ import { AttributeTemplatesPage } from '../../modules/attribute-templates/compon
 import { NewAttributeTemplatePage } from '../../modules/attribute-templates/components/new-attribute-template-page';
 import { EditAttributeTemplatePage } from '../../modules/attribute-templates/components/edit-attribute-template-page';
 import { BannerSettingsPage } from '../../modules/settings/components/banner-settings-page';
+import { RegionsPage } from '../../modules/settings/components/regions-page';
 import { AuthGuard } from '../../modules/shared/components/auth-guard';
 import { AdminLayout } from '../../modules/shared/components/layouts/admin-layout';
 import { NotFoundPage } from '../../modules/shared/components/not-found-page';
@@ -31,6 +32,7 @@ export const ProtectedRoutes: React.FC = () => {
           <Route path="/attribute-templates/:id/edit" element={<EditAttributeTemplatePage />} />
           <Route path="/attribute-templates" element={<AttributeTemplatesPage />} />
           <Route path="/settings/banner" element={<BannerSettingsPage />} />
+          <Route path="/settings/regions" element={<RegionsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AdminLayout>

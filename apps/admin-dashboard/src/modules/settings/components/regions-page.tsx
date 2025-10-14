@@ -2,6 +2,7 @@ import { FetchError } from '@medusajs/js-sdk';
 import { useQuery } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ErrorState } from '../../shared/components/ui/error-state';
 import { DataTable } from '../../shared/components/ui/data-table';
 import { fetchRegions } from '../apiCalls/regions';
@@ -80,6 +81,12 @@ export const RegionsPage: React.FC = () => {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Regions</h1>
+        <Link
+          to="/settings/regions/new"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          New Region
+        </Link>
       </div>
 
       <DataTable

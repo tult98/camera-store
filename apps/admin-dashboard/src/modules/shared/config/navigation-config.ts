@@ -87,6 +87,7 @@ export const navigationItems: NavigationItem[] = [
       children: [
         { path: '/settings/banner', label: 'Banner' },
         { path: '/settings/regions', label: 'Regions' },
+        { path: '/settings/regions/new', label: 'New Region' },
       ],
     },
     children: [

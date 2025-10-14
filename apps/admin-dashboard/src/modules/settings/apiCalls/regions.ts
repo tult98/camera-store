@@ -3,7 +3,7 @@ import { RegionSchemaType } from '../types';
 
 export const fetchRegions = async () => {
   const response = await sdk.admin.region.list({
-    fields: '*payment_providers',
+    fields: '*payment_providers,*countries',
   });
 
   return response.regions || [];
@@ -28,4 +28,26 @@ export const fetchCurrencies = async () => {
 export const fetchPaymentProviders = async () => {
   const response = await sdk.admin.payment.listPaymentProviders();
   return response.payment_providers || [];
+};
+
+export const fetchRegionById = async (id: string) => {
+  const response = await sdk.admin.region.retrieve(id, {
+    fields: '*payment_providers,*countries',
+  });
+  return response.region;
+};
+
+export const updateRegion = async (id: string, data: RegionSchemaType) => {
+  const response = await sdk.admin.region.update(id, {
+    name: data.name,
+    currency_code: data.currency_code,
+    countries: data.countries,
+    payment_providers: data.payment_providers,
+  });
+  return response.region;
+};
+
+export const deleteRegion = async (id: string) => {
+  await sdk.admin.region.delete(id);
+  return { id };
 };

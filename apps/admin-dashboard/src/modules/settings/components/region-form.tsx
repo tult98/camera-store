@@ -14,6 +14,7 @@ import {
   createRegion,
   fetchCurrencies,
   fetchPaymentProviders,
+  updateRegion,
 } from '../apiCalls/regions';
 import { regionSchema, type RegionSchemaType } from '../types';
 
@@ -46,7 +47,17 @@ const COMMON_COUNTRIES: SelectOption[] = [
   { value: 'my', label: 'Malaysia' },
 ];
 
-export const RegionForm: React.FC = () => {
+interface RegionFormProps {
+  initialData?: RegionSchemaType;
+  isEditMode?: boolean;
+  regionId?: string;
+}
+
+export const RegionForm: React.FC<RegionFormProps> = ({
+  initialData,
+  isEditMode = false,
+  regionId,
+}) => {
   const {
     control,
     handleSubmit,
@@ -56,7 +67,7 @@ export const RegionForm: React.FC = () => {
   } = useForm<RegionSchemaType>({
     resolver: zodResolver(regionSchema),
     mode: 'onBlur',
-    defaultValues: {
+    defaultValues: initialData || {
       name: '',
       currency_code: '',
       countries: [],
@@ -121,11 +132,34 @@ export const RegionForm: React.FC = () => {
     },
   });
 
+  const updateRegionMutation = useMutation({
+    mutationFn: (data: RegionSchemaType) => updateRegion(regionId!, data),
+    onSuccess: (updatedRegion) => {
+      queryClient.invalidateQueries({ queryKey: ['regions'] });
+      queryClient.invalidateQueries({ queryKey: ['region', regionId] });
+
+      success(
+        'Region updated',
+        `"${updatedRegion.name}" has been updated successfully`
+      );
+    },
+    onError: (err: Error) => {
+      error(
+        'Failed to update region',
+        err.message || 'An unexpected error occurred'
+      );
+    },
+  });
+
   const handleFormSubmit = async (data: RegionSchemaType) => {
     const isValid = await trigger();
 
     if (isValid) {
-      createRegionMutation.mutate(data);
+      if (isEditMode) {
+        updateRegionMutation.mutate(data);
+      } else {
+        createRegionMutation.mutate(data);
+      }
     }
   };
 
@@ -137,7 +171,11 @@ export const RegionForm: React.FC = () => {
         type="text"
         label="Region Name"
         placeholder="e.g., North America, Europe"
-        disabled={isSubmitting || createRegionMutation.isPending}
+        disabled={
+          isSubmitting ||
+          createRegionMutation.isPending ||
+          updateRegionMutation.isPending
+        }
         required={true}
       />
 
@@ -150,7 +188,10 @@ export const RegionForm: React.FC = () => {
           isCurrenciesLoading ? 'Loading currencies...' : 'Select a currency'
         }
         disabled={
-          isSubmitting || createRegionMutation.isPending || isCurrenciesLoading
+          isSubmitting ||
+          createRegionMutation.isPending ||
+          updateRegionMutation.isPending ||
+          isCurrenciesLoading
         }
         required={true}
         isClearable={true}
@@ -162,7 +203,11 @@ export const RegionForm: React.FC = () => {
         options={COMMON_COUNTRIES}
         label="Countries"
         placeholder="Select countries for this region"
-        disabled={isSubmitting || createRegionMutation.isPending}
+        disabled={
+          isSubmitting ||
+          createRegionMutation.isPending ||
+          updateRegionMutation.isPending
+        }
         isMulti={true}
         isClearable={true}
       />
@@ -180,6 +225,7 @@ export const RegionForm: React.FC = () => {
         disabled={
           isSubmitting ||
           createRegionMutation.isPending ||
+          updateRegionMutation.isPending ||
           isPaymentProvidersLoading
         }
         isMulti={true}
@@ -191,19 +237,29 @@ export const RegionForm: React.FC = () => {
           type="button"
           onClick={() => navigate('/settings/regions')}
           className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          disabled={isSubmitting || createRegionMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createRegionMutation.isPending ||
+            updateRegionMutation.isPending
+          }
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={isSubmitting || createRegionMutation.isPending}
+          disabled={
+            isSubmitting ||
+            createRegionMutation.isPending ||
+            updateRegionMutation.isPending
+          }
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {(isSubmitting || createRegionMutation.isPending) && (
+          {(isSubmitting ||
+            createRegionMutation.isPending ||
+            updateRegionMutation.isPending) && (
             <LoadingIcon size="md" color="white" className="mr-2" />
           )}
-          Create
+          {isEditMode ? 'Update' : 'Create'}
         </button>
       </div>
     </form>

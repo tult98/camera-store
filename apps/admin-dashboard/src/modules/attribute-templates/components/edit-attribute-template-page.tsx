@@ -57,8 +57,9 @@ export const EditAttributeTemplatePage: React.FC = () => {
     description: template.description || '',
     is_active: template.is_active,
     attribute_definitions: template.attribute_definitions.map((def) => ({
-      name: def.label,
+      label: def.label,
       type: def.type as 'text' | 'boolean',
+      facet_config: def.facet_config,
     })),
   };
 

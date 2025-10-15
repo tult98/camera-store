@@ -23,7 +23,8 @@
       "Bash(yarn nx affected:*)",
       "Bash(yarn nx type-check:*)",
       "WebSearch",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(yarn nx run:*)"
     ],
     "deny": []
   }

@@ -30,6 +30,7 @@ export interface QueryFilters {
   tags?: {
     value: string[];
   };
+  status?: string;
 }
 
 export interface SortOrder {

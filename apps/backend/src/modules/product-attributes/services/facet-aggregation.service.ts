@@ -109,7 +109,7 @@ class FacetAggregationService {
   }
 
   private extractFacetsFromTemplates(templates: any[]): FacetResponse[] {
-    const facets: FacetResponse[] = [];
+    const facetsMap = new Map<string, FacetResponse>();
 
     for (const template of templates) {
       if (
@@ -120,20 +120,31 @@ class FacetAggregationService {
       }
 
       for (const attrDef of template.attribute_definitions as AttributeDefinition[]) {
-        // Check if this attribute is configured as a facet
         if (attrDef.facet_config?.is_facet) {
-          facets.push({
+          const newFacet: FacetResponse = {
             key: attrDef.key,
             label: attrDef.label,
             type: attrDef.type,
             display_priority: attrDef.facet_config.display_priority,
             config: attrDef.facet_config,
-          });
+          };
+
+          const existingFacet = facetsMap.get(attrDef.key);
+          if (existingFacet) {
+            this.logger_.warn(
+              `Duplicate facet key "${attrDef.key}" found in multiple templates. Using facet with highest priority (lowest display_priority value).`
+            );
+            if (newFacet.display_priority < existingFacet.display_priority) {
+              facetsMap.set(attrDef.key, newFacet);
+            }
+          } else {
+            facetsMap.set(attrDef.key, newFacet);
+          }
         }
       }
     }
 
-    return facets;
+    return Array.from(facetsMap.values());
   }
 
   private getSystemFacets(): FacetResponse[] {

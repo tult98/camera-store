@@ -263,13 +263,13 @@ export default function CategoryPageClient({
       </div>
 
       {/* Mobile Filter Drawer */}
-      <FilterDrawer
+      {/* <FilterDrawer
         isOpen={isMobileFilterOpen}
         onClose={() => setIsMobileFilterOpen(false)}
         facets={facets}
         loading={isLoadingFacets && facets.length === 0}
         facetsLoading={isFetchingFacets && isPlaceholderFacetsData}
-      />
+      /> */}
     </div>
   )
 }

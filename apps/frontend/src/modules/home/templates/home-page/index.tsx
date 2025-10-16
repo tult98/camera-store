@@ -4,7 +4,12 @@ import { useEffect } from "react"
 import { useLayoutBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
 import FeaturedCategorySection from "@modules/home/components/featured-category-section"
 import BannerSlider from "@modules/home/components/banner-slider"
-import { BannerData } from "@lib/data/banners"
+
+interface BannerData {
+  id: string
+  images: string[]
+  is_active: boolean
+}
 
 interface HomePageProps {
   banner?: BannerData | null

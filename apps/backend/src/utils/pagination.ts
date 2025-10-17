@@ -1,5 +1,8 @@
 import type { PaginatedResponse } from "@medusajs/types";
 
+export const DEFAULT_PAGE = 1;
+export const DEFAULT_PAGE_SIZE = 24;
+
 /**
  * Converts query results to the standard PaginatedResponse format
  * @param data - The array of items to paginate

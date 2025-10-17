@@ -10,7 +10,7 @@ import {
 import express from 'express';
 import path from 'path';
 import { PostAdminCreateBannerSchema } from 'src/api/admin/banners/validators';
-import { CategoryProductsSchema } from './store/category-products/route';
+import { storeMiddlewares } from 'src/api/store/middlewares';
 
 const staticMiddleware = (
   req: MedusaRequest,
@@ -24,14 +24,10 @@ const staticMiddleware = (
 
 export default defineMiddlewares({
   routes: [
+    ...storeMiddlewares,
     {
       matcher: '/static/*',
       middlewares: [staticMiddleware],
-    },
-    {
-      matcher: '/store/category-products',
-      method: 'POST',
-      middlewares: [validateAndTransformBody(() => CategoryProductsSchema)],
     },
     {
       matcher: '/admin/banners',

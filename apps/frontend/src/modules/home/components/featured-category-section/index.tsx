@@ -1,5 +1,3 @@
-"use client"
-
 import { ChevronRightIcon } from "@heroicons/react/24/outline"
 import { HttpTypes } from "@medusajs/types"
 import CategoryProductCard from "@modules/store/components/category-product-card"
@@ -30,7 +28,7 @@ export default function FeaturedCategorySection({
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
         />
-        
+
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/40" />
 
@@ -44,7 +42,7 @@ export default function FeaturedCategorySection({
           <div className="flex-shrink-0">
             <Link
               href={categoryLink}
-              className="btn btn-primary btn-outline rounded-full bg-white font-semibold transition-all duration-200 hover:shadow-lg hover:bg-primary"
+              className="btn btn-primary btn-outline rounded-full bg-white font-semibold transition-all duration-200 hover:shadow-lg hover:text-primary hover:scale-105"
             >
               View More
               <ChevronRightIcon className="w-5 h-5" />

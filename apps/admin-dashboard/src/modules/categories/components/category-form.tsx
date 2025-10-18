@@ -64,7 +64,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   // Fetch initial categories for default options
   const { data: initialCategories = [] } = useQuery({
     queryKey: ['categories', 'initial'],
-    queryFn: () => fetchCategories(''),
+    queryFn: () => fetchCategories('', 'null'),
   });
 
   // Convert to select options format

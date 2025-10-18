@@ -40,9 +40,7 @@ export async function getAllCategoryIds(
       fields: [
         "id",
         "category_children.id",
-        "category_children.category_children.id",
-        "category_children.category_children.category_children.id",
-        "category_children.category_children.category_children.category_children.id",
+        // NOTE: Cannot query deeper by category_children.category_children...
       ],
       filters: { id: categoryId },
     });

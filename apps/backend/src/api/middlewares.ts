@@ -10,6 +10,7 @@ import {
 import express from 'express';
 import path from 'path';
 import { PostAdminCreateBannerSchema } from 'src/api/admin/banners/validators';
+import { adminMiddlewares } from 'src/api/admin/middlewares';
 import { storeMiddlewares } from 'src/api/store/middlewares';
 
 const staticMiddleware = (
@@ -25,6 +26,7 @@ const staticMiddleware = (
 export default defineMiddlewares({
   routes: [
     ...storeMiddlewares,
+    ...adminMiddlewares,
     {
       matcher: '/static/*',
       middlewares: [staticMiddleware],

@@ -24,6 +24,7 @@ import type { ILockingModule } from '@medusajs/framework/types'
 import type { IFileModuleService } from '@medusajs/framework/types'
 import type ProductAttributes from '../../src/modules/product-attributes'
 import type Banner from '../../src/modules/banner'
+import type Brand from '../../src/modules/brand'
 
 declare module '@medusajs/framework/types' {
   interface ModuleImplementations {
@@ -52,6 +53,7 @@ declare module '@medusajs/framework/types' {
     'locking': ILockingModule,
     'file': IFileModuleService,
     'productAttributes': InstanceType<(typeof ProductAttributes)['service']>,
-    'banner': InstanceType<(typeof Banner)['service']>
+    'banner': InstanceType<(typeof Banner)['service']>,
+    'brand': InstanceType<(typeof Brand)['service']>
   }
 }

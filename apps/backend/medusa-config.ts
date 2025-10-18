@@ -25,6 +25,9 @@ module.exports = defineConfig({
     {
       resolve: './src/modules/banner',
     },
+    {
+      resolve: './src/modules/brand',
+    },
     // Only include file module in production
     ...(process.env['NODE_ENV'] === 'production'
       ? [

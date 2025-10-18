@@ -75,10 +75,11 @@ export const updateProduct = async (
   return await sdk.admin.product.update(productId, payload);
 };
 
-export const fetchProducts = async () => {
+export const fetchProducts = async (searchQuery?: string) => {
   const response = await sdk.admin.product.list({
     fields: '*variants',
     limit: 100,
+    q: searchQuery || undefined,
   });
   return response.products || [];
 };

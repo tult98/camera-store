@@ -1,7 +1,12 @@
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import {
+  MagnifyingGlassIcon,
+  PencilIcon,
+  TrashIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
 import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
@@ -28,10 +33,20 @@ export const ProductsPage: React.FC = () => {
     id: string;
     title: string;
   } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchProducts,
+    queryKey: ['products', debouncedSearchQuery],
+    queryFn: () => fetchProducts(debouncedSearchQuery),
   });
 
   const deleteMutation = useMutation({
@@ -63,6 +78,10 @@ export const ProductsPage: React.FC = () => {
       await deleteMutation.mutateAsync(productToDelete.id);
     }
   };
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+  }, []);
 
   const transformProduct = (product: ProductFromAPI): ProductDisplay => {
     return {
@@ -156,19 +175,47 @@ export const ProductsPage: React.FC = () => {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          onClick={() => navigate('/products/new')}
-        >
-          Add Product
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="block w-64 pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            )}
+          </div>
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            onClick={() => navigate('/products/new')}
+          >
+            Add Product
+          </button>
+        </div>
       </div>
 
       <DataTable
         data={displayProducts}
         columns={columns}
         isLoading={isLoading}
-        emptyMessage="No products found. Create your first product to get started."
+        emptyMessage={
+          debouncedSearchQuery
+            ? `No products found matching "${debouncedSearchQuery}".`
+            : 'No products found. Create your first product to get started.'
+        }
         pageSize={10}
       />
 

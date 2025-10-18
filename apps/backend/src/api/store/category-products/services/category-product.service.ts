@@ -70,7 +70,7 @@ export class CategoryProductService {
     const result = await query.graph(graphQuery);
     let products = (result.data || []) as Product[];
 
-    products = await this.attachProductAttributes(products);
+    // products = await this.attachProductAttributes(products);
 
     const pipeline = new FilterPipeline(products);
     const { products: processedProducts, totalCount } = pipeline

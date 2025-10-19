@@ -2,13 +2,16 @@ import { Table } from '@tanstack/react-table';
 
 interface PaginationProps<T> {
   table: Table<T>;
+  totalCount?: number;
 }
 
-export function Pagination<T>({ table }: PaginationProps<T>) {
+export function Pagination<T>({ table, totalCount }: PaginationProps<T>) {
   const pageIndex = table.getState().pagination.pageIndex;
   const pageSize = table.getState().pagination.pageSize;
-  const totalRows = table.getFilteredRowModel().rows.length;
-  
+  const totalRows = totalCount !== undefined
+    ? totalCount
+    : table.getFilteredRowModel().rows.length;
+
   const startRow = pageIndex * pageSize + 1;
   const endRow = Math.min((pageIndex + 1) * pageSize, totalRows);
   const currentPage = pageIndex + 1;

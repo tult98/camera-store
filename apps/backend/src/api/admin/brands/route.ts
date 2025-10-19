@@ -45,7 +45,13 @@ export const GET = async (
     skip: offset,
   });
 
-  const paginatedResult = toPaginatedResponse(brands, count, limit, offset);
+  const paginatedResult = toPaginatedResponse({
+    data: brands,
+    count,
+    limit,
+    offset,
+    dataKey: 'brands',
+  });
 
   return res.json(paginatedResult);
 };

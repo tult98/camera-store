@@ -25,6 +25,9 @@ interface DataTableProps<T> {
   enablePagination?: boolean;
   enableExpanding?: boolean;
   getSubRows?: (row: T) => T[] | undefined;
+  manualPagination?: boolean;
+  totalCount?: number;
+  onPaginationChange?: (pagination: PaginationState) => void;
 }
 
 export function DataTable<T>({
@@ -38,6 +41,9 @@ export function DataTable<T>({
   enablePagination = true,
   enableExpanding = false,
   getSubRows,
+  manualPagination = false,
+  totalCount,
+  onPaginationChange,
 }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -45,6 +51,12 @@ export function DataTable<T>({
     pageSize,
   });
   const [expanded, setExpanded] = useState<ExpandedState>({});
+
+  const handlePaginationChange = (updater: PaginationState | ((old: PaginationState) => PaginationState)) => {
+    const newPagination = typeof updater === 'function' ? updater(pagination) : updater;
+    setPagination(newPagination);
+    onPaginationChange?.(newPagination);
+  };
 
   const table = useReactTable({
     data,
@@ -55,7 +67,7 @@ export function DataTable<T>({
       expanded: enableExpanding ? expanded : undefined,
     },
     onSortingChange: setSorting,
-    onPaginationChange: setPagination,
+    onPaginationChange: handlePaginationChange,
     onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
@@ -64,8 +76,11 @@ export function DataTable<T>({
       : undefined,
     getExpandedRowModel: enableExpanding ? getExpandedRowModel() : undefined,
     getSubRows: enableExpanding ? getSubRows : undefined,
-    manualPagination: false,
+    manualPagination,
     manualSorting: false,
+    pageCount: manualPagination && totalCount !== undefined
+      ? Math.ceil(totalCount / pageSize)
+      : undefined,
   });
 
   return (
@@ -176,7 +191,9 @@ export function DataTable<T>({
           )}
         </tbody>
       </table>
-      {enablePagination && !isLoading && data.length > 0 && <Pagination table={table} />}
+      {enablePagination && !isLoading && data.length > 0 && (
+        <Pagination table={table} totalCount={manualPagination ? totalCount : undefined} />
+      )}
     </div>
   );
 }

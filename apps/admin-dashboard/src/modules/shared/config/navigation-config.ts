@@ -1,4 +1,5 @@
 import {
+  BuildingStorefrontIcon,
   Cog6ToothIcon,
   CubeIcon,
   GlobeAmericasIcon,
@@ -59,6 +60,18 @@ export const navigationItems: NavigationItem[] = [
       children: [
         { path: '/categories/new', label: 'New Category' },
         { path: '/categories/:id/edit', label: 'Edit Category', dynamic: true },
+      ],
+    },
+  },
+  {
+    id: 'brands',
+    label: 'Brands',
+    path: '/brands',
+    icon: BuildingStorefrontIcon,
+    breadcrumbConfig: {
+      children: [
+        { path: '/brands/new', label: 'New Brand' },
+        { path: '/brands/:id/edit', label: 'Edit Brand', dynamic: true },
       ],
     },
   },

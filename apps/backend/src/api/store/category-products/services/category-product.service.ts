@@ -85,12 +85,12 @@ export class CategoryProductService {
       offset + itemsPerPage
     );
 
-    return toPaginatedResponse(
-      paginatedProducts,
-      totalCount,
-      itemsPerPage,
-      offset
-    );
+    return toPaginatedResponse({
+      data: paginatedProducts,
+      count: totalCount,
+      limit: itemsPerPage,
+      offset,
+    });
   }
 
   private async attachProductAttributes(

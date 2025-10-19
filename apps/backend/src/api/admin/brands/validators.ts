@@ -20,3 +20,8 @@ export const GetBrandsQuerySchema = z.object({
     return val;
   }, z.number().optional()),
 });
+
+export const PutUpdateBrandSchema = z.object({
+  name: z.string().optional(),
+  image_url: z.string().optional(),
+});

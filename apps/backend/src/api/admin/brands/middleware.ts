@@ -6,6 +6,7 @@ import {
 import {
   GetBrandsQuerySchema,
   PostCreateBrandSchema,
+  PutUpdateBrandSchema,
 } from 'src/api/admin/brands/validators';
 
 export const postBrandsMiddlewareRoute: MiddlewareRoute = {
@@ -18,4 +19,10 @@ export const getBrandsMiddlewareRoute: MiddlewareRoute = {
   matcher: '/admin/brands',
   method: 'GET',
   middlewares: [validateAndTransformQuery(GetBrandsQuerySchema, {})],
+};
+
+export const putBrandByIdMiddlewareRoute: MiddlewareRoute = {
+  matcher: '/admin/brands/:id',
+  method: 'PUT',
+  middlewares: [validateAndTransformBody(PutUpdateBrandSchema)],
 };

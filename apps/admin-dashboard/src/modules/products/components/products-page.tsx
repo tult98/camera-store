@@ -5,7 +5,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
@@ -22,7 +22,9 @@ interface ProductDisplay {
   variantsCount: number;
 }
 
-type ProductFromAPI = Awaited<ReturnType<typeof fetchProducts>>[0];
+type ProductFromAPI = Awaited<
+  ReturnType<typeof fetchProducts>
+>['products'][number];
 
 export const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -35,19 +37,35 @@ export const ProductsPage: React.FC = () => {
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const { data: products = [], isLoading } = useQuery({
-    queryKey: ['products', debouncedSearchQuery],
-    queryFn: () => fetchProducts(debouncedSearchQuery),
+  const limit = pagination.pageSize;
+  const offset = pagination.pageIndex * pagination.pageSize;
+
+  const { data: productsData, isLoading } = useQuery({
+    queryKey: [
+      'products',
+      debouncedSearchQuery,
+      pagination.pageIndex,
+      pagination.pageSize,
+    ],
+    queryFn: () => fetchProducts(debouncedSearchQuery, limit, offset),
   });
+
+  const products = productsData?.products || [];
+  const totalCount = productsData?.count || 0;
 
   const deleteMutation = useMutation({
     mutationFn: deleteProduct,
@@ -216,7 +234,10 @@ export const ProductsPage: React.FC = () => {
             ? `No products found matching "${debouncedSearchQuery}".`
             : 'No products found. Create your first product to get started.'
         }
-        pageSize={10}
+        pageSize={pagination.pageSize}
+        manualPagination={true}
+        totalCount={totalCount}
+        onPaginationChange={setPagination}
       />
 
       <ConfirmationModal

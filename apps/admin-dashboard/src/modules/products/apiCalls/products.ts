@@ -75,13 +75,30 @@ export const updateProduct = async (
   return await sdk.admin.product.update(productId, payload);
 };
 
-export const fetchProducts = async (searchQuery?: string) => {
+interface FetchProductsResponse {
+  products: Awaited<ReturnType<typeof sdk.admin.product.list>>['products'];
+  count: number;
+  limit: number;
+  offset: number;
+}
+
+export const fetchProducts = async (
+  searchQuery: string = '',
+  limit: number = 10,
+  offset: number = 0
+): Promise<FetchProductsResponse> => {
   const response = await sdk.admin.product.list({
     fields: '*variants',
-    limit: 100,
+    limit,
+    offset,
     q: searchQuery || undefined,
   });
-  return response.products || [];
+  return {
+    products: response.products || [],
+    count: response.count || 0,
+    limit: response.limit || limit,
+    offset: response.offset || offset,
+  };
 };
 
 export const deleteProduct = async (id: string) => {

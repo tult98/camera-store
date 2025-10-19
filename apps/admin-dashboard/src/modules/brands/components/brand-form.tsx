@@ -83,6 +83,8 @@ export const BrandForm: React.FC<BrandFormProps> = ({
         'Brand updated',
         `"${updatedBrand.name}" has been updated successfully`
       );
+
+      navigate('/brands');
     },
     onError: (err: Error) => {
       error(

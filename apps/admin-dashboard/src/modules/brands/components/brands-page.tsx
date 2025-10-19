@@ -79,7 +79,7 @@ export const BrandsPage: React.FC = () => {
           <img
             src={imageUrl}
             alt="Brand"
-            className="w-10 h-10 object-cover rounded"
+            className="w-10 h-10 object-contain rounded"
           />
         ) : (
           <span className="text-gray-400 text-sm">No image</span>

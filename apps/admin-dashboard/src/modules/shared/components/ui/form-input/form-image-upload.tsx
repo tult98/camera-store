@@ -231,7 +231,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-12 h-12 object-cover rounded border border-gray-200"
+                  className="w-12 h-12 object-contain rounded border border-gray-200"
                 />
               )}
               <div>

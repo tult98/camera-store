@@ -8,12 +8,12 @@ import {
 import { FormInput } from '@/modules/shared/components/ui/form-input';
 import { FormSwitch } from '@/modules/shared/components/ui/form-input/form-switch';
 import { LoadingIcon } from '@/modules/shared/components/ui/loading-icon';
+import { useToast } from '@/modules/shared/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminProduct } from '@medusajs/types';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import { z } from 'zod';
 import { AttributeTemplateInput } from './attribute-template-step/attribute-template-input';
 
@@ -30,16 +30,17 @@ type AttributeTemplateSchemaType = z.infer<typeof attributeTemplateSchema>;
 interface AttributeTemplateStepProps {
   product: AdminProduct | null;
   onNext: () => void;
-  onBack: () => void;
   initialValues: ProductAttribute | null;
+  isEditMode?: boolean;
 }
 
 export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   product,
   onNext,
-  onBack,
   initialValues,
+  isEditMode = false,
 }) => {
+  const toast = useToast();
   const { data: templatesData } = useQuery({
     queryKey: ['attribute-templates'],
     queryFn: fetchAttributeTemplates,
@@ -110,22 +111,26 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   const createMutation = useMutation({
     mutationFn: createProductAttributes,
     onSuccess: () => {
-      toast.success('Product attributes saved successfully!');
-      onNext();
+      toast.success('Success', 'Product attributes saved successfully!');
+      if (!isEditMode) {
+        onNext();
+      }
     },
     onError: () => {
-      toast.error('Failed to save attributes. Please try again.');
+      toast.error('Error', 'Failed to save attributes. Please try again.');
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: updateProductAttributes,
     onSuccess: () => {
-      toast.success('Product attributes updated successfully!');
-      onNext();
+      toast.success('Success', 'Product attributes updated successfully!');
+      if (!isEditMode) {
+        onNext();
+      }
     },
     onError: () => {
-      toast.error('Failed to update attributes. Please try again.');
+      toast.error('Error', 'Failed to update attributes. Please try again.');
     },
   });
 
@@ -208,14 +213,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-between pt-6 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={onBack}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-        >
-          Back
-        </button>
+      <div className="flex justify-end pt-6 border-t border-gray-200">
         <button
           type="submit"
           disabled={isPending || !selectedAttributeTemplate}
@@ -224,7 +222,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
           {isPending && (
             <LoadingIcon size="sm" color="white" className="mr-2" />
           )}
-          Next
+          {isEditMode ? 'Save Changes' : 'Save & Continue'}
         </button>
       </div>
     </form>
@@ -234,11 +232,11 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
 const AttributeTemplateStepWrapper = ({
   product,
   onNext,
-  onBack,
+  isEditMode = false,
 }: {
   product: AdminProduct | null;
   onNext: () => void;
-  onBack: () => void;
+  isEditMode?: boolean;
 }) => {
   const { data: existingAttributesData, isLoading } = useQuery({
     queryKey: ['product-attributes', product?.id],
@@ -255,7 +253,7 @@ const AttributeTemplateStepWrapper = ({
       initialValues={existingAttributesData?.product_attributes[0] || null}
       product={product}
       onNext={onNext}
-      onBack={onBack}
+      isEditMode={isEditMode}
     />
   );
 };

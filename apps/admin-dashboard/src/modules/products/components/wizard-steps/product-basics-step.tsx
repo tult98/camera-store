@@ -18,8 +18,6 @@ interface ProductBasicsStepProps {
   isEditMode?: boolean;
   productId?: string;
   onNext?: () => void;
-  onBack?: () => void;
-  currentStep?: number;
   setProduct: React.Dispatch<React.SetStateAction<ProductWithBrand | null>>;
 }
 
@@ -28,8 +26,6 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
   isEditMode = false,
   productId,
   onNext,
-  onBack,
-  currentStep = 1,
   setProduct,
 }) => {
   const toast = useToast();
@@ -80,6 +76,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     if (isEditMode && initialData) {
       reset(getDefaultValues());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, initialData]);
 
   const title = watch('title');
@@ -154,8 +151,8 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
       await updateProductMutation.mutateAsync(data);
     } else {
       await createProductMutation.mutateAsync(data);
+      onNext?.();
     }
-    onNext?.();
   };
 
   return (
@@ -214,28 +211,17 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
             control={control}
             isSubmitting={isSubmitting}
           />
-          <div className="flex justify-between items-center pt-6 mt-6 border-t border-gray-200">
-            {currentStep > 1 && onBack && (
-              <button
-                type="button"
-                onClick={onBack}
-                className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-              >
-                Back
-              </button>
-            )}
-            <div className={currentStep <= 1 ? 'ml-auto' : ''}>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {isSubmitting && (
-                  <LoadingIcon size="sm" color="white" className="mr-2" />
-                )}
-                Next
-              </button>
-            </div>
+          <div className="flex justify-end items-center pt-6 mt-6 border-t border-gray-200">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isSubmitting && (
+                <LoadingIcon size="sm" color="white" className="mr-2" />
+              )}
+              {isEditMode ? 'Save Changes' : 'Save & Continue'}
+            </button>
           </div>
         </form>
       </div>

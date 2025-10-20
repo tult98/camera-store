@@ -134,6 +134,7 @@ export const OrganizationVariantsStep: React.FC<
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', product?.id] });
       toast.success('Success', 'Product updated successfully');
       onNext?.();
     },

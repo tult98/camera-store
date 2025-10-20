@@ -1,23 +1,30 @@
+import { Brand } from '@/modules/brands/types';
 import { transformDataToUpdateProductPayload } from '@/modules/products/apiCalls/products';
 import { sdk } from '@/modules/shared/api/medusa-client';
 import { useStores } from '@/modules/shared/hooks/use-stores';
 import { useToast } from '@/modules/shared/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AdminProduct, AdminUpdateProduct } from '@medusajs/types';
+import { AdminUpdateProduct } from '@medusajs/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useCallback, useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { fetchBrands } from '../../../brands/apiCalls/brands';
 import { fetchCategories } from '../../../categories/apiCalls/categories';
 import type { SelectOption } from '../../../shared/components/ui/form-input/form-select';
 import { FormSelect } from '../../../shared/components/ui/form-input/form-select';
 import { LoadingIcon } from '../../../shared/components/ui/loading-icon';
-import { productSchema, type ProductSchemaType } from '../../types';
+import {
+  productSchema,
+  ProductWithBrand,
+  type ProductSchemaType,
+} from '../../types';
 import { VariantList } from './organization-variants-step/variant-list';
 
 interface OrganizationVariantsStepProps {
+  brand?: Brand | null;
   onNext?: () => void;
   onBack?: () => void;
-  product: AdminProduct | null;
+  product: ProductWithBrand | null;
 }
 
 const statusOptions: SelectOption[] = [
@@ -28,7 +35,7 @@ const statusOptions: SelectOption[] = [
 ];
 
 const getFormDefaultValues = (
-  initialValues: AdminProduct | null,
+  initialValues: ProductWithBrand | null,
   defaultSalesChannelId: string | null,
   defaultCurrencyCode: string
 ): Partial<ProductSchemaType> => ({
@@ -41,6 +48,9 @@ const getFormDefaultValues = (
       | 'rejected') || 'published',
   category_ids: initialValues?.categories?.map((cat) => cat.id) || [],
   sales_channels: defaultSalesChannelId ? [{ id: defaultSalesChannelId }] : [],
+  additional_data: {
+    brand_id: initialValues?.brand?.id,
+  },
   variants:
     initialValues?.variants?.map((variant) => ({
       title: variant.title || '',
@@ -60,7 +70,7 @@ const getFormDefaultValues = (
 
 export const OrganizationVariantsStep: React.FC<
   OrganizationVariantsStepProps
-> = ({ product, onNext, onBack }) => {
+> = ({ product, brand, onNext, onBack }) => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { defaultSalesChannelId, defaultCurrencyCode } = useStores();
@@ -69,7 +79,9 @@ export const OrganizationVariantsStep: React.FC<
     resolver: zodResolver(productSchema),
     mode: 'onBlur',
     defaultValues: getFormDefaultValues(
-      product,
+      product
+        ? { ...product, brand, variants: product.variants ?? null }
+        : null,
       defaultSalesChannelId,
       defaultCurrencyCode
     ),
@@ -104,6 +116,17 @@ export const OrganizationVariantsStep: React.FC<
     label: category.name,
   }));
 
+  const { data: brandsData } = useQuery({
+    queryKey: ['brands'],
+    queryFn: () => fetchBrands('', 100, 0),
+  });
+
+  const brandOptions: SelectOption[] =
+    brandsData?.brands.map((brand) => ({
+      value: brand.id,
+      label: brand.name,
+    })) || [];
+
   const updateProductMutation = useMutation({
     mutationFn: async (data: AdminUpdateProduct) => {
       if (!product?.id) throw new Error('Product ID is required');
@@ -132,7 +155,7 @@ export const OrganizationVariantsStep: React.FC<
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <FormSelect
               name="status"
               control={control}
@@ -148,6 +171,15 @@ export const OrganizationVariantsStep: React.FC<
               label="Categories"
               placeholder="Select categories"
               isMulti={true}
+              isClearable={true}
+            />
+
+            <FormSelect
+              name="additional_data.brand_id"
+              control={control}
+              options={brandOptions}
+              label="Brand"
+              placeholder="Select brand"
               isClearable={true}
             />
           </div>

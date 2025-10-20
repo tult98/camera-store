@@ -1,3 +1,5 @@
+import { Brand } from '@/modules/brands/types';
+import { AdminProduct } from '@medusajs/types';
 import { z } from 'zod';
 
 const imageSchema = z.object({
@@ -44,6 +46,13 @@ export const productSchema = z.object({
       })
     )
     .optional(),
+  additional_data: z
+    .object({
+      brand_id: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type ProductSchemaType = z.infer<typeof productSchema>;
+
+export type ProductWithBrand = AdminProduct & { brand?: Brand | null };

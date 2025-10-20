@@ -1,13 +1,14 @@
-import { AdminProduct } from '@medusajs/types';
+import { Brand } from '@/modules/brands/types';
+import { OrganizationVariantsStep } from '@/modules/products/components/wizard-steps/organization-variants-step';
+import { ProductWithBrand } from '@/modules/products/types';
+import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { WizardNavigation } from '../../shared/components/ui/wizard-navigation';
+import { fetchProduct } from '../apiCalls/products';
 import AttributeTemplateStep from './wizard-steps/attribute-template-step';
 import { ProductBasicsStep } from './wizard-steps/product-basics-step';
-import { OrganizationVariantsStep } from '@/modules/products/components/wizard-steps/organization-variants-step';
-import { useQuery } from '@tanstack/react-query';
-import { fetchProduct } from '../apiCalls/products';
-import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 
 interface ProductWizardFormProps {
   isEditMode?: boolean;
@@ -21,7 +22,8 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [product, setProduct] = useState<AdminProduct | null>(null);
+  const [product, setProduct] = useState<ProductWithBrand | null>(null);
+  const [brand, setBrand] = useState<Brand | null>(null);
 
   const { data: fetchedProduct, isLoading: isLoadingProduct } = useQuery({
     queryKey: ['product', productId],
@@ -32,6 +34,7 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   useEffect(() => {
     if (fetchedProduct?.product) {
       setProduct(fetchedProduct.product);
+      setBrand(fetchedProduct?.product.brand || null);
     }
   }, [fetchedProduct]);
 
@@ -90,6 +93,7 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
         return (
           <OrganizationVariantsStep
             product={product}
+            brand={brand}
             onNext={onRedirectToProductList}
             onBack={handleBack}
           />

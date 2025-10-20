@@ -9,7 +9,7 @@ import { LoadingIcon } from '../../../shared/components/ui/loading-icon';
 import { useToast } from '../../../shared/hooks/use-toast';
 import { generateHandle } from '../../../shared/utils/formatters';
 import { createProduct, updateProduct } from '../../apiCalls/products';
-import { productSchema, type ProductSchemaType } from '../../types';
+import { productSchema, ProductWithBrand, type ProductSchemaType } from '../../types';
 import { MediaUploadSection } from './product-basics-step/media-upload-section';
 import { ProductOptionsSection } from './product-basics-step/product-options-section';
 
@@ -20,7 +20,7 @@ interface ProductBasicsStepProps {
   onNext?: () => void;
   onBack?: () => void;
   currentStep?: number;
-  setProduct: React.Dispatch<React.SetStateAction<AdminProduct | null>>;
+  setProduct: React.Dispatch<React.SetStateAction<ProductWithBrand | null>>;
 }
 
 export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({

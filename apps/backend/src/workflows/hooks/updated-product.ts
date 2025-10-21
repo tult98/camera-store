@@ -32,7 +32,7 @@ updateProductsWorkflow.hooks.productsUpdated(
         },
       });
 
-      // Dismiss existing links if any
+      // Delete existing links if any (hard delete)
       if (existingLinks.data?.length > 0) {
         for (const existingLink of existingLinks.data) {
           await link.dismiss({

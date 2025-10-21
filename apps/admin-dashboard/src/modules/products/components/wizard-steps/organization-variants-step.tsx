@@ -36,6 +36,7 @@ const statusOptions: SelectOption[] = [
 
 const getFormDefaultValues = (
   initialValues: ProductWithBrand | null,
+  brand: Brand | null | undefined,
   defaultSalesChannelId: string | null,
   defaultCurrencyCode: string
 ): Partial<ProductSchemaType> => ({
@@ -49,7 +50,7 @@ const getFormDefaultValues = (
   category_ids: initialValues?.categories?.map((cat) => cat.id) || [],
   sales_channels: defaultSalesChannelId ? [{ id: defaultSalesChannelId }] : [],
   additional_data: {
-    brand_id: initialValues?.brand?.id,
+    brand_id: initialValues?.brands?.[0]?.id || brand?.id,
   },
   variants:
     initialValues?.variants?.map((variant) => ({
@@ -79,9 +80,8 @@ export const OrganizationVariantsStep: React.FC<
     resolver: zodResolver(productSchema),
     mode: 'onBlur',
     defaultValues: getFormDefaultValues(
-      product
-        ? { ...product, brand, variants: product.variants ?? null }
-        : null,
+      product,
+      brand,
       defaultSalesChannelId,
       defaultCurrencyCode
     ),

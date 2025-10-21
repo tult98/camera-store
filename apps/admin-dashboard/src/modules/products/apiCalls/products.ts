@@ -48,7 +48,7 @@ export const transformDataToUpdateProductPayload = (
 
 export const fetchProduct = async (productId: string) => {
   return (await sdk.admin.product.retrieve(productId, {
-    fields: '*categories,+brand.*',
+    fields: '*categories,+brands.*',
   })) as unknown as { product: ProductWithBrand };
 };
 

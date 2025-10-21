@@ -55,4 +55,4 @@ export const productSchema = z.object({
 
 export type ProductSchemaType = z.infer<typeof productSchema>;
 
-export type ProductWithBrand = AdminProduct & { brand?: Brand | null };
+export type ProductWithBrand = AdminProduct & { brands?: Brand[] | null };

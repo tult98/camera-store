@@ -33,7 +33,7 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   useEffect(() => {
     if (fetchedProduct?.product) {
       setProduct(fetchedProduct.product);
-      setBrand(fetchedProduct?.product.brand || null);
+      setBrand(fetchedProduct?.product.brands?.[0] || null);
     }
   }, [fetchedProduct]);
 

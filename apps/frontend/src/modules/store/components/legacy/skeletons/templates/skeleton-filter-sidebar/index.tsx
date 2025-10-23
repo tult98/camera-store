@@ -1,4 +1,4 @@
-import SkeletonFilterGroup from "@modules/skeletons/components/skeleton-filter-group"
+import SkeletonFilterGroup from "../../components/skeleton-filter-group"
 
 const SkeletonFilterSidebar = () => {
   return (

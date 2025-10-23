@@ -1,4 +1,4 @@
-import { CategoryProductsResponse } from "@camera-store/shared-types"
+import { CategoryProductsResponse, GetCategoryBrandsResponse } from "@camera-store/shared-types"
 import { apiClient } from "@lib/api-client"
 import { getCategoryByHandle } from "@lib/data/categories"
 import SkeletonProductControls from "@modules/skeletons/components/skeleton-product-controls"
@@ -22,7 +22,6 @@ async function fetchCategoryProducts(categoryId: string): Promise<CategoryProduc
       filters: {},
     }
 
-    // apiClient automatically includes region headers
     const productsResponse = await apiClient<CategoryProductsResponse>(
       "/store/category-products",
       {
@@ -39,6 +38,23 @@ async function fetchCategoryProducts(categoryId: string): Promise<CategoryProduc
   }
 }
 
+async function fetchCategoryBrands(categoryId: string): Promise<GetCategoryBrandsResponse | null> {
+  try {
+    const brandsResponse = await apiClient<GetCategoryBrandsResponse>(
+      `/store/brands?category_id=${categoryId}`,
+      {
+        method: "GET",
+        next: { revalidate: 300 },
+      }
+    )
+
+    return brandsResponse
+  } catch (error) {
+    console.error("Error fetching category brands:", error)
+    return null
+  }
+}
+
 export default async function CategoryPage(props: Props) {
   const params = await props.params
   const categoryHandle = params.category
@@ -48,7 +64,10 @@ export default async function CategoryPage(props: Props) {
     notFound()
   }
 
-  const initialProductsData = await fetchCategoryProducts(category.id)
+  const [initialProductsData, brandsData] = await Promise.all([
+    fetchCategoryProducts(category.id),
+    fetchCategoryBrands(category.id)
+  ])
 
   const fallbackProducts: CategoryProductsResponse = {
     items: [],
@@ -56,6 +75,9 @@ export default async function CategoryPage(props: Props) {
     offset: 0,
     count: 0,
   }
+
+  const brands = brandsData?.brands || []
+  const subcategories = category.category_children || []
 
   return (
     <Suspense
@@ -80,6 +102,8 @@ export default async function CategoryPage(props: Props) {
       <CategoryPageClient
         categoryId={category.id}
         categoryName={category.name}
+        brands={brands}
+        subcategories={subcategories}
         initialProductsData={initialProductsData || fallbackProducts}
       />
     </Suspense>

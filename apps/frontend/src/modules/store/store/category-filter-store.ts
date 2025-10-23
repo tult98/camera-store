@@ -11,7 +11,8 @@ export interface CategoryFilterState {
   pageSize: number
   viewMode: ViewMode
   searchQuery: string
-  
+  brandFilter: string | null
+
   setFilters: (filters: ApiFilters) => void
   toggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
   removeFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
@@ -22,6 +23,8 @@ export interface CategoryFilterState {
   setViewMode: (viewMode: ViewMode) => void
   setSearchQuery: (query: string) => void
   setPriceRange: (range: { min?: number; max?: number }) => void
+  setBrandFilter: (brandId: string | null) => void
+  clearBrandFilter: () => void
   initStateFromUrl: (searchParams: URLSearchParams) => void
   getUrlSearchParams: () => URLSearchParams
   getApiRequestBody: (categoryId: string) => any
@@ -34,6 +37,7 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
   pageSize: 24,
   viewMode: 'grid',
   searchQuery: '',
+  brandFilter: null,
 
   setFilters: (filters) => set({ filters, page: 1 }),
 
@@ -144,10 +148,11 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
   },
 
   clearAllFilters: () => {
-    set({ 
-      filters: {}, 
-      searchQuery: '', 
-      page: 1 
+    set({
+      filters: {},
+      searchQuery: '',
+      brandFilter: null,
+      page: 1
     })
   },
 
@@ -166,13 +171,17 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
 
   setSearchQuery: (searchQuery) => set({ searchQuery, page: 1 }),
 
-  setPriceRange: (priceRange) => set({ 
+  setPriceRange: (priceRange) => set({
     filters: {
       ...get().filters,
       price: priceRange
     },
-    page: 1 
+    page: 1
   }),
+
+  setBrandFilter: (brandId) => set({ brandFilter: brandId, page: 1 }),
+
+  clearBrandFilter: () => set({ brandFilter: null, page: 1 }),
 
   initStateFromUrl: (searchParams) => {
     const filters: ApiFilters = {}
@@ -292,9 +301,9 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
       'name_asc': 'name',
       'name_desc': '-name'
     }
-    
+
     const orderBy = sortMapping[state.sortBy] || 'price'
-    
+
     // Flatten metadata filters to root level for backend compatibility
     const flattenedFilters: Record<string, any> = { ...state.filters }
     if (state.filters.metadata) {
@@ -303,8 +312,11 @@ export const useCategoryFilterStore = create<CategoryFilterState>((set, get) => 
       })
       delete flattenedFilters.metadata
     }
-    
-    
+
+    if (state.brandFilter) {
+      flattenedFilters.brand_id = state.brandFilter
+    }
+
     return {
       category_id: categoryId,
       page: state.page,

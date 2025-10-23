@@ -1,26 +1,28 @@
 "use client"
 
-import { CategoryProductsResponse, FacetsResponse } from "@camera-store/shared-types"
+import { Brand, CategoryProductsResponse } from "@camera-store/shared-types"
+import { HttpTypes } from "@medusajs/types"
+import { FunnelIcon } from "@heroicons/react/24/outline"
 import { apiClient } from "@lib/api-client"
+import { useCategoryBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
 import SkeletonProductControls from "@modules/skeletons/components/skeleton-product-controls"
 import SkeletonProductGrid from "@modules/skeletons/templates/skeleton-product-grid"
 import SkeletonProductList from "@modules/skeletons/templates/skeleton-product-list"
-import SkeletonFilterSidebar from "@modules/skeletons/templates/skeleton-filter-sidebar"
-import { useCategoryBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
-import { useQuery, keepPreviousData } from "@tanstack/react-query"
-import { useState } from "react"
-import { FunnelIcon } from "@heroicons/react/24/outline"
+import { useQuery } from "@tanstack/react-query"
+import { useCategoryFilterStore } from "../store/category-filter-store"
+import CategoryBrandsSection from "./category-brands-section"
+import CategorySubcategoriesSection from "./category-subcategories-section"
+import FilterDropdown from "./filter-dropdown"
 import { Pagination } from "./pagination"
 import ProductGrid from "./product-grid"
 import ViewToggle from "./product-grid/view-toggle"
 import SortDropdown from "./sort-dropdown"
-import FilterSidebar from "./filters/filter-sidebar"
-import FilterDrawer from "./filters/filter-drawer"
-import { useCategoryFilterStore } from "../store/category-filter-store"
 
 interface CategoryPageClientProps {
   categoryId: string
   categoryName: string
+  brands: Brand[]
+  subcategories: HttpTypes.StoreProductCategory[]
   initialProductsData?: CategoryProductsResponse
 }
 
@@ -36,95 +38,65 @@ const fetchCategoryProducts = async (requestBody: any) => {
   return response
 }
 
-const fetchCategoryFacets = async ({
-  categoryId,
-  filters,
-}: {
-  categoryId: string
-  filters: any
-}) => {
-  // Flatten metadata filters to root level for backend compatibility
-  const flattenedFilters = { ...filters }
-  if (filters.metadata) {
-    Object.entries(filters.metadata).forEach(([key, value]) => {
-      flattenedFilters[key] = value
-    })
-    delete flattenedFilters.metadata
-  }
-
-  const facetsRequest = {
-    category_id: categoryId,
-    applied_filters: flattenedFilters,
-    include_counts: true,
-  }
-
-  const response = await apiClient<FacetsResponse>(
-    "/store/facets/aggregate",
-    {
-      method: "POST",
-      body: facetsRequest,
-    }
-  )
-
-  return response
-}
-
 export default function CategoryPageClient({
   categoryId,
   categoryName,
+  brands,
+  subcategories,
   initialProductsData,
 }: CategoryPageClientProps) {
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false)
-  
-  const { 
-    filters, 
-    sortBy, 
-    page, 
+  const {
+    filters,
+    sortBy,
+    page,
     pageSize,
-    viewMode, 
+    viewMode,
     searchQuery,
-    setSortBy, 
+    brandFilter,
+    setSortBy,
     setPage,
     setViewMode,
-    getApiRequestBody
+    getApiRequestBody,
   } = useCategoryFilterStore()
 
-  // Set breadcrumbs in the layout context
-  const categoryHandle = categoryName.toLowerCase().replace(/\s+/g, '-')
+  const categoryHandle = categoryName.toLowerCase().replace(/\s+/g, "-")
   useCategoryBreadcrumbs(categoryName, categoryHandle)
-  
-  const { data: productsData, isLoading: isLoadingProducts } = useQuery<CategoryProductsResponse>({
-    queryKey: ["category-products", categoryId, page, sortBy, JSON.stringify(filters), searchQuery],
-    queryFn: () => {
-      const requestBody = getApiRequestBody(categoryId)
-      return fetchCategoryProducts(requestBody)
-    },
-    initialData: Object.keys(filters).length === 0 ? initialProductsData : undefined,
-    staleTime: 0, // Always refetch when query key changes (sorting, filtering, pagination)
-  })
 
-  const { data: facetsData, isLoading: isLoadingFacets, isFetching: isFetchingFacets, isPlaceholderData: isPlaceholderFacetsData, refetch: refetchFacets } = useQuery<FacetsResponse>({
-    queryKey: ["category-facets", categoryId, JSON.stringify(filters)],
-    queryFn: () =>
-      fetchCategoryFacets({ categoryId, filters }),
-    staleTime: 5 * 60 * 1000, // 5 minutes - facets should update when filters change
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    placeholderData: keepPreviousData, // Keep previous facets while new ones are loading
-  })
+  const activeFilterCount =
+    (filters.price ? 1 : 0) +
+    (filters.tags?.length || 0) +
+    (filters.availability?.length || 0) +
+    (filters.metadata ? Object.values(filters.metadata).reduce((acc, arr) => acc + arr.length, 0) : 0)
+
+  const { data: productsData, isLoading: isLoadingProducts } =
+    useQuery<CategoryProductsResponse>({
+      queryKey: [
+        "category-products",
+        categoryId,
+        page,
+        sortBy,
+        searchQuery,
+        brandFilter,
+      ],
+      queryFn: () => {
+        const requestBody = getApiRequestBody(categoryId)
+        return fetchCategoryProducts(requestBody)
+      },
+      initialData: !brandFilter ? initialProductsData : undefined,
+      staleTime: 0,
+    })
 
   const products = productsData?.items || []
-  const facets = facetsData?.facets || []
-  // Calculate pagination from response data
   const totalCount = productsData?.count || 0
   const totalPages = Math.ceil(totalCount / pageSize)
-  const pagination = productsData ? {
-    currentPage: page,
-    totalPages,
-    limit: pageSize,
-    total: totalCount,
-  } : null
+  const pagination = productsData
+    ? {
+        currentPage: page,
+        totalPages,
+        limit: pageSize,
+        total: totalCount,
+      }
+    : null
 
   const handleSortChange = (newSortBy: string) => {
     setSortBy(newSortBy as any)
@@ -134,58 +106,28 @@ export default function CategoryPageClient({
     setPage(newPage)
   }
 
-
   return (
     <div className="min-h-screen bg-base-100 w-full">
-      {/* Mobile Header with Filter Button */}
       <div className="lg:hidden border-b border-base-300 p-4 sticky top-0 z-40 backdrop-blur-sm bg-base-100/95">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold text-base-content">{categoryName}</h1>
+            <h1 className="text-lg font-bold text-base-content">
+              {categoryName}
+            </h1>
             {pagination && (
               <p className="text-sm text-base-content/60 mt-1">
                 {pagination.total} products available
               </p>
             )}
           </div>
-          <button
-            onClick={() => setIsMobileFilterOpen(true)}
-            className="btn btn-primary btn-sm gap-2 shadow-lg"
-            aria-label="Open filter menu"
-          >
-            <FunnelIcon className="w-4 h-4" />
-            Filter
-          </button>
         </div>
       </div>
 
-      <div className="flex min-h-[calc(100vh-200px)] w-full">
-        {/* Desktop Filter Sidebar */}
-        <div className="hidden lg:block flex-shrink-0">
-          {isLoadingFacets && facets.length === 0 ? (
-            <SkeletonFilterSidebar />
-          ) : (
-            <FilterSidebar 
-              facets={facets}
-              loading={false}
-              facetsLoading={isFetchingFacets && isPlaceholderFacetsData}
-              refetch={refetchFacets}
-            />
-          )}
-        </div>
+      <div className="w-full">
+        <div className="container mx-auto px-4 lg:px-8 py-8 max-w-7xl">
+          <CategoryBrandsSection brands={brands} />
+          <CategorySubcategoriesSection subcategories={subcategories} />
 
-        {/* Main Content Area */}
-        <div className="flex-1 min-w-0 lg:p-8 w-full">
-          {/* Desktop Category Header */}
-          <div className="hidden lg:block mb-8">
-            <div className="flex items-end justify-between">
-              <div>
-                <h1 className="text-4xl font-bold text-base-content mb-2">{categoryName}</h1>
-              </div>
-            </div>
-          </div>
-
-          {/* Product Controls */}
           {isLoadingProducts ? (
             <SkeletonProductControls />
           ) : (
@@ -195,20 +137,38 @@ export default function CategoryPageClient({
                   {pagination && (
                     <div>
                       <p className="text-sm font-medium text-base-content">
-                        {pagination.total === 0 ? (
-                          `0 results found`
-                        ) : (
-                          `Showing ${(pagination.currentPage - 1) * pagination.limit + 1}–${Math.min(
-                            pagination.currentPage * pagination.limit,
-                            pagination.total
-                          )} of ${pagination.total}`
-                        )}
+                        {pagination.total === 0
+                          ? `0 results found`
+                          : `Showing ${
+                              (pagination.currentPage - 1) * pagination.limit +
+                              1
+                            }–${Math.min(
+                              pagination.currentPage * pagination.limit,
+                              pagination.total
+                            )} of ${pagination.total}`}
                       </p>
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center gap-3">
+                  <div className="dropdown">
+                    <div
+                      tabIndex={0}
+                      role="button"
+                      className="btn btn-outline btn-primary hover:btn-primary transition-all duration-200 gap-2"
+                      aria-label="Filter products"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                    >
+                      <FunnelIcon className="w-4 h-4" />
+                      <span>
+                        Filter
+                        {activeFilterCount > 0 && ` (${activeFilterCount})`}
+                      </span>
+                    </div>
+                    <FilterDropdown categoryId={categoryId} activeFilterCount={activeFilterCount} />
+                  </div>
                   <div className="flex-1 lg:flex-initial">
                     <SortDropdown
                       sortBy={sortBy as any}
@@ -216,14 +176,16 @@ export default function CategoryPageClient({
                     />
                   </div>
                   <div className="hidden lg:block">
-                    <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+                    <ViewToggle
+                      viewMode={viewMode}
+                      onViewModeChange={setViewMode}
+                    />
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Product Grid */}
           {isLoadingProducts ? (
             viewMode === "grid" ? (
               <SkeletonProductGrid numberOfProducts={pageSize} />
@@ -238,7 +200,8 @@ export default function CategoryPageClient({
                   No cameras found
                 </h3>
                 <p className="text-base-content/70 max-w-md mx-auto">
-                  Try adjusting your filters or search terms to find the perfect camera equipment.
+                  Try adjusting your brand selection or search terms to find the
+                  perfect camera equipment.
                 </p>
               </div>
             </div>
@@ -261,15 +224,6 @@ export default function CategoryPageClient({
           )}
         </div>
       </div>
-
-      {/* Mobile Filter Drawer */}
-      <FilterDrawer
-        isOpen={isMobileFilterOpen}
-        onClose={() => setIsMobileFilterOpen(false)}
-        facets={facets}
-        loading={isLoadingFacets && facets.length === 0}
-        facetsLoading={isFetchingFacets && isPlaceholderFacetsData}
-      />
     </div>
   )
 }

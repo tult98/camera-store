@@ -1,21 +1,21 @@
 const SkeletonProductControls = () => {
   return (
-    <div className="animate-pulse">
-      <div className="flex justify-between items-center mb-4 p-4 bg-white border border-gray-200 rounded-lg">
-        {/* Left side - Sort and View Toggle */}
-        <div className="flex gap-4 items-center">
-          {/* Sort Dropdown */}
-          <div className="h-10 bg-gray-200 rounded w-32"></div>
-          
-          {/* View Toggle */}
-          <div className="flex gap-1">
-            <div className="h-10 w-10 bg-gray-200 rounded"></div>
-            <div className="h-10 w-10 bg-gray-200 rounded"></div>
+    <div className="bg-base-200/30 rounded-2xl p-4 mb-6 border border-base-300">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <div className="h-5 bg-base-300 rounded w-40 animate-pulse"></div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="h-10 bg-base-200 rounded-lg w-28 border border-base-300"></div>
+
+          <div className="h-10 bg-base-200 rounded-lg w-32 sm:w-48 border border-base-300"></div>
+
+          <div className="hidden lg:flex gap-0 border border-base-300 rounded-lg overflow-hidden">
+            <div className="h-10 w-10 bg-base-200"></div>
+            <div className="h-10 w-10 bg-base-200 border-l border-base-300"></div>
           </div>
         </div>
-        
-        {/* Right side - Compare Button */}
-        <div className="h-10 bg-gray-200 rounded w-24"></div>
       </div>
     </div>
   )

@@ -19,12 +19,12 @@ export default function CategorySubcategoriesSection({
   return (
     <div className="mb-8">
       <h2 className="text-2xl font-bold mb-4">Shop by Category</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-base-300 scrollbar-track-transparent">
         {subcategories.map((subcategory) => (
           <Link
             key={subcategory.id}
             href={`/categories/${subcategory.handle}`}
-            className="flex flex-col items-center p-4 rounded-lg border-2 border-base-300 bg-base-100 hover:border-primary hover:shadow-lg transition-all"
+            className="flex-shrink-0 flex flex-col items-center p-4 rounded-lg border-2 border-base-300 bg-base-100 hover:border-primary hover:shadow-lg transition-all w-40"
           >
             <div className="w-full aspect-square relative mb-3 flex items-center justify-center bg-base-200 rounded-lg overflow-hidden">
               {subcategory.metadata?.image_url ? (

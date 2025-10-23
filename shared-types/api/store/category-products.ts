@@ -8,6 +8,7 @@ export interface ApiFilters {
   availability?: string[];
   price?: { min?: number; max?: number };
   metadata?: Record<string, string[]>;
+  brand_id?: string;
 }
 
 export interface CategoryProductsRequest {
@@ -17,6 +18,7 @@ export interface CategoryProductsRequest {
   order_by?: string;
   filters?: ApiFilters;
   search_query?: string;
+  brand_id?: string;
 }
 
 export interface CategoryProductsResponse

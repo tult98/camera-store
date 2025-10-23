@@ -25,6 +25,7 @@ export async function POST(
       order_by = '-created_at',
       filters = {},
       search_query,
+      brand_id,
     } = requestData;
 
     const sanitizedSearchQuery =
@@ -39,6 +40,7 @@ export async function POST(
       search_query: sanitizedSearchQuery,
       region_id: regionId,
       currency_code: currencyCode,
+      brand_id,
     };
 
     const categoryProductService = new CategoryProductService(req.scope);

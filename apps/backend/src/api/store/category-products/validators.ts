@@ -7,6 +7,7 @@ export const PostCategoryProductsSchema = z.object({
   order_by: z.string().min(1).optional(),
   filters: z.record(z.string(), z.any()).optional(),
   search_query: z.string().optional(),
+  brand_id: z.string().optional(),
 });
 
 export type PostCategoryProductsSchemaType = z.infer<

@@ -10,7 +10,7 @@ interface QueryGraphResult {
   metadata?: { count: number };
 }
 
-interface QueryInstance {
+export interface QueryInstance {
   graph: (config: {
     entity: string;
     fields: string[];

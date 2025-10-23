@@ -12,7 +12,8 @@ const MAX_QUERY_LIMIT = 1000;
 export class ProductQueryBuilderService {
   static buildQueryFilters(
     categoryIds: string[],
-    filters: ApiFilters
+    filters: ApiFilters,
+    productIdsByBrand?: string[]
   ): QueryFilters {
     const queryFilters: QueryFilters = {
       categories: {
@@ -24,6 +25,10 @@ export class ProductQueryBuilderService {
     const tagFilter = TagFilter.buildQueryFilter(filters.tags);
     if (tagFilter) {
       queryFilters.tags = tagFilter;
+    }
+
+    if (productIdsByBrand && productIdsByBrand.length > 0) {
+      queryFilters.id = productIdsByBrand;
     }
 
     return queryFilters;

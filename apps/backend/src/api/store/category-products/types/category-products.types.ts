@@ -14,6 +14,7 @@ export interface Product {
   tags?: Array<{ value: string }>;
   images?: Array<{ url: string }>;
   product_attributes?: Record<string, unknown>;
+  brands?: Array<{ id: string; name: string }>;
 }
 
 export interface ProductAttributesService {
@@ -30,6 +31,7 @@ export interface QueryFilters {
   tags?: {
     value: string[];
   };
+  id?: string[];
   status?: string;
 }
 
@@ -55,6 +57,7 @@ export interface CategoryProductsParams {
   search_query?: string;
   region_id: string;
   currency_code: string;
+  brand_id?: string;
 }
 
 export interface ProductProcessingContext {

@@ -6,6 +6,7 @@ import {
   resolveQueryInstance,
 } from 'src/utils/category-hierarchy';
 import { toPaginatedResponse } from 'src/utils/pagination';
+import { getProductIdsByBrand } from '../filters/brand-filter';
 import { FilterPipeline } from '../filters/filter-pipeline';
 import type {
   CategoryProductsParams,
@@ -28,6 +29,7 @@ export class CategoryProductService {
       search_query,
       region_id,
       currency_code,
+      brand_id,
     } = params;
 
     const query = resolveQueryInstance(this.container);
@@ -55,9 +57,15 @@ export class CategoryProductService {
       categoryIds,
     };
 
+    let productIdsByBrand: string[] | undefined;
+    if (brand_id) {
+      productIdsByBrand = await getProductIdsByBrand(query, brand_id);
+    }
+
     const queryFilters = ProductQueryBuilderService.buildQueryFilters(
       categoryIds,
-      filters
+      filters,
+      productIdsByBrand
     );
     const sortOrder = ProductQueryBuilderService.buildSortOrder(order_by);
     const graphQuery = ProductQueryBuilderService.buildGraphQuery(

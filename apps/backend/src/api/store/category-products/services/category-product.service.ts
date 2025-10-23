@@ -1,20 +1,19 @@
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import type { MedusaContainer } from "@medusajs/framework/types";
-import { PRODUCT_ATTRIBUTES_MODULE } from "src/modules/product-attributes/index";
+import type { MedusaContainer } from '@medusajs/framework/types';
+import { ContainerRegistrationKeys } from '@medusajs/framework/utils';
+import { PRODUCT_ATTRIBUTES_MODULE } from 'src/modules/product-attributes/index';
 import {
   getAllCategoryIds,
   resolveQueryInstance,
-} from "src/utils/category-hierarchy";
-import { toPaginatedResponse } from "src/utils/pagination";
-
+} from 'src/utils/category-hierarchy';
+import { toPaginatedResponse } from 'src/utils/pagination';
+import { FilterPipeline } from '../filters/filter-pipeline';
 import type {
+  CategoryProductsParams,
   Product,
   ProductAttributesService,
-  CategoryProductsParams,
   ProductProcessingContext,
-} from "../types/category-products.types";
-import { ProductQueryBuilderService } from "./product-query-builder.service";
-import { FilterPipeline } from "../filters/filter-pipeline";
+} from '../types/category-products.types';
+import { ProductQueryBuilderService } from './product-query-builder.service';
 
 export class CategoryProductService {
   constructor(private container: MedusaContainer) {}
@@ -45,9 +44,9 @@ export class CategoryProductService {
     if (
       !categoryIds ||
       categoryIds.length === 0 ||
-      categoryIds.some((id) => !id || typeof id !== "string")
+      categoryIds.some((id) => !id || typeof id !== 'string')
     ) {
-      throw new Error("Category not found or invalid");
+      throw new Error('Category not found or invalid');
     }
 
     const context: ProductProcessingContext = {
@@ -70,7 +69,7 @@ export class CategoryProductService {
     const result = await query.graph(graphQuery);
     let products = (result.data || []) as Product[];
 
-    // products = await this.attachProductAttributes(products);
+    products = await this.attachProductAttributes(products);
 
     const pipeline = new FilterPipeline(products);
     const { products: processedProducts, totalCount } = pipeline

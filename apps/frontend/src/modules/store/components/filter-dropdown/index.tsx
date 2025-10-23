@@ -32,13 +32,10 @@ const fetchCategoryFacets = async ({
     include_counts: true,
   }
 
-  const response = await apiClient<FacetsResponse>(
-    "/store/facets/aggregate",
-    {
-      method: "POST",
-      body: facetsRequest,
-    }
-  )
+  const response = await apiClient<FacetsResponse>("/store/facets/aggregate", {
+    method: "POST",
+    body: facetsRequest,
+  })
 
   return response
 }
@@ -49,11 +46,12 @@ export default function FilterDropdown({
 }: FilterDropdownProps) {
   const { filters } = useCategoryFilterStore()
 
-  const { data: facetsData, isLoading: facetsLoading } = useQuery<FacetsResponse>({
-    queryKey: ["category-facets", categoryId, JSON.stringify(filters)],
-    queryFn: () => fetchCategoryFacets({ categoryId, filters }),
-    staleTime: 60000,
-  })
+  const { data: facetsData, isLoading: facetsLoading } =
+    useQuery<FacetsResponse>({
+      queryKey: ["category-facets", categoryId, JSON.stringify(filters)],
+      queryFn: () => fetchCategoryFacets({ categoryId, filters }),
+      placeholderData: (previousData) => previousData,
+    })
 
   const facets = facetsData?.facets || []
 
@@ -71,13 +69,7 @@ export default function FilterDropdown({
       </div>
 
       <div className="max-h-96 overflow-y-auto">
-        {facetsLoading ? (
-          <div className="p-4 space-y-4">
-            <div className="skeleton h-12 w-full"></div>
-            <div className="skeleton h-12 w-full"></div>
-            <div className="skeleton h-12 w-full"></div>
-          </div>
-        ) : facets.length === 0 ? (
+        {facets.length === 0 ? (
           <div className="p-4 text-center text-sm text-base-content/60">
             No filters available
           </div>

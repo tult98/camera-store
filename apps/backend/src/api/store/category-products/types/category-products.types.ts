@@ -13,6 +13,7 @@ export interface Product {
   categories?: Array<{ id: string }>;
   tags?: Array<{ value: string }>;
   images?: Array<{ url: string }>;
+  metadata?: Record<string, unknown>;
   product_attributes?: Record<string, unknown>;
   brands?: Array<{ id: string; name: string }>;
 }

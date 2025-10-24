@@ -75,16 +75,14 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
     },
   });
 
-  // Fetch product attributes
-  const { data: productAttributesData, isLoading: productAttributesLoading } =
+  // Fetch product metadata
+  const { data: productData, isLoading: productAttributesLoading } =
     useQuery({
-      queryKey: ["product-attributes", productId],
+      queryKey: ["product", productId],
       queryFn: async () => {
-        const response = await fetch(
-          `/admin/product-attributes?product_id=${productId}`
-        );
+        const response = await fetch(`/admin/products/${productId}`);
         const data = await response.json();
-        return data.product_attributes?.[0] || null;
+        return data.product || null;
       },
       enabled: !!productId,
     });
@@ -117,42 +115,45 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
     return resolved;
   }, [selectedTemplate, optionGroupsData]);
 
-  // Set initial template and values when product attributes are loaded
+  // Set initial template and values when product metadata is loaded
   const templates = templatesData || [];
-  const productAttributes = productAttributesData;
+  const productMetadata = productData?.metadata || {};
 
   // Initialize template and values when data is loaded
   useEffect(() => {
-    if (productAttributes && templates.length > 0 && !selectedTemplate) {
-      const template = templates.find(
-        (t: AttributeTemplate) => t.id === productAttributes.template_id
-      );
-      if (template) {
-        setSelectedTemplate(template);
-        setAttributeValues(productAttributes.attribute_values || {});
+    if (productMetadata && templates.length > 0 && !selectedTemplate) {
+      const templateId = productMetadata.attribute_template_id;
+      if (templateId) {
+        const template = templates.find(
+          (t: AttributeTemplate) => t.id === templateId
+        );
+        if (template) {
+          setSelectedTemplate(template);
+          const { attribute_template_id: _attribute_template_id, ...attributeValues } = productMetadata;
+          setAttributeValues(attributeValues as Record<string, string | number | boolean>);
+        }
       }
     }
-  }, [productAttributes, templates, selectedTemplate]);
+  }, [productMetadata, templates, selectedTemplate]);
 
-  // Mutation for saving product attributes
+  // Mutation for saving product attributes to metadata
   const saveAttributesMutation = useMutation({
     mutationFn: async (payload: {
       product_id: string;
       template_id: string;
       attribute_values: Record<string, string | number | boolean>;
     }) => {
-      const url = productAttributes?.id
-        ? `/admin/product-attributes/${productAttributes.id}`
-        : "/admin/product-attributes";
+      const metadata = {
+        attribute_template_id: payload.template_id,
+        ...payload.attribute_values,
+      };
 
-      const method = productAttributes?.id ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
+      const response = await fetch(`/admin/products/${payload.product_id}`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ metadata }),
       });
 
       if (!response.ok) {
@@ -162,9 +163,9 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
       return response.json();
     },
     onSuccess: () => {
-      // Invalidate and refetch product attributes
+      // Invalidate and refetch product data
       queryClient.invalidateQueries({
-        queryKey: ["product-attributes", productId],
+        queryKey: ["product", productId],
       });
       toast.success("Success", {
         description: "Product attributes saved successfully!",

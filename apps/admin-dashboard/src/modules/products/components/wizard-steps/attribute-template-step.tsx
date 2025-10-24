@@ -1,10 +1,5 @@
 import { fetchAttributeTemplates } from '@/modules/products/apiCalls/attribute-templates';
-import {
-  createProductAttributes,
-  fetchProductAttributes,
-  ProductAttribute,
-  updateProductAttributes,
-} from '@/modules/products/apiCalls/product-attributes';
+import { updateProductMetadata } from '@/modules/products/apiCalls/products';
 import { FormInput } from '@/modules/shared/components/ui/form-input';
 import { FormSwitch } from '@/modules/shared/components/ui/form-input/form-switch';
 import { LoadingIcon } from '@/modules/shared/components/ui/loading-icon';
@@ -18,7 +13,6 @@ import { z } from 'zod';
 import { AttributeTemplateInput } from './attribute-template-step/attribute-template-input';
 
 const attributeTemplateSchema = z.object({
-  product_id: z.string().optional(),
   template_id: z.string().optional(),
   attribute_values: z
     .record(z.string(), z.union([z.string(), z.boolean(), z.number()]))
@@ -30,14 +24,12 @@ type AttributeTemplateSchemaType = z.infer<typeof attributeTemplateSchema>;
 interface AttributeTemplateStepProps {
   product: AdminProduct | null;
   onNext: () => void;
-  initialValues: ProductAttribute | null;
   isEditMode?: boolean;
 }
 
 export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   product,
   onNext,
-  initialValues,
   isEditMode = false,
 }) => {
   const toast = useToast();
@@ -45,6 +37,12 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
     queryKey: ['attribute-templates'],
     queryFn: fetchAttributeTemplates,
   });
+
+  const metadata = product?.metadata || {};
+  const { attribute_template_id, ...attributeValuesFromMetadata } = metadata as {
+    attribute_template_id?: string;
+    [key: string]: unknown;
+  };
 
   const {
     control,
@@ -55,24 +53,19 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   } = useForm<AttributeTemplateSchemaType>({
     resolver: zodResolver(attributeTemplateSchema),
     mode: 'onBlur',
-    defaultValues: initialValues
-      ? {
-          ...initialValues,
-          attribute_values: initialValues.attribute_values as Record<
-            string,
-            string | boolean
-          >,
-        }
-      : {
-          attribute_values: {} as Record<string, string | boolean>,
-        },
+    defaultValues: {
+      template_id: attribute_template_id,
+      attribute_values: attributeValuesFromMetadata as Record<
+        string,
+        string | boolean
+      >,
+    },
   });
 
   const attributeTemplateId = watch('template_id');
 
   useEffect(() => {
-    // select a new attribute template
-    if (isDirty && attributeTemplateId !== initialValues?.template_id) {
+    if (isDirty && attributeTemplateId && attributeTemplateId !== attribute_template_id) {
       const selectedAttributeTemplate = templatesData?.attribute_templates.find(
         (template) => template.id === attributeTemplateId
       );
@@ -93,23 +86,20 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
         );
       }
     }
-    // switch back to the initial attribute template
-    if (isDirty && attributeTemplateId === initialValues?.template_id) {
-      setValue(
-        'attribute_values',
-        initialValues?.attribute_values as Record<string, string | boolean>
-      );
-    }
-  }, [isDirty, attributeTemplateId, initialValues?.template_id, templatesData]);
+  }, [isDirty, attributeTemplateId, attribute_template_id, templatesData, setValue]);
 
   const selectedAttributeTemplate = templatesData?.attribute_templates.find(
     (template) => template.id === attributeTemplateId
   );
 
-  const isUpdateMode = !!initialValues?.id;
-
-  const createMutation = useMutation({
-    mutationFn: createProductAttributes,
+  const updateMetadataMutation = useMutation({
+    mutationFn: ({
+      productId,
+      metadata,
+    }: {
+      productId: string;
+      metadata: Record<string, unknown>;
+    }) => updateProductMetadata(productId, metadata),
     onSuccess: () => {
       toast.success('Success', 'Product attributes saved successfully!');
       if (!isEditMode) {
@@ -121,37 +111,27 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: updateProductAttributes,
-    onSuccess: () => {
-      toast.success('Success', 'Product attributes updated successfully!');
-      if (!isEditMode) {
-        onNext();
-      }
-    },
-    onError: () => {
-      toast.error('Error', 'Failed to update attributes. Please try again.');
-    },
-  });
-
   const onSubmit = (data: AttributeTemplateSchemaType) => {
-    if (isUpdateMode) {
-      updateMutation.mutate({
-        id: initialValues.id,
-        product_id: data.product_id,
-        template_id: data.template_id,
-        attribute_values: data.attribute_values || ({} as any),
-      });
-    } else {
-      createMutation.mutate({
-        product_id: product?.id!,
-        template_id: data.template_id!,
-        attribute_values: data.attribute_values || ({} as any),
-      });
+    if (!product?.id) {
+      toast.error('Error', 'Product ID is required');
+      return;
     }
+
+    const metadataToSave: Record<string, unknown> = {
+      ...(data.attribute_values || {}),
+    };
+
+    if (data.template_id) {
+      metadataToSave.attribute_template_id = data.template_id;
+    }
+
+    updateMetadataMutation.mutate({
+      productId: product.id,
+      metadata: metadataToSave,
+    });
   };
 
-  const isPending = createMutation.isPending || updateMutation.isPending;
+  const isPending = updateMetadataMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -229,33 +209,4 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   );
 };
 
-const AttributeTemplateStepWrapper = ({
-  product,
-  onNext,
-  isEditMode = false,
-}: {
-  product: AdminProduct | null;
-  onNext: () => void;
-  isEditMode?: boolean;
-}) => {
-  const { data: existingAttributesData, isLoading } = useQuery({
-    queryKey: ['product-attributes', product?.id],
-    queryFn: () => fetchProductAttributes(product!.id),
-    enabled: !!product?.id,
-  });
-
-  if (isLoading && !existingAttributesData) {
-    return <div>Loading...</div>;
-  }
-
-  return (
-    <AttributeTemplateStep
-      initialValues={existingAttributesData?.product_attributes[0] || null}
-      product={product}
-      onNext={onNext}
-      isEditMode={isEditMode}
-    />
-  );
-};
-
-export default AttributeTemplateStepWrapper;
+export default AttributeTemplateStep;

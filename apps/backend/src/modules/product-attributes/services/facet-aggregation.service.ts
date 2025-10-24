@@ -1,5 +1,5 @@
 import { Logger } from "@medusajs/framework/types";
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils";
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils";
 import {
   getAllCategoryIds,
   resolveQueryInstance,
@@ -48,43 +48,45 @@ class FacetAggregationService {
       const query = resolveQueryInstance(activeContainer);
       const categoryIds = await getAllCategoryIds(query, categoryId);
 
-      // Get all products in the category and child categories using container resolve
-      const productModule = activeContainer.resolve(Modules.PRODUCT);
-      const products = await productModule.listProducts({
-        categories: { id: categoryIds },
+      // Get all products in the category and child categories
+      const result = await query.graph({
+        entity: "product",
+        fields: ["*"],
+        filters: {
+          categories: { id: categoryIds },
+          status: "published",
+        },
       });
+
+      const products = (result.data || []) as any[];
 
       if (!products || products.length === 0) {
         this.logger_.debug(`No products found for category ${categoryId}`);
         return this.getSystemFacets();
       }
 
-      const productIds = products.map((p: { id: string }) => p.id);
+      // Get unique template IDs from product metadata
+      const templateIds = new Set<string>();
+      for (const product of products) {
+        const templateId = product.metadata?.attribute_template_id as string | undefined;
+        if (templateId && typeof templateId === 'string') {
+          templateIds.add(templateId);
+        }
+      }
 
-      // Get all ProductAttribute records for these products through the module service
-      const productAttributesService = activeContainer.resolve(
-        PRODUCT_ATTRIBUTES_MODULE
-      );
-      const productAttributes =
-        await productAttributesService.listProductAttributes({
-          product_id: productIds,
-        });
-
-      if (!productAttributes || productAttributes.length === 0) {
+      if (templateIds.size === 0) {
         this.logger_.debug(
-          `No product attributes found for products in category ${categoryId}`
+          `No attribute templates found for products in category ${categoryId}`
         );
         return this.getSystemFacets();
       }
 
-      // Get unique template IDs
-      const templateIds = [
-        ...new Set(productAttributes.map((pa: any) => pa.template_id)),
-      ];
-
       // Get all AttributeTemplates through the module service
+      const productAttributesService = activeContainer.resolve(
+        PRODUCT_ATTRIBUTES_MODULE
+      );
       const templates = await productAttributesService.listAttributeTemplates({
-        id: templateIds,
+        id: Array.from(templateIds),
         is_active: true,
       });
 
@@ -259,32 +261,12 @@ class FacetAggregationService {
           pricingContext
         );
 
-      const baseProductIds = baseProd.map((p: { id: string }) => p.id);
-      const filteredProductIds = filteredProducts.map(
-        (p: { id: string }) => p.id
-      );
-
-      // Get ProductAttribute data for base products (for all values)
-      const productAttributesService = activeContainer.resolve(
-        PRODUCT_ATTRIBUTES_MODULE
-      );
-      const baseProductAttributes =
-        await productAttributesService.listProductAttributes({
-          product_id: baseProductIds,
-        });
-
-      // Get ProductAttribute data for filtered products (for counts)
-      const filteredProductAttributes =
-        await productAttributesService.listProductAttributes({
-          product_id: filteredProductIds,
-        });
-
       // Aggregate each facet using dedicated aggregators
       for (const facetConfig of attributeFacets) {
         const aggregation = this.aggregateAttributeFacet(
           facetConfig,
-          baseProductAttributes,
-          filteredProductAttributes,
+          baseProd,
+          filteredProducts,
           appliedFilters
         );
         if (aggregation) {
@@ -406,32 +388,47 @@ class FacetAggregationService {
 
   private aggregateAttributeFacet(
     facetConfig: FacetResponse,
-    baseProductAttributes: any[],
-    filteredProductAttributes: any[],
+    baseProducts: any[],
+    filteredProducts: any[],
     _appliedFilters: Record<string, unknown>
   ): FacetAggregation | null {
     try {
       const { key, label, config } = facetConfig;
 
-      // Filter base attributes for this facet key (for all possible values)
-      const relevantBaseAttributes = baseProductAttributes.filter((pa: any) => {
-        const attributeValues = pa.attribute_values || {};
-        return (
-          attributeValues[key] !== undefined && attributeValues[key] !== null
-        );
-      });
-
-      // Filter filtered attributes for this facet key (for counts)
-      const relevantFilteredAttributes = filteredProductAttributes.filter(
-        (pa: any) => {
+      // Convert products to the format expected by aggregators
+      const baseProductAttributes = baseProducts
+        .map((product: any) => {
+          const metadata = product.metadata || {};
+          const { attribute_template_id: _attribute_template_id, ...attributeValues } = metadata;
+          return {
+            product_id: product.id,
+            attribute_values: attributeValues,
+          };
+        })
+        .filter((pa: any) => {
           const attributeValues = pa.attribute_values || {};
           return (
             attributeValues[key] !== undefined && attributeValues[key] !== null
           );
-        }
-      );
+        });
 
-      if (relevantBaseAttributes.length === 0) {
+      const filteredProductAttributes = filteredProducts
+        .map((product: any) => {
+          const metadata = product.metadata || {};
+          const { attribute_template_id: _attribute_template_id, ...attributeValues } = metadata;
+          return {
+            product_id: product.id,
+            attribute_values: attributeValues,
+          };
+        })
+        .filter((pa: any) => {
+          const attributeValues = pa.attribute_values || {};
+          return (
+            attributeValues[key] !== undefined && attributeValues[key] !== null
+          );
+        });
+
+      if (baseProductAttributes.length === 0) {
         return null;
       }
 
@@ -441,8 +438,8 @@ class FacetAggregationService {
           return aggregateTermFacet(
             key,
             label,
-            relevantBaseAttributes,
-            relevantFilteredAttributes,
+            baseProductAttributes,
+            filteredProductAttributes,
             config
           );
         case "range":
@@ -450,16 +447,16 @@ class FacetAggregationService {
           return aggregateRangeFacet(
             key,
             label,
-            relevantBaseAttributes,
-            relevantFilteredAttributes,
+            baseProductAttributes,
+            filteredProductAttributes,
             config
           );
         case "boolean":
           return aggregateBooleanFacet(
             key,
             label,
-            relevantBaseAttributes,
-            relevantFilteredAttributes,
+            baseProductAttributes,
+            filteredProductAttributes,
             config
           );
         default:

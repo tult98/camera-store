@@ -103,3 +103,10 @@ export const deleteProduct = async (id: string) => {
   await sdk.admin.product.delete(id);
   return { id };
 };
+
+export const updateProductMetadata = async (
+  productId: string,
+  metadata: Record<string, unknown>
+) => {
+  return await sdk.admin.product.update(productId, { metadata });
+};

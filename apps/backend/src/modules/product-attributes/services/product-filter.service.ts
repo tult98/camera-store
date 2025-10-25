@@ -140,47 +140,25 @@ export class ProductFilterService {
   private async filterByAttributes(
     products: any[],
     attributeFilters: Array<[string, unknown]>,
-    productAttributesService: any
+    _productAttributesService: any
   ): Promise<any[]> {
-    const productIds = products.map((p: { id: string }) => p.id);
+    return products.filter((product: any) => {
+      const metadata = product.metadata || {};
+      const { attribute_template_id: _attribute_template_id, ...attributeValues } = metadata;
 
-    // Get product attributes for filtering
-    const productAttributes =
-      await productAttributesService.listProductAttributes({
-        product_id: productIds,
-      });
-
-    // Filter products based on attribute filters
-    const filteredProductIds = new Set<string>();
-
-    for (const pa of productAttributes) {
-      const attributeValues = pa.attribute_values || {};
-      let matchesAllFilters = true;
-
-      // Check if product matches ALL applied attribute filters
       for (const [filterKey, filterValue] of attributeFilters) {
         const productValue = attributeValues[filterKey];
 
-        // Handle array filters (e.g., brand: ["Canon", "Sony"])
         if (Array.isArray(filterValue)) {
           if (!filterValue.includes(productValue)) {
-            matchesAllFilters = false;
-            break;
+            return false;
           }
-        }
-        // Handle single value filters
-        else if (productValue !== filterValue) {
-          matchesAllFilters = false;
-          break;
+        } else if (productValue !== filterValue) {
+          return false;
         }
       }
 
-      if (matchesAllFilters) {
-        filteredProductIds.add(pa.product_id);
-      }
-    }
-
-    // Return only products that match all filters
-    return products.filter((p: { id: string }) => filteredProductIds.has(p.id));
+      return true;
+    });
   }
 }

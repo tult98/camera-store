@@ -1,9 +1,5 @@
 import type { MedusaContainer } from '@medusajs/framework/types';
-import {
-  ContainerRegistrationKeys,
-  MedusaError,
-} from '@medusajs/framework/utils';
-import { PRODUCT_ATTRIBUTES_MODULE } from 'src/modules/product-attributes/index';
+import { MedusaError } from '@medusajs/framework/utils';
 import {
   getAllCategoryIds,
   resolveQueryInstance,
@@ -14,7 +10,6 @@ import { FilterPipeline } from '../filters/filter-pipeline';
 import type {
   CategoryProductsParams,
   Product,
-  ProductAttributesService,
   ProductProcessingContext,
 } from '../types/category-products.types';
 import {
@@ -23,42 +18,15 @@ import {
   buildGraphQuery,
 } from './product-query-builder.service';
 
-async function attachProductAttributes(
-  container: MedusaContainer,
-  products: Product[]
-): Promise<Product[]> {
-  try {
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-    const productAttributesService = container.resolve(
-      PRODUCT_ATTRIBUTES_MODULE
-    ) as unknown as ProductAttributesService;
+function attachProductAttributes(products: Product[]): Product[] {
+  return products.map((product: Product) => {
+    const { attribute_template_id: _attribute_template_id, ...attributeValues } = (product.metadata || {}) as Record<string, unknown>;
 
-    const productIds = products.map((p: Product) => p.id);
-    const productAttributes =
-      await productAttributesService.listProductAttributes({
-        product_id: productIds,
-      });
-
-    logger.debug(`Retrieved ${productAttributes.length} product attributes`);
-
-    const attributesMap = new Map<string, Record<string, unknown>>();
-    for (const attr of productAttributes) {
-      attributesMap.set(attr.product_id, attr.attribute_values || {});
-    }
-
-    return products.map((product: Product) => ({
+    return {
       ...product,
-      product_attributes: attributesMap.get(product.id) || {},
-    }));
-  } catch (error) {
-    const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
-    logger.error(
-      `Error handling product attributes: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-    return products;
-  }
+      product_attributes: attributeValues,
+    };
+  });
 }
 
 export async function getProductsByCategoryFn(
@@ -126,7 +94,7 @@ export async function getProductsByCategoryFn(
   const result = await query.graph(graphQuery);
   let products = (result.data || []) as Product[];
 
-  products = await attachProductAttributes(container, products);
+  products = attachProductAttributes(products);
 
   const pipeline = new FilterPipeline(products);
   const { products: processedProducts, totalCount } = pipeline

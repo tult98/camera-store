@@ -13,12 +13,6 @@ export interface ProductByHandleParams {
   currency_code: string;
 }
 
-interface ProductAttributeData {
-  product_id: string;
-  template_id: string;
-  attribute_values: Record<string, unknown>;
-}
-
 export class ProductsService {
   constructor(private container: MedusaContainer) {}
 
@@ -32,7 +26,7 @@ export class ProductsService {
 
     const result = await query.graph({
       entity: "product",
-      fields: ["id"],
+      fields: ["*"],
       filters: { handle },
       context: {
         variants: {
@@ -51,45 +45,30 @@ export class ProductsService {
     }
 
     const product = products[0];
+    const metadata = product.metadata || {};
+    const { attribute_template_id, ...attributeValues } = metadata as Record<string, unknown>;
 
     try {
+      if (!attribute_template_id) {
+        return {
+          ...product,
+          product_attributes: attributeValues,
+        };
+      }
+
       const productAttributesService = this.container.resolve(
         PRODUCT_ATTRIBUTES_MODULE
       );
 
-      const productAttributes =
-        await productAttributesService.listProductAttributes({
-          product_id: [product.id],
-        });
-
-      logger.debug(
-        `Retrieved ${productAttributes.length} product attributes for product ${product.id}`
-      );
-
-      const attributesData = productAttributes.find(
-        (attr: ProductAttributeData) => attr.product_id === product.id
-      );
-
-      if (!attributesData) {
-        return {
-          ...product,
-          product_attributes: {},
-        };
-      }
-
-      // Get the attribute template to map raw values to labels
       const template = await productAttributesService.retrieveAttributeTemplate(
-        attributesData.template_id
+        attribute_template_id as string
       );
 
-      // Transform raw attribute_values to label/value pairs
       const formattedAttributes: Record<string, unknown> = {};
-      if (template?.attribute_definitions && attributesData.attribute_values) {
+      if (template?.attribute_definitions && attributeValues) {
         const templateDefinitions = template.attribute_definitions;
         if (Array.isArray(templateDefinitions)) {
-          for (const [key, value] of Object.entries(
-            attributesData.attribute_values
-          )) {
+          for (const [key, value] of Object.entries(attributeValues)) {
             const definition = templateDefinitions.find(
               (def: any) => def.key === key
             );
@@ -113,7 +92,7 @@ export class ProductsService {
       );
       return {
         ...product,
-        product_attributes: {},
+        product_attributes: attributeValues,
       };
     }
   }

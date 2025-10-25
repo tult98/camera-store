@@ -57,13 +57,13 @@ export const EditCategoryPage: React.FC = () => {
   const initialData: CategorySchemaType = {
     name: category.name,
     handle: category.handle,
-    description: category.description || '',
+    description: category.description || undefined,
     is_active: category.is_active,
     is_internal: category.is_internal,
-    parent_category_id: category.parent_category_id || '',
+    parent_category_id: category.parent_category_id || undefined,
     metadata: {
       is_featured: Boolean(category.metadata?.is_featured),
-      hero_image_url: String(category.metadata?.hero_image_url || ''),
+      hero_image_url: String(category.metadata?.hero_image_url || undefined),
     },
   };
 

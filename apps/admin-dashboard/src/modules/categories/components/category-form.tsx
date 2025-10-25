@@ -44,13 +44,13 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     defaultValues: initialData || {
       name: '',
       handle: '',
-      description: '',
+      description: undefined,
       is_active: true,
       is_internal: false,
-      parent_category_id: '',
+      parent_category_id: undefined,
       metadata: {
         is_featured: false,
-        hero_image_url: '',
+        hero_image_url: undefined,
       },
     },
   });

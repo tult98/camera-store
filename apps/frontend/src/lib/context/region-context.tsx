@@ -1,57 +1,31 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import { createContext, useContext, useEffect, useState } from "react"
-import { listRegions } from "@lib/data/regions"
+import { fetchRegions } from "@modules/common/apiCalls/regions"
+import { useQuery } from "@tanstack/react-query"
+import { createContext, useContext } from "react"
 
 interface RegionContextType {
   region: HttpTypes.StoreRegion | null
   isLoading: boolean
-  error: string | null
 }
 
 const RegionContext = createContext<RegionContextType>({
   region: null,
   isLoading: true,
-  error: null,
 })
 
 export function RegionProvider({ children }: { children: React.ReactNode }) {
-  const [region, setRegion] = useState<HttpTypes.StoreRegion | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    async function initializeRegion() {
-      try {
-        const regions = await listRegions()
-        
-        if (regions && regions.length > 0) {
-          // For single-region store, use the first (and only) region
-          const defaultRegion = regions[0]
-          setRegion(defaultRegion)
-          
-          // Store region data for client-side usage
-          if (typeof window !== "undefined") {
-            sessionStorage.setItem("default-region-id", defaultRegion.id)
-            sessionStorage.setItem("default-currency-code", defaultRegion.currency_code)
-          }
-        } else {
-          setError("No regions found in your Medusa store")
-        }
-      } catch (err) {
-        setError("Failed to fetch regions")
-        console.error("Region initialization error:", err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    initializeRegion()
-  }, [])
+  const { data: regions, isLoading } = useQuery({
+    queryKey: ["regions"],
+    queryFn: fetchRegions,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
+  const region = regions?.[0] || null
 
   return (
-    <RegionContext.Provider value={{ region, isLoading, error }}>
+    <RegionContext.Provider value={{ region, isLoading }}>
       {children}
     </RegionContext.Provider>
   )
@@ -63,12 +37,4 @@ export function useRegion() {
     throw new Error("useRegion must be used within a RegionProvider")
   }
   return context
-}
-
-// Helper function to get region ID from storage (for server-side usage)
-export function getStoredRegionId(): string | null {
-  if (typeof window === "undefined") {
-    return null
-  }
-  return sessionStorage.getItem("default-region-id")
 }

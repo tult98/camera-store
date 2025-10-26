@@ -15,8 +15,8 @@ export const metadata: Metadata = {
 
 export default async function PageLayout(props: { children: React.ReactNode }) {
   return (
-    <RegionProvider>
-      <QueryProvider>
+    <QueryProvider>
+      <RegionProvider>
         <ToastProvider>
           <BreadcrumbProvider>
             <div className="min-h-screen bg-base-100 flex flex-col">
@@ -27,7 +27,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
             </div>
           </BreadcrumbProvider>
         </ToastProvider>
-      </QueryProvider>
-    </RegionProvider>
+      </RegionProvider>
+    </QueryProvider>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useDefaultRegion } from "@lib/hooks/use-default-region"
+import { useRegion } from "@lib/context/region-context"
 import { useToast } from "@lib/providers/toast-provider"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { addItemToCart, createCart, getCart } from "../apiCalls/cart"
@@ -17,15 +17,13 @@ interface AddToCartParams {
  */
 export function useAddToCart() {
   const { showToast } = useToast()
-  const { defaultRegion } = useDefaultRegion()
+  const { region } = useRegion()
   const { cartId, setCartId } = useCartStore()
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async ({ variantId, quantity }: AddToCartParams) => {
-      // Get region info from sessionStorage (set by cameraStoreApi)
-
-      if (!defaultRegion) {
+      if (!region) {
         throw new Error(
           "Region information not available. Please refresh the page."
         )
@@ -36,20 +34,14 @@ export function useAddToCart() {
 
       if (!currentCartId) {
         // Create new cart
-        const cart = await createCart(
-          defaultRegion.id,
-          defaultRegion.currency_code
-        )
+        const cart = await createCart(region.id, region.currency_code)
         currentCartId = cart.id
       } else {
         // Verify existing cart still exists
         const existingCart = await getCart(currentCartId)
         if (!existingCart) {
           // Cart doesn't exist anymore, create new one
-          const cart = await createCart(
-            defaultRegion.id,
-            defaultRegion.currency_code
-          )
+          const cart = await createCart(region.id, region.currency_code)
           currentCartId = cart.id
           setCartId(currentCartId)
         }

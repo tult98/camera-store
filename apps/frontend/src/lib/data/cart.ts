@@ -15,7 +15,7 @@ import {
   setBuyNowCartId,
   setCartId,
 } from "./cookies"
-import { getDefaultRegion, getRegion } from "./regions"
+import { getDefaultRegion } from "./regions"
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -56,7 +56,7 @@ export async function retrieveCart(cartId?: string, isBuyNow?: boolean) {
 }
 
 export async function getOrSetCart(countryCode: string) {
-  const region = await getRegion(countryCode)
+  const region = await getDefaultRegion()
 
   if (!region) {
     throw new Error(`Region not found for country code: ${countryCode}`)

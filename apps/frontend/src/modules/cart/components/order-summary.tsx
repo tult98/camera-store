@@ -31,7 +31,7 @@ const OrderSummary = ({ cart }: OrderSummaryProps) => {
             </button>
           </Link>
           <Link href="/" className="w-full">
-            <button className="btn btn-outline btn-block">
+            <button className="btn btn-outline btn-block border border-gray-300">
               Continue Shopping
             </button>
           </Link>

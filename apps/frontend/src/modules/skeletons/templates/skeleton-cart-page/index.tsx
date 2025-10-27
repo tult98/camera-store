@@ -1,60 +1,61 @@
-import { Table } from "@medusajs/ui"
-
+import { ShoppingBagIcon } from "@heroicons/react/24/outline"
 import repeat from "@lib/util/repeat"
-import SkeletonCartItem from "@modules/skeletons/components/skeleton-cart-item"
-import SkeletonCodeForm from "@modules/skeletons/components/skeleton-code-form"
+import SkeletonLineItem from "@modules/skeletons/components/skeleton-line-item"
 import SkeletonOrderSummary from "@modules/skeletons/components/skeleton-order-summary"
 
 const SkeletonCartPage = () => {
   return (
-    <div className="py-12">
-      <div className="content-container">
-        <div className="grid grid-cols-1 small:grid-cols-[1fr_360px] gap-x-40">
-          <div className="flex flex-col bg-white p-6 gap-y-6">
-            <div className="bg-white flex items-start justify-between">
-              <div className="flex flex-col gap-y-2">
-                <div className="w-60 h-8 bg-gray-200 animate-pulse" />
-                <div className="w-48 h-6 bg-gray-200 animate-pulse" />
-              </div>
-              <div>
-                <div className="w-14 h-8 bg-gray-200 animate-pulse" />
-              </div>
-            </div>
-            <div>
-              <div className="pb-3 flex items-center">
-                <div className="w-20 h-12 bg-gray-200 animate-pulse" />
-              </div>
-              <Table>
-                <Table.Header className="border-t-0">
-                  <Table.Row>
-                    <Table.HeaderCell className="!pl-0">
-                      <div className="w-10 h-6 bg-gray-200 animate-pulse" />
-                    </Table.HeaderCell>
-                    <Table.HeaderCell></Table.HeaderCell>
-                    <Table.HeaderCell>
-                      <div className="w-16 h-6 bg-gray-200 animate-pulse" />
-                    </Table.HeaderCell>
-                    <Table.HeaderCell>
-                      <div className="w-12 h-6 bg-gray-200 animate-pulse" />
-                    </Table.HeaderCell>
-                    <Table.HeaderCell className="!pr-0">
-                      <div className="flex justify-end">
-                        <div className="w-12 h-6 bg-gray-200 animate-pulse" />
-                      </div>
-                    </Table.HeaderCell>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {repeat(4).map((index) => (
-                    <SkeletonCartItem key={index} />
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
+    <div className="min-h-screen bg-base-100">
+      <div className="container mx-auto py-8 md:py-12">
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-base-content flex items-center gap-3">
+            <ShoppingBagIcon className="w-8 h-8 md:w-10 md:h-10 text-base-content/30" />
+            <div className="w-48 h-10 bg-base-300 animate-pulse rounded" />
+          </h1>
+          <div className="mt-2">
+            <div className="w-32 h-6 bg-base-300 animate-pulse rounded" />
           </div>
-          <div className="flex flex-col gap-y-8">
-            <SkeletonOrderSummary />
-            <SkeletonCodeForm />
+        </div>
+
+        <div data-testid="cart-container">
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
+            <div className="space-y-6">
+              <div className="card bg-base-100 border border-base-300">
+                <div className="card-body p-4 md:p-6">
+                  <div className="space-y-4">
+                    <div className="hidden md:grid md:grid-cols-12 md:gap-4 md:pb-4 md:border-b md:border-base-300">
+                      <div className="col-span-5">
+                        <div className="w-20 h-4 bg-base-300 animate-pulse rounded" />
+                      </div>
+                      <div className="col-span-2 flex justify-center">
+                        <div className="w-12 h-4 bg-base-300 animate-pulse rounded" />
+                      </div>
+                      <div className="col-span-2 flex justify-center">
+                        <div className="w-16 h-4 bg-base-300 animate-pulse rounded" />
+                      </div>
+                      <div className="col-span-1"></div>
+                      <div className="col-span-2 flex justify-end">
+                        <div className="w-12 h-4 bg-base-300 animate-pulse rounded" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {repeat(3).map((index) => (
+                        <SkeletonLineItem key={index} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="xl:sticky xl:top-20 h-fit">
+              <div className="card bg-base-100 border border-base-300">
+                <div className="card-body">
+                  <SkeletonOrderSummary />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

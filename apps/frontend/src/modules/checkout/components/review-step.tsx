@@ -87,7 +87,7 @@ const ReviewStep = ({
     mutationFn: completeOrder,
     onSuccess: (order) => {
       setTimeout(() => {
-        router.push(`/checkout?step=success&order_id=${order?.id || ''}`)
+        router.push(`/checkout?step=success&order_id=${order?.id || ""}`)
       }, 500)
     },
     onError: (error) => {
@@ -159,12 +159,7 @@ const ReviewStep = ({
                             }
                           />
                           <div className="flex-1">
-                            <div className="font-medium">
-                              {option.type.label}
-                            </div>
-                            <div className="text-sm text-base-content/70">
-                              {option.type.description}
-                            </div>
+                            <div className="font-medium">{option.name}</div>
                             <div className="text-sm font-semibold mt-1">
                               {option.calculated_price
                                 ? formatPrice(

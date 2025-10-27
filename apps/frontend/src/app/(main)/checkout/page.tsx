@@ -1,5 +1,7 @@
 import { retrieveCart } from "@lib/data/cart"
+import EmptyCartMessage from "@modules/cart/components/empty-cart-message"
 import Checkout from "@modules/checkout/components"
+import SkeletonCheckoutPage from "@modules/skeletons/templates/skeleton-checkout-page"
 import { redirect } from "next/navigation"
 import { Suspense } from "react"
 
@@ -27,32 +29,11 @@ export default async function CheckoutPage({
   const isBuyNow = !!buyNowCart
 
   if (!cart) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Cart is empty</h1>
-          <p className="text-gray-600 mb-8">
-            Add items to your cart to checkout
-          </p>
-          <a href="/" className="btn btn-primary">
-            Continue Shopping
-          </a>
-        </div>
-      </div>
-    )
+    return <EmptyCartMessage />
   }
 
   return (
-    <Suspense
-      fallback={
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="loading loading-spinner loading-lg"></div>
-            <p className="mt-4 text-gray-600">Loading checkout...</p>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<SkeletonCheckoutPage />}>
       <Checkout cart={cart} isBuyNow={isBuyNow} />
     </Suspense>
   )

@@ -4,9 +4,9 @@ import SkeletonCartTotals from "@modules/skeletons/components/skeleton-cart-tota
 
 const SkeletonCheckoutSummary = () => {
   return (
-    <div className="md:sticky md:top-0 border border-gray-200 p-4 md:p-6 rounded-lg overflow-hidden">
+    <div className="md:sticky md:top-0 border border-base-300 p-4 md:p-6 rounded-lg overflow-hidden">
       <div className="w-full flex flex-col space-y-4 md:space-y-6">
-        <div className="w-40 h-6 bg-gray-200 animate-pulse" />
+        <div className="w-40 h-6 bg-base-300 animate-pulse" />
 
         <div className="space-y-3 md:space-y-4 overflow-x-auto">
           <div className="overflow-x-auto">

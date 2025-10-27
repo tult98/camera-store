@@ -1,5 +1,5 @@
 [phases.build]
-cmds = ['yarn nx build admin-dashboard']
+cmds = ['yarn nx run admin-dashboard:build']
 
 [start]
 cmd = 'npx serve dist/apps/admin-dashboard -s -l $PORT'

@@ -16,6 +16,10 @@ http {
         server ${BACKEND_URL}:443;
     }
 
+    upstream admin-dashboard {
+      server ${ADMIN_DASHBOARD_URL}:443;
+    }
+
     server {
         listen 80;
         client_max_body_size 100M;
@@ -31,9 +35,12 @@ http {
         }
 
         location ^~ /app/ {
-            proxy_pass https://backend;
+            # Strip the /app prefix before sending to admin-dashboard
+            rewrite ^/app(/.*)$ $1 break;
+
+            proxy_pass https://admin-dashboard;
             proxy_http_version 1.1;
-            proxy_set_header Host ${BACKEND_URL};
+            proxy_set_header Host ${ADMIN_DASHBOARD_URL};
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto https;

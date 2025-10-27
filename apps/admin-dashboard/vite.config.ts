@@ -7,6 +7,7 @@ import path from 'path';
 
 export default defineConfig(() => ({
   root: __dirname,
+  base: '/app',
   cacheDir: '../../node_modules/.vite/apps/admin-dashboard',
   server: {
     port: 3000,

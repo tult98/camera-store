@@ -108,6 +108,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
         ...response.product
       });
       queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
       toast.success(
         `Product updated`,
         `"${title}" has been updated successfully`

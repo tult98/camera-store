@@ -6,7 +6,7 @@ import { LoadingIcon } from '@/modules/shared/components/ui/loading-icon';
 import { useToast } from '@/modules/shared/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminProduct } from '@medusajs/types';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -33,6 +33,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   isEditMode = false,
 }) => {
   const toast = useToast();
+  const queryClient = useQueryClient();
   const { data: templatesData } = useQuery({
     queryKey: ['attribute-templates'],
     queryFn: fetchAttributeTemplates,
@@ -101,6 +102,8 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
       metadata: Record<string, unknown>;
     }) => updateProductMetadata(productId, metadata),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product', product?.id] });
       toast.success('Success', 'Product attributes saved successfully!');
       if (!isEditMode) {
         onNext();

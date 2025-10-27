@@ -4,8 +4,7 @@ import OrderSuccessStep from "@modules/checkout/components/order-success-step"
 import ReviewStep from "@modules/checkout/components/review-step"
 import ShippingAddressStep from "@modules/checkout/components/shipping-address-step"
 import { useCheckoutBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
-import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 
 export default function CheckoutForm({
   cart,
@@ -16,14 +15,14 @@ export default function CheckoutForm({
 }) {
   const searchParams = useSearchParams()
   const step = searchParams.get("step")
-  
+
   // Set breadcrumbs based on current step
   useCheckoutBreadcrumbs(
     (step as "cart" | "shipping-address" | "review" | "success") || "cart"
   )
 
   return (
-    <div className="w-full">
+    <div className="w-full border border-base-content/10 rounded-lg shadow-sm">
       <div className="grid grid-cols-1 gap-y-8">
         {step === "cart" && <CartStep initialCart={cart} />}
         {step === "shipping-address" && <ShippingAddressStep cart={cart} />}

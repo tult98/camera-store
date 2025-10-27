@@ -26,7 +26,7 @@ const OrderSummary = ({ cart }: OrderSummaryProps) => {
             Proceed to Checkout
             <ArrowRightIcon className="w-5 h-5 ml-2" />
           </Link>
-          <Link href="/" className="btn btn-outline btn-block border border-base-300">
+          <Link href="/" className="btn btn-outline btn-block border border-base-content/10">
             Continue Shopping
           </Link>
         </div>

@@ -25,7 +25,7 @@ const CartLayout = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           {cart?.items?.length ? (
             <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8">
               <div className="space-y-6">
-                <div className="card bg-base-100 border border-base-300">
+                <div className="card bg-base-100 border border-base-content/10 shadow-sm">
                   <div className="card-body p-4 md:p-6">
                     <LineItems cart={cart} />
                   </div>
@@ -34,7 +34,7 @@ const CartLayout = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
 
               <div className="xl:sticky xl:top-20 h-fit">
                 {cart && cart.region && (
-                  <div className="card bg-base-100 border border-base-300">
+                  <div className="card bg-base-100 border border-base-content/10 shadow-sm">
                     <div className="card-body">
                       <OrderSummary cart={cart as any} />
                     </div>

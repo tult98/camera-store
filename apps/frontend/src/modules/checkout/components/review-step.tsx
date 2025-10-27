@@ -114,7 +114,7 @@ const ReviewStep = ({
   }
 
   return (
-    <div className="bg-white">
+    <div className="bg-base-100 rounded-lg shadow-sm p-6">
       <div className="flex flex-row items-center justify-between mb-6">
         <Heading level="h2" className="text-2xl font-bold text-base-content">
           Review Your Order
@@ -126,7 +126,7 @@ const ReviewStep = ({
         <>
           {/* Cart Items Summary */}
           <div className="mb-8">
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="bg-base-100 shadow-sm rounded-lg p-6">
               <Heading level="h3" className="text-lg font-semibold mb-4">
                 Order Summary
               </Heading>

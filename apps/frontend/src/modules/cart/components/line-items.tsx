@@ -1,7 +1,7 @@
 import repeat from "@lib/util/repeat"
 import { HttpTypes } from "@medusajs/types"
-import LineItem from "./line-item"
 import SkeletonLineItem from "@modules/skeletons/components/skeleton-line-item"
+import LineItem from "./line-item"
 
 type LineItemsProps = {
   cart?: HttpTypes.StoreCart
@@ -9,17 +9,25 @@ type LineItemsProps = {
 
 const LineItems = ({ cart }: LineItemsProps) => {
   const items = cart?.items
-  
+
   return (
     <div className="space-y-4">
-      <div className="hidden md:grid md:grid-cols-12 md:gap-4 md:pb-4 md:border-b md:border-base-300">
-        <div className="col-span-5 text-sm font-semibold text-base-content">Product</div>
-        <div className="col-span-2 text-sm font-semibold text-base-content text-center">Price</div>
-        <div className="col-span-2 text-sm font-semibold text-base-content text-center">Quantity</div>
+      <div className="hidden md:grid md:grid-cols-12 md:gap-4 md:pb-4 md:border-b md:border-base-content/10">
+        <div className="col-span-5 text-sm font-semibold text-base-content">
+          Product
+        </div>
+        <div className="col-span-2 text-sm font-semibold text-base-content text-center">
+          Price
+        </div>
+        <div className="col-span-2 text-sm font-semibold text-base-content text-center">
+          Quantity
+        </div>
         <div className="col-span-1 text-sm font-semibold text-base-content text-center"></div>
-        <div className="col-span-2 text-sm font-semibold text-base-content text-right">Total</div>
+        <div className="col-span-2 text-sm font-semibold text-base-content text-right">
+          Total
+        </div>
       </div>
-      
+
       <div className="space-y-4">
         {items
           ? items
@@ -31,7 +39,7 @@ const LineItems = ({ cart }: LineItemsProps) => {
                   <LineItem
                     key={item.id}
                     item={item}
-                    currencyCode={cart?.currency_code || 'USD'}
+                    currencyCode={cart?.currency_code || "USD"}
                     cartId={cart?.id}
                   />
                 )

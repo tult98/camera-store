@@ -60,7 +60,7 @@ const ShippingAddressStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   }
 
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200">
+    <div className="bg-base-100 p-6 rounded-lg shadow-sm">
       <div className="flex flex-row items-center justify-between mb-8">
         <Heading level="h2" className="text-xl font-semibold text-gray-900">
           Shipping Information

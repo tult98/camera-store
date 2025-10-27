@@ -43,7 +43,7 @@ const LineItem = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
 
   if (type === "preview") {
     return (
-      <tr className="border-b border-base-200">
+      <tr className="border-b border-base-content/10">
         <td className="p-4">
           <div className="flex items-center gap-4">
             <Link
@@ -82,7 +82,11 @@ const LineItem = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
             </div>
 
             <div className="text-right">
-              <LineItemPrice item={item} style="tight" currencyCode={currencyCode} />
+              <LineItemPrice
+                item={item}
+                style="tight"
+                currencyCode={currencyCode}
+              />
             </div>
           </div>
         </td>
@@ -211,7 +215,7 @@ const LineItem = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
 
       {/* Desktop Layout */}
       <div
-        className="hidden md:grid md:grid-cols-12 md:gap-4 md:items-center md:py-4 md:border-b md:border-base-200"
+        className="hidden md:grid md:grid-cols-12 md:gap-4 md:items-center md:py-4 md:border-b md:border-base-content/10"
         data-testid="product-row"
       >
         <div className="col-span-5 flex items-center gap-4">

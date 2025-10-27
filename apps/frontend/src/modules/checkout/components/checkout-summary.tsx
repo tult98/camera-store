@@ -10,7 +10,7 @@ const CheckoutSummary = ({ initialCart }: { initialCart: HttpTypes.StoreCart }) 
   const currentCart = cart || initialCart
 
   return (
-    <div className="md:sticky md:top-0 border border-gray-200 p-4 md:p-6 rounded-lg overflow-hidden">
+    <div className="md:sticky md:top-0 border border-base-content/10 shadow-sm p-4 md:p-6 rounded-lg overflow-hidden">
       <div className="w-full flex flex-col space-y-4 md:space-y-6">
         <Heading level="h2" className="text-lg md:text-xl font-semibold text-gray-900">
           Order Summary

@@ -58,13 +58,13 @@ export default function CartStep({ initialCart }: CartStepProps) {
           {currentCart?.items?.map((item) => (
             <div
               key={item.id}
-              className="p-3 bg-gray-50 rounded-lg md:flex md:items-center md:p-4 md:border md:border-base-200 md:bg-white"
+              className="p-3 bg-base-200 rounded-lg md:flex md:items-center md:p-4 md:border md:border-base-content/10 md:bg-base-100"
             >
               {/* Mobile Layout - Matches mockup exactly */}
               <div className="md:hidden">
                 {/* Product Image */}
                 <div className="flex items-start gap-3">
-                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-20 h-20 bg-base-300 rounded-lg flex items-center justify-center flex-shrink-0">
                     {item?.thumbnail ? (
                       <img
                         src={item.thumbnail}
@@ -109,7 +109,7 @@ export default function CartStep({ initialCart }: CartStepProps) {
                       disabled={
                         isItemUpdating(item.id) || (item.quantity || 1) <= 1
                       }
-                      className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center bg-white flex-shrink-0"
+                      className="w-7 h-7 rounded-full border border-base-300 flex items-center justify-center bg-base-100 flex-shrink-0"
                       aria-label="Decrease quantity"
                     >
                       <MinusIcon className="w-3 h-3" />
@@ -124,7 +124,7 @@ export default function CartStep({ initialCart }: CartStepProps) {
                         handleUpdateQuantity(item.id, (item.quantity || 1) + 1)
                       }
                       disabled={isItemUpdating(item.id)}
-                      className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center bg-white flex-shrink-0"
+                      className="w-7 h-7 rounded-full border border-base-300 flex items-center justify-center bg-base-100 flex-shrink-0"
                       aria-label="Increase quantity"
                     >
                       <PlusIcon className="w-3 h-3" />

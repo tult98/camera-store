@@ -15,7 +15,7 @@ root.render(
   <StrictMode>
     <QueryProvider>
       <ToastProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/app">
           <App />
         </BrowserRouter>
         <ToastContainer />

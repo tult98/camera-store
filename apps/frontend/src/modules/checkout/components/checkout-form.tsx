@@ -14,7 +14,7 @@ export default function CheckoutForm({
   isBuyNow?: boolean
 }) {
   const searchParams = useSearchParams()
-  const step = searchParams.get("step")
+  const step = searchParams.get("step") || "cart"
 
   // Set breadcrumbs based on current step
   useCheckoutBreadcrumbs(

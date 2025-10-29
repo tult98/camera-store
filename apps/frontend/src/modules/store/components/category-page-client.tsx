@@ -170,13 +170,11 @@ export default function CategoryPageClient({
 
               {pagination && pagination.totalPages > 1 && (
                 <div className="mt-12 flex justify-center">
-                  <div className="bg-base-200/30 rounded-2xl p-4 border border-base-300">
-                    <Pagination
-                      page={pagination.currentPage}
-                      totalPages={pagination.totalPages}
-                      onPageChange={handlePageChange}
-                    />
-                  </div>
+                  <Pagination
+                    page={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    onPageChange={handlePageChange}
+                  />
                 </div>
               )}
             </>

@@ -1,25 +1,27 @@
-import type { Product, ProductVariant, PriceFilter as PriceFilterOptions, FilterResult } from "../types/category-products.types";
-
-const CENTS_TO_DOLLARS = 100;
+import type {
+  Product,
+  ProductVariant,
+  PriceFilter as PriceFilterOptions,
+  FilterResult,
+} from '../types/category-products.types';
 
 export class PriceFilter {
-  static apply(products: Product[], priceFilter: PriceFilterOptions | undefined): FilterResult {
+  static apply(
+    products: Product[],
+    priceFilter: PriceFilterOptions | undefined
+  ): FilterResult {
     if (
       !priceFilter ||
       (priceFilter.min === undefined && priceFilter.max === undefined)
     ) {
       return {
         products,
-        totalCount: products.length
+        totalCount: products.length,
       };
     }
 
-    const minPrice = priceFilter.min
-      ? priceFilter.min * CENTS_TO_DOLLARS
-      : undefined;
-    const maxPrice = priceFilter.max
-      ? priceFilter.max * CENTS_TO_DOLLARS
-      : undefined;
+    const minPrice = priceFilter.min ? priceFilter.min : undefined;
+    const maxPrice = priceFilter.max ? priceFilter.max : undefined;
 
     const filteredProducts = products.filter((product: Product) => {
       if (!product.variants || product.variants.length === 0) return false;
@@ -37,7 +39,7 @@ export class PriceFilter {
 
     return {
       products: filteredProducts,
-      totalCount: filteredProducts.length
+      totalCount: filteredProducts.length,
     };
   }
 
@@ -45,12 +47,14 @@ export class PriceFilter {
     return [...products].sort((a: Product, b: Product) => {
       const aPrice = Math.min(
         ...(a.variants || []).map(
-          (v: ProductVariant) => v.calculated_price?.calculated_amount || Infinity
+          (v: ProductVariant) =>
+            v.calculated_price?.calculated_amount || Infinity
         )
       );
       const bPrice = Math.min(
         ...(b.variants || []).map(
-          (v: ProductVariant) => v.calculated_price?.calculated_amount || Infinity
+          (v: ProductVariant) =>
+            v.calculated_price?.calculated_amount || Infinity
         )
       );
 

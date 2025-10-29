@@ -9,7 +9,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: {
-      allowedOrigins: ["staging.phcamera.com"],
+      allowedOrigins: ["staging.phcamera.com", "www.phcamera.com"],
     },
   },
   logging: {
@@ -39,12 +39,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "bucket-fdsj-production.up.railway.app"
+        hostname: "bucket-fdsj-production.up.railway.app",
       },
       {
         protocol: "http",
         hostname: "localhost",
-      }
+      },
     ],
   },
 }

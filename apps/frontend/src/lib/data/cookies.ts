@@ -1,6 +1,13 @@
 import "server-only"
 import { cookies as nextCookies } from "next/headers"
 
+/**
+ * Authentication and cache cookie utilities
+ *
+ * Note: For cart cookie operations, use the functions from:
+ * @see modules/shared/utils/cart-cookies.ts
+ */
+
 export const getAuthHeaders = async (): Promise<
   { authorization: string } | {}
 > => {
@@ -62,23 +69,4 @@ export const setAuthToken = async (token: string) => {
 export const removeAuthToken = async () => {
   const cookies = await nextCookies()
   cookies.delete("_medusa_jwt")
-}
-
-export const getCartId = async () => {
-  const cookies = await nextCookies()
-  return cookies.get("_medusa_cart_id")?.value
-}
-
-export const setCartId = async (cartId: string) => {
-  const cookies = await nextCookies()
-  cookies.set("_medusa_cart_id", cartId, {
-    maxAge: 60 * 60 * 24 * 7,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-  })
-}
-
-export const removeCartId = async () => {
-  const cookies = await nextCookies()
-  cookies.delete("_medusa_cart_id")
 }

@@ -1,9 +1,13 @@
 /**
- * Client-side cookie utilities for cart management
+ * Client-side cart cookie management utilities
+ *
+ * Use in: Client Components and browser-only code
+ * Examples: cart-store.ts, client components
  */
 
 import { deleteCookie, getCookie, setCookie } from "cookies-next"
 
+// Shared constants
 const CART_COOKIE_NAME = "_medusa_cart_id"
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days in seconds
 

@@ -1,5 +1,5 @@
 import { retrieveCart } from "@lib/data/cart"
-import { getCartId } from "@lib/data/cookies"
+import { getCartIdServer } from "@modules/shared/utils/cart-cookies-server"
 import EmptyCartMessage from "@modules/cart/components/empty-cart-message"
 import Checkout from "@modules/checkout/components"
 
@@ -14,7 +14,7 @@ export default async function CheckoutPage({ searchParams }: Props) {
   const buyNowCartId =
     typeof params.buyNowCartId === "string" ? params.buyNowCartId : undefined
 
-  const cartId = buyNowCartId || (await getCartId())
+  const cartId = buyNowCartId || (await getCartIdServer())
 
   const cart = await retrieveCart(cartId)
 

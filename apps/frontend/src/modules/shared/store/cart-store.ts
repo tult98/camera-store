@@ -5,7 +5,7 @@ import {
   getCartId,
   setCartId as setCookieCartId,
   removeCartId,
-} from "../utils/cart-cookies"
+} from "../utils/cart-cookies-client"
 
 interface CartStore {
   cartId: string | null

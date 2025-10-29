@@ -8,8 +8,8 @@ import {
   getAuthHeaders,
   getCacheOptions,
   getCacheTag,
-  getCartId
 } from "./cookies"
+import { getCartIdServer } from "@modules/shared/utils/cart-cookies-server"
 import { getDefaultRegion } from "./regions"
 
 /**
@@ -124,7 +124,7 @@ export async function initiatePaymentSession(
 }
 
 export async function applyPromotions(codes: string[]) {
-  const cartId = await getCartId()
+  const cartId = await getCartIdServer()
 
   if (!cartId) {
     throw new Error("No existing cart found")
@@ -159,7 +159,7 @@ export async function submitPromotionForm(
 }
 
 export async function listCartOptions() {
-  const cartId = await getCartId()
+  const cartId = await getCartIdServer()
   const headers = {
     ...(await getAuthHeaders()),
   }

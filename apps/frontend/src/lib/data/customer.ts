@@ -9,11 +9,13 @@ import {
   getAuthHeaders,
   getCacheOptions,
   getCacheTag,
-  getCartId,
   removeAuthToken,
-  removeCartId,
   setAuthToken,
 } from "./cookies"
+import {
+  getCartIdServer,
+  removeCartIdServer,
+} from "@modules/shared/utils/cart-cookies-server"
 
 export const retrieveCustomer =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
@@ -135,7 +137,7 @@ export async function signout(countryCode: string) {
   const customerCacheTag = await getCacheTag("customers")
   revalidateTag(customerCacheTag)
 
-  await removeCartId()
+  await removeCartIdServer()
 
   const cartCacheTag = await getCacheTag("carts")
   revalidateTag(cartCacheTag)
@@ -144,7 +146,7 @@ export async function signout(countryCode: string) {
 }
 
 export async function transferCart() {
-  const cartId = await getCartId()
+  const cartId = await getCartIdServer()
 
   if (!cartId) {
     return

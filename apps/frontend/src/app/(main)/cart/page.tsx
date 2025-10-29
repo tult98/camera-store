@@ -1,5 +1,5 @@
 import { retrieveCart } from "@lib/data/cart"
-import { getCartId } from "@lib/data/cookies"
+import { getCartIdServer } from "@modules/shared/utils/cart-cookies-server"
 import CartPage from "@modules/cart/components/cart-page"
 import { Metadata } from "next"
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 export default async function Cart() {
-  const cartId = await getCartId()
+  const cartId = await getCartIdServer()
   const cart = await retrieveCart(cartId)
 
   return <CartPage initialCart={cart} />

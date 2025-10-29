@@ -1,24 +1,21 @@
 "use client"
 
 import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
-import { useCart, useDeleteCartItem, useUpdateCartItem } from "@lib/hooks/use-cart"
+import { useDeleteCartItem, useUpdateCartItem } from "@lib/hooks/use-cart"
 import { formatPrice } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
 import { useRouter, useSearchParams } from "next/navigation"
 
 interface CartStepProps {
-  initialCart: HttpTypes.StoreCart
+  cart: HttpTypes.StoreCart
 }
 
-export default function CartStep({ initialCart }: CartStepProps) {
+export default function CartStep({ cart }: CartStepProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const { data: cart } = useCart(initialCart.id)
-  const currentCart = cart || initialCart
-
-  const updateCartItem = useUpdateCartItem(currentCart.id)
-  const deleteCartItem = useDeleteCartItem(currentCart.id)
+  const updateCartItem = useUpdateCartItem(cart.id)
+  const deleteCartItem = useDeleteCartItem(cart.id)
 
   const handleUpdateQuantity = (lineItemId: string, quantity: number) => {
     if (quantity < 1) return
@@ -55,7 +52,7 @@ export default function CartStep({ initialCart }: CartStepProps) {
         </h2>
 
         <div className="space-y-4">
-          {currentCart?.items?.map((item) => (
+          {cart?.items?.map((item) => (
             <div
               key={item.id}
               className="p-3 bg-base-200 rounded-lg md:flex md:items-center md:p-4 md:border md:border-base-content/10 md:bg-base-100"
@@ -78,27 +75,41 @@ export default function CartStep({ initialCart }: CartStepProps) {
                         className="w-full h-full object-cover rounded-lg"
                       />
                     ) : (
-                      <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="w-10 h-10 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                     )}
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 text-sm truncate">
                       {item.title}
                     </h3>
-                    {item.variant?.title && item.variant.title !== "Default Variant" && (
-                      <p className="text-xs text-gray-500 mt-1 truncate">
-                        Variant: {item.variant.title}
-                      </p>
-                    )}
+                    {item.variant?.title &&
+                      item.variant.title !== "Default Variant" && (
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          Variant: {item.variant.title}
+                        </p>
+                      )}
                     <p className="text-lg font-bold text-gray-900 mt-2">
-                      {formatPrice(item.unit_price || 0, currentCart.currency_code || 'USD')}
+                      {formatPrice(
+                        item.unit_price || 0,
+                        cart.currency_code || "USD"
+                      )}
                     </p>
                   </div>
                 </div>
-                
+
                 {/* Mobile Quantity and Delete */}
                 <div className="flex items-center justify-between mt-3">
                   <div className="flex items-center gap-2">
@@ -130,7 +141,7 @@ export default function CartStep({ initialCart }: CartStepProps) {
                       <PlusIcon className="w-3 h-3" />
                     </button>
                   </div>
-                  
+
                   <button
                     onClick={() => handleRemoveItem(item.id)}
                     disabled={isItemUpdating(item.id)}
@@ -168,13 +179,14 @@ export default function CartStep({ initialCart }: CartStepProps) {
                   <h3 className="font-semibold text-base-content">
                     {item.title}
                   </h3>
-                  {item.variant?.title && item.variant.title !== "Default Variant" && (
-                    <p className="text-sm text-gray-500">
-                      Variant: {item.variant.title}
-                    </p>
-                  )}
+                  {item.variant?.title &&
+                    item.variant.title !== "Default Variant" && (
+                      <p className="text-sm text-gray-500">
+                        Variant: {item.variant.title}
+                      </p>
+                    )}
                   <p className="text-lg font-semibold text-base-content mt-1">
-                    {formatPrice(item.total || 0, currentCart.currency_code || 'USD')}
+                    {formatPrice(item.total || 0, cart.currency_code || "USD")}
                   </p>
                 </div>
 
@@ -228,7 +240,7 @@ export default function CartStep({ initialCart }: CartStepProps) {
           <div className="flex gap-4">
             <button
               onClick={handleNextStep}
-              disabled={!currentCart?.items?.length}
+              disabled={!cart?.items?.length}
               className="btn btn-primary w-full"
             >
               Continue

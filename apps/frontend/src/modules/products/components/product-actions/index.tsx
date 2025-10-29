@@ -7,6 +7,7 @@ import { HttpTypes } from "@medusajs/types"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { useAddToCart } from "@modules/shared/hooks"
+import { useCartStore } from "@modules/shared/store/cart-store"
 import { useMutation } from "@tanstack/react-query"
 import { isEqual } from "lodash"
 import { useRouter } from "next/navigation"
@@ -40,6 +41,7 @@ export default function ProductActions({
   const [quantity, setQuantity] = useState(1)
   const router = useRouter()
   const { showToast } = useToast()
+  const { setBuyNowCartId } = useCartStore()
 
   // Add to cart mutation
   const addToCartMutation = useAddToCart()
@@ -55,9 +57,10 @@ export default function ProductActions({
     }) => {
       return await buyNow({ variantId, quantity })
     },
-    onSuccess: () => {
+    onSuccess: (cartId) => {
+      setBuyNowCartId(cartId)
       showToast("Product added to checkout successfully!", "success")
-      router.push("/checkout")
+      router.push(`/checkout?buyNowCartId=${cartId}`)
     },
     onError: (error: any) => {
       const errorMessage =

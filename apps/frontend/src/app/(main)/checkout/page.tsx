@@ -1,22 +1,22 @@
 import { retrieveCart } from "@lib/data/cart"
+import { getCartId } from "@lib/data/cookies"
 import EmptyCartMessage from "@modules/cart/components/empty-cart-message"
 import Checkout from "@modules/checkout/components"
 
 export const dynamic = "force-dynamic"
 
-export default async function CheckoutPage() {
-  // Fetch carts on the server
-  const [buyNowCart, regularCart] = await Promise.all([
-    retrieveCart(undefined, true),
-    retrieveCart(),
-  ])
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
-  const cart = buyNowCart || regularCart
-  const isBuyNow = !!buyNowCart
+export default async function CheckoutPage({ searchParams }: Props) {
+  const params = await searchParams
+  const buyNowCartId =
+    typeof params.buyNowCartId === "string" ? params.buyNowCartId : undefined
 
-  if (!cart) {
-    return <EmptyCartMessage />
-  }
+  const cartId = buyNowCartId || (await getCartId())
 
-  return <Checkout cart={cart} isBuyNow={isBuyNow} />
+  const cart = await retrieveCart(cartId)
+
+  return <Checkout initialCart={cart} />
 }

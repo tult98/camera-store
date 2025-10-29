@@ -1,9 +1,10 @@
 import { retrieveCart } from "@lib/data/cart"
+import { getCartId } from "@lib/data/cookies"
 import CartPage from "@modules/cart/components/cart-page"
 import { Metadata } from "next"
 
 // Force dynamic rendering due to cookies usage
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Cart",
@@ -11,9 +12,8 @@ export const metadata: Metadata = {
 }
 
 export default async function Cart() {
-  // Fetch only cart data server-side for faster initial load
-  // Customer data is not critical and can be fetched client-side
-  const cart = await retrieveCart().catch(() => null)
+  const cartId = await getCartId()
+  const cart = await retrieveCart(cartId)
 
   return <CartPage initialCart={cart} />
 }

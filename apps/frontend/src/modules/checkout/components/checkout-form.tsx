@@ -6,13 +6,7 @@ import ShippingAddressStep from "@modules/checkout/components/shipping-address-s
 import { useCheckoutBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
 import { useSearchParams } from "next/navigation"
 
-export default function CheckoutForm({
-  cart,
-  isBuyNow = false,
-}: {
-  cart: HttpTypes.StoreCart
-  isBuyNow?: boolean
-}) {
+export default function CheckoutForm({ cart }: { cart: HttpTypes.StoreCart }) {
   const searchParams = useSearchParams()
   const step = searchParams.get("step") || "cart"
 
@@ -24,10 +18,10 @@ export default function CheckoutForm({
   return (
     <div className="w-full border border-base-content/10 rounded-lg shadow-sm">
       <div className="grid grid-cols-1 gap-y-8">
-        {step === "cart" && <CartStep initialCart={cart} />}
+        {step === "cart" && <CartStep cart={cart} />}
         {step === "shipping-address" && <ShippingAddressStep cart={cart} />}
-        {step === "review" && <ReviewStep cart={cart} isBuyNow={isBuyNow} />}
-        {step === "success" && <OrderSuccessStep isBuyNow={isBuyNow} />}
+        {step === "review" && <ReviewStep cart={cart} />}
+        {step === "success" && <OrderSuccessStep />}
       </div>
     </div>
   )

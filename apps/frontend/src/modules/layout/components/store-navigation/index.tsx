@@ -3,7 +3,7 @@ import { retrieveCart } from "@lib/data/cart"
 import { getCategoriesForNavigation } from "@lib/data/categories"
 import Image from "next/image"
 import Link from "next/link"
-import CartDropdown from "./cart-dropdown"
+import CartButton from "./cart-button"
 
 // Navigation component for category-based navigation matching the image design
 const StoreNavigation = async () => {
@@ -109,7 +109,7 @@ const StoreNavigation = async () => {
       </div>
 
       <div className="navbar-end">
-        <CartDropdown cart={cart} />
+        <CartButton cart={cart} />
       </div>
     </div>
   )

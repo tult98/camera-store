@@ -3,19 +3,18 @@
 import { ShoppingCartIcon } from "@heroicons/react/24/outline"
 import { useCart } from "@lib/hooks/use-cart"
 import { HttpTypes } from "@medusajs/types"
-import { useCartId } from "@modules/shared/hooks/use-cart-id"
+import { useCartStore } from "@modules/shared/store/cart-store"
 import Link from "next/link"
 
-const CartDropdown = ({
+const CartButton = ({
   cart: initialCart,
 }: {
   cart?: HttpTypes.StoreCart | null
 }) => {
-  // Get cart ID from global state - reactive to changes
-  const cartId = useCartId()
+  const activeCartId = useCartStore((state) => state.getActiveCartId())
 
   // Use React Query to fetch cart data - this will auto-update when cart changes
-  const { data: cart } = useCart(cartId || undefined, undefined, initialCart)
+  const { data: cart } = useCart(activeCartId, initialCart)
 
   // Calculate total items count from cart (prefer React Query data, fallback to initial)
   const lineProductsCount =
@@ -35,4 +34,4 @@ const CartDropdown = ({
   )
 }
 
-export default CartDropdown
+export default CartButton

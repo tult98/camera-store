@@ -40,6 +40,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "bucket-fdsj-production.up.railway.app"
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
       }
     ],
   },

@@ -10,19 +10,12 @@ import LineItemsPreview from "@modules/cart/components/line-items-preview"
 import { completeOrder } from "@modules/checkout/apiCalls/orders"
 import CartTotals from "@modules/common/components/cart-totals"
 import { useMutation, useQueries } from "@tanstack/react-query"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
-const ReviewStep = ({
-  cart,
-  isBuyNow = false,
-}: {
-  cart: HttpTypes.StoreCart
-  isBuyNow?: boolean
-}) => {
+const ReviewStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const router = useRouter()
   const { showToast } = useToast()
-  const searchParams = useSearchParams()
 
   const previousStepsCompleted = cart.shipping_address
 
@@ -86,9 +79,7 @@ const ReviewStep = ({
   const completeOrderMutation = useMutation({
     mutationFn: completeOrder,
     onSuccess: (order) => {
-      setTimeout(() => {
-        router.push(`/checkout?step=success&order_id=${order?.id || ""}`)
-      }, 500)
+      router.push(`/checkout?step=success&order_id=${order?.id || ""}`)
     },
     onError: (error) => {
       showToast(error.message || "Failed to place order", "error")
@@ -105,7 +96,6 @@ const ReviewStep = ({
       cart,
       shippingMethodId: selectedShippingOptionId,
       providerId: defaultProviderId!,
-      isBuyNow,
     })
   }
 

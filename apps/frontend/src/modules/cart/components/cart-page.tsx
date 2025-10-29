@@ -4,7 +4,7 @@ import { useCart } from "@lib/hooks/use-cart"
 import { useToast } from "@lib/providers/toast-provider"
 import { HttpTypes } from "@medusajs/types"
 import { useLayoutBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
-import { useCartId } from "@modules/shared/hooks/use-cart-id"
+import { useCartStore } from "@modules/shared/store/cart-store"
 import SkeletonCartPage from "@modules/skeletons/templates/skeleton-cart-page"
 import { useEffect, useMemo } from "react"
 import CartLayout from "./cart-layout"
@@ -14,8 +14,7 @@ type CartPageProps = {
 }
 
 export default function CartPage({ initialCart }: CartPageProps) {
-  // Get cart ID from global state - reactive to changes
-  const cartId = useCartId()
+  const activeCartId = useCartStore((state) => state.getActiveCartId())
   const { showToast } = useToast()
 
   // Set breadcrumbs for cart page with memoized context
@@ -26,31 +25,21 @@ export default function CartPage({ initialCart }: CartPageProps) {
     }),
     []
   )
+
   useLayoutBreadcrumbs(breadcrumbContext)
 
-  // Use React Query with initial data from server - automatically refetches when cartId changes
-  const {
-    data: cart,
-    isLoading: cartLoading,
-    error: cartError,
-  } = useCart(cartId || undefined, undefined, initialCart)
+  const { data: cart, isLoading, error } = useCart(activeCartId, initialCart)
 
-  // Show error toast when cart fails to load
   useEffect(() => {
-    if (!cartLoading && cartError) {
-      const errorMessage =
-        cartError instanceof Error
-          ? cartError.message
-          : "Failed to load cart. Please try again."
-
-      showToast(errorMessage, "error")
+    if (!isLoading && error) {
+      showToast(
+        error.message || "Failed to load cart. Please try again.",
+        "error"
+      )
     }
-  }, [cartError, showToast])
+  }, [isLoading, error])
 
-  // Only show loading if we don't have initial cart data and are still loading
-  if (cartLoading && !initialCart) {
-    return <SkeletonCartPage />
-  }
+  if (isLoading) return <SkeletonCartPage />
 
-  return <CartLayout cart={cart || null} />
+  return <CartLayout cart={cart} />
 }

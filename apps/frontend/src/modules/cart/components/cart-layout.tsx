@@ -4,7 +4,7 @@ import EmptyCartMessage from "./empty-cart-message"
 import LineItems from "./line-items"
 import OrderSummary from "./order-summary"
 
-const CartLayout = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
+const CartLayout = ({ cart }: { cart?: HttpTypes.StoreCart | null }) => {
   return (
     <div className="min-h-screen bg-base-100">
       <div className="container mx-auto py-8 md:py-12">

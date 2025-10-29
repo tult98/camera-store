@@ -8,27 +8,16 @@ import { CheckCircleIcon } from "@heroicons/react/24/solid"
 import { useToast } from "@lib/providers/toast-provider"
 import { getMessengerUrl, isMessengerConfigured } from "@lib/util/messenger"
 import { Heading, Text } from "@medusajs/ui"
-import { deleteCookie } from "cookies-next/client"
+import { useCartStore } from "@modules/shared/store/cart-store"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
 
-const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
+const OrderSuccessStep = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
-  const orderId = searchParams.get("order_id")
+  const { setActiveCartId } = useCartStore()
 
-  // Delete cart cookie when user navigates away from success page
-  useEffect(() => {
-    return () => {
-      // This cleanup function runs when component unmounts
-      deleteCookie(isBuyNow ? "_medusa_buy_now_cart_id" : "_medusa_cart_id", {
-        path: "/",
-        sameSite: "strict",
-        secure: process.env.NODE_ENV === "production",
-      })
-    }
-  }, [])
+  const orderId = searchParams.get("order_id")
 
   const handleContinueShopping = () => {
     router.push("/")
@@ -107,13 +96,19 @@ const OrderSuccessStep = ({ isBuyNow }: { isBuyNow: boolean }) => {
               Send Deposit via Messenger
             </button>
           )}
-          <button onClick={handleContinueShopping} className="btn btn-outline w-full sm:w-auto">
+          <button
+            onClick={handleContinueShopping}
+            className="btn btn-outline w-full sm:w-auto"
+          >
             Continue Shopping
           </button>
         </div>
 
         <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-base-100 rounded-lg border border-base-200 max-w-2xl mx-auto">
-          <Heading level="h3" className="text-base sm:text-lg font-semibold mb-4 text-left">
+          <Heading
+            level="h3"
+            className="text-base sm:text-lg font-semibold mb-4 text-left"
+          >
             What happens next?
           </Heading>
           <div className="space-y-3 text-left">

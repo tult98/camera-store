@@ -319,3 +319,4 @@ Required secrets: `RAILWAY_TOKEN`, `DATABASE_URL`, `MEDUSA_PUBLISHABLE_KEY`
 - Don't run dev servers for verification
 - Don't commit unless explicitly asked
 - Use TodoWrite for task planning
+- memorize Do not run the build command because it breaks the current development

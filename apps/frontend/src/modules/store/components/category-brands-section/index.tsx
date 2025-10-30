@@ -36,14 +36,14 @@ export default function CategoryBrandsSection({
           <button
             key={brand.id}
             onClick={() => handleBrandClick(brand.id)}
-            className={`flex-shrink-0 w-32 h-32 rounded-lg border-2 transition-all hover:shadow-lg ${
+            className={`flex-shrink-0 w-24 h-24 rounded-lg border-2 transition-all hover:shadow-lg ${
               brandFilter === brand.id
                 ? "border-primary bg-primary/10"
                 : "border-base-300 bg-base-100 hover:border-primary/50"
             }`}
             aria-label={`Filter by ${brand.name}`}
           >
-            <div className="flex items-center justify-center h-full p-4">
+            <div className="flex items-center justify-center h-full p-2">
               <div className="relative w-full h-full">
                 <Image
                   src={brand.image_url!}

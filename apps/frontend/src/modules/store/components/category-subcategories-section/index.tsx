@@ -24,9 +24,9 @@ export default function CategorySubcategoriesSection({
           <Link
             key={subcategory.id}
             href={`/categories/${subcategory.handle}`}
-            className="flex-shrink-0 flex flex-col items-center p-4 rounded-lg border-2 border-base-300 bg-base-100 hover:border-primary hover:shadow-lg transition-all w-40"
+            className="flex-shrink-0 flex flex-col items-center pb-2 rounded-lg border-2 border-base-300 bg-base-100 hover:border-primary hover:shadow-lg transition-all w-32"
           >
-            <div className="w-full aspect-square relative mb-3 flex items-center justify-center bg-base-200 rounded-lg overflow-hidden">
+            <div className="w-full aspect-square relative mb-3 flex items-center justify-center bg-base-200 overflow-hidden">
               {subcategory.metadata?.image_url ? (
                 <Image
                   src={subcategory.metadata.image_url as string}

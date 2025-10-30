@@ -23,9 +23,11 @@ export default function CheckoutPageContent({
 
   useEffect(() => {
     return () => {
-      setActiveCartId({ cartId: null, targetCartId: activeCartId })
+      if (activeCartId) {
+        setActiveCartId({ cartId: null, targetCartId: activeCartId })
+      }
     }
-  }, [])
+  }, [activeCartId])
 
   if (!cart) return <EmptyCartMessage />
 

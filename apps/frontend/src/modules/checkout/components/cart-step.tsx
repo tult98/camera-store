@@ -4,6 +4,7 @@ import { MinusIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { useDeleteCartItem, useUpdateCartItem } from "@lib/hooks/use-cart"
 import { formatPrice } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
+import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 
 interface CartStepProps {
@@ -63,16 +64,20 @@ export default function CartStep({ cart }: CartStepProps) {
                 <div className="flex items-start gap-3">
                   <div className="w-20 h-20 bg-base-300 rounded-lg flex items-center justify-center flex-shrink-0">
                     {item?.thumbnail ? (
-                      <img
+                      <Image
                         src={item.thumbnail}
                         alt={item.title}
-                        className="w-full h-full object-cover rounded-lg"
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
                       />
                     ) : item?.variant?.product?.thumbnail ? (
-                      <img
+                      <Image
                         src={item.variant.product.thumbnail}
                         alt={item.title}
-                        className="w-full h-full object-cover rounded-lg"
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <svg
@@ -158,16 +163,20 @@ export default function CartStep({ cart }: CartStepProps) {
                 {/* Product Image */}
                 <div className="w-16 h-16 bg-base-200 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                   {item?.thumbnail ? (
-                    <img
+                    <Image
                       src={item.thumbnail}
                       alt={item.title}
-                      className="w-full h-full object-cover rounded-lg"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
                     />
                   ) : item?.variant?.product?.thumbnail ? (
-                    <img
+                    <Image
                       src={item.variant.product.thumbnail}
                       alt={item.title}
-                      className="w-full h-full object-cover rounded-lg"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-8 h-8 bg-base-300 rounded"></div>

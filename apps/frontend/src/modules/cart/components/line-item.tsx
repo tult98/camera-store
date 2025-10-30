@@ -56,10 +56,10 @@ const LineItem = ({ item, type = "full", currencyCode, cartId }: ItemProps) => {
                     src={item.thumbnail}
                     alt={item.product_title || ""}
                     fill
-                    className="object-cover rounded-lg"
+                    className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-base-200 rounded-lg" />
+                  <div className="w-full h-full bg-base-200" />
                 )}
               </div>
             </Link>

@@ -7,15 +7,25 @@ import CheckoutForm from "@modules/checkout/components/checkout-form"
 import CheckoutProgress from "@modules/checkout/components/checkout-progress"
 import CheckoutSummary from "@modules/checkout/components/checkout-summary"
 import { useCartStore } from "@modules/shared/store/cart-store"
+import { useEffect } from "react"
 
-interface CheckoutClientProps {
+interface CheckoutPageProps {
   initialCart: HttpTypes.StoreCart | null
 }
 
-export default function Checkout({ initialCart }: CheckoutClientProps) {
+export default function CheckoutPageContent({
+  initialCart,
+}: CheckoutPageProps) {
   const activeCartId = useCartStore((state) => state.getActiveCartId())
+  const { setActiveCartId } = useCartStore()
 
   const { data: cart } = useCart(activeCartId, initialCart)
+
+  useEffect(() => {
+    return () => {
+      setActiveCartId({ cartId: null, targetCartId: activeCartId })
+    }
+  }, [])
 
   if (!cart) return <EmptyCartMessage />
 

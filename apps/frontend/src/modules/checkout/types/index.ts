@@ -7,7 +7,6 @@ export interface CompleteOrderParams {
   cart: HttpTypes.StoreCart
   shippingMethodId: string
   providerId: string
-  isBuyNow?: boolean
 }
 
 // Checkout step types

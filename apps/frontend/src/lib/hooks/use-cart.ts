@@ -13,7 +13,7 @@ export function useCart(
     queryKey: ["cart", cartId],
     queryFn: () => retrieveCart(cartId),
     enabled: !!cartId,
-    initialData: initialData || undefined,
+    placeholderData: initialData || undefined,
   })
 }
 

@@ -8,14 +8,12 @@ import { CheckCircleIcon } from "@heroicons/react/24/solid"
 import { useToast } from "@lib/providers/toast-provider"
 import { getMessengerUrl, isMessengerConfigured } from "@lib/util/messenger"
 import { Heading, Text } from "@medusajs/ui"
-import { useCartStore } from "@modules/shared/store/cart-store"
 import { useRouter, useSearchParams } from "next/navigation"
 
 const OrderSuccessStep = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
-  const { setActiveCartId } = useCartStore()
 
   const orderId = searchParams.get("order_id")
 

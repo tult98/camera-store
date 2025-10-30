@@ -1,9 +1,8 @@
 import { retrieveCart } from "@lib/data/cart"
+import CheckoutPageContent from "@modules/checkout"
 import { getCartIdServer } from "@modules/shared/utils/cart-cookies-server"
-import EmptyCartMessage from "@modules/cart/components/empty-cart-message"
-import Checkout from "@modules/checkout/components"
 
-export const dynamic = "force-dynamic"
+// export const dynamic = "force-dynamic"
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -18,5 +17,5 @@ export default async function CheckoutPage({ searchParams }: Props) {
 
   const cart = await retrieveCart(cartId)
 
-  return <Checkout initialCart={cart} />
+  return <CheckoutPageContent initialCart={cart} />
 }

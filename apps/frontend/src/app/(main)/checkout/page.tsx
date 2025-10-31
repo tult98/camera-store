@@ -2,7 +2,7 @@ import { retrieveCart } from "@lib/data/cart"
 import CheckoutPageContent from "@modules/checkout"
 import { getCartIdServer } from "@modules/shared/utils/cart-cookies-server"
 
-// export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic"
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>

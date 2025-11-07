@@ -169,3 +169,6 @@ Thumbs.db
 apps/backend/static/*
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
+
+# Product Crawler
+apps/product-crawler/output/

@@ -2516,6 +2516,7 @@ __metadata:
     awilix: ^8.0.1
     babel-loader: ^8.2.3
     clsx: ^2.1.1
+    commander: ^14.0.2
     cookies-next: ^6.1.0
     daisyui: latest
     eslint: ^8.57.0
@@ -16526,6 +16527,13 @@ __metadata:
   version: 10.0.1
   resolution: "commander@npm:10.0.1"
   checksum: 436901d64a818295803c1996cd856621a74f30b9f9e28a588e726b2b1670665bccd7c1a77007ebf328729f0139838a88a19265858a0fa7a8728c4656796db948
+  languageName: node
+  linkType: hard
+
+"commander@npm:^14.0.2":
+  version: 14.0.2
+  resolution: "commander@npm:14.0.2"
+  checksum: 0a9e549565d368dde2965821833324069b92b099b415c2106996e47db1f0b8c10c77367e9876873c00a52ca627af4c7472eba9b51dc0d6a3ef152ea063d3e9e9
   languageName: node
   linkType: hard
 

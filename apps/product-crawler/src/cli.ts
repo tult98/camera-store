@@ -3,6 +3,8 @@ import { consola } from 'consola';
 import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { scrapeProduct } from './services/scraper.service';
+import { createS3Uploader } from './services/s3-upload.service';
+import { processProductMedia } from './services/media-processor.service';
 
 const generateSlug = (url: string): string => {
   const urlObj = new URL(url);
@@ -45,7 +47,8 @@ program
   .command('crawl')
   .description('Crawl a single product from B&H Photo Video')
   .argument('<url>', 'Product URL from bhphotovideo.com')
-  .action(async (url: string) => {
+  .option('--skip-upload', 'Skip uploading images to MinIO')
+  .action(async (url: string, options: { skipUpload?: boolean }) => {
     try {
       if (!url.includes('bhphotovideo.com')) {
         consola.error('URL must be from bhphotovideo.com');
@@ -58,6 +61,22 @@ program
 
       const slug = generateSlug(url);
       const timestamp = generateTimestamp();
+
+      if (!options.skipUpload) {
+        try {
+          consola.info('Uploading media to S3...');
+          const uploader = createS3Uploader();
+          await processProductMedia(productData, uploader.uploadImageFromUrl);
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error occurred';
+          consola.warn(`Media upload failed: ${errorMessage}`);
+          consola.info('Continuing with original URLs...');
+        }
+      } else {
+        consola.info('Skipping media upload (--skip-upload flag set)');
+      }
+
       const outputDir = join(
         process.cwd(),
         'apps',
@@ -75,8 +94,7 @@ program
       consola.info(`Specs extracted: ${Object.keys(productData.specs).length}`);
       consola.info(`Saved to: ${filepath}`);
 
-      console.log('\n--- Product Data ---\n');
-      console.log(JSON.stringify(productData, null, 2));
+      consola.success('Finish crawling');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error occurred';

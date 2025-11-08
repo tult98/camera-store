@@ -19,7 +19,7 @@ const Hero = () => {
             level="h2"
             className="text-xl text-base-content/70 mb-8"
           >
-            Capture life's moments with our premium camera collection. From DSLRs to mirrorless cameras, find your perfect shot.
+            Capture life&apos;s moments with our premium camera collection. From DSLRs to mirrorless cameras, find your perfect shot.
           </Heading>
           <div className="flex gap-4 justify-center">
             <Button className="btn btn-primary">

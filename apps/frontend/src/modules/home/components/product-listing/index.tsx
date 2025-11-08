@@ -3,6 +3,7 @@ import { getDefaultRegion } from "@lib/data/regions"
 import { HttpTypes } from "@medusajs/types"
 import { Text, Heading } from "@medusajs/ui"
 import { CubeIcon } from "@heroicons/react/24/outline"
+import Link from "next/link"
 
 export default async function ProductListing({
   title = "Featured Products",
@@ -92,12 +93,12 @@ export default async function ProductListing({
 
       {products.length >= limit && (
         <div className="text-center mt-12">
-          <a 
-            href="/categories/cameras" 
+          <Link
+            href="/categories/cameras"
             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
           >
             View All Cameras
-          </a>
+          </Link>
         </div>
       )}
     </div>

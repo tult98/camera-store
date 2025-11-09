@@ -1,10 +1,10 @@
-interface MediaContent {
+export interface MediaContent {
   type: 'image' | 'video';
   url: string;
   position: 'left' | 'right' | 'inline';
 }
 
-interface DescriptionFeature {
+export interface DescriptionFeature {
   header: string;
   headerLevel: number;
   content: string;
@@ -17,4 +17,5 @@ export interface ProductData {
   title: string;
   description: DescriptionFeature[];
   specs: Record<string, string>;
+  seoDescription?: string;
 }

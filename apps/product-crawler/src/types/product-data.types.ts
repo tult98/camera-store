@@ -19,3 +19,13 @@ export interface ProductData {
   specs: Record<string, string>;
   seoDescription?: string;
 }
+
+export interface ProductCreateResponse {
+  product: {
+    id: string;
+    title: string;
+    handle: string;
+    status: string;
+    metadata?: Record<string, string>;
+  };
+}

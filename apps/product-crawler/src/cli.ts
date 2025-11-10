@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { generateHtmlDescription } from './services/html-template-generator.service';
 import { processProductMedia } from './services/media-processor.service';
+import { ProductApiService } from './services/product-api.service';
 import { createS3Uploader } from './services/s3-upload.service';
 import { scrapeProduct } from './services/scraper.service';
 
@@ -48,12 +49,10 @@ program
   .command('crawl')
   .description('Crawl a single product from B&H Photo Video')
   .argument('<url>', 'Product URL from bhphotovideo.com')
-  .option('--skip-upload', 'Skip uploading images to MinIO')
+  .option('--debug', 'Save JSON file to output directory')
+  .option('--skip-create', 'Skip creating product in MedusaJS backend')
   .action(
-    async (
-      url: string,
-      options: { skipUpload?: boolean }
-    ) => {
+    async (url: string, options: { debug?: boolean; skipCreate?: boolean }) => {
       try {
         if (!url.includes('bhphotovideo.com')) {
           consola.error('URL must be from bhphotovideo.com');
@@ -101,19 +100,15 @@ program
         const slug = generateSlug(url);
         const timestamp = generateTimestamp();
 
-        if (!options.skipUpload) {
-          try {
-            consola.info('Uploading media to S3...');
-            const uploader = createS3Uploader();
-            await processProductMedia(productData, uploader.uploadImageFromUrl);
-          } catch (error) {
-            const errorMessage =
-              error instanceof Error ? error.message : 'Unknown error occurred';
-            consola.warn(`Media upload failed: ${errorMessage}`);
-            consola.info('Continuing with original URLs...');
-          }
-        } else {
-          consola.info('Skipping media upload (--skip-upload flag set)');
+        try {
+          consola.info('Uploading media to S3...');
+          const uploader = createS3Uploader();
+          await processProductMedia(productData, uploader.uploadImageFromUrl);
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error occurred';
+          consola.warn(`Media upload failed: ${errorMessage}`);
+          consola.info('Continuing with original URLs...');
         }
 
         try {
@@ -128,28 +123,50 @@ program
           consola.info('Continuing without HTML description...');
         }
 
-        const outputDir = join(
-          process.cwd(),
-          'apps',
-          'product-crawler',
-          'output'
-        );
-        const filename = `product-${slug}-${timestamp}.json`;
-        const filepath = join(outputDir, filename);
+        if (options.debug) {
+          const outputDir = join(
+            process.cwd(),
+            'apps',
+            'product-crawler',
+            'output'
+          );
+          const filename = `product-${slug}-${timestamp}.json`;
+          const filepath = join(outputDir, filename);
 
-        await ensureOutputDirectory(outputDir);
-        await writeFile(
-          filepath,
-          JSON.stringify(productData, null, 2),
-          'utf-8'
-        );
+          await ensureOutputDirectory(outputDir);
+          await writeFile(
+            filepath,
+            JSON.stringify(productData, null, 2),
+            'utf-8'
+          );
+          consola.info(`Debug: Saved to ${filepath}`);
+        }
 
         consola.success('Crawl complete!');
         consola.info(`Title: ${productData.title}`);
         consola.info(
           `Specs extracted: ${Object.keys(productData.specs).length}`
         );
-        consola.info(`Saved to: ${filepath}`);
+
+        if (!options.skipCreate) {
+          try {
+            consola.info('Creating product in MedusaJS backend...');
+            const productApiService = new ProductApiService();
+            const result = await productApiService.createProduct(productData);
+
+            consola.success('Product created successfully!');
+            consola.info(`Product ID: ${result.product.id}`);
+            consola.info(`Handle: ${result.product.handle}`);
+            consola.info(`Status: ${result.product.status}`);
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : 'Unknown error occurred';
+            consola.error(`Product creation failed: ${errorMessage}`);
+            consola.info('Product data was not created in backend');
+          }
+        } else {
+          consola.info('Skipping product creation (--skip-create flag set)');
+        }
 
         consola.success('Finish crawling');
       } catch (error) {

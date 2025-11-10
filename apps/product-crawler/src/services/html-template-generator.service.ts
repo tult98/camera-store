@@ -50,29 +50,30 @@ const renderFeature = (feature: DescriptionFeature): string => {
 
   const mediaHtml = feature.media ? renderMedia(feature.media) : '';
 
-  const headerHtml = `<${headingTag} class='${headerClass}'>
+  const headerHtml = feature.header
+    ? `<${headingTag} class='${headerClass}'>
   ${escapeHtml(feature.header)}
-</${headingTag}>`;
+</${headingTag}>`
+    : '';
 
-  const textHtml = `<div class='product-description-text'>
-  ${feature.media ? headerHtml : ''}
-  <div>
+  const headerInText = feature.media && feature.header ? headerHtml : '';
+  const contentInText = feature.content
+    ? `<div>
     ${feature.content}
-  </div>
-</div>`;
+  </div>`
+    : '';
 
-  const mediaLeftHtml =
-    feature.media && feature.media.position === 'left' ? mediaHtml : '';
-  const mediaRightHtml =
-    feature.media && feature.media.position === 'right' ? mediaHtml : '';
-  const mediaInlineHtml =
-    feature.media && feature.media.position === 'inline' ? mediaHtml : '';
+  const textHtml =
+    headerInText || contentInText
+      ? `<div class='product-description-text'>
+  ${headerInText}
+  ${contentInText}
+</div>`
+      : '';
 
   const contentHtml = `<div class='${contentClass}'>
-  ${mediaLeftHtml}
   ${textHtml}
-  ${mediaRightHtml}
-  ${mediaInlineHtml}
+  ${mediaHtml}
 </div>`;
 
   const subFeaturesHtml =
@@ -83,7 +84,7 @@ const renderFeature = (feature: DescriptionFeature): string => {
       : '';
 
   return `<section class='product-description-section'>
-  ${!feature.media ? headerHtml : ''}
+  ${!feature.media && feature.header ? headerHtml : ''}
   ${contentHtml}
   ${subFeaturesHtml}
 </section>`;

@@ -160,45 +160,55 @@ const extractProductData = async (
         contentElements.forEach((el) => {
           const htmlContent = el.innerHTML.trim();
           if (htmlContent && !el.closest('div[class*="featureHeader_"]')) {
-            content += (content ? '\n\n' : '') + htmlContent;
+            const nestedFeatureParent = el.closest('div[class*="feature_"]');
+            const isInNestedFeature = nestedFeatureParent && nestedFeatureParent !== block;
+
+            if (!isInNestedFeature) {
+              content += (content ? '\n\n' : '') + htmlContent;
+            }
           }
         });
 
         let media: any = null;
         const mediaContainer = block.querySelector('div[class*="media_"]');
         if (mediaContainer) {
-          const parentDiv = mediaContainer.closest(
-            'div[class*="hasRightMedia_"], div[class*="hasLeftMedia_"]'
-          );
-          const position = parentDiv?.className.includes('hasRightMedia_')
-            ? 'right'
-            : parentDiv?.className.includes('hasLeftMedia_')
-            ? 'left'
-            : 'inline';
+          const mediaFeatureParent = mediaContainer.closest('div[class*="feature_"]');
+          const isMediaInNestedFeature = mediaFeatureParent && mediaFeatureParent !== block;
 
-          const videoIframe = mediaContainer.querySelector(
-            'iframe[src*="youtube.com"]'
-          );
-          if (videoIframe) {
-            const src = videoIframe.getAttribute('src');
-            if (src) {
-              media = {
-                type: 'video',
-                url: src,
-                position,
-              };
-            }
-          } else {
-            const img = mediaContainer.querySelector('img');
-            if (img) {
-              const src = img.getAttribute('src');
+          if (!isMediaInNestedFeature) {
+            const parentDiv = mediaContainer.closest(
+              'div[class*="hasRightMedia_"], div[class*="hasLeftMedia_"]'
+            );
+            const position = parentDiv?.className.includes('hasRightMedia_')
+              ? 'right'
+              : parentDiv?.className.includes('hasLeftMedia_')
+              ? 'left'
+              : 'inline';
+
+            const videoIframe = mediaContainer.querySelector(
+              'iframe[src*="youtube.com"]'
+            );
+            if (videoIframe) {
+              const src = videoIframe.getAttribute('src');
               if (src) {
-                const fullSrc = src.startsWith('http') ? src : `https:${src}`;
                 media = {
-                  type: 'image',
-                  url: fullSrc,
+                  type: 'video',
+                  url: src,
                   position,
                 };
+              }
+            } else {
+              const img = mediaContainer.querySelector('img');
+              if (img) {
+                const src = img.getAttribute('src');
+                if (src) {
+                  const fullSrc = src.startsWith('http') ? src : `https:${src}`;
+                  media = {
+                    type: 'image',
+                    url: fullSrc,
+                    position,
+                  };
+                }
               }
             }
           }
@@ -212,15 +222,14 @@ const extractProductData = async (
           const nestedHeader = nested.querySelector(
             'div[class*="featureHeader_"] div[class*="sizeTitle"]'
           );
-          if (!nestedHeader) return;
 
-          const nestedHeaderText = nestedHeader.textContent?.trim() || '';
-          const nestedHeaderLevel = nestedHeader.className.includes(
-            'sizeTitle3_'
-          )
-            ? 3
-            : nestedHeader.className.includes('sizeTitle4_')
-            ? 4
+          const nestedHeaderText = nestedHeader?.textContent?.trim() || '';
+          const nestedHeaderLevel = nestedHeader
+            ? nestedHeader.className.includes('sizeTitle3_')
+              ? 3
+              : nestedHeader.className.includes('sizeTitle4_')
+              ? 4
+              : 3
             : 3;
 
           const nestedContentElements = nested.querySelectorAll(
@@ -230,15 +239,65 @@ const extractProductData = async (
           nestedContentElements.forEach((el) => {
             const htmlContent = el.innerHTML.trim();
             if (htmlContent && !el.closest('div[class*="featureHeader_"]')) {
-              nestedContent += (nestedContent ? '\n\n' : '') + htmlContent;
+              const deeperFeatureParent = el.closest('div[class*="feature_"]');
+              const isInDeeperFeature = deeperFeatureParent && deeperFeatureParent !== nested;
+
+              if (!isInDeeperFeature) {
+                nestedContent += (nestedContent ? '\n\n' : '') + htmlContent;
+              }
             }
           });
+
+          let nestedMedia: any = null;
+          const nestedMediaContainer = nested.querySelector('div[class*="media_"]');
+          if (nestedMediaContainer) {
+            const mediaFeatureParent = nestedMediaContainer.closest('div[class*="feature_"]');
+            const isMediaInDeeperFeature = mediaFeatureParent && mediaFeatureParent !== nested;
+
+            if (!isMediaInDeeperFeature) {
+              const parentDiv = nestedMediaContainer.closest(
+                'div[class*="hasRightMedia_"], div[class*="hasLeftMedia_"]'
+              );
+              const position = parentDiv?.className.includes('hasRightMedia_')
+                ? 'right'
+                : parentDiv?.className.includes('hasLeftMedia_')
+                ? 'left'
+                : 'inline';
+
+              const videoIframe = nestedMediaContainer.querySelector(
+                'iframe[src*="youtube.com"]'
+              );
+              if (videoIframe) {
+                const src = videoIframe.getAttribute('src');
+                if (src) {
+                  nestedMedia = {
+                    type: 'video',
+                    url: src,
+                    position,
+                  };
+                }
+              } else {
+                const img = nestedMediaContainer.querySelector('img');
+                if (img) {
+                  const src = img.getAttribute('src');
+                  if (src) {
+                    const fullSrc = src.startsWith('http') ? src : `https:${src}`;
+                    nestedMedia = {
+                      type: 'image',
+                      url: fullSrc,
+                      position,
+                    };
+                  }
+                }
+              }
+            }
+          }
 
           subFeatures.push({
             header: nestedHeaderText,
             headerLevel: nestedHeaderLevel,
             content: nestedContent,
-            media: null,
+            media: nestedMedia,
             subFeatures: [],
           });
         });

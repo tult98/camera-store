@@ -24,7 +24,8 @@
       "Bash(yarn nx type-check:*)",
       "WebSearch",
       "Bash(git log:*)",
-      "Bash(yarn nx run:*)"
+      "Bash(yarn nx run:*)",
+      "Bash(npx eslint . --fix)"
     ],
     "deny": []
   }

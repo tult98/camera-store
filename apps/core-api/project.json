@@ -5,7 +5,7 @@
   "projectType": "application",
   "tags": ["scope:tools", "type:app"],
   "targets": {
-    "build": {
+    "build-cli": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
@@ -15,14 +15,14 @@
         "assets": []
       }
     },
-    "serve": {
+    "serve-cli": {
       "executor": "nx:run-commands",
       "options": {
         "command": "node dist/apps/core-api/src/index.js"
       },
-      "dependsOn": ["build"]
+      "dependsOn": ["build-cli"]
     },
-    "dev": {
+    "dev-cli": {
       "executor": "nx:run-commands",
       "options": {
         "command": "ts-node apps/core-api/src/index.ts"
@@ -35,18 +35,24 @@
       },
       "dependsOn": ["build"]
     },
-    "serve-api": {
+    "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node dist/apps/core-api/src/main.js"
+        "command": "cd apps/core-api && nest start --watch"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd apps/core-api && nest build"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd apps/core-api && nest start"
       },
       "dependsOn": ["build"]
-    },
-    "dev-api": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "ts-node apps/core-api/src/main.ts"
-      }
     },
     "lint": {
       "executor": "@nx/eslint:lint"

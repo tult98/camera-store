@@ -41,7 +41,7 @@ const ensureOutputDirectory = async (outputPath: string): Promise<void> => {
 const program = new Command();
 
 program
-  .name('product-crawler')
+  .name('core-api')
   .description('Camera product crawler CLI')
   .version('1.0.0');
 
@@ -127,7 +127,7 @@ program
           const outputDir = join(
             process.cwd(),
             'apps',
-            'product-crawler',
+            'core-api',
             'output'
           );
           const filename = `product-${slug}-${timestamp}.json`;

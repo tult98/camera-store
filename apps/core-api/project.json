@@ -1,7 +1,7 @@
 {
-  "name": "product-crawler",
+  "name": "core-api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/product-crawler/src",
+  "sourceRoot": "apps/core-api/src",
   "projectType": "application",
   "tags": ["scope:tools", "type:app"],
   "targets": {
@@ -9,29 +9,29 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/product-crawler",
-        "main": "apps/product-crawler/src/index.ts",
-        "tsConfig": "apps/product-crawler/tsconfig.json",
+        "outputPath": "dist/apps/core-api",
+        "main": "apps/core-api/src/index.ts",
+        "tsConfig": "apps/core-api/tsconfig.json",
         "assets": []
       }
     },
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node dist/apps/product-crawler/src/index.js"
+        "command": "node dist/apps/core-api/src/index.js"
       },
       "dependsOn": ["build"]
     },
     "dev": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "ts-node apps/product-crawler/src/index.ts"
+        "command": "ts-node apps/core-api/src/index.ts"
       }
     },
     "cli": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "node dist/apps/product-crawler/src/index.js"
+        "command": "node dist/apps/core-api/src/index.js"
       },
       "dependsOn": ["build"]
     },
@@ -41,7 +41,7 @@
     "type-check": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc --noEmit -p apps/product-crawler/tsconfig.json"
+        "command": "tsc --noEmit -p apps/core-api/tsconfig.json"
       }
     }
   }

@@ -12,7 +12,7 @@
     "declaration": false,
     "sourceMap": false,
     "inlineSourceMap": true,
-    "outDir": "../../dist/apps/product-crawler",
+    "outDir": "../../dist/apps/core-api",
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "checkJs": false,

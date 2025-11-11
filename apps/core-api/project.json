@@ -35,6 +35,19 @@
       },
       "dependsOn": ["build"]
     },
+    "serve-api": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node dist/apps/core-api/src/main.js"
+      },
+      "dependsOn": ["build"]
+    },
+    "dev-api": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ts-node apps/core-api/src/main.ts"
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },

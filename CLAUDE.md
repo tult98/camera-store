@@ -1,30 +1,75 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this camera store e-commerce platform.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-- **Backend**: MedusaJS v2 (2.8.8) - TypeScript, PostgreSQL/MikroORM, Jest
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS + daisyUI
+This is an **Nx monorepo** for a camera store e-commerce platform.
+
+### Technology Stack
+- **Monorepo**: Nx v21.3.11, Yarn v3.2.3, Node.js >= 20
+- **Backend**: MedusaJS v2 (2.8.8) - TypeScript, PostgreSQL/MikroORM v6.4.3, Jest
+- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS + daisyUI, React Query v5.85.5
+- **Core API**: NestJS - CLI tools and API services
+- **Shared Types**: Monorepo-wide TypeScript types package
+
+### Monorepo Structure
+```
+camera-store/
+├── apps/
+│   ├── backend/            # MedusaJS v2 backend (port 9000)
+│   ├── frontend/           # Next.js 15 frontend (port 8000)
+│   ├── core-api/           # NestJS CLI/API tools
+│   └── admin-dashboard/    # Customized MedusaJS admin
+├── shared-types/           # Shared TypeScript types
+└── nx.json                 # Nx workspace configuration
+```
 
 ## Quick Commands
 
-### Backend (Nx)
+### Root Level (Parallel Execution)
 ```bash
-nx serve backend          # Development server
-nx run backend:build      # Production build
-nx run backend:migrate    # Run migrations
-nx run backend:seed       # Seed demo data
-nx run backend:test       # Run tests
+yarn dev              # Start frontend + backend in dev mode
+yarn build            # Build all projects (⚠️ avoid during active development)
+yarn start            # Start all projects in production
+yarn test             # Run all tests
+yarn lint             # Lint all projects
+yarn type-check       # TypeScript check all projects
+```
+
+### Backend (MedusaJS)
+```bash
+nx serve backend          # Development server (port 9000)
+nx build backend          # Production build
+nx start backend          # Production server
+nx migrate backend        # Run database migrations
+nx seed backend           # Seed demo data
+nx test backend           # All tests
+
+# Granular Testing
+yarn test:backend:unit                    # Unit tests only
+yarn test:backend:integration:http        # HTTP integration tests
+yarn test:backend:integration:modules     # Module integration tests
+yarn test:backend:all                     # All backend tests
+
 # ⚠️ NEVER RUN: nx run backend:reset-database
 ```
 
-### Frontend
+### Frontend (Next.js)
 ```bash
-yarn dev      # Development (port 8000)
-yarn build    # Production build
-yarn start    # Production server
-yarn lint     # ESLint
-yarn analyze  # Bundle analyzer
+nx serve frontend     # Dev server (port 8000)
+nx build frontend     # Production build
+nx start frontend     # Production server
+nx lint frontend      # ESLint
+nx test frontend      # Jest tests
+nx analyze frontend   # Bundle analyzer
+```
+
+### Core API (NestJS)
+```bash
+nx serve core-api     # Dev server
+nx build core-api     # Production build
+nx start core-api     # Production server
+nx dev-cli core-api   # Run CLI in development
 ```
 
 ## Architecture
@@ -42,13 +87,31 @@ apps/backend/src/
 └── scripts/     # CLI utilities
 ```
 
+### Backend Module Structure
+Each backend module follows this pattern:
+```
+modules/[module-name]/
+├── models/           # Data models (MikroORM entities)
+├── service.ts        # Service layer (extends MedusaService)
+├── migrations/       # Database migrations
+├── constants/        # Module constants (e.g., MODULE_ID)
+├── types/            # TypeScript definitions
+├── utils/            # Utility functions
+└── index.ts          # Module export
+```
+
 ### Frontend Structure
 ```
 apps/frontend/src/
 ├── app/         # Next.js App Router (server-side data fetching only)
-├── lib/         # SDK config, data fetching, hooks, utils
+├── lib/         # Shared utilities and configuration
+│   ├── data/        # Server-side data fetching functions
+│   ├── hooks/       # Custom React hooks
+│   ├── util/        # Utility functions
+│   ├── context/     # React context providers
+│   └── providers/   # React Query and other providers
 ├── modules/     # Feature components and business logic
-├── styles/      # Global CSS
+├── styles/      # Global CSS and Tailwind config
 └── types/       # TypeScript definitions
 ```
 
@@ -66,8 +129,8 @@ For MedusaJS v2 patterns and best practices, always consult these files before i
 
 These contain project-specific patterns and official MedusaJS v2 approaches.
 
-### Module Structure
-Each module follows this organization:
+### Frontend Module Structure
+Each frontend module follows this organization:
 ```
 modules/[module-name]/
 ├── apiCalls/    # API call functions (client-side)
@@ -138,7 +201,10 @@ const result = await query.graph({
 #### TypeScript
 - No `any` types - create proper interfaces
 - Use type guards for runtime checking
-- Path aliases: `@lib/*`, `@modules/*`
+- **Path Aliases**:
+  - `@camera-store/shared-types` - Monorepo-wide shared types
+  - `@lib/*` - Frontend utilities and config (frontend only)
+  - `@modules/*` - Frontend feature modules (frontend only)
 
 #### Error Handling
 - Standardized patterns across components
@@ -292,15 +358,34 @@ const validator = new CategoryProductsValidator(req.query);
 const validatedParams = validator.validate();
 ```
 
+## Testing Architecture
+
+### Backend Testing
+Tests are controlled by the `TEST_TYPE` environment variable:
+
+```bash
+TEST_TYPE=unit                 # Run unit tests
+TEST_TYPE=integration:http     # Run HTTP integration tests
+TEST_TYPE=integration:modules  # Run module integration tests
+```
+
+**Test File Patterns:**
+- Unit: `**/__tests__/**/*.unit.spec.[jt]s`
+- HTTP Integration: `**/integration-tests/http/*.spec.[jt]s`
+- Module Integration: `**/src/modules/*/__tests__/**/*.[jt]s`
+
+**Test Setup:** `integration-tests/setup.js` with Medusa test utilities
+
 ## Environment Variables
 
 ### Backend
-- `DATABASE_URL`
+- `DATABASE_URL` (required)
 - `STORE_CORS`, `ADMIN_CORS`, `AUTH_CORS`
 - `JWT_SECRET`, `COOKIE_SECRET`
+- `TEST_TYPE` (unit | integration:http | integration:modules)
 
 ### Frontend
-- `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` (required)
 - `NEXT_PUBLIC_MEDUSA_BACKEND_URL` (default: http://localhost:9000)
 
 ## Deployment (GitHub Actions → Railway)
@@ -319,4 +404,4 @@ Required secrets: `RAILWAY_TOKEN`, `DATABASE_URL`, `MEDUSA_PUBLISHABLE_KEY`
 - Don't run dev servers for verification
 - Don't commit unless explicitly asked
 - Use TodoWrite for task planning
-- memorize Do not run the build command because it breaks the current development
+- **Build Warning**: Avoid running `yarn build` or project-specific build commands during active development as they may interfere with the dev server. Only build when deploying or when explicitly requested.

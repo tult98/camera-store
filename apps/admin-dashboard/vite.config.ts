@@ -27,7 +27,7 @@ export default defineConfig(() => ({
     },
   },
   build: {
-    outDir: '../../dist/apps/admin-dashboard',
+    outDir: './dist',
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {

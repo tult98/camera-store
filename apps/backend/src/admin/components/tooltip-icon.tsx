@@ -1,5 +1,5 @@
-import { InformationCircle } from "@medusajs/icons"; // cspell:disable-line
-import { Tooltip } from "@medusajs/ui"; // cspell:disable-line
+import { InformationCircle } from "@medusajs/icons";
+import { Tooltip } from "@medusajs/ui";
 
 export interface TooltipIconProps {
   content: string;

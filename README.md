@@ -388,8 +388,6 @@ PUT /admin/categories/{id}/featured
 GET /admin/categories/{id}/featured
 ```
 
-Full API documentation available in `tools/openapi/schema.json`.
-
 ## 🧪 Testing
 
 ### Frontend Testing

@@ -120,7 +120,6 @@
     "@nx/vite": "21.3.11",
     "@nx/web": "21.3.11",
     "@nx/workspace": "21.3.11",
-    "@openapitools/openapi-generator-cli": "^2.13.14",
     "@rspack/core": "^1.0.0",
     "@swc-node/register": "~1.9.1",
     "@swc/cli": "~0.6.0",

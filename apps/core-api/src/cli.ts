@@ -112,10 +112,8 @@ program
         }
 
         try {
-          consola.info('Generating HTML description from template...');
           const htmlDescription = generateHtmlDescription(productData);
           productData.seoDescription = htmlDescription;
-          consola.success('HTML description generated successfully');
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : 'Unknown error occurred';

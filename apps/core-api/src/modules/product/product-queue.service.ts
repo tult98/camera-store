@@ -32,7 +32,6 @@ export class ProductQueueService {
     return {
       id: job.id,
       state,
-      data: job.data,
       result: job.returnvalue,
       failedReason: job.failedReason,
     };

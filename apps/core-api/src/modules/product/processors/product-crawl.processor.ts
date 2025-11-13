@@ -1,6 +1,9 @@
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Job } from 'bullmq';
+import { createHash } from 'crypto';
 import type { Browser, Page } from 'puppeteer';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
@@ -8,9 +11,36 @@ import { ProductData } from '../../../types/product-data.types';
 
 puppeteer.use(StealthPlugin());
 
+interface S3UploadConfig {
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucketName: string;
+  useSSL: boolean;
+  publicUrl: string;
+}
+
+interface DescriptionFeature {
+  header: string;
+  headerLevel: number;
+  content: string;
+  media: MediaContent | null;
+  subFeatures: DescriptionFeature[];
+}
+
+interface MediaContent {
+  type: 'image' | 'video';
+  url: string;
+  position: 'left' | 'right' | 'inline';
+}
+
 @Processor('product-crawl')
 export class ProductCrawlProcessor extends WorkerHost {
   private readonly logger = new Logger(ProductCrawlProcessor.name);
+
+  constructor(private configService: ConfigService) {
+    super();
+  }
 
   async process(job: Job<any, any, string>): Promise<any> {
     const { url } = job.data;
@@ -48,6 +78,10 @@ export class ProductCrawlProcessor extends WorkerHost {
         url,
         ...productData,
       };
+
+      const config = this.createS3ConfigFromEnv();
+      const s3Client = this.createS3Client(config);
+      await this.processProductMedia(result, s3Client, config);
 
       this.logger.log(`Product crawl completed: ${result.title}`);
 
@@ -405,5 +439,142 @@ export class ProductCrawlProcessor extends WorkerHost {
         specs,
       };
     });
+  }
+
+  private getExtensionFromContentType(contentType: string): string {
+    const typeMap: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg',
+    };
+
+    return typeMap[contentType.toLowerCase()] || 'jpg';
+  }
+
+  private extractFilenameFromUrl(url: string): string {
+    try {
+      const pathname = new URL(url).pathname;
+      const parts = pathname.split('/');
+      const filename = parts[parts.length - 1];
+      return filename
+        .replace(/\.[^.]+$/, '')
+        .replace(/[^a-zA-Z0-9_-]/g, '_')
+        .substring(0, 20);
+    } catch {
+      return 'image';
+    }
+  }
+
+  private createS3Client(config: S3UploadConfig): S3Client {
+    return new S3Client({
+      endpoint: config.endpoint,
+      region: 'us-east-1',
+      credentials: {
+        accessKeyId: config.accessKeyId,
+        secretAccessKey: config.secretAccessKey,
+      },
+      forcePathStyle: true,
+    });
+  }
+
+  private createS3ConfigFromEnv(): S3UploadConfig {
+    const endpoint = this.configService.get<string>('S3_ENDPOINT');
+    const accessKeyId = this.configService.get<string>('S3_ACCESS_KEY_ID');
+    const secretAccessKey = this.configService.get<string>(
+      'S3_SECRET_ACCESS_KEY'
+    );
+    const bucketName = this.configService.get<string>('S3_BUCKET');
+    const publicUrl = this.configService.get<string>('S3_FILE_URL');
+
+    if (
+      !endpoint ||
+      !accessKeyId ||
+      !secretAccessKey ||
+      !bucketName ||
+      !publicUrl
+    ) {
+      throw new Error(
+        'Missing required S3 environment variables: S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET, S3_FILE_URL'
+      );
+    }
+
+    return {
+      endpoint,
+      accessKeyId,
+      secretAccessKey,
+      bucketName,
+      useSSL: endpoint.startsWith('https'),
+      publicUrl,
+    };
+  }
+
+  private async uploadImageFromUrl(
+    s3Client: S3Client,
+    config: S3UploadConfig,
+    imageUrl: string
+  ): Promise<string> {
+    const response = await fetch(imageUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to download image: ${imageUrl} (status: ${response.status})`
+      );
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    const extension = this.getExtensionFromContentType(contentType);
+    const hash = createHash('md5').update(buffer).digest('hex').substring(0, 8);
+
+    const originalFilename = this.extractFilenameFromUrl(imageUrl);
+    const filename = `${hash}-${originalFilename}.${extension}`;
+
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: config.bucketName,
+        Key: filename,
+        Body: buffer,
+        ContentType: contentType,
+      })
+    );
+
+    const publicUrl = `${config.publicUrl}/${filename}`;
+
+    return publicUrl;
+  }
+
+  private async processFeature(
+    feature: DescriptionFeature,
+    s3Client: S3Client,
+    config: S3UploadConfig
+  ): Promise<void> {
+    if (feature.media) {
+      if (feature.media.type === 'image') {
+        const newUrl = await this.uploadImageFromUrl(
+          s3Client,
+          config,
+          feature.media.url
+        );
+        feature.media.url = newUrl;
+      }
+    }
+
+    for (const subFeature of feature.subFeatures) {
+      await this.processFeature(subFeature, s3Client, config);
+    }
+  }
+
+  private async processProductMedia(
+    productData: ProductData,
+    s3Client: S3Client,
+    config: S3UploadConfig
+  ): Promise<void> {
+    for (const feature of productData.description) {
+      await this.processFeature(feature, s3Client, config);
+    }
   }
 }

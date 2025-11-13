@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { CrawlProductDto } from './dto/crawl-product.dto';
 import { ProductService } from './product.service';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Get()
-  getHello(): string {
-    return this.productService.getHello();
+  @Post('crawl')
+  async crawlProduct(@Body() crawlProductDto: CrawlProductDto) {
+    return this.productService.crawlProduct(crawlProductDto.url);
   }
 }

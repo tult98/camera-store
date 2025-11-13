@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
 import { AppController } from './app.controller';
 import { ProductModule } from './modules/product/product.module';
 
@@ -18,6 +20,10 @@ import { ProductModule } from './modules/product/product.module';
           port: configService.get<number>('REDIS_PORT'),
         },
       }),
+    }),
+    BullBoardModule.forRoot({
+      route: '/queues',
+      adapter: ExpressAdapter,
     }),
     ProductModule,
   ],

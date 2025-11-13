@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { CrawlProductDto } from './dto/crawl-product.dto';
 import { ProductService } from './product.service';
 
@@ -9,5 +9,10 @@ export class ProductController {
   @Post('crawl')
   async crawlProduct(@Body() crawlProductDto: CrawlProductDto) {
     return this.productService.crawlProduct(crawlProductDto.url);
+  }
+
+  @Get('jobs/:jobId')
+  async getJobStatus(@Param('jobId') jobId: string) {
+    return this.productService.getJobStatus(jobId);
   }
 }

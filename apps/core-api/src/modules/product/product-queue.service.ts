@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Queue } from 'bullmq';
 
 export interface CrawlJobData {
@@ -24,16 +24,14 @@ export class ProductQueueService {
     const job = await this.crawlQueue.getJob(jobId);
 
     if (!job) {
-      throw new Error(`Job with ID ${jobId} not found`);
+      throw new NotFoundException(`Job with ID ${jobId} not found`);
     }
 
     const state = await job.getState();
-    const progress = job.progress;
 
     return {
       id: job.id,
       state,
-      progress,
       data: job.data,
       result: job.returnvalue,
       failedReason: job.failedReason,

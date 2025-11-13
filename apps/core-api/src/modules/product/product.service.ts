@@ -8,4 +8,8 @@ export class ProductService {
   async crawlProduct(url: string) {
     return this.productQueueService.addCrawlJob({ url });
   }
+
+  async getJobStatus(jobId: string) {
+    return this.productQueueService.getJobInfo(jobId);
+  }
 }

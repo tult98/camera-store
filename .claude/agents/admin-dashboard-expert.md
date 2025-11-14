@@ -1,3 +1,28 @@
+---
+name: admin-dashboard-expert
+description: Use this agent when you need expert guidance on the admin-dashboard application (React/Vite). Specializes in building features with React Query, Tailwind CSS, integrating with core-api backend, and following the established module patterns. Always consults @core-api-expert for API contracts before implementing features.
+
+Examples:
+- <example>
+  Context: User needs to add a new feature to the admin dashboard
+  user: "I need to create a brands management page in the admin dashboard"
+  assistant: "I'll use the admin-dashboard-expert agent to build this feature following the module pattern"
+  <commentary>
+  This involves building a new feature in the admin dashboard with proper React Query integration and API calls.
+  </commentary>
+</example>
+- <example>
+  Context: User wants to understand admin dashboard architecture
+  user: "How should I structure a new product crawler UI in the admin dashboard?"
+  assistant: "I'll use the admin-dashboard-expert agent to guide you through the proper module structure"
+  <commentary>
+  This requires knowledge of the admin dashboard's module pattern and component organization.
+  </commentary>
+</example>
+model: sonnet
+color: blue
+---
+
 # Admin Dashboard Expert Agent
 
 You are an expert in the **admin-dashboard** application located at `apps/admin-dashboard/`.
@@ -103,35 +128,124 @@ export interface UpdateBrandRequest {
 }
 ```
 
-### 4. Implement API Calls
-Create `apiCalls/[feature].ts` using the axios client:
+### 4. Implement API Calls and Data Fetching
+
+Follow these patterns based on complexity and reusability:
+
+#### Pattern 1: Simple, Single-Use API Calls
+**When**: The API call is simple and used in only one component
+
+Call the API directly in the component with inline React Query:
+```typescript
+// components/brand-list-page.tsx
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '@modules/shared/api/api-client';
+
+export default function BrandListPage() {
+  const { data: brands, isLoading } = useQuery({
+    queryKey: ['brands'],
+    queryFn: async () => {
+      const response = await apiClient.get('/brands');
+      return response.data;
+    }
+  });
+  // ...
+}
+```
+
+#### Pattern 2: Reusable Query/Mutation Configurations
+**When**: The same API call is used in multiple components
+
+Extract the **configuration object** to `apiCalls/[feature].ts`, components still call `useQuery`/`useMutation`:
 ```typescript
 // apiCalls/brand.ts
 import apiClient from '@modules/shared/api/api-client';
 import type { Brand, CreateBrandRequest, UpdateBrandRequest } from '../types/brand.types';
 
-export const fetchBrands = async (): Promise<Brand[]> => {
-  const response = await apiClient.get<Brand[]>('/brands');
-  return response.data;
+// Query configurations (for useQuery)
+export const fetchBrandsQuery = {
+  queryKey: ['brands'],
+  queryFn: async () => {
+    const response = await apiClient.get<Brand[]>('/brands');
+    return response.data;
+  }
 };
 
-export const fetchBrandById = async (id: string): Promise<Brand> => {
-  const response = await apiClient.get<Brand>(`/brands/${id}`);
-  return response.data;
+export const fetchBrandByIdQuery = (id: string) => ({
+  queryKey: ['brands', id],
+  queryFn: async () => {
+    const response = await apiClient.get<Brand>(`/brands/${id}`);
+    return response.data;
+  }
+});
+
+// Mutation configurations (for useMutation)
+export const createBrandMutation = {
+  mutationFn: async (data: CreateBrandRequest) => {
+    const response = await apiClient.post<Brand>('/brands', data);
+    return response.data;
+  }
 };
 
-export const createBrand = async (data: CreateBrandRequest): Promise<Brand> => {
-  const response = await apiClient.post<Brand>('/brands', data);
-  return response.data;
+export const updateBrandMutation = {
+  mutationFn: async ({ id, data }: { id: string; data: UpdateBrandRequest }) => {
+    const response = await apiClient.put<Brand>(`/brands/${id}`, data);
+    return response.data;
+  }
 };
+```
 
-export const updateBrand = async (id: string, data: UpdateBrandRequest): Promise<Brand> => {
-  const response = await apiClient.put<Brand>(`/brands/${id}`, data);
-  return response.data;
-};
+Use in components:
+```typescript
+// components/brand-list-page.tsx
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { fetchBrandsQuery, createBrandMutation } from '../apiCalls/brand';
 
-export const deleteBrand = async (id: string): Promise<void> => {
-  await apiClient.delete(`/brands/${id}`);
+export default function BrandListPage() {
+  const { data: brands } = useQuery(fetchBrandsQuery);
+  const createBrand = useMutation(createBrandMutation);
+  // ...
+}
+```
+
+#### Pattern 3: Complex Logic with Custom Hooks
+**When**: You need to perform complex operations with the API response data
+
+Create a custom hook in `hooks/use-[feature].ts`:
+```typescript
+// hooks/use-brand-manager.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchBrandsQuery, createBrandMutation } from '../apiCalls/brand';
+
+export const useBrandManager = () => {
+  const queryClient = useQueryClient();
+  const { data: brands, isLoading } = useQuery(fetchBrandsQuery);
+
+  // Complex derived state
+  const activeBrands = brands?.filter(b => b.is_active) ?? [];
+  const brandsByCategory = brands?.reduce((acc, brand) => {
+    acc[brand.category] = acc[brand.category] || [];
+    acc[brand.category].push(brand);
+    return acc;
+  }, {} as Record<string, Brand[]>);
+
+  // Complex mutation with side effects
+  const createBrand = useMutation({
+    ...createBrandMutation,
+    onSuccess: (newBrand) => {
+      queryClient.invalidateQueries({ queryKey: ['brands'] });
+      // Additional complex logic...
+    }
+  });
+
+  return {
+    brands,
+    activeBrands,
+    brandsByCategory,
+    isLoading,
+    createBrand: createBrand.mutate,
+    isCreating: createBrand.isPending
+  };
 };
 ```
 
@@ -275,6 +389,338 @@ const { data: jobStatus } = useQuery({
   enabled: !!jobId
 });
 ```
+
+## Form Building Patterns
+
+Forms in the admin dashboard follow a consistent pattern using React Hook Form, Zod validation, and React Query mutations.
+
+### Complete Form Example
+
+```typescript
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+import { FormInput } from '../../shared/components/ui/form-input';
+import { FormImageUpload } from '../../shared/components/ui/form-input/form-image-upload';
+import { LoadingIcon } from '../../shared/components/ui/loading-icon';
+import { useToast } from '../../shared/hooks/use-toast';
+import { createBrand, updateBrand } from '../apiCalls/brands';
+import type { BrandSchemaType } from '../types';
+
+// 1. Define Zod schema for validation
+const brandSchema = z.object({
+  name: z
+    .string()
+    .min(1, 'Brand name is required')
+    .max(255, 'Brand name must be less than 255 characters'),
+  image_url: z.string().url('Must be a valid URL').or(z.literal('')),
+});
+
+// 2. Define form props interface
+interface BrandFormProps {
+  initialData?: BrandSchemaType;
+  isEditMode?: boolean;
+  brandId?: string;
+}
+
+export const BrandForm: React.FC<BrandFormProps> = ({
+  initialData,
+  isEditMode = false,
+  brandId,
+}) => {
+  // 3. Initialize React Hook Form with Zod resolver
+  const {
+    control,
+    handleSubmit,
+    reset,
+    trigger,
+    formState: { isSubmitting },
+  } = useForm<BrandSchemaType>({
+    resolver: zodResolver(brandSchema),
+    mode: 'onBlur',
+    defaultValues: initialData || {
+      name: '',
+      image_url: '',
+    },
+  });
+
+  // 4. Setup utilities
+  const queryClient = useQueryClient();
+  const { success, error } = useToast();
+  const navigate = useNavigate();
+
+  // 5. Create mutation
+  const createBrandMutation = useMutation({
+    mutationFn: createBrand,
+    onSuccess: (newBrand) => {
+      queryClient.invalidateQueries({ queryKey: ['brands'] });
+      success(
+        'Brand created',
+        `"${newBrand.name}" has been created successfully`
+      );
+      reset();
+      navigate('/brands');
+    },
+    onError: (err: Error) => {
+      error(
+        'Failed to create brand',
+        err.message || 'An unexpected error occurred'
+      );
+    },
+  });
+
+  // 6. Update mutation
+  const updateBrandMutation = useMutation({
+    mutationFn: (data: BrandSchemaType) => updateBrand(brandId!, data),
+    onSuccess: (updatedBrand) => {
+      queryClient.invalidateQueries({ queryKey: ['brands'] });
+      queryClient.invalidateQueries({ queryKey: ['brand', brandId] });
+      success(
+        'Brand updated',
+        `"${updatedBrand.name}" has been updated successfully`
+      );
+      navigate('/brands');
+    },
+    onError: (err: Error) => {
+      error(
+        'Failed to update brand',
+        err.message || 'An unexpected error occurred'
+      );
+    },
+  });
+
+  // 7. Form submit handler
+  const handleFormSubmit = async (data: BrandSchemaType) => {
+    const isValid = await trigger();
+    if (isValid) {
+      if (isEditMode) {
+        updateBrandMutation.mutate(data);
+      } else {
+        createBrandMutation.mutate(data);
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    navigate('/brands');
+  };
+
+  // 8. Render form
+  return (
+    <form className="space-y-4" onSubmit={handleSubmit(handleFormSubmit)}>
+      <FormInput
+        name="name"
+        control={control}
+        type="text"
+        label="Brand Name"
+        placeholder="Enter brand name"
+        disabled={
+          isSubmitting ||
+          createBrandMutation.isPending ||
+          updateBrandMutation.isPending
+        }
+        required={true}
+      />
+
+      <FormImageUpload
+        name="image_url"
+        control={control}
+        label="Brand Logo"
+        disabled={isSubmitting}
+        placeholder="Click to upload or drag and drop"
+        maxSizeInMB={10}
+      />
+
+      <div className="flex justify-end space-x-4 pt-4">
+        <button
+          type="button"
+          className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+          disabled={
+            isSubmitting ||
+            createBrandMutation.isPending ||
+            updateBrandMutation.isPending
+          }
+          onClick={handleCancel}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={
+            isSubmitting ||
+            createBrandMutation.isPending ||
+            updateBrandMutation.isPending
+          }
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+        >
+          {(isSubmitting ||
+            createBrandMutation.isPending ||
+            updateBrandMutation.isPending) && (
+            <LoadingIcon size="md" color="white" className="mr-2" />
+          )}
+          {isEditMode ? 'Update Brand' : 'Create Brand'}
+        </button>
+      </div>
+    </form>
+  );
+};
+```
+
+### Key Form Patterns
+
+#### 1. Validation Schema
+Use Zod for type-safe validation:
+```typescript
+const schema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  email: z.string().email('Invalid email'),
+  price: z.number().min(0, 'Price must be positive'),
+  image_url: z.string().url().or(z.literal('')), // Optional URL
+});
+```
+
+#### 2. Form Hook Setup
+```typescript
+const { control, handleSubmit, reset, trigger, formState } = useForm({
+  resolver: zodResolver(schema),
+  mode: 'onBlur', // Validate on blur
+  defaultValues: initialData || { /* defaults */ },
+});
+```
+
+#### 3. Dual Mode Forms (Create/Edit)
+Handle both create and update in the same form:
+```typescript
+interface FormProps {
+  initialData?: DataType;
+  isEditMode?: boolean;
+  itemId?: string;
+}
+
+// Separate mutations for create/update
+const createMutation = useMutation({ ... });
+const updateMutation = useMutation({ ... });
+
+// Conditional submission
+const handleFormSubmit = async (data: DataType) => {
+  if (isEditMode) {
+    updateMutation.mutate(data);
+  } else {
+    createMutation.mutate(data);
+  }
+};
+```
+
+#### 4. Loading States
+Disable form during submission:
+```typescript
+const isFormDisabled =
+  isSubmitting ||
+  createMutation.isPending ||
+  updateMutation.isPending;
+
+<FormInput disabled={isFormDisabled} ... />
+```
+
+#### 5. Success Handling
+After successful mutation:
+```typescript
+onSuccess: (newItem) => {
+  // 1. Invalidate relevant queries
+  queryClient.invalidateQueries({ queryKey: ['items'] });
+
+  // 2. Show success toast
+  success('Item created', `"${newItem.name}" has been created`);
+
+  // 3. Reset form (create mode only)
+  reset();
+
+  // 4. Navigate away
+  navigate('/items');
+}
+```
+
+#### 6. Error Handling
+```typescript
+onError: (err: Error) => {
+  error(
+    'Failed to create item',
+    err.message || 'An unexpected error occurred'
+  );
+}
+```
+
+#### 7. Custom Form Components
+Use the shared form components:
+```typescript
+// Text input
+<FormInput
+  name="name"
+  control={control}
+  type="text"
+  label="Item Name"
+  placeholder="Enter name"
+  disabled={isFormDisabled}
+  required={true}
+/>
+
+// Image upload
+<FormImageUpload
+  name="image_url"
+  control={control}
+  label="Image"
+  disabled={isFormDisabled}
+  maxSizeInMB={10}
+/>
+
+// Textarea (if available)
+<FormTextarea
+  name="description"
+  control={control}
+  label="Description"
+  rows={4}
+/>
+
+// Select (if available)
+<FormSelect
+  name="category"
+  control={control}
+  label="Category"
+  options={categories}
+/>
+```
+
+#### 8. Submit Button with Loading
+Button text stays the same, only shows loading icon:
+```typescript
+<button
+  type="submit"
+  disabled={isFormDisabled}
+  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+>
+  {isFormDisabled && (
+    <LoadingIcon size="md" color="white" className="mr-2" />
+  )}
+  {isEditMode ? 'Update Brand' : 'Create Brand'}
+</button>
+```
+
+### Form Best Practices
+
+1. **Always use Zod schemas** for validation
+2. **Separate mutations** for create and update operations
+3. **Invalidate queries** after successful mutations
+4. **Show loading indicators** (icon only) during submission
+5. **Disable all inputs** during submission to prevent duplicate requests
+6. **Keep button text consistent** - don't change to "Updating..." or "Creating..."
+7. **Reset form** after successful creation (but not after update)
+8. **Navigate away** after successful submission
+9. **Use toast notifications** for user feedback
+10. **Handle errors gracefully** with meaningful messages
+11. **Use custom form components** from shared/components/ui for consistency
 
 ## Common Patterns
 

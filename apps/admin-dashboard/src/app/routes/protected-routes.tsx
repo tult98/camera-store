@@ -7,6 +7,7 @@ import { DashboardPage } from '../../modules/dashboard/components/dashboard-page
 import { ProductsPage } from '../../modules/products/components/products-page';
 import { NewProductPage } from '../../modules/products/components/new-product-page';
 import { EditProductPage } from '../../modules/products/components/edit-product-page';
+import { ProductCrawlerPage } from '../../modules/product-crawler/components/product-crawler-page';
 import { BrandsPage } from '../../modules/brands/components/brands-page';
 import { NewBrandPage } from '../../modules/brands/components/new-brand-page';
 import { EditBrandPage } from '../../modules/brands/components/edit-brand-page';
@@ -36,6 +37,7 @@ export const ProtectedRoutes: React.FC = () => {
           <Route path="/products/new" element={<NewProductPage />} />
           <Route path="/products/:id/edit" element={<EditProductPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/product-crawler" element={<ProductCrawlerPage />} />
           <Route path="/attribute-templates/new" element={<NewAttributeTemplatePage />} />
           <Route path="/attribute-templates/:id/edit" element={<EditAttributeTemplatePage />} />
           <Route path="/attribute-templates" element={<AttributeTemplatesPage />} />

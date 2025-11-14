@@ -1,4 +1,5 @@
 import {
+  ArrowPathIcon,
   BuildingStorefrontIcon,
   Cog6ToothIcon,
   CubeIcon,
@@ -50,6 +51,12 @@ export const navigationItems: NavigationItem[] = [
         { path: '/products/:id/edit', label: 'Edit Product', dynamic: true },
       ],
     },
+  },
+  {
+    id: 'product-crawler',
+    label: 'Product Crawler',
+    path: '/product-crawler',
+    icon: ArrowPathIcon,
   },
   {
     id: 'categories',

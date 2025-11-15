@@ -1,8 +1,8 @@
 import React from 'react';
-import JsonView from '@microlink/react-json-view';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import type { JobStatusResponse } from '../types/crawler.types';
 import { JobStateMessage } from './job-state-message';
+import { ProductCreationForm } from './product-creation-form';
 
 interface JobStatusContentProps {
   jobStatus: JobStatusResponse | undefined;
@@ -38,14 +38,7 @@ export const JobStatusContent: React.FC<JobStatusContentProps> = ({
 
     case 'completed':
       return jobStatus.result?.productData ? (
-        <JsonView
-          src={jobStatus.result.productData}
-          collapsed={2}
-          displayDataTypes={false}
-          displayObjectSize={false}
-          enableClipboard={true}
-          style={{ padding: '1rem', backgroundColor: '#f9fafb', borderRadius: '0.5rem' }}
-        />
+        <ProductCreationForm productData={jobStatus.result.productData} />
       ) : null;
 
     case 'waiting':

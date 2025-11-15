@@ -98,14 +98,18 @@ export const ProductCrawlerPage: React.FC = () => {
             Enter a product URL from bhphotovideo.com
           </p>
 
-          <button
-            type="submit"
-            disabled={crawlMutation.isPending || isSubmitting}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            {crawlMutation.isPending && <LoadingIcon size="md" color="white" />}
-            Start Crawl
-          </button>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={crawlMutation.isPending || isSubmitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              {crawlMutation.isPending && (
+                <LoadingIcon size="md" color="white" />
+              )}
+              Start Crawl
+            </button>
+          </div>
 
           {crawlMutation.isError && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">

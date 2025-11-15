@@ -2,4 +2,4 @@
 cmds = ['yarn nx run admin-dashboard:build']
 
 [start]
-cmd = 'npx serve dist/apps/admin-dashboard -s -l $PORT'
+cmd = 'npx serve apps/admin-dashboard/dist -s -l $PORT'

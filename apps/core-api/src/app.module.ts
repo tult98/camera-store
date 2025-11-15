@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
 import { AppController } from './app.controller';
+import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './modules/product/product.module';
 
 @Module({
@@ -12,6 +13,7 @@ import { ProductModule } from './modules/product/product.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    DatabaseModule,
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

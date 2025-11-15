@@ -1,8 +1,9 @@
+import { ExpressAdapter } from '@bull-board/express';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { BullModule } from '@nestjs/bullmq';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { ExpressAdapter } from '@bull-board/express';
+import { StoreModule } from 'src/modules/store/store.module';
 import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './modules/product/product.module';
@@ -28,6 +29,7 @@ import { ProductModule } from './modules/product/product.module';
       adapter: ExpressAdapter,
     }),
     ProductModule,
+    StoreModule,
   ],
   controllers: [AppController],
   providers: [],

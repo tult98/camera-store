@@ -38,19 +38,22 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/core-api && nest start --watch"
+        "cwd": "apps/core-api",
+        "command": "nest start --watch"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/core-api && nest build"
+        "cwd": "apps/core-api",
+        "command": "nest build"
       }
     },
     "start": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/core-api && nest start"
+        "cwd": "apps/core-api",
+        "command": "nest start"
       },
       "dependsOn": ["build"]
     },

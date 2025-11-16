@@ -81,13 +81,6 @@ export class StoreProductService {
     rawProduct: any,
     variantPrices?: Map<string, VariantPrice>
   ): Product {
-    const productAttributes =
-      typeof rawProduct.metadata === 'object' &&
-      rawProduct.metadata !== null &&
-      'product_attributes' in rawProduct.metadata
-        ? rawProduct.metadata.product_attributes
-        : null;
-
     const categories: ProductCategory[] = rawProduct.product_category_product
       ? rawProduct.product_category_product.map((pcp: any) => ({
           ...pcp.product_category,
@@ -157,7 +150,7 @@ export class StoreProductService {
       images,
       options,
       variants,
-      product_attributes: productAttributes,
+      product_attributes: metadata,
     };
   }
 

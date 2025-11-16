@@ -1,0 +1,32 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "nixpacksConfigPath": "core-api.nixpacks.toml",
+    "watchPaths": [
+      "apps/core-api/**"
+    ]
+  },
+  "deploy": {
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 300,
+    "restartPolicyType": "on_failure",
+    "restartPolicyMaxRetries": 3
+  },
+  "environments": {
+    "production": {
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "3001"
+      }
+    },
+    "staging": {
+      "variables": {
+        "NODE_ENV": "staging",
+        "PORT": "3001"
+      }
+    }
+  },
+  "regions": [
+    "us-west1"
+  ]
+}

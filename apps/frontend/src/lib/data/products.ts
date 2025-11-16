@@ -1,7 +1,6 @@
 "use server"
 
-import { apiClient } from "@lib/api-client"
-import { sdk } from "@lib/config"
+import { coreApiClient } from "@lib/core-api-client"
 import { HttpTypes } from "@medusajs/types"
 import { getDefaultRegion } from "./regions"
 
@@ -24,27 +23,17 @@ export const retrieveProduct = async (
       return null
     }
 
-    const response = await apiClient<{
+    const response = await coreApiClient.get<{
       product: HttpTypes.StoreProduct & {
         product_attributes?: Array<{ attribute_name: string; value: unknown }>
       }
-    }>(`/store/products?handle=${handle}`, {
+    }>(`/store/products/${handle}`, {
       headers: {
-        region_id: region.id,
-        currency_code: region.currency_code,
+        "currency-code": region.currency_code,
       },
     })
 
-    const { product } = await sdk.store.product.retrieve(response.product.id, {
-      fields:
-        "*variants.calculated_price,*variants.inventory_quantity,+metadata,+tags,+images,",
-      region_id: region.id,
-    })
-
-    return {
-      ...product,
-      product_attributes: response.product.product_attributes,
-    }
+    return response.data.product
   } catch (error) {
     console.error(`Failed to retrieve product with handle ${handle}:`, error)
     return null

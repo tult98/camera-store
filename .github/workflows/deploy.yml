@@ -2,7 +2,7 @@ name: Deploy to Railway
 
 on:
   push:
-    branches: [main]
+    branches: [development]
 
 env:
   NX_CLOUD_DISTRIBUTED_EXECUTION: false

@@ -3,8 +3,10 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { StoreModule } from 'src/modules/store/store.module';
 import { AppController } from './app.controller';
+import { ApiKeyGuard } from './common/guards/api-key.guard';
 import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './modules/product/product.module';
 
@@ -32,6 +34,11 @@ import { ProductModule } from './modules/product/product.module';
     StoreModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
+  ],
 })
 export class AppModule {}

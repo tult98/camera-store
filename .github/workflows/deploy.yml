@@ -14,6 +14,7 @@ jobs:
       affected-backend: ${{ steps.affected.outputs.backend }}
       affected-frontend: ${{ steps.affected.outputs.frontend }}
       affected-admin-dashboard: ${{ steps.affected.outputs.admin-dashboard }}
+      affected-core-api: ${{ steps.affected.outputs.core-api }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,16 +38,11 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             BASE_SHA="${{ github.event.pull_request.base.sha }}"
           else
-            # For push events, use the SHA before the push to capture all commits
-            BASE_SHA="${{ github.event.before }}"
-            # Fallback to HEAD~1 for first push to new branch (when before is all zeros)
-            if [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
-              BASE_SHA="HEAD~1"
-            fi
+            BASE_SHA="origin/${{ github.ref_name }}"
           fi
 
           echo "Base SHA for comparison: $BASE_SHA"
-          AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,frontend,admin-dashboard)
+          AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,frontend,admin-dashboard,core-api)
 
           echo "Affected apps: $AFFECTED_APPS"
 
@@ -68,10 +64,16 @@ jobs:
             echo "admin-dashboard=false" >> $GITHUB_OUTPUT
           fi
 
+          if echo "$AFFECTED_APPS" | grep -q "core-api"; then
+            echo "core-api=true" >> $GITHUB_OUTPUT
+          else
+            echo "core-api=false" >> $GITHUB_OUTPUT
+          fi
+
   quality-checks:
     runs-on: ubuntu-latest
     needs: setup
-    if: needs.setup.outputs.affected-backend == 'true' || needs.setup.outputs.affected-frontend == 'true' || needs.setup.outputs.affected-admin-dashboard == 'true'
+    if: needs.setup.outputs.affected-backend == 'true' || needs.setup.outputs.affected-frontend == 'true' || needs.setup.outputs.affected-admin-dashboard == 'true' || needs.setup.outputs.affected-core-api == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -150,9 +152,26 @@ jobs:
       - name: Deploy Admin Dashboard to Railway
         run: railway up --service=${{ vars.RAILWAY_ADMIN_DASHBOARD_SERVICE_NAME }}
 
+  deploy-core-api:
+    runs-on: ubuntu-latest
+    needs: [setup, quality-checks]
+    if: needs.setup.outputs.affected-core-api == 'true' && always() && needs.quality-checks.result == 'success'
+    environment: staging
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy Core API to Railway
+        run: railway up --service=${{ vars.RAILWAY_CORE_API_SERVICE_NAME }}
+
   deploy-status:
     runs-on: ubuntu-latest
-    needs: [setup, deploy-backend, deploy-frontend, deploy-admin-dashboard]
+    needs: [setup, deploy-backend, deploy-frontend, deploy-admin-dashboard, deploy-core-api]
     if: always()
     steps:
       - name: Deployment Status
@@ -161,6 +180,7 @@ jobs:
           echo "Backend affected: ${{ needs.setup.outputs.affected-backend }}"
           echo "Frontend affected: ${{ needs.setup.outputs.affected-frontend }}"
           echo "Admin Dashboard affected: ${{ needs.setup.outputs.affected-admin-dashboard }}"
+          echo "Core API affected: ${{ needs.setup.outputs.affected-core-api }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Environment: staging"
 
@@ -186,4 +206,12 @@ jobs:
             echo "❌ Admin Dashboard deployment failed"
           else
             echo "⏭️ Admin Dashboard deployment skipped (not affected)"
+          fi
+
+          if [ "${{ needs.deploy-core-api.result }}" = "success" ]; then
+            echo "✅ Core API deployment successful"
+          elif [ "${{ needs.setup.outputs.affected-core-api }}" = "true" ]; then
+            echo "❌ Core API deployment failed"
+          else
+            echo "⏭️ Core API deployment skipped (not affected)"
           fi

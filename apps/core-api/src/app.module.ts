@@ -22,6 +22,7 @@ import { ProductModule } from './modules/product/product.module';
       useFactory: (configService: ConfigService) => ({
         connection: {
           url: configService.get<string>('REDIS_URL'),
+          family: 0,
         },
       }),
     }),

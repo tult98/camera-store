@@ -1,7 +1,9 @@
-import { FeaturedCategoriesResponse } from "@camera-store/shared-types"
 import { sdk } from "@lib/config"
+import { coreApiClient } from "@lib/core-api-client"
 import { getDefaultRegion } from "@lib/data/regions"
-import HomePage from "@modules/home/templates/home-page"
+import HomePage from "@modules/home"
+import { Banner } from "@modules/home/types"
+import { CategoryResponse } from "@modules/shared/types/category"
 import { Metadata } from "next"
 
 // Revalidate every 5 minutes
@@ -13,14 +15,8 @@ export const metadata: Metadata = {
     "Discover the latest cameras, lenses, and accessories. Premium quality mirrorless cameras for photography enthusiasts and professionals.",
 }
 
-interface BannerData {
-  id: string
-  images: string[]
-  is_active: boolean
-}
-
 interface BannerResponse {
-  banner: BannerData | null
+  banner: Banner | null
 }
 
 export default async function Home() {
@@ -30,22 +26,17 @@ export default async function Home() {
     throw new Error("No region found")
   }
 
-  const [{ banner }, { featured_categories: featuredCategories }] =
-    await Promise.all([
-      sdk.client.fetch<BannerResponse>(`/store/banners`, {
-        method: "GET",
-      }),
-      sdk.client.fetch<FeaturedCategoriesResponse>(
-        `/store/featured-categories`,
-        {
-          method: "GET",
-          headers: {
-            region_id: defaultRegion.id,
-            currency_code: defaultRegion.currency_code,
-          },
-        }
-      ),
-    ])
+  const [{ banner }, featuredCategoriesResponse] = await Promise.all([
+    sdk.client.fetch<BannerResponse>(`/store/banners`, {
+      method: "GET",
+    }),
+    coreApiClient.get<CategoryResponse>("/store/categories/featured"),
+  ])
 
-  return <HomePage banner={banner} featuredCategories={featuredCategories} />
+  return (
+    <HomePage
+      banner={banner}
+      featuredCategories={featuredCategoriesResponse.data.categories}
+    />
+  )
 }

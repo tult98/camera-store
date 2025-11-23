@@ -1,17 +1,17 @@
 "use client"
 
+import { Banner } from "@modules/home/types"
+import { useLayoutBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
 import Image from "next/image"
-import { Swiper, SwiperSlide } from "swiper/react"
-import { BANNER_SWIPER_MODULES, BANNER_SWIPER_CONFIG } from "./constants"
-import { BannerSliderProps } from "./types"
-
+import { useEffect } from "react"
 import "swiper/css"
+import "swiper/css/effect-creative"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
-import { useLayoutBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"
-import { useEffect } from "react"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { BANNER_SWIPER_CONFIG, BANNER_SWIPER_MODULES } from "./constants"
 
-const BannerSlider = ({ banner }: BannerSliderProps) => {
+const BannerSlider = ({ banner }: { banner: Banner }) => {
   const { clearBreadcrumbs } = useLayoutBreadcrumbs()
 
   useEffect(() => {

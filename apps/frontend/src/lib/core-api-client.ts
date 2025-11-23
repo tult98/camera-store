@@ -7,14 +7,4 @@ const coreApiClient = axios.create({
   },
 })
 
-coreApiClient.interceptors.response.use(
-  (response) => {
-    return response
-  },
-  (error) => {
-    console.log("API Error:", JSON.stringify(error.response.data, null, 2))
-    return Promise.reject(error.response.data)
-  }
-)
-
 export { coreApiClient }

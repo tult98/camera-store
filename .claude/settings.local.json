@@ -26,7 +26,8 @@
       "Bash(git log:*)",
       "Bash(yarn nx run:*)",
       "Bash(npx eslint . --fix)",
-      "Skill(commit-helper)"
+      "Skill(commit-helper)",
+      "Skill(frontend-design)"
     ],
     "deny": []
   }

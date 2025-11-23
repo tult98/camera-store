@@ -228,6 +228,80 @@ export class StoreProductService {
     return { data: transformedProducts, count };
   }
 
+  async findFeaturedProducts(
+    pagination: PaginationParams,
+    currencyCode: string = 'USD'
+  ): Promise<PaginatedData<Product>> {
+    const { offset, limit } = pagination;
+
+    const where = {
+      status: 'published',
+      deleted_at: null,
+      metadata: {
+        path: ['is_featured'],
+        equals: true,
+      },
+    };
+
+    const include = {
+      image: true,
+      product_option: {
+        include: {
+          product_option_value: true,
+        },
+      },
+      product_variant: {
+        include: {
+          product_variant_option: {
+            include: {
+              product_option_value: true,
+            },
+          },
+        },
+      },
+      product_category_product: {
+        include: {
+          product_category: true,
+        },
+      },
+      product_type: true,
+      product_collection: true,
+      product_tags: {
+        include: {
+          product_tag: true,
+        },
+      },
+    };
+
+    const [rawProducts, count] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        include,
+        orderBy: {
+          created_at: 'desc',
+        },
+        skip: offset,
+        take: limit,
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    const allVariantIds = rawProducts.flatMap((product) =>
+      product.product_variant ? product.product_variant.map((v) => v.id) : []
+    );
+
+    const variantPrices = await this.getVariantPrices(
+      allVariantIds,
+      currencyCode
+    );
+
+    const transformedProducts = rawProducts.map((product) =>
+      this.transformProduct(product, variantPrices)
+    );
+
+    return { data: transformedProducts, count };
+  }
+
   async findByHandle(
     handle: string,
     currencyCode: string = 'USD'

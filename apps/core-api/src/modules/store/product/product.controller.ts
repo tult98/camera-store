@@ -22,6 +22,21 @@ export class StoreProductController {
     return createPaginatedResponse('products', data, count, offset, limit);
   }
 
+  @Get('featured')
+  async findFeatured(
+    @Query() pagination: PaginationQueryDto,
+    @Headers('currency-code') currencyCode?: string
+  ) {
+    const { offset = 0, limit = 10 } = pagination;
+
+    const { data, count } = await this.productService.findFeaturedProducts(
+      { offset, limit },
+      currencyCode
+    );
+
+    return createPaginatedResponse('products', data, count, offset, limit);
+  }
+
   @Get(':handle')
   async findByHandle(
     @Param('handle') handle: string,

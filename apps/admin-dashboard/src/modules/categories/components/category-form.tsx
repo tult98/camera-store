@@ -249,7 +249,6 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           name="metadata.is_featured"
           control={control}
           label="Featured"
-          description="Mark this category as featured on the homepage"
           disabled={
             isSubmitting ||
             createCategoryMutation.isPending ||

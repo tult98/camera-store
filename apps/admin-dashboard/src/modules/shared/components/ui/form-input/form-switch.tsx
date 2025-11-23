@@ -11,7 +11,6 @@ interface FormSwitchProps<TFormData extends FieldValues = FieldValues> {
   className?: string;
   shouldUnregister?: boolean;
   required?: boolean;
-  labelPosition?: 'left' | 'right';
 }
 
 const FormSwitchInner = <TFormData extends FieldValues = FieldValues>(
@@ -24,7 +23,6 @@ const FormSwitchInner = <TFormData extends FieldValues = FieldValues>(
     className = '',
     shouldUnregister = false,
     required = false,
-    labelPosition = 'right',
   }: FormSwitchProps<TFormData>,
   ref: React.Ref<HTMLButtonElement>
 ) => {
@@ -69,42 +67,45 @@ const FormSwitchInner = <TFormData extends FieldValues = FieldValues>(
     isChecked ? 'translate-x-6' : 'translate-x-1'
   );
 
-  const LabelComponent = label && (
-    <div className={cn('flex flex-col', labelPosition === 'left' ? 'mr-3' : 'ml-3')}>
-      <span className="text-sm font-medium text-gray-900">
-        {label}
-        {required && <span className="text-red-500 ml-1">*</span>}
-      </span>
-      {description && (
-        <span className="text-xs text-gray-500 mt-1">{description}</span>
-      )}
-    </div>
-  );
-
   return (
     <div className={cn('w-full', className)}>
-      <div className="flex items-start">
-        {labelPosition === 'left' && LabelComponent}
-        
-        <button
-          ref={ref}
-          type="button"
-          role="switch"
-          aria-checked={isChecked}
-          aria-labelledby={label ? `${name}-label` : undefined}
-          aria-describedby={description ? `${name}-description` : undefined}
-          aria-invalid={showErrorState}
-          disabled={disabled}
-          className={switchClasses}
-          onClick={handleToggle}
-          onKeyDown={handleKeyDown}
-          onBlur={field.onBlur}
-        >
-          <span className={knobClasses} />
-        </button>
+      {label && (
+        <div className="label-wrapper">
+          <label
+            id={`${name}-label`}
+            className="label-text"
+            htmlFor={name}
+          >
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {description && (
+            <span
+              id={`${name}-description`}
+              className="text-xs text-gray-500 mt-1 block"
+            >
+              {description}
+            </span>
+          )}
+        </div>
+      )}
 
-        {labelPosition === 'right' && LabelComponent}
-      </div>
+      <button
+        ref={ref}
+        type="button"
+        role="switch"
+        aria-checked={isChecked}
+        aria-labelledby={label ? `${name}-label` : undefined}
+        aria-describedby={description ? `${name}-description` : undefined}
+        aria-invalid={showErrorState}
+        disabled={disabled}
+        className={switchClasses}
+        onClick={handleToggle}
+        onKeyDown={handleKeyDown}
+        onBlur={field.onBlur}
+      >
+        <span className={knobClasses} />
+      </button>
 
       {showErrorState && (
         <div className="mt-1">

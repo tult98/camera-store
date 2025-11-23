@@ -51,6 +51,11 @@ export const productSchema = z.object({
       brand_id: z.string().optional(),
     })
     .optional(),
+  metadata: z
+    .object({
+      is_featured: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export type ProductSchemaType = z.infer<typeof productSchema>;

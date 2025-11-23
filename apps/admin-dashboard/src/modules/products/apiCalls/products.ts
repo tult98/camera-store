@@ -43,6 +43,7 @@ export const transformDataToUpdateProductPayload = (
     })),
     sales_channels: formData.sales_channels,
     additional_data: formData.additional_data,
+    metadata: formData.metadata,
   };
 };
 

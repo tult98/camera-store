@@ -12,6 +12,7 @@ import { fetchBrands } from '../../../brands/apiCalls/brands';
 import { fetchCategories } from '../../../categories/apiCalls/categories';
 import type { SelectOption } from '../../../shared/components/ui/form-input/form-select';
 import { FormSelect } from '../../../shared/components/ui/form-input/form-select';
+import { FormSwitch } from '../../../shared/components/ui/form-input/form-switch';
 import { LoadingIcon } from '../../../shared/components/ui/loading-icon';
 import {
   productSchema,
@@ -51,6 +52,9 @@ const getFormDefaultValues = (
   sales_channels: defaultSalesChannelId ? [{ id: defaultSalesChannelId }] : [],
   additional_data: {
     brand_id: initialValues?.brands?.[0]?.id || brand?.id,
+  },
+  metadata: {
+    is_featured: (initialValues?.metadata?.is_featured as boolean) ?? false,
   },
   variants:
     initialValues?.variants?.map((variant) => ({
@@ -158,7 +162,7 @@ export const OrganizationVariantsStep: React.FC<
         </h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <FormSelect
               name="status"
               control={control}
@@ -184,6 +188,13 @@ export const OrganizationVariantsStep: React.FC<
               label="Brand"
               placeholder="Select brand"
               isClearable={true}
+            />
+
+            <FormSwitch
+              name="metadata.is_featured"
+              control={control}
+              label="Featured Product"
+              disabled={updateProductMutation.isPending}
             />
           </div>
 

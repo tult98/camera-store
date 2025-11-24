@@ -4,8 +4,10 @@ import { ShoppingCartIcon } from "@heroicons/react/24/outline"
 import { Product } from "@modules/shared/types/product"
 import Image from "next/image"
 import Link from "next/link"
+import { useState } from "react"
 
 const ProductCard = ({ product }: { product: Product }) => {
+  const [imageError, setImageError] = useState(false)
   const thumbnail = product.thumbnail
   const variants = product.variants || []
   const firstVariant = variants[0]
@@ -16,12 +18,13 @@ const ProductCard = ({ product }: { product: Product }) => {
     <div className="group relative featured-product-card">
       <div className="relative bg-white rounded-3xl overflow-hidden transition-all duration-500 ease-out shadow-lg hover:shadow-2xl hover:scale-[1.02]">
         <div className="relative aspect-square overflow-hidden bg-base-200 rounded-t-3xl">
-          {thumbnail ? (
+          {thumbnail && !imageError ? (
             <Image
               src={thumbnail}
               alt={product.title}
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full bg-base-300 flex items-center justify-center">

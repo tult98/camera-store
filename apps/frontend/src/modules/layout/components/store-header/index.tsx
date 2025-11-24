@@ -7,7 +7,7 @@ const StoreHeader = async () => {
   const cart = await retrieveCart()
 
   return (
-    <header className="relative bg-white border-b border-zinc-100">
+    <header className="relative bg-white border-b border-gray-200">
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-50/50 to-transparent pointer-events-none" />
 
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />

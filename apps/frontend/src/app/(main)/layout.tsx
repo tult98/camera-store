@@ -18,7 +18,7 @@ export default async function PageLayout(props: { children: React.ReactNode }) {
       <RegionProvider>
         <ToastProvider>
           <BreadcrumbProvider>
-            <div className="min-h-screen bg-base-100 flex flex-col">
+            <div className="min-h-screen bg-neutral-50 flex flex-col">
               <StoreNavigation />
               <main className="flex-1 content-container">{props.children}</main>
               <StoreFooter />

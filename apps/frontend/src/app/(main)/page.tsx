@@ -3,6 +3,7 @@ import { coreApiClient } from "@lib/core-api-client"
 import { getDefaultRegion } from "@lib/data/regions"
 import HomePage from "@modules/home"
 import { Banner } from "@modules/home/types"
+import { BrandResponse } from "@modules/shared/types/brand"
 import { CategoryResponse } from "@modules/shared/types/category"
 import { ProductResponse } from "@modules/shared/types/product"
 import { Metadata } from "next"
@@ -27,24 +28,30 @@ export default async function Home() {
     throw new Error("No region found")
   }
 
-  const [{ banner }, featuredCategoriesResponse, featuredProductResponse] =
-    await Promise.all([
-      sdk.client.fetch<BannerResponse>(`/store/banners`, {
-        method: "GET",
-      }),
-      coreApiClient.get<CategoryResponse>("/store/categories/featured"),
-      coreApiClient.get<ProductResponse>("/store/products/featured", {
-        headers: {
-          "currency-code": defaultRegion.currency_code,
-        },
-      }),
-    ])
+  const [
+    { banner },
+    featuredCategoriesResponse,
+    featuredProductResponse,
+    brandResponse,
+  ] = await Promise.all([
+    sdk.client.fetch<BannerResponse>(`/store/banners`, {
+      method: "GET",
+    }),
+    coreApiClient.get<CategoryResponse>("/store/categories/featured"),
+    coreApiClient.get<ProductResponse>("/store/products/featured", {
+      headers: {
+        "currency-code": defaultRegion.currency_code,
+      },
+    }),
+    coreApiClient.get<BrandResponse>("store/brands"),
+  ])
 
   return (
     <HomePage
       banner={banner}
       featuredCategories={featuredCategoriesResponse.data.categories}
       featuredProducts={featuredProductResponse.data.products}
+      brands={brandResponse.data.brands}
     />
   )
 }

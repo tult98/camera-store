@@ -1,6 +1,6 @@
+import { Category } from "@modules/shared/types/category"
 import Image from "next/image"
 import Link from "next/link"
-import { Category } from "@modules/shared/types/category"
 
 interface ShopByCategoryProps {
   categories: Category[]

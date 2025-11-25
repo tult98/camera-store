@@ -1,11 +1,7 @@
 import { ChevronDownIcon } from "@heroicons/react/24/outline"
 import { coreApiClient } from "@lib/core-api-client"
-import { Category } from "@modules/shared/types/category"
+import { CategoryTreeResponse } from "@modules/shared/types/category"
 import Link from "next/link"
-
-interface CategoryTreeResponse {
-  categories: Category[]
-}
 
 const StoreNavigation = async () => {
   const categoriesTreeResponse = await coreApiClient.get<CategoryTreeResponse>(

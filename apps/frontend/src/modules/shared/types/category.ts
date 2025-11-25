@@ -17,3 +17,7 @@ export interface CategoryResponse {
   count: number
   categories: Category[]
 }
+
+export interface CategoryTreeResponse {
+  categories: Category[]
+}

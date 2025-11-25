@@ -1,10 +1,15 @@
-import { getCategoriesForNavigation } from "@lib/data/categories"
+import { coreApiClient } from "@lib/core-api-client"
+import { CategoryTreeResponse } from "@modules/shared/types/category"
 
 const StoreFooter = async () => {
-  const categories = await getCategoriesForNavigation()
+  const categoryTreeResponse = await coreApiClient.get<CategoryTreeResponse>(
+    "/store/categories/tree"
+  )
+
+  const categories = categoryTreeResponse.data.categories
 
   return (
-    <div className="relative bg-gradient-to-b from-zinc-900 via-zinc-900 to-black text-zinc-100 overflow-hidden">
+    <div className="relative bg-linear-to-b from-zinc-900 via-zinc-900 to-black text-zinc-100 overflow-hidden">
       <div
         className="absolute inset-0 opacity-[0.02]"
         style={{
@@ -12,7 +17,7 @@ const StoreFooter = async () => {
         }}
       />
 
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
 
       <footer className="relative max-w-7xl mx-auto px-6 py-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12">
@@ -20,7 +25,7 @@ const StoreFooter = async () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-4 group">
                 <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/40 transition-all duration-500">
+                  <div className="w-12 h-12 rounded-full bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/40 transition-all duration-500">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -116,23 +121,23 @@ const StoreFooter = async () => {
                     style={{ animationDelay: `${(index + 1) * 100}ms` }}
                   >
                     <a
-                      href={category.href}
+                      href={`/categories/${category.handle}`}
                       className="group block text-base font-medium text-zinc-300 hover:text-primary transition-colors duration-300"
                     >
                       <span className="inline-flex items-center space-x-2">
                         <span className="w-1 h-1 bg-zinc-600 rounded-full group-hover:bg-primary transition-colors duration-300" />
-                        <span>{category.title}</span>
+                        <span>{category.name}</span>
                       </span>
                     </a>
-                    {category.dropdown && category.dropdown.length > 0 && (
+                    {category.children && category.children.length > 0 && (
                       <div className="ml-6 space-y-1.5">
-                        {category.dropdown.map((subCategory) => (
+                        {category.children.map((subCategory) => (
                           <a
                             key={subCategory.id}
-                            href={subCategory.href}
-                            className="block text-sm text-zinc-500 hover:text-zinc-300 transition-colors duration-300 hover:translate-x-1 transform"
+                            href={`/categories/${subCategory.handle}`}
+                            className="block text-sm text-zinc-500 hover:text-zinc-300 transition-colors duration-300 hover:translate-x-1"
                           >
-                            {subCategory.title}
+                            {subCategory.name}
                           </a>
                         ))}
                       </div>
@@ -155,7 +160,7 @@ const StoreFooter = async () => {
               <div className="space-y-5">
                 <div className="group">
                   <div className="flex items-start space-x-3">
-                    <div className="mt-1 w-5 h-5 text-primary/70 group-hover:text-primary transition-colors duration-300 flex-shrink-0">
+                    <div className="mt-1 w-5 h-5 text-primary/70 group-hover:text-primary transition-colors duration-300 shrink-0">
                       <svg
                         fill="none"
                         stroke="currentColor"
@@ -187,7 +192,7 @@ const StoreFooter = async () => {
 
                 <div className="group">
                   <div className="flex items-center space-x-3">
-                    <div className="w-5 h-5 text-primary/70 group-hover:text-primary transition-colors duration-300 flex-shrink-0">
+                    <div className="w-5 h-5 text-primary/70 group-hover:text-primary transition-colors duration-300 shrink-0">
                       <svg
                         fill="none"
                         stroke="currentColor"
@@ -210,7 +215,7 @@ const StoreFooter = async () => {
 
                 <div className="group">
                   <div className="flex items-center space-x-3">
-                    <div className="w-5 h-5 text-primary/70 group-hover:text-primary transition-colors duration-300 flex-shrink-0">
+                    <div className="w-5 h-5 text-primary/70 group-hover:text-primary transition-colors duration-300 shrink-0">
                       <svg
                         fill="none"
                         stroke="currentColor"
@@ -233,7 +238,7 @@ const StoreFooter = async () => {
 
                 <div className="pt-4 border-t border-zinc-800/50">
                   <div className="flex items-start space-x-3">
-                    <div className="mt-1 w-5 h-5 text-primary/70 flex-shrink-0">
+                    <div className="mt-1 w-5 h-5 text-primary/70 shrink-0">
                       <svg
                         fill="none"
                         stroke="currentColor"

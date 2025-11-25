@@ -27,7 +27,8 @@
       "Bash(yarn nx run:*)",
       "Bash(npx eslint . --fix)",
       "Skill(commit-helper)",
-      "Skill(frontend-design)"
+      "Skill(frontend-design)",
+      "Skill(api-design-principles)"
     ],
     "deny": []
   }

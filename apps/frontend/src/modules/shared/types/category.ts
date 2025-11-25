@@ -2,9 +2,13 @@ export interface Category {
   id: string
   name: string
   description: string
-  metadata: {
-    hero_image_url: string
-  }
+  handle: string
+  is_active: boolean
+  rank: number
+  metadata: any
+  created_at: Date
+  updated_at: Date
+  children?: Category[]
 }
 
 export interface CategoryResponse {

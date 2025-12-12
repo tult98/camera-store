@@ -3,7 +3,7 @@
 import { XMarkIcon } from "@heroicons/react/24/outline"
 import { useEffect } from "react"
 
-export type ToastProps = {
+type ToastProps = {
   message: string
   type?: "success" | "error" | "info" | "warning"
   onClose: () => void

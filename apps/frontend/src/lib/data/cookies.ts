@@ -55,18 +55,3 @@ export const getCacheOptions = async (
 
   return { tags: [`${cacheTag}`] }
 }
-
-export const setAuthToken = async (token: string) => {
-  const cookies = await nextCookies()
-  cookies.set("_medusa_jwt", token, {
-    maxAge: 60 * 60 * 24 * 7,
-    httpOnly: true,
-    sameSite: "strict",
-    secure: process.env.NODE_ENV === "production",
-  })
-}
-
-export const removeAuthToken = async () => {
-  const cookies = await nextCookies()
-  cookies.delete("_medusa_jwt")
-}

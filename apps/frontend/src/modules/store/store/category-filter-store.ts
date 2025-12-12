@@ -9,7 +9,7 @@ export type SortOption =
   | "name_asc"
   | "name_desc"
 
-export interface CategoryFilterState {
+interface CategoryFilterState {
   filters: ApiFilters
   sortBy: SortOption
   page: number

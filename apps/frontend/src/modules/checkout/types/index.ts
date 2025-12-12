@@ -9,9 +9,6 @@ export interface CompleteOrderParams {
   providerId: string
 }
 
-// Checkout step types
-export type CheckoutStep = "cart" | "shipping-address" | "review" | "success"
-
 // Shipping address form data (shared between components)
 export interface ShippingAddressFormData extends HttpTypes.StoreUpdateCart {
   shipping_address?: HttpTypes.StoreAddAddress

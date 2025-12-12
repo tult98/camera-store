@@ -108,7 +108,7 @@ export default function ProductActions({
       const variantOptions = optionsAsKeymap(v.options)
       return isEqual(variantOptions, options)
     })
-  }, [product.variants, options])
+  }, [product.variants, options, isDefaultOption])
 
   // check if the selected variant is in stock
   const inStock = useMemo(() => {

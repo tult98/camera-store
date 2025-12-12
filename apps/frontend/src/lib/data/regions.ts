@@ -30,7 +30,7 @@ export const getDefaultRegion =
       }
 
       return regions[0]
-    } catch (e: any) {
+    } catch {
       return null
     }
   }

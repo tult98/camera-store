@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react'
+import { createContext, useContext, useState, ReactNode, useMemo } from 'react'
 import { BreadcrumbItem } from "../breadcrumbs/index"
 
 interface BreadcrumbContextType {

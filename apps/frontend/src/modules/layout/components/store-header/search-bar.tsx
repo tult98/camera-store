@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react"
 
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState("")
-  const [isFocused, setIsFocused] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([])
   const router = useRouter()
@@ -19,7 +18,6 @@ const SearchBar = () => {
       setSearchQuery("")
       setIsExpanded(false)
       setSearchSuggestions([])
-      setIsFocused(false)
     }
   }
 
@@ -56,8 +54,6 @@ const SearchBar = () => {
           className="w-full px-6 py-3 border border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-300 focus:bg-white text-sm rounded-full transition-all duration-200"
           value={searchQuery}
           onChange={(e) => handleInputChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
         />
 
         {searchSuggestions.length > 0 && (

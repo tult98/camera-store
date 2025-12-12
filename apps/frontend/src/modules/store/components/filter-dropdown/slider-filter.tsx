@@ -9,19 +9,19 @@ interface SliderFilterProps {
   onSetPriceRange: (range: { min?: number; max?: number }) => void
 }
 
-export default function SliderFilter({ 
-  facet, 
-  filters, 
-  onSetPriceRange 
+export default function SliderFilter({
+  facet,
+  filters,
+  onSetPriceRange
 }: SliderFilterProps) {
   const [priceMin, setPriceMin] = useState<number>(0)
   const [priceMax, setPriceMax] = useState<number>(0)
 
-  if (!facet.range) return null
-
   useEffect(() => {
-    setPriceMin(filters.price?.min ?? facet.range!.min)
-    setPriceMax(filters.price?.max ?? facet.range!.max)
+    if (facet.range) {
+      setPriceMin(filters.price?.min ?? facet.range.min)
+      setPriceMax(filters.price?.max ?? facet.range.max)
+    }
   }, [facet.range, filters.price])
 
   const formatPriceForInput = (value: number) => {
@@ -32,14 +32,17 @@ export default function SliderFilter({
   }
 
   const handlePriceChange = useCallback(() => {
+    if (!facet.range) return
     try {
-      const min = priceMin > facet.range!.min ? priceMin : undefined
-      const max = priceMax < facet.range!.max ? priceMax : undefined
+      const min = priceMin > facet.range.min ? priceMin : undefined
+      const max = priceMax < facet.range.max ? priceMax : undefined
       onSetPriceRange({ min, max })
     } catch (error) {
       console.error("Error updating price range:", error)
     }
   }, [facet.range, priceMin, priceMax, onSetPriceRange])
+
+  if (!facet.range) return null
 
   return (
     <div className="mt-3 space-y-4">

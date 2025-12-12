@@ -50,7 +50,7 @@ export default function CategoryProductCard({
 
     Object.entries(attrs)
       .filter(
-        ([_, value]) =>
+        ([, value]) =>
           value !== null &&
           value !== undefined &&
           value !== "" &&

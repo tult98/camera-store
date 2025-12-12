@@ -37,7 +37,7 @@ export default function CartPage({ initialCart }: CartPageProps) {
         "error"
       )
     }
-  }, [isLoading, error])
+  }, [isLoading, error, showToast])
 
   if (isLoading) return <SkeletonCartPage />
 

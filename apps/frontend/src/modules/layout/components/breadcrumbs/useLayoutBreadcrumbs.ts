@@ -65,7 +65,7 @@ export const useLayoutBreadcrumbs = (
     if (options.maxItems !== undefined) {
       breadcrumbContext.setMaxItems(options.maxItems)
     }
-  }, [options.loading, options.variant, options.showHome, options.maxItems])
+  }, [options.loading, options.variant, options.showHome, options.maxItems, breadcrumbContext])
 
   useEffect(() => {
     // Generate breadcrumb items
@@ -107,32 +107,32 @@ export const useLayoutBreadcrumbs = (
 
     // Set the breadcrumb items in the context
     breadcrumbContext.setItems(items)
-  }, [context, pathname])
+  }, [context, pathname, breadcrumbContext])
 
   // Memoize helper functions to prevent infinite re-renders
   const clearBreadcrumbs = useCallback(() => {
     breadcrumbContext.setItems([])
-  }, [breadcrumbContext.setItems])
+  }, [breadcrumbContext])
 
   const setBreadcrumbs = useCallback(
     (items: BreadcrumbItem[]) => {
       breadcrumbContext.setItems(items)
     },
-    [breadcrumbContext.setItems]
+    [breadcrumbContext]
   )
 
   const setLoadingHelper = useCallback(
     (loading: boolean) => {
       breadcrumbContext.setLoading(loading)
     },
-    [breadcrumbContext.setLoading]
+    [breadcrumbContext]
   )
 
   const setVariantHelper = useCallback(
     (variant: "default" | "compact" | "minimal") => {
       breadcrumbContext.setVariant(variant)
     },
-    [breadcrumbContext.setVariant]
+    [breadcrumbContext]
   )
 
   // Return helper to clear breadcrumbs (useful for pages that shouldn't show them)
@@ -155,7 +155,7 @@ export const useProductBreadcrumbs = (
   )
   const memoizedOptions = useMemo(
     () => options,
-    [options.loading, options.variant, options.showHome, options.maxItems]
+    [options]
   )
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }
@@ -177,7 +177,7 @@ export const useCategoryBreadcrumbs = (
   )
   const memoizedOptions = useMemo(
     () => options,
-    [options.loading, options.variant, options.showHome, options.maxItems]
+    [options]
   )
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }
@@ -195,7 +195,7 @@ export const useCheckoutBreadcrumbs = (
   )
   const memoizedOptions = useMemo(
     () => options,
-    [options.loading, options.variant, options.showHome, options.maxItems]
+    [options]
   )
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }

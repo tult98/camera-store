@@ -1,7 +1,6 @@
 "use client"
 
 import { clx } from "@medusajs/ui"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 interface PaginationProps {
   page: number

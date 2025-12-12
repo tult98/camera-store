@@ -27,7 +27,7 @@ export default function CheckoutPageContent({
         setActiveCartId({ cartId: null, targetCartId: activeCartId })
       }
     }
-  }, [activeCartId])
+  }, [activeCartId, setActiveCartId])
 
   if (!cart) return <EmptyCartMessage />
 

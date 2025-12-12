@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image"
+
 interface MediaContent {
   type: 'image' | 'video'
   url: string
@@ -109,10 +111,13 @@ const ProductDescriptionMock = () => {
     if (media.type === 'image') {
       return (
         <figure className="product-description-media-wrapper">
-          <img
+          <Image
             src={media.url}
             alt="Product feature"
             className="product-description-media"
+            width={800}
+            height={600}
+            unoptimized
           />
         </figure>
       )

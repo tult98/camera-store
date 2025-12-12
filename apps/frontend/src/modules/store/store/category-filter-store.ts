@@ -153,7 +153,8 @@ export const useCategoryFilterStore = create<CategoryFilterState>(
             page: 1,
           })
         } else {
-          const { [key]: _, ...restMetadata } = metadata
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { [key]: _removed, ...restMetadata } = metadata
           set({
             filters: {
               ...currentFilters,

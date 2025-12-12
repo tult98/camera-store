@@ -62,6 +62,7 @@ const ReviewStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
     shippingOptionsQuery.data?.shipping_options,
     shippingOptionsQuery.isLoading,
     paymentProvidersQuery.isLoading,
+    showToast,
   ])
 
   // set default shipping option

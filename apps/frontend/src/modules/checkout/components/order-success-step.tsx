@@ -27,7 +27,7 @@ const OrderSuccessStep = () => {
     try {
       await navigator.clipboard.writeText(orderId)
       showToast("Order ID copied to clipboard!", "success")
-    } catch (err) {
+    } catch {
       showToast("Failed to copy order ID", "error")
     }
   }

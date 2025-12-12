@@ -64,13 +64,7 @@ Error: relation "custom_table" already exists
 npx medusa db:generate custom-module --check
 ```
 
-2. Reset development database (⚠️ NEVER in production):
-```bash
-# Only in development
-nx run backend:reset-database
-```
-
-3. Create a rollback migration:
+2. Create a rollback migration:
 ```typescript
 export class Migration20240101120001 extends Migration {
   async up(): Promise<void> {

@@ -64,20 +64,6 @@
         "cwd": "apps/backend"
       }
     },
-    "seed": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "medusa exec ./src/scripts/seed.ts",
-        "cwd": "apps/backend"
-      }
-    },
-    "reset-database": {
-      "executor": "nx:run-commands",
-      "options": {
-        "command": "medusa exec ./src/scripts/reset-database.ts",
-        "cwd": "apps/backend"
-      }
-    },
     "migrate": {
       "executor": "nx:run-commands",
       "options": {

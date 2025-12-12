@@ -165,8 +165,6 @@ nx reset                # Clean NX cache
 
 ```bash
 # Database operations (nx commands)
-nx seed backend                   # Seed database with demo data
-nx reset-database backend         # Reset database to clean state
 nx migrate backend                # Run database migrations
 npx medusa db:generate <module>   # Generate migrations for module (run from apps/backend/)
 

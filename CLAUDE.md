@@ -42,7 +42,6 @@ nx serve backend          # Development server (port 9000)
 nx build backend          # Production build
 nx start backend          # Production server
 nx migrate backend        # Run database migrations
-nx seed backend           # Seed demo data
 nx test backend           # All tests
 
 # Granular Testing
@@ -50,8 +49,6 @@ yarn test:backend:unit                    # Unit tests only
 yarn test:backend:integration:http        # HTTP integration tests
 yarn test:backend:integration:modules     # Module integration tests
 yarn test:backend:all                     # All backend tests
-
-# ⚠️ NEVER RUN: nx run backend:reset-database
 ```
 
 ### Frontend (Next.js)

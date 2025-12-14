@@ -43,29 +43,35 @@ export const useLayoutBreadcrumbs = (
   options: UseLayoutBreadcrumbsOptions = {}
 ) => {
   const pathname = usePathname()
-  const breadcrumbContext = useBreadcrumbContext()
+  const {
+    setItems,
+    setLoading,
+    setVariant,
+    setShowHome,
+    setMaxItems,
+  } = useBreadcrumbContext()
 
   useEffect(() => {
     // Set loading state
     if (options.loading !== undefined) {
-      breadcrumbContext.setLoading(options.loading)
+      setLoading(options.loading)
     }
 
     // Set variant if provided
     if (options.variant) {
-      breadcrumbContext.setVariant(options.variant)
+      setVariant(options.variant)
     }
 
     // Set showHome if provided
     if (options.showHome !== undefined) {
-      breadcrumbContext.setShowHome(options.showHome)
+      setShowHome(options.showHome)
     }
 
     // Set maxItems if provided
     if (options.maxItems !== undefined) {
-      breadcrumbContext.setMaxItems(options.maxItems)
+      setMaxItems(options.maxItems)
     }
-  }, [options.loading, options.variant, options.showHome, options.maxItems, breadcrumbContext])
+  }, [options.loading, options.variant, options.showHome, options.maxItems, setLoading, setVariant, setShowHome, setMaxItems])
 
   useEffect(() => {
     // Generate breadcrumb items
@@ -106,33 +112,33 @@ export const useLayoutBreadcrumbs = (
     }
 
     // Set the breadcrumb items in the context
-    breadcrumbContext.setItems(items)
-  }, [context, pathname, breadcrumbContext])
+    setItems(items)
+  }, [context, pathname, setItems])
 
   // Memoize helper functions to prevent infinite re-renders
   const clearBreadcrumbs = useCallback(() => {
-    breadcrumbContext.setItems([])
-  }, [breadcrumbContext])
+    setItems([])
+  }, [setItems])
 
   const setBreadcrumbs = useCallback(
     (items: BreadcrumbItem[]) => {
-      breadcrumbContext.setItems(items)
+      setItems(items)
     },
-    [breadcrumbContext]
+    [setItems]
   )
 
   const setLoadingHelper = useCallback(
     (loading: boolean) => {
-      breadcrumbContext.setLoading(loading)
+      setLoading(loading)
     },
-    [breadcrumbContext]
+    [setLoading]
   )
 
   const setVariantHelper = useCallback(
     (variant: "default" | "compact" | "minimal") => {
-      breadcrumbContext.setVariant(variant)
+      setVariant(variant)
     },
-    [breadcrumbContext]
+    [setVariant]
   )
 
   // Return helper to clear breadcrumbs (useful for pages that shouldn't show them)

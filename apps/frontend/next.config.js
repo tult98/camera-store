@@ -42,6 +42,10 @@ const nextConfig = {
         hostname: "bucket-fdsj-production.up.railway.app",
       },
       {
+        protocol: "https",
+        hostname: "camera.sopl.digitalo.ces.com",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
       },

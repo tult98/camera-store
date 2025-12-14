@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode, useMemo } from 'react'
+import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react'
 import { BreadcrumbItem } from "../breadcrumbs/index"
 
 interface BreadcrumbContextType {
@@ -33,17 +33,37 @@ interface BreadcrumbProviderProps {
   defaultMaxItems?: number
 }
 
-export const BreadcrumbProvider = ({ 
-  children, 
+export const BreadcrumbProvider = ({
+  children,
   defaultVariant = "default",
   defaultShowHome = true,
   defaultMaxItems
 }: BreadcrumbProviderProps) => {
-  const [items, setItems] = useState<BreadcrumbItem[]>([])
-  const [loading, setLoading] = useState(false)
-  const [variant, setVariant] = useState<"default" | "compact" | "minimal">(defaultVariant)
-  const [showHome, setShowHome] = useState(defaultShowHome)
-  const [maxItems, setMaxItems] = useState<number | undefined>(defaultMaxItems)
+  const [items, setItemsState] = useState<BreadcrumbItem[]>([])
+  const [loading, setLoadingState] = useState(false)
+  const [variant, setVariantState] = useState<"default" | "compact" | "minimal">(defaultVariant)
+  const [showHome, setShowHomeState] = useState(defaultShowHome)
+  const [maxItems, setMaxItemsState] = useState<number | undefined>(defaultMaxItems)
+
+  const setItems = useCallback((items: BreadcrumbItem[]) => {
+    setItemsState(items)
+  }, [])
+
+  const setLoading = useCallback((loading: boolean) => {
+    setLoadingState(loading)
+  }, [])
+
+  const setVariant = useCallback((variant: "default" | "compact" | "minimal") => {
+    setVariantState(variant)
+  }, [])
+
+  const setShowHome = useCallback((showHome: boolean) => {
+    setShowHomeState(showHome)
+  }, [])
+
+  const setMaxItems = useCallback((maxItems?: number) => {
+    setMaxItemsState(maxItems)
+  }, [])
 
   const contextValue = useMemo(() => ({
     items,
@@ -58,10 +78,15 @@ export const BreadcrumbProvider = ({
     setMaxItems
   }), [
     items,
+    setItems,
     loading,
+    setLoading,
     variant,
+    setVariant,
     showHome,
-    maxItems
+    setShowHome,
+    maxItems,
+    setMaxItems
   ])
 
   return (

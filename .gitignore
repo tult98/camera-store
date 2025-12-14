@@ -172,3 +172,5 @@ vitest.config.*.timestamp*
 
 # Product Crawler
 apps/core-api/output/
+
+storybook-static

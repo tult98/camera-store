@@ -11,7 +11,8 @@
       "@/*": ["./src/*"],
       "@modules/*": ["./src/modules/*"],
       "@providers/*": ["./src/providers/*"],
-      "@app/*": ["./src/app/*"]
+      "@app/*": ["./src/app/*"],
+      "@camera-store/ui": ["../../libs/ui/src/index.ts"]
     }
   },
   "files": [],

@@ -28,7 +28,9 @@
       "Bash(npx eslint . --fix)",
       "Skill(commit-helper)",
       "Skill(frontend-design)",
-      "Skill(api-design-principles)"
+      "Skill(api-design-principles)",
+      "Bash(npx knip:*)",
+      "Bash(yarn nx lint:*)"
     ],
     "deny": []
   }

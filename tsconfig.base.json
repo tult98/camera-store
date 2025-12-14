@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@camera-store/shared-types": ["shared-types/index.ts"],
-      "@camera-store/shared-types/*": ["shared-types/*"]
+      "@camera-store/shared-types/*": ["shared-types/*"],
+      "@camera-store/ui": ["libs/ui/src/index.ts"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

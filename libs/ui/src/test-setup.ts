@@ -6,7 +6,7 @@ declare global {
     interface Matchers<R> {
       toBeInTheDocument(): R;
       toHaveTextContent(text: string): R;
-      toHaveClass(className: string): R;
+      toHaveClass(...classNames: string[]): R;
       toBeVisible(): R;
       toBeDisabled(): R;
     }

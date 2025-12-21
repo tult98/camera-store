@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace jest {
     interface Matchers<R> {
       toBeInTheDocument(): R;
@@ -27,11 +28,10 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
   disconnect() {}
   observe() {}
   takeRecords() {
     return [];
   }
   unobserve() {}
-} as any;
+} as unknown as typeof IntersectionObserver;

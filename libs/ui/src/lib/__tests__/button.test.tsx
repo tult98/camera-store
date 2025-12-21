@@ -4,11 +4,11 @@ import { Button } from '../button';
 describe('Button', () => {
   it('should render successfully', () => {
     render(<Button />);
-    expect(screen.getByRole('heading')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('should display welcome text', () => {
     render(<Button />);
-    expect(screen.getByRole('heading')).toHaveTextContent('Welcome to Button!');
+    expect(screen.getByRole('button')).toHaveTextContent('Button');
   });
 });

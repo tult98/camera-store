@@ -1,8 +1,6 @@
 export function Button() {
   return (
-    <div>
-      <h1>Welcome to Button!</h1>
-    </div>
+    <button className="btn btn-primary">Button</button>
   );
 }
 

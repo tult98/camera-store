@@ -159,7 +159,7 @@ export class ProductCrawlProcessor extends WorkerHost {
     await this.delay(5000);
 
     let title = await page.title();
-    let count = 0;
+    const count = 0;
     while (title.includes('Just a moment')) {
       this.logger.log(`Detecting Cloudflare challenge... ${count} times`);
       await this.delay(10000);

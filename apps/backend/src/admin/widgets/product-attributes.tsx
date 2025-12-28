@@ -250,7 +250,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
           </div>
         );
 
-      case "select":
+      case "select": {
         const options = resolvedOptions[attr.key] || [];
 
         return (
@@ -276,6 +276,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
             </Select.Content>
           </Select>
         );
+      }
 
       case "boolean":
         return (

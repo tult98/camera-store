@@ -1,6 +1,6 @@
 "use client"
 
-import { Brand, CategoryProductsResponse } from "@camera-store/shared-types"
+import { Brand, CategoryProductsResponse } from "../types"
 import { apiClient } from "@lib/api-client"
 import { HttpTypes } from "@medusajs/types"
 import { useCategoryBreadcrumbs } from "@modules/layout/components/breadcrumbs/useLayoutBreadcrumbs"

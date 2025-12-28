@@ -1,11 +1,10 @@
-import type { CategoryProductsRequest } from '@camera-store/shared-types';
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import { MedusaError } from '@medusajs/framework/utils';
 
 import { getRegionAndCurrencyFromHeaders } from 'src/utils/headers';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from 'src/utils/pagination';
 import { getProductsByCategoryFn } from './services/category-product.service';
-import type { CategoryProductsParams } from './types/category-products.types';
+import type { CategoryProductsParams, CategoryProductsRequest } from './types/category-products.types';
 import { CategoryProductsValidator } from './validation/category-products.validator';
 
 export async function POST(

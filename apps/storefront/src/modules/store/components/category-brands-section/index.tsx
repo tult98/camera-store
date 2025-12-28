@@ -1,6 +1,6 @@
 "use client"
 
-import { Brand } from "@camera-store/shared-types"
+import { Brand } from "../../types"
 import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
 import Image from "next/image"
 

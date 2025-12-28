@@ -1,4 +1,4 @@
-import { FacetAggregation, ApiFilters } from "@camera-store/shared-types"
+import { FacetAggregation, ApiFilters } from "../../types"
 
 interface DropdownFilterProps {
   facet: FacetAggregation

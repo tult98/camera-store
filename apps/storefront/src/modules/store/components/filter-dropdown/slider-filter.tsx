@@ -1,6 +1,6 @@
 "use client"
 
-import { FacetAggregation, ApiFilters } from "@camera-store/shared-types"
+import { FacetAggregation, ApiFilters } from "../../types"
 import { useState, useEffect, useCallback } from "react"
 
 interface SliderFilterProps {

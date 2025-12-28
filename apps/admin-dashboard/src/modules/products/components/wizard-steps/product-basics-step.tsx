@@ -76,8 +76,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     if (isEditMode && initialData) {
       reset(getDefaultValues());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode, initialData]);
+  }, [isEditMode, initialData, reset]);
 
   const title = watch('title');
   const images = watch('images');

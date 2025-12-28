@@ -31,9 +31,9 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Run lint on affected projects
-        run: yarn nx affected --target=lint --parallel=3
+        run: yarn nx run-many --target=lint --parallel=3
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: 'sample_key_for_linting_purposes_only'
 
       - name: Run type-check on affected projects
-        run: yarn nx affected --target=type-check --parallel=3
+        run: yarn nx run-many --target=type-check --parallel=3

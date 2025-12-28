@@ -16,7 +16,7 @@
 <!-- Check all that apply -->
 
 - [ ] `backend` (MedusaJS)
-- [ ] `frontend` (Next.js)
+- [ ] `storefront` (Next.js)
 - [ ] `core-api` (NestJS)
 - [ ] `admin-dashboard`
 - [ ] `shared-types`

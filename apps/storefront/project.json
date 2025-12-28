@@ -1,9 +1,9 @@
 {
-  "name": "frontend",
+  "name": "storefront",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/frontend/src",
+  "sourceRoot": "apps/storefront/src",
   "projectType": "application",
-  "tags": ["scope:frontend", "type:app"],
+  "tags": ["scope:storefront", "type:app"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",
@@ -11,7 +11,7 @@
       "defaultConfiguration": "production",
       "options": {
         "command": "next build",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       },
       "configurations": {
         "development": {
@@ -28,7 +28,7 @@
       "defaultConfiguration": "development",
       "options": {
         "command": "next dev --turbopack -p 8000",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       },
       "configurations": {
         "development": {
@@ -43,7 +43,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "next start -p 8000",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       },
       "dependsOn": ["build"]
     },
@@ -51,7 +51,7 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "next export",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       },
       "dependsOn": ["build"]
     },
@@ -60,7 +60,7 @@
       "outputs": ["{projectRoot}/coverage"],
       "options": {
         "command": "jest",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       }
     },
     "lint": {
@@ -68,21 +68,21 @@
       "outputs": ["{options.outputFile}"],
       "options": {
         "command": "next lint",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       }
     },
     "type-check": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       }
     },
     "analyze": {
       "executor": "nx:run-commands",
       "options": {
         "command": "ANALYZE=true next build",
-        "cwd": "apps/frontend"
+        "cwd": "apps/storefront"
       }
     }
   }

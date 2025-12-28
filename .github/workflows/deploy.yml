@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       affected-backend: ${{ steps.affected.outputs.backend }}
-      affected-frontend: ${{ steps.affected.outputs.frontend }}
+      affected-storefront: ${{ steps.affected.outputs.storefront }}
       affected-admin-dashboard: ${{ steps.affected.outputs.admin-dashboard }}
       affected-core-api: ${{ steps.affected.outputs.core-api }}
     steps:
@@ -42,7 +42,7 @@ jobs:
           fi
 
           echo "Base SHA for comparison: $BASE_SHA"
-          AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,frontend,admin-dashboard,core-api)
+          AFFECTED_APPS=$(npx nx show projects --affected --base=$BASE_SHA --projects=backend,storefront,admin-dashboard,core-api)
 
           echo "Affected apps: $AFFECTED_APPS"
 
@@ -52,10 +52,10 @@ jobs:
             echo "backend=false" >> $GITHUB_OUTPUT
           fi
 
-          if echo "$AFFECTED_APPS" | grep -q "frontend"; then
-            echo "frontend=true" >> $GITHUB_OUTPUT
+          if echo "$AFFECTED_APPS" | grep -q "storefront"; then
+            echo "storefront=true" >> $GITHUB_OUTPUT
           else
-            echo "frontend=false" >> $GITHUB_OUTPUT
+            echo "storefront=false" >> $GITHUB_OUTPUT
           fi
 
           if echo "$AFFECTED_APPS" | grep -q "admin-dashboard"; then
@@ -73,7 +73,7 @@ jobs:
   quality-checks:
     runs-on: ubuntu-latest
     needs: setup
-    if: needs.setup.outputs.affected-backend == 'true' || needs.setup.outputs.affected-frontend == 'true' || needs.setup.outputs.affected-admin-dashboard == 'true' || needs.setup.outputs.affected-core-api == 'true'
+    if: needs.setup.outputs.affected-backend == 'true' || needs.setup.outputs.affected-storefront == 'true' || needs.setup.outputs.affected-admin-dashboard == 'true' || needs.setup.outputs.affected-core-api == 'true'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -118,10 +118,10 @@ jobs:
       - name: Deploy Backend to Railway
         run: railway up --service=${{ vars.RAILWAY_BACKEND_SERVICE_NAME }}
 
-  deploy-frontend:
+  deploy-storefront:
     runs-on: ubuntu-latest
     needs: [setup, quality-checks]
-    if: needs.setup.outputs.affected-frontend == 'true' && always() && needs.quality-checks.result == 'success'
+    if: needs.setup.outputs.affected-storefront == 'true' && always() && needs.quality-checks.result == 'success'
     environment: staging
     container: ghcr.io/railwayapp/cli:latest
     env:
@@ -132,8 +132,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Deploy Frontend to Railway
-        run: railway up --service=${{ vars.RAILWAY_FRONTEND_SERVICE_NAME }}
+      - name: Deploy Storefront to Railway
+        run: railway up --service=${{ vars.RAILWAY_STOREFRONT_SERVICE_NAME }}
 
   deploy-admin-dashboard:
     runs-on: ubuntu-latest
@@ -171,14 +171,14 @@ jobs:
 
   deploy-status:
     runs-on: ubuntu-latest
-    needs: [setup, deploy-backend, deploy-frontend, deploy-admin-dashboard, deploy-core-api]
+    needs: [setup, deploy-backend, deploy-storefront, deploy-admin-dashboard, deploy-core-api]
     if: always()
     steps:
       - name: Deployment Status
         run: |
           echo "🚀 Deployment Summary:"
           echo "Backend affected: ${{ needs.setup.outputs.affected-backend }}"
-          echo "Frontend affected: ${{ needs.setup.outputs.affected-frontend }}"
+          echo "Storefront affected: ${{ needs.setup.outputs.affected-storefront }}"
           echo "Admin Dashboard affected: ${{ needs.setup.outputs.affected-admin-dashboard }}"
           echo "Core API affected: ${{ needs.setup.outputs.affected-core-api }}"
           echo "Branch: ${{ github.ref_name }}"
@@ -192,12 +192,12 @@ jobs:
             echo "⏭️ Backend deployment skipped (not affected)"
           fi
 
-          if [ "${{ needs.deploy-frontend.result }}" = "success" ]; then
-            echo "✅ Frontend deployment successful"
-          elif [ "${{ needs.setup.outputs.affected-frontend }}" = "true" ]; then
-            echo "❌ Frontend deployment failed"
+          if [ "${{ needs.deploy-storefront.result }}" = "success" ]; then
+            echo "✅ Storefront deployment successful"
+          elif [ "${{ needs.setup.outputs.affected-storefront }}" = "true" ]; then
+            echo "❌ Storefront deployment failed"
           else
-            echo "⏭️ Frontend deployment skipped (not affected)"
+            echo "⏭️ Storefront deployment skipped (not affected)"
           fi
 
           if [ "${{ needs.deploy-admin-dashboard.result }}" = "success" ]; then

@@ -43,7 +43,7 @@ git log --oneline -10
 Identify:
 - What files have been modified, added, or deleted
 - The purpose and scope of the changes
-- Which project(s) are affected (backend, frontend, core-api, admin-dashboard, shared-types)
+- Which project(s) are affected (backend, storefront, core-api, admin-dashboard, shared-types)
 
 ### Step 2: Determine Change Type
 
@@ -120,7 +120,7 @@ gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
 ## Affected Projects
 
 - [ ] `backend` (MedusaJS)
-- [ ] `frontend` (Next.js)
+- [ ] `storefront` (Next.js)
 - [ ] `core-api` (NestJS)
 - [ ] `admin-dashboard`
 - [ ] `shared-types`
@@ -176,7 +176,7 @@ git diff HEAD
 git checkout -b feat/add-product-filtering
 
 # 3. Stage and commit
-git add apps/frontend/src/modules/products/
+git add apps/storefront/src/modules/products/
 git commit -m "feat: add product filtering by category"
 
 # 4. Push

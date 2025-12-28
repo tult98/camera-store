@@ -1,0 +1,5 @@
+[phases.build]
+cmds = ['yarn nx build storefront']
+
+[start]
+cmd = 'yarn nx start storefront'

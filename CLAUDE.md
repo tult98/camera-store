@@ -8,7 +8,7 @@ This is an **Nx monorepo** for a camera store e-commerce platform.
 ### Technology Stack
 - **Monorepo**: Nx v21.3.11, Yarn v3.2.3, Node.js >= 20
 - **Backend**: MedusaJS v2 (2.8.8) - TypeScript, PostgreSQL/MikroORM v6.4.3, Jest
-- **Frontend**: Next.js 15, React 19, TypeScript, Tailwind CSS + daisyUI, React Query v5.85.5
+- **Storefront**: Next.js 15, React 19, TypeScript, Tailwind CSS + daisyUI, React Query v5.85.5
 - **Core API**: NestJS - CLI tools and API services
 - **Shared Types**: Monorepo-wide TypeScript types package
 
@@ -17,7 +17,7 @@ This is an **Nx monorepo** for a camera store e-commerce platform.
 camera-store/
 ├── apps/
 │   ├── backend/            # MedusaJS v2 backend (port 9000)
-│   ├── frontend/           # Next.js 15 frontend (port 8000)
+│   ├── storefront/         # Next.js 15 storefront (port 8000)
 │   ├── core-api/           # NestJS CLI/API tools
 │   └── admin-dashboard/    # Customized MedusaJS admin
 ├── shared-types/           # Shared TypeScript types
@@ -28,7 +28,7 @@ camera-store/
 
 ### Root Level (Parallel Execution)
 ```bash
-yarn dev              # Start frontend + backend in dev mode
+yarn dev              # Start storefront + backend in dev mode
 yarn build            # Build all projects (⚠️ avoid during active development)
 yarn start            # Start all projects in production
 yarn test             # Run all tests
@@ -51,14 +51,14 @@ yarn test:backend:integration:modules     # Module integration tests
 yarn test:backend:all                     # All backend tests
 ```
 
-### Frontend (Next.js)
+### Storefront (Next.js)
 ```bash
-nx serve frontend     # Dev server (port 8000)
-nx build frontend     # Production build
-nx start frontend     # Production server
-nx lint frontend      # ESLint
-nx test frontend      # Jest tests
-nx analyze frontend   # Bundle analyzer
+nx serve storefront     # Dev server (port 8000)
+nx build storefront     # Production build
+nx start storefront     # Production server
+nx lint storefront      # ESLint
+nx test storefront      # Jest tests
+nx analyze storefront   # Bundle analyzer
 ```
 
 ### Core API (NestJS)
@@ -97,9 +97,9 @@ modules/[module-name]/
 └── index.ts          # Module export
 ```
 
-### Frontend Structure
+### Storefront Structure
 ```
-apps/frontend/src/
+apps/storefront/src/
 ├── app/         # Next.js App Router (server-side data fetching only)
 ├── lib/         # Shared utilities and configuration
 │   ├── data/        # Server-side data fetching functions
@@ -126,8 +126,8 @@ For MedusaJS v2 patterns and best practices, always consult these files before i
 
 These contain project-specific patterns and official MedusaJS v2 approaches.
 
-### Frontend Module Structure
-Each frontend module follows this organization:
+### Storefront Module Structure
+Each storefront module follows this organization:
 ```
 modules/[module-name]/
 ├── apiCalls/    # API call functions (client-side)
@@ -170,7 +170,7 @@ const result = await query.graph({
 
 ### Price Handling
 - Backend: Store/query in cents
-- Frontend: Display in dollars
+- Storefront: Display in dollars
 - Conversion: `cents / 100`
 
 ### Module Resolution
@@ -200,8 +200,8 @@ const result = await query.graph({
 - Use type guards for runtime checking
 - **Path Aliases**:
   - `@camera-store/shared-types` - Monorepo-wide shared types
-  - `@lib/*` - Frontend utilities and config (frontend only)
-  - `@modules/*` - Frontend feature modules (frontend only)
+  - `@lib/*` - Storefront utilities and config (storefront only)
+  - `@modules/*` - Storefront feature modules (storefront only)
 
 #### Error Handling
 - Standardized patterns across components
@@ -227,7 +227,7 @@ const logger = container.resolve(ContainerRegistrationKeys.LOGGER);
 logger.debug(`Found ${count} items: ${JSON.stringify(data)}`);
 ```
 
-#### Frontend Logging
+#### Storefront Logging
 ```typescript
 // Avoid console.log/error in production code
 // Use structured error boundaries and proper error handling
@@ -261,7 +261,7 @@ logger.debug(`Found ${count} items: ${JSON.stringify(data)}`);
 ```
 
 ### Design Verification
-After frontend changes:
+After storefront changes:
 1. Navigate to affected pages
 2. Take screenshots for evidence
 3. Check console for errors
@@ -381,7 +381,7 @@ TEST_TYPE=integration:modules  # Run module integration tests
 - `JWT_SECRET`, `COOKIE_SECRET`
 - `TEST_TYPE` (unit | integration:http | integration:modules)
 
-### Frontend
+### Storefront
 - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` (required)
 - `NEXT_PUBLIC_MEDUSA_BACKEND_URL` (default: http://localhost:9000)
 

@@ -37,6 +37,10 @@
     {
       "files": ["*.ts", "*.tsx"],
       "excludedFiles": ["apps/frontend/**/*", "apps/backend/**/*"],
+      "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+      ],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "ecmaVersion": 2020,

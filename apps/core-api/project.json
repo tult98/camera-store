@@ -59,7 +59,11 @@
       "dependsOn": ["build"]
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/core-api/**/*.{ts,tsx,js,jsx}"]
+      }
     },
     "type-check": {
       "executor": "nx:run-commands",

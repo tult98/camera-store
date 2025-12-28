@@ -56,6 +56,8 @@ jobs:
 
       - name: Run lint on affected projects
         run: yarn nx affected --target=lint --parallel=3
+        env:
+          NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
       - name: Run type-check on affected projects
         run: yarn nx affected --target=type-check --parallel=3

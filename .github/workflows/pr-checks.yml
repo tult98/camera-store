@@ -37,3 +37,5 @@ jobs:
 
       - name: Run type-check on affected projects
         run: yarn nx run-many --target=type-check --parallel=3
+        env:
+          DATABASE_URL: 'postgresql://user:password@localhost:5432/dummy_db'

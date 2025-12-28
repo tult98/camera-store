@@ -268,9 +268,6 @@ gh pr comment --body "Updated to address review feedback:
 
 ```bash
 # Request review from specific reviewers
-gh pr review --request @reviewer-username
-
-# Or re-request review after changes
 gh pr edit --add-reviewer @reviewer-username
 ```
 

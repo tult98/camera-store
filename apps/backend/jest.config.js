@@ -1,3 +1,4 @@
+/* global require, module, process */
 const { loadEnv } = require("@medusajs/utils");
 loadEnv("test", process.cwd());
 

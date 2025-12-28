@@ -71,6 +71,7 @@ const ReviewStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
       shippingOptionsQuery.data?.shipping_options?.length &&
       !selectedShippingOptionId
     ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedShippingOptionId(
         shippingOptionsQuery.data.shipping_options[0].id
       )

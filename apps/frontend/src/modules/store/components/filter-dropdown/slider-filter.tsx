@@ -19,6 +19,7 @@ export default function SliderFilter({
 
   useEffect(() => {
     if (facet.range) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPriceMin(filters.price?.min ?? facet.range.min)
       setPriceMax(filters.price?.max ?? facet.range.max)
     }

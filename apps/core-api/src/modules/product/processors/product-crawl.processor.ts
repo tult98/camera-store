@@ -11,6 +11,17 @@ import { ProductData } from '../types/product-data.types';
 
 puppeteer.use(StealthPlugin());
 
+interface CrawlJobData {
+  url: string;
+}
+
+interface CrawlJobResult {
+  success: boolean;
+  productData: ProductData;
+  jobId: string | undefined;
+  processedAt: string;
+}
+
 interface S3UploadConfig {
   endpoint: string;
   accessKeyId: string;
@@ -42,7 +53,7 @@ export class ProductCrawlProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<any, any, string>): Promise<any> {
+  async process(job: Job<CrawlJobData, CrawlJobResult, string>): Promise<CrawlJobResult> {
     const { url } = job.data;
 
     if (!url) {
@@ -161,6 +172,7 @@ export class ProductCrawlProcessor extends WorkerHost {
     let title = await page.title();
     let count = 0;
     while (title.includes('Just a moment')) {
+      count++;
       this.logger.log(`Detecting Cloudflare challenge... ${count} times`);
       await this.delay(10000);
       title = await page.title();
@@ -231,8 +243,22 @@ export class ProductCrawlProcessor extends WorkerHost {
         return specs;
       };
 
-      const parseDescriptionFeatures = (containerElement: Element): any[] => {
-        const features: any[] = [];
+      interface BrowserMediaContent {
+        type: 'image' | 'video';
+        url: string;
+        position: 'left' | 'right' | 'inline';
+      }
+
+      interface BrowserDescriptionFeature {
+        header: string;
+        headerLevel: number;
+        content: string;
+        media: BrowserMediaContent | null;
+        subFeatures: BrowserDescriptionFeature[];
+      }
+
+      const parseDescriptionFeatures = (containerElement: Element): BrowserDescriptionFeature[] => {
+        const features: BrowserDescriptionFeature[] = [];
 
         const wrapperDiv = containerElement.querySelector(
           'div[class*="feature_"]'

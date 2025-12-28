@@ -1,5 +1,0 @@
-[phases.build]
-cmds = ['yarn nx build core-api']
-
-[start]
-cmd = 'node apps/core-api/dist/main.js'

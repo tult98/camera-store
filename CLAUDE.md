@@ -8,8 +8,8 @@ This is an **Nx monorepo** for a camera store e-commerce platform.
 ### Technology Stack
 - **Monorepo**: Nx v21.3.11, Yarn v3.2.3, Node.js >= 20
 - **Backend**: MedusaJS v2 (2.8.8) - TypeScript, PostgreSQL/MikroORM v6.4.3, Jest
-- **Storefront**: Next.js 15, React 19, TypeScript, Tailwind CSS + daisyUI, React Query v5.85.5
-- **Core API**: NestJS - CLI tools and API services
+- **Storefront**: Next.js 15, React 18.3.1, TypeScript, Tailwind CSS + daisyUI, React Query v5.85.5
+- **Core API**: NestJS v10 - CLI tools, REST APIs, BullMQ workers (port 3001)
 - **Shared Types**: Monorepo-wide TypeScript types package
 
 ### Monorepo Structure
@@ -18,8 +18,8 @@ camera-store/
 ├── apps/
 │   ├── backend/            # MedusaJS v2 backend (port 9000)
 │   ├── storefront/         # Next.js 15 storefront (port 8000)
-│   ├── core-api/           # NestJS CLI/API tools
-│   └── admin-dashboard/    # Customized MedusaJS admin
+│   ├── core-api/           # NestJS CLI/API tools (port 3001)
+│   └── admin-dashboard/    # Customized MedusaJS admin (port 5173)
 ├── shared-types/           # Shared TypeScript types
 └── nx.json                 # Nx workspace configuration
 ```
@@ -63,10 +63,25 @@ nx analyze storefront   # Bundle analyzer
 
 ### Core API (NestJS)
 ```bash
-nx serve core-api     # Dev server
+nx serve core-api     # Dev server (port 3001)
 nx build core-api     # Production build
 nx start core-api     # Production server
-nx dev-cli core-api   # Run CLI in development
+nx dev-cli core-api -- <command>  # Run CLI command
+nx lint core-api      # ESLint
+nx type-check core-api  # TypeScript check
+# Bull Board queue UI: http://localhost:3001/queues
+```
+
+### Admin Dashboard
+```bash
+nx serve admin-dashboard   # Dev server
+nx build admin-dashboard   # Production build
+```
+
+### Storybook
+```bash
+nx storybook <project>        # Start Storybook dev server
+nx build-storybook <project>  # Build static Storybook
 ```
 
 ## Architecture
@@ -125,6 +140,10 @@ For MedusaJS v2 patterns and best practices, always consult these files before i
 - `.claude/context/medusa/troubleshooting.md` - Common issues and solutions
 
 These contain project-specific patterns and official MedusaJS v2 approaches.
+
+### Other Reference Documentation
+- `.claude/skills/core-api-helper/` - NestJS patterns (endpoints, BullMQ workers, Prisma database)
+- `.claude/skills/admin-dashboard-helper/` - Admin dashboard patterns (React Query, Zod forms, core-api integration)
 
 ### Storefront Module Structure
 Each storefront module follows this organization:
@@ -384,14 +403,6 @@ TEST_TYPE=integration:modules  # Run module integration tests
 ### Storefront
 - `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` (required)
 - `NEXT_PUBLIC_MEDUSA_BACKEND_URL` (default: http://localhost:9000)
-
-## Deployment (GitHub Actions → Railway)
-1. Nx detects affected projects
-2. Runs quality checks (lint, type-check)
-3. Builds affected projects
-4. Deploys to Railway services
-
-Required secrets: `RAILWAY_TOKEN`, `DATABASE_URL`, `MEDUSA_PUBLISHABLE_KEY`
 
 ## Important Rules
 - NO code comments unless requested

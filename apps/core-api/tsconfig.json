@@ -19,11 +19,7 @@
     "checkJs": false,
     "strictNullChecks": true,
     "baseUrl": ".",
-    "noPropertyAccessFromIndexSignature": false,
-    "paths": {
-      "@camera-store/shared-types": ["../../shared-types/index.ts"],
-      "@camera-store/shared-types/*": ["../../shared-types/*"]
-    }
+    "noPropertyAccessFromIndexSignature": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

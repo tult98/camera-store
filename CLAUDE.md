@@ -10,7 +10,6 @@ This is an **Nx monorepo** for a camera store e-commerce platform.
 - **Backend**: MedusaJS v2 (2.8.8) - TypeScript, PostgreSQL/MikroORM v6.4.3, Jest
 - **Storefront**: Next.js 15, React 18.3.1, TypeScript, Tailwind CSS + daisyUI, React Query v5.85.5
 - **Core API**: NestJS v10 - CLI tools, REST APIs, BullMQ workers (port 3001)
-- **Shared Types**: Monorepo-wide TypeScript types package
 
 ### Monorepo Structure
 ```
@@ -20,7 +19,6 @@ camera-store/
 │   ├── storefront/         # Next.js 15 storefront (port 8000)
 │   ├── core-api/           # NestJS CLI/API tools (port 3001)
 │   └── admin-dashboard/    # Customized MedusaJS admin (port 5173)
-├── shared-types/           # Shared TypeScript types
 └── nx.json                 # Nx workspace configuration
 ```
 
@@ -218,7 +216,6 @@ const result = await query.graph({
 - No `any` types - create proper interfaces
 - Use type guards for runtime checking
 - **Path Aliases**:
-  - `@camera-store/shared-types` - Monorepo-wide shared types
   - `@lib/*` - Storefront utilities and config (storefront only)
   - `@modules/*` - Storefront feature modules (storefront only)
 

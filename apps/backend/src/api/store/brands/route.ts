@@ -3,14 +3,13 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from '@medusajs/framework/utils';
-import type { GetCategoryBrandsResponse } from '@camera-store/shared-types';
 
 import {
   getAllCategoryIds,
   resolveQueryInstance,
 } from 'src/utils/category-hierarchy';
 
-interface BrandFromQuery {
+interface Brand {
   id: string;
   name: string;
   image_url: string | null;
@@ -19,9 +18,13 @@ interface BrandFromQuery {
   deleted_at: string | null;
 }
 
+interface GetCategoryBrandsResponse {
+  brands: Brand[];
+}
+
 interface ProductWithBrands {
   id: string;
-  brands?: BrandFromQuery[];
+  brands?: Brand[];
 }
 
 export async function GET(
@@ -66,12 +69,12 @@ export async function GET(
     },
   });
 
-  const brandsMap = new Map<string, BrandFromQuery>();
+  const brandsMap = new Map<string, Brand>();
 
   if (products && Array.isArray(products)) {
     products.forEach((product: ProductWithBrands) => {
       if (product.brands && Array.isArray(product.brands)) {
-        product.brands.forEach((brand: BrandFromQuery) => {
+        product.brands.forEach((brand: Brand) => {
           if (brand?.id && !brandsMap.has(brand.id)) {
             brandsMap.set(brand.id, {
               id: brand.id,

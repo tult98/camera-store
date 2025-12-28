@@ -1,6 +1,6 @@
 "use client"
 
-import { FacetAggregation } from "@camera-store/shared-types"
+import { FacetAggregation } from "../../types"
 import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
 import { useState } from "react"
 import FilterHeader from "./filter-header"

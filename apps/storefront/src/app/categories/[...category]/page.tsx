@@ -1,4 +1,4 @@
-import { CategoryProductsResponse, GetCategoryBrandsResponse } from "@camera-store/shared-types"
+import { CategoryProductsResponse, GetCategoryBrandsResponse } from "@modules/store/types"
 import { apiClient } from "@lib/api-client"
 import { getCategoryByHandle } from "@lib/data/categories"
 import SkeletonProductControls from "@modules/skeletons/components/skeleton-product-controls"

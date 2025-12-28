@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { ApiFilters } from "@camera-store/shared-types"
+import { ApiFilters } from "../types"
 
 export type ViewMode = "grid" | "list"
 export type SortOption =

@@ -1,6 +1,6 @@
 "use client"
 
-import { FacetsResponse } from "@camera-store/shared-types"
+import { FacetsResponse } from "../../types"
 import { apiClient } from "@lib/api-client"
 import { useCategoryFilterStore } from "@modules/store/store/category-filter-store"
 import { useQuery } from "@tanstack/react-query"

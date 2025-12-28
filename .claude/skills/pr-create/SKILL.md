@@ -1,15 +1,29 @@
 ---
 name: pr-create
-description: Creates a pull request by analyzing code changes, creating a branch, committing, pushing, and opening a PR with the project template. Use when ready to submit code for review or merge changes.
+description: Creates or updates pull requests by analyzing code changes, creating branches, committing, pushing, and managing PRs with the project template. Use when creating a new PR, updating an existing PR, opening a PR, editing PR details, or preparing code for review.
 ---
 
-# PR Create Skill
+# PR Management Skill
 
 ## Overview
 
-This skill guides the complete PR creation workflow from code analysis to PR submission.
+This skill handles both creating new pull requests and updating existing ones, guiding you through the complete workflow from code analysis to PR submission.
 
-## Workflow
+## Workflow Selection
+
+First, determine if you're creating a new PR or updating an existing one:
+
+```bash
+# Check if current branch has an associated PR
+gh pr view
+```
+
+- If no PR exists: Follow **Creating a New PR** workflow
+- If PR exists: Follow **Updating an Existing PR** workflow
+
+---
+
+## Creating a New PR
 
 ### Step 1: Analyze Current Changes
 
@@ -172,7 +186,125 @@ git push -u origin feat/add-product-filtering
 gh pr create --title "feat: add product filtering by category" --body "..."
 ```
 
+---
+
+## Updating an Existing PR
+
+### Step 1: Check PR Status
+
+```bash
+# View current PR details
+gh pr view
+
+# Check PR number and status
+gh pr status
+```
+
+### Step 2: Analyze New Changes
+
+```bash
+# View changes since last push
+git diff origin/<branch-name>
+
+# Check what commits will be pushed
+git log origin/<branch-name>..HEAD
+```
+
+### Step 3: Push Additional Commits
+
+```bash
+# Stage and commit new changes
+git add <files>
+git commit -m "<type>: <description>"
+
+# Push to update the PR
+git push
+```
+
+### Step 4: Update PR Details (if needed)
+
+Update the PR title:
+```bash
+gh pr edit --title "<new-title>"
+```
+
+Update the PR description:
+```bash
+gh pr edit --body "$(cat <<'EOF'
+## Description
+
+[Updated description]
+
+## Type of Change
+[Check appropriate boxes]
+
+## Affected Projects
+[Check affected projects]
+
+## Testing
+[Mark completed tests]
+
+## Checklist
+[Update checklist]
+
+## Related Issues
+[Update issue links]
+
+## Screenshots (if applicable)
+[Add new screenshots]
+EOF
+)"
+```
+
+Add a comment to explain the updates:
+```bash
+gh pr comment --body "Updated to address review feedback:
+- Fixed the authentication bug
+- Added missing tests
+- Updated documentation"
+```
+
+### Step 5: Request Re-review (if needed)
+
+```bash
+# Request review from specific reviewers
+gh pr review --request @reviewer-username
+
+# Or re-request review after changes
+gh pr edit --add-reviewer @reviewer-username
+```
+
+### Common Update Scenarios
+
+**Adding fixes from review feedback:**
+```bash
+git add .
+git commit -m "fix: address review feedback on authentication"
+git push
+gh pr comment --body "Addressed review comments"
+```
+
+**Updating PR description:**
+```bash
+gh pr edit --body "$(cat .github/PULL_REQUEST_TEMPLATE.md)"
+# Then fill in the template manually or via editor
+```
+
+**Converting draft to ready:**
+```bash
+gh pr ready
+```
+
+**Marking as draft again:**
+```bash
+gh pr ready --undo
+```
+
+---
+
 ## Notes
 
 - For breaking changes, clearly document migration steps in the description
 - Use draft PRs (`gh pr create --draft`) for work-in-progress
+- When updating PRs, add comments to explain significant changes
+- Always push commits before updating PR metadata

@@ -17,7 +17,7 @@ A modern e-commerce platform for cameras built with **MedusaJS v2** and **Next.j
 ```
 camera-store/
 ├── apps/
-│   ├── frontend/          # Next.js 15 storefront (port 8000)
+│   ├── storefront/        # Next.js 15 storefront (port 8000)
 │   └── backend/           # MedusaJS v2 API server (port 9000)
 ├── nx.json               # NX workspace configuration
 ├── tsconfig.base.json    # Base TypeScript configuration
@@ -47,7 +47,7 @@ yarn install
 yarn dev
 
 # Or start applications individually:
-nx serve frontend  # Next.js on http://localhost:8000
+nx serve storefront  # Next.js on http://localhost:8000
 nx serve backend   # MedusaJS on http://localhost:9000
 ```
 
@@ -58,22 +58,22 @@ nx serve backend   # MedusaJS on http://localhost:9000
 yarn build
 
 # Or build individually:
-nx build frontend
+nx build storefront
 nx build backend
 
 # Start production servers
 yarn start
 
 # Or start individually:
-nx start frontend
+nx start storefront
 nx start backend
 ```
 
 ## 📱 Applications
 
-### Frontend (Next.js 15)
+### Storefront (Next.js 15)
 
-**Location**: `apps/frontend/`  
+**Location**: `apps/storefront/`  
 **Technology**: Next.js 15 + React 19 + TypeScript  
 **Styling**: Tailwind CSS + daisyUI  
 **Port**: 8000
@@ -105,7 +105,7 @@ nx start backend
 
 ### Frontend Environment Variables
 
-Create `apps/frontend/.env.local`:
+Create `apps/storefront/.env.local`:
 
 ```env
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_your_publishable_key_here
@@ -133,26 +133,26 @@ COOKIE_SECRET=your_cookie_secret_here
 ```bash
 # Development
 yarn dev                 # Start both apps in parallel
-nx serve frontend        # Start only frontend
+nx serve storefront      # Start only storefront
 nx serve backend         # Start only backend
 
 # Building
 yarn build              # Build all applications
-nx build frontend       # Build only frontend
+nx build storefront     # Build only storefront
 nx build backend        # Build only backend
 
 # Production
 yarn start              # Start both apps in production mode
-nx start frontend       # Start only frontend in production
+nx start storefront     # Start only storefront in production
 nx start backend        # Start only backend in production
 
 # Testing
 yarn test               # Run all tests
-nx test frontend        # Run frontend tests
+nx test storefront      # Run storefront tests
 nx test backend         # Run backend tests (unit + integration)
 
 # Quality Assurance
-nx lint frontend        # Lint frontend project
+nx lint storefront      # Lint storefront project
 nx lint backend         # Lint backend project
 nx run-many --target=lint --all  # Lint all projects
 nx run-many --target=type-check --all  # TypeScript checking across workspace
@@ -388,7 +388,7 @@ GET /admin/categories/{id}/featured
 
 ## 🧪 Testing
 
-### Frontend Testing
+### Storefront Testing
 - Next.js built-in testing with Jest
 - Component testing with React Testing Library
 - E2E testing capabilities
@@ -424,9 +424,9 @@ medusaIntegrationTestRunner({
 
 1. Create route file in `apps/backend/src/api/`
 
-### Adding New Frontend Pages
+### Adding New Storefront Pages
 
-1. Create page in `apps/frontend/src/app/`
+1. Create page in `apps/storefront/src/app/`
 4. Follow existing patterns for consistency
 
 ## 🚀 Deployment
@@ -438,13 +438,13 @@ medusaIntegrationTestRunner({
 yarn build
 
 # Or build individually
-nx build frontend
+nx build storefront
 nx build backend
 ```
 
 ### Deployment Considerations
 
-- **Frontend**: Deploy to Vercel, Netlify, or any static hosting
+- **Storefront**: Deploy to Vercel, Netlify, or any static hosting
 - **Backend**: Requires Node.js runtime and PostgreSQL database
 - **Environment Variables**: Configure in production environment
 - **Database**: Run migrations before deploying backend
@@ -467,7 +467,7 @@ nx graph
 nx list
 
 # Show information about a specific project
-nx show project frontend --web
+nx show project storefront --web
 
 # Run specific target for all projects
 nx run-many --target=build --all
@@ -479,7 +479,7 @@ nx run-many --target=test --all
 nx run-many --target=lint --all
 ```
 
-## 🎨 Frontend Architecture
+## 🎨 Storefront Architecture
 
 ### Technology Stack
 - **Framework**: Next.js 15 with App Router and React 19
@@ -492,7 +492,7 @@ nx run-many --target=lint --all
 ### Project Structure
 
 ```
-apps/frontend/src/
+apps/storefront/src/
 ├── app/                    # Next.js 15 App Router pages
 │   ├── (main)/            # Main storefront layout group
 │   │   ├── account/       # User account management

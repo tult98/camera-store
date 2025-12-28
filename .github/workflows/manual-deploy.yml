@@ -8,8 +8,8 @@ on:
         required: true
         default: true
         type: boolean
-      deploy_frontend:
-        description: 'Deploy Frontend'
+      deploy_storefront:
+        description: 'Deploy Storefront'
         required: true
         default: true
         type: boolean
@@ -66,15 +66,15 @@ jobs:
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
-      - name: Run linting on frontend
-        if: inputs.deploy_frontend
-        run: yarn nx lint frontend
+      - name: Run linting on storefront
+        if: inputs.deploy_storefront
+        run: yarn nx lint storefront
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
-      - name: Run type checking on frontend
-        if: inputs.deploy_frontend
-        run: yarn nx type-check frontend
+      - name: Run type checking on storefront
+        if: inputs.deploy_storefront
+        run: yarn nx type-check storefront
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${{ secrets.MEDUSA_PUBLISHABLE_KEY }}
 
@@ -119,10 +119,10 @@ jobs:
       - name: Deploy Backend to Railway
         run: railway up --service=${{ vars.RAILWAY_BACKEND_SERVICE_NAME }}
 
-  deploy-frontend:
+  deploy-storefront:
     runs-on: ubuntu-latest
     needs: quality-checks
-    if: inputs.deploy_frontend && (always() && (needs.quality-checks.result == 'success' || needs.quality-checks.result == 'skipped'))
+    if: inputs.deploy_storefront && (always() && (needs.quality-checks.result == 'success' || needs.quality-checks.result == 'skipped'))
     environment: staging
     container: ghcr.io/railwayapp/cli:latest
     env:
@@ -133,8 +133,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Deploy Frontend to Railway
-        run: railway up --service=${{ vars.RAILWAY_FRONTEND_SERVICE_NAME }}
+      - name: Deploy Storefront to Railway
+        run: railway up --service=${{ vars.RAILWAY_STOREFRONT_SERVICE_NAME }}
 
   deploy-admin-dashboard:
     runs-on: ubuntu-latest
@@ -172,14 +172,14 @@ jobs:
 
   deploy-status:
     runs-on: ubuntu-latest
-    needs: [quality-checks, deploy-backend, deploy-frontend, deploy-admin-dashboard, deploy-core-api]
+    needs: [quality-checks, deploy-backend, deploy-storefront, deploy-admin-dashboard, deploy-core-api]
     if: always()
     steps:
       - name: Manual Deployment Status
         run: |
           echo "🚀 Manual Deployment Summary:"
           echo "Backend deployment requested: ${{ inputs.deploy_backend }}"
-          echo "Frontend deployment requested: ${{ inputs.deploy_frontend }}"
+          echo "Storefront deployment requested: ${{ inputs.deploy_storefront }}"
           echo "Admin Dashboard deployment requested: ${{ inputs.deploy_admin_dashboard }}"
           echo "Core API deployment requested: ${{ inputs.deploy_core_api }}"
           echo "Quality checks enabled: ${{ inputs.run_quality_checks }}"
@@ -201,18 +201,18 @@ jobs:
             echo "⏭️ Backend deployment not requested"
           fi
 
-          if [ "${{ inputs.deploy_frontend }}" = "true" ]; then
-            if [ "${{ needs.deploy-frontend.result }}" = "success" ]; then
-              echo "✅ Frontend deployment successful"
-            elif [ "${{ needs.deploy-frontend.result }}" = "failure" ]; then
-              echo "❌ Frontend deployment failed"
-            elif [ "${{ needs.deploy-frontend.result }}" = "cancelled" ]; then
-              echo "🟡 Frontend deployment cancelled"
+          if [ "${{ inputs.deploy_storefront }}" = "true" ]; then
+            if [ "${{ needs.deploy-storefront.result }}" = "success" ]; then
+              echo "✅ Storefront deployment successful"
+            elif [ "${{ needs.deploy-storefront.result }}" = "failure" ]; then
+              echo "❌ Storefront deployment failed"
+            elif [ "${{ needs.deploy-storefront.result }}" = "cancelled" ]; then
+              echo "🟡 Storefront deployment cancelled"
             else
-              echo "⏭️ Frontend deployment skipped"
+              echo "⏭️ Storefront deployment skipped"
             fi
           else
-            echo "⏭️ Frontend deployment not requested"
+            echo "⏭️ Storefront deployment not requested"
           fi
 
           if [ "${{ inputs.deploy_admin_dashboard }}" = "true" ]; then

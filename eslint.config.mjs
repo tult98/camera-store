@@ -28,8 +28,8 @@ export default [
               onlyDependOnLibsWithTags: ['*'],
             },
             {
-              sourceTag: 'scope:frontend',
-              onlyDependOnLibsWithTags: ['scope:shared', 'scope:frontend'],
+              sourceTag: 'scope:storefront',
+              onlyDependOnLibsWithTags: ['scope:shared', 'scope:storefront'],
             },
             {
               sourceTag: 'scope:backend',

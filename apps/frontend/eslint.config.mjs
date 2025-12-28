@@ -1,8 +1,12 @@
-import rootConfig from '../../eslint.config.mjs';
+import nextVitals from "eslint-config-next/core-web-vitals"
+import nextTs from "eslint-config-next/typescript"
+import rootConfig from "../../eslint.config.mjs"
 
 export default [
   {
-    ignores: ['**/.next/**', '**/out/**'],
+    ignores: [".next/**", "out/**", "build/**", "next-env.d.ts"],
   },
   ...rootConfig,
-];
+  ...nextVitals,
+  ...nextTs,
+]

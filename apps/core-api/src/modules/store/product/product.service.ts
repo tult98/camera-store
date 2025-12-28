@@ -134,11 +134,11 @@ export class StoreProductService {
       : [];
 
     const {
-      product_category_product,
-      product_tags,
-      image,
-      product_option,
-      product_variant,
+      product_category_product: _product_category_product,
+      product_tags: _product_tags,
+      image: _image,
+      product_option: _product_option,
+      product_variant: _product_variant,
       product_type,
       product_collection,
       metadata,

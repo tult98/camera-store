@@ -9,4 +9,10 @@ export default [
   ...rootConfig,
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+    },
+  },
 ]

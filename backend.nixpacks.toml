@@ -1,5 +1,0 @@
-[phases.build]
-cmds = ['yarn nx run backend:migrate', 'yarn nx build backend']
-
-[start]
-cmd = 'yarn nx start backend'

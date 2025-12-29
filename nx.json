@@ -24,32 +24,18 @@
     "test": {
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
     },
-    "lint": {
-      "inputs": [
-        "default",
-        "{workspaceRoot}/eslint.config.mjs"
-      ]
-    }
+    "lint": { "inputs": ["default", "{workspaceRoot}/eslint.config.mjs"] }
   },
   "generators": {
-    "@nx/next:application": {
-      "style": "tailwind",
-      "linter": "eslint"
-    },
-    "@nx/node:application": {
-      "linter": "eslint"
-    },
+    "@nx/next:application": { "style": "tailwind", "linter": "eslint" },
+    "@nx/node:application": { "linter": "eslint" },
     "@nx/react:application": {
       "style": "tailwind",
       "linter": "eslint",
       "bundler": "vite"
     },
-    "@nx/react:component": {
-      "style": "tailwind"
-    },
-    "@nx/react:library": {
-      "linter": "eslint"
-    },
+    "@nx/react:component": { "style": "tailwind" },
+    "@nx/react:library": { "linter": "eslint" },
     "@nx/react": {
       "application": {
         "babel": true,
@@ -57,9 +43,7 @@
         "linter": "eslint",
         "bundler": "vite"
       },
-      "component": {
-        "style": "tailwind"
-      },
+      "component": { "style": "tailwind" },
       "library": {
         "style": "tailwind",
         "linter": "eslint",
@@ -81,10 +65,7 @@
       }
     }
   },
-  "workspaceLayout": {
-    "appsDir": "apps",
-    "libsDir": "libs"
-  },
+  "workspaceLayout": { "appsDir": "apps", "libsDir": "libs" },
   "plugins": [
     {
       "plugin": "@nx/react/router-plugin",
@@ -99,9 +80,7 @@
     },
     {
       "plugin": "@nx/eslint/plugin",
-      "options": {
-        "targetName": "eslint:lint"
-      }
+      "options": { "targetName": "eslint:lint" }
     },
     {
       "plugin": "@nx/vite/plugin",
@@ -126,5 +105,6 @@
         "staticStorybookTargetName": "static-storybook"
       }
     }
-  ]
+  ],
+  "nxCloudId": "6951f12534bb55830a505168"
 }

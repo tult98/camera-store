@@ -48,7 +48,7 @@ export function Button({
   const classes = cn(baseClass, variantClass, intentClass, sizeClass);
 
   return (
-    <button className={classes} disabled={disabled} type={type} onClick={onClick}>
+    <button className={classes} disabled={disabled || loading} type={type} onClick={onClick}>
       {loading && <span className={loadingClass} />}
       {text}
     </button>

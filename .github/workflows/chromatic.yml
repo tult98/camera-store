@@ -8,10 +8,14 @@ on:
     branches:
       - development
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   chromatic:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    environment: staging
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

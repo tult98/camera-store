@@ -7,6 +7,8 @@ interface ButtonProps {
   size?: 'small' | 'medium' | 'large';
   loading?: boolean;
   disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: () => void;
 }
 
 export function Button({
@@ -16,6 +18,8 @@ export function Button({
   size = 'medium',
   loading = false,
   disabled = false,
+  type = 'button',
+  onClick,
 }: ButtonProps) {
   const baseClass = 'btn';
 
@@ -44,7 +48,7 @@ export function Button({
   const classes = cn(baseClass, variantClass, intentClass, sizeClass);
 
   return (
-    <button className={classes} disabled={disabled}>
+    <button className={classes} disabled={disabled} type={type} onClick={onClick}>
       {loading && <span className={loadingClass} />}
       {text}
     </button>

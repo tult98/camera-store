@@ -24,6 +24,7 @@ export default defineConfig(() => ({
       '@modules': path.resolve(__dirname, './src/modules'),
       '@providers': path.resolve(__dirname, './src/providers'),
       '@app': path.resolve(__dirname, './src/app'),
+      '@camera-store/ui': path.resolve(__dirname, '../../libs/ui/src/index.ts'),
     },
   },
   build: {

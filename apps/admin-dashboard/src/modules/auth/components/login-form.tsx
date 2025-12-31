@@ -1,10 +1,8 @@
-import { Button } from '@camera-store/ui';
+import { Form, TextInput, Button } from '@camera-store/ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FormInput } from '../../shared/components/ui/form-input';
 import { loginUser } from '../apiCalls/login';
 import { getCurrentUser } from '../apiCalls/user';
 import { loginSchema, type LoginSchemaType } from '../types';
@@ -13,19 +11,6 @@ export const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema),
-    mode: 'onChange',
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
 
   const loginMutation = useMutation({
     mutationFn: loginUser,
@@ -43,8 +28,6 @@ export const LoginForm: React.FC = () => {
     loginMutation.mutate(data);
   };
 
-  const isFormLoading = loginMutation.isPending || isSubmitting;
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md">
@@ -54,36 +37,35 @@ export const LoginForm: React.FC = () => {
             <p className="text-gray-500 mt-2 text-sm">Sign in to access the admin panel</p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit(handleFormSubmit)}>
+          <Form<LoginSchemaType>
+            className="space-y-5"
+            onSubmit={handleFormSubmit}
+            resolver={zodResolver(loginSchema)}
+            mode="onChange"
+            defaultValues={{ email: '', password: '' }}
+          >
             {loginMutation.error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
                 {loginMutation.error.message || 'Login failed. Please check your credentials and try again.'}
               </div>
             )}
-            <FormInput
-              name="email"
-              control={control}
-              type="email"
-              label="Email"
-              placeholder="Enter your email"
-              disabled={isFormLoading}
-              inputClassName="!px-4 !py-3"
-            />
-
-            <FormInput
+            <TextInput name="email" type="email" label="Email" placeholder="Enter your email" autoComplete="email" />
+            <TextInput
               name="password"
-              control={control}
               type="password"
               label="Password"
               placeholder="Enter your password"
-              disabled={isFormLoading}
-              inputClassName="!px-4 !py-3"
+              autoComplete="current-password"
             />
-
-            <div className="pt-2">
-              <Button intent="primary" disabled={isFormLoading} text="Sign In" type="submit" />
-            </div>
-          </form>
+            <Button
+              block
+              intent="primary"
+              disabled={loginMutation.isPending}
+              text="Sign In"
+              type="submit"
+              loading={loginMutation.isPending}
+            />
+          </Form>
         </div>
       </div>
     </div>

@@ -19,11 +19,6 @@ export default [
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {
       'prettier/prettier': 'error',
-    },
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    rules: {
       '@nx/enforce-module-boundaries': [
         'error',
         {

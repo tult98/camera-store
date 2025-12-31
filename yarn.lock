@@ -2667,7 +2667,7 @@ __metadata:
     eslint-config-prettier: ^10.0.0
     eslint-plugin-import: 2.31.0
     eslint-plugin-jsx-a11y: 6.10.1
-    eslint-plugin-prettier: ^5.5.4
+    eslint-plugin-prettier: ^4.2.1
     eslint-plugin-react: ^7.37.5
     eslint-plugin-react-hooks: ^5.2.0
     express: ^4.21.0
@@ -20106,23 +20106,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^5.5.4":
-  version: 5.5.4
-  resolution: "eslint-plugin-prettier@npm:5.5.4"
+"eslint-plugin-prettier@npm:^4.2.1":
+  version: 4.2.5
+  resolution: "eslint-plugin-prettier@npm:4.2.5"
   dependencies:
     prettier-linter-helpers: ^1.0.0
-    synckit: ^0.11.7
   peerDependencies:
-    "@types/eslint": ">=8.0.0"
-    eslint: ">=8.0.0"
-    eslint-config-prettier: ">= 7.0.0 <10.0.0 || >=10.1.0"
-    prettier: ">=3.0.0"
+    eslint: ">=7.28.0"
+    prettier: ">=2.0.0"
   peerDependenciesMeta:
-    "@types/eslint":
-      optional: true
     eslint-config-prettier:
       optional: true
-  checksum: 0dd05ed85018ab0e98da80325b7bd4c4ab6dd684398f1270a7c8cf4261df714dd4502ba4c7f85f651aade9989da0a7d2adda03af8873b73b52014141abf385de
+  checksum: 22c29ba685f18516e3b1595e062849ccc108996a759da6067ff5d876519a5f81c8ba92c0c5623a1c62b593d417619ba44ab3b6ec1450ca753c078fd92970b883
   languageName: node
   linkType: hard
 
@@ -31613,7 +31608,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"synckit@npm:^0.11.7, synckit@npm:^0.11.8":
+"synckit@npm:^0.11.8":
   version: 0.11.11
   resolution: "synckit@npm:0.11.11"
   dependencies:

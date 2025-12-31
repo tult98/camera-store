@@ -3,15 +3,19 @@ import { FacetAggregation, ApiFilters } from "../../types"
 interface CheckboxFilterProps {
   facet: FacetAggregation
   filters: ApiFilters
-  onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  onToggleFilter: (
+    filterType: keyof ApiFilters,
+    key: string,
+    value?: string
+  ) => void
   facetsLoading?: boolean
 }
 
-export default function CheckboxFilter({ 
-  facet, 
-  filters, 
+export default function CheckboxFilter({
+  facet,
+  filters,
   onToggleFilter,
-  facetsLoading = false
+  facetsLoading = false,
 }: CheckboxFilterProps) {
   if (!Array.isArray(facet.values)) return null
 

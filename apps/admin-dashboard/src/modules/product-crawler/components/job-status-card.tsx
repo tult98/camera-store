@@ -8,10 +8,7 @@ interface JobStatusCardProps {
   isLoadingStatus: boolean;
 }
 
-export const JobStatusCard: React.FC<JobStatusCardProps> = ({
-  jobStatus,
-  isLoadingStatus,
-}) => {
+export const JobStatusCard: React.FC<JobStatusCardProps> = ({ jobStatus, isLoadingStatus }) => {
   return (
     <div className="bg-white rounded-lg space-y-4">
       <div className="flex items-center justify-between">
@@ -19,10 +16,7 @@ export const JobStatusCard: React.FC<JobStatusCardProps> = ({
         {jobStatus && <JobStatusBadge state={jobStatus.state} />}
       </div>
 
-      <JobStatusContent
-        jobStatus={jobStatus}
-        isLoadingStatus={isLoadingStatus}
-      />
+      <JobStatusContent jobStatus={jobStatus} isLoadingStatus={isLoadingStatus} />
     </div>
   );
 };

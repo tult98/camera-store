@@ -1,13 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework/http';
-import {
-  ContainerRegistrationKeys,
-  MedusaError,
-} from '@medusajs/framework/utils';
+import { ContainerRegistrationKeys, MedusaError } from '@medusajs/framework/utils';
 
-import {
-  getAllCategoryIds,
-  resolveQueryInstance,
-} from 'src/utils/category-hierarchy';
+import { getAllCategoryIds, resolveQueryInstance } from 'src/utils/category-hierarchy';
 
 interface Brand {
   id: string;
@@ -27,17 +21,11 @@ interface ProductWithBrands {
   brands?: Brand[];
 }
 
-export async function GET(
-  req: MedusaRequest,
-  res: MedusaResponse<GetCategoryBrandsResponse>
-) {
+export async function GET(req: MedusaRequest, res: MedusaResponse<GetCategoryBrandsResponse>) {
   const { category_id } = req.query;
 
   if (!category_id || typeof category_id !== 'string') {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      'category_id query parameter is required'
-    );
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, 'category_id query parameter is required');
   }
 
   const query = resolveQueryInstance(req.scope);
@@ -45,20 +33,11 @@ export async function GET(
 
   const categoryIds = await getAllCategoryIds(query, category_id);
 
-  if (
-    !categoryIds ||
-    categoryIds.length === 0 ||
-    categoryIds.some((id) => !id || typeof id !== 'string')
-  ) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      'Category not found or invalid'
-    );
+  if (!categoryIds || categoryIds.length === 0 || categoryIds.some((id) => !id || typeof id !== 'string')) {
+    throw new MedusaError(MedusaError.Types.NOT_FOUND, 'Category not found or invalid');
   }
 
-  logger.debug(
-    `Querying brands for ${categoryIds.length} categories: ${JSON.stringify(categoryIds)}`
-  );
+  logger.debug(`Querying brands for ${categoryIds.length} categories: ${JSON.stringify(categoryIds)}`);
 
   const { data: products } = await query.graph({
     entity: 'product',

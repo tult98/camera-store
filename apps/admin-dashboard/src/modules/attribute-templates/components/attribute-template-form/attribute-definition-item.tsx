@@ -72,12 +72,7 @@ export const AttributeDefinitionItem: React.FC<AttributeDefinitionItemProps> = (
         </button>
       </div>
 
-      <FilterConfiguration
-        control={control}
-        index={index}
-        isDisabled={isDisabled}
-        setValue={setValue}
-      />
+      <FilterConfiguration control={control} index={index} isDisabled={isDisabled} setValue={setValue} />
     </div>
   );
 };

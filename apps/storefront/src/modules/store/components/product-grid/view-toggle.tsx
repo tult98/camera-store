@@ -8,7 +8,10 @@ interface ViewToggleProps {
   onViewModeChange?: (mode: ViewMode) => void
 }
 
-export default function ViewToggle({ viewMode, onViewModeChange }: ViewToggleProps) {
+export default function ViewToggle({
+  viewMode,
+  onViewModeChange,
+}: ViewToggleProps) {
   if (!onViewModeChange) {
     return null
   }

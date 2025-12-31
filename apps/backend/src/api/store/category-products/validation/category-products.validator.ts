@@ -19,30 +19,16 @@ export const CategoryProductsSchema = z
         if (data.filters['price']) {
           if (typeof data.filters['price'] !== 'object') return false;
           const price = data.filters['price'] as PriceFilter;
-          if (
-            price.min !== undefined &&
-            (typeof price.min !== 'number' || price.min < 0)
-          )
-            return false;
-          if (
-            price.max !== undefined &&
-            (typeof price.max !== 'number' || price.max < 0)
-          )
-            return false;
-          if (
-            price.min !== undefined &&
-            price.max !== undefined &&
-            price.min > price.max
-          )
-            return false;
+          if (price.min !== undefined && (typeof price.min !== 'number' || price.min < 0)) return false;
+          if (price.max !== undefined && (typeof price.max !== 'number' || price.max < 0)) return false;
+          if (price.min !== undefined && price.max !== undefined && price.min > price.max) return false;
         }
 
         for (const [key, value] of Object.entries(data.filters)) {
           if (key === 'price') continue;
           if (Array.isArray(value)) {
             if (value.length > 100) return false;
-            if (!value.every((v) => typeof v === 'string' && v.length < 200))
-              return false;
+            if (!value.every((v) => typeof v === 'string' && v.length < 200)) return false;
           }
         }
       }
@@ -54,9 +40,7 @@ export const CategoryProductsSchema = z
   );
 
 export class CategoryProductsValidator {
-  static sanitizeSearchQuery(
-    searchQuery: string | undefined
-  ): string | undefined {
+  static sanitizeSearchQuery(searchQuery: string | undefined): string | undefined {
     if (!searchQuery || searchQuery.trim() === '') {
       return undefined;
     }

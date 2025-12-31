@@ -1,5 +1,5 @@
-import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
-import { PRODUCT_ATTRIBUTES_MODULE } from "../../../modules/product-attributes";
+import type { MedusaRequest, MedusaResponse } from '@medusajs/framework/http';
+import { PRODUCT_ATTRIBUTES_MODULE } from '../../../modules/product-attributes';
 
 interface CreateAttributeTemplateRequest {
   name: string;
@@ -8,7 +8,7 @@ interface CreateAttributeTemplateRequest {
   attribute_definitions: Array<{
     key: string;
     label: string;
-    type: "text" | "number" | "select" | "boolean";
+    type: 'text' | 'number' | 'select' | 'boolean';
     options?: string[];
     option_group?: string;
     required: boolean;
@@ -28,21 +28,18 @@ interface CreateAttributeTemplateRequest {
 }
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  const productAttributesModuleService = req.scope.resolve(
-    PRODUCT_ATTRIBUTES_MODULE
+  const productAttributesModuleService = req.scope.resolve(PRODUCT_ATTRIBUTES_MODULE);
+
+  const limit = parseInt(req.query['limit'] as string) || 20;
+  const offset = parseInt(req.query['offset'] as string) || 0;
+
+  const [templates, count] = await productAttributesModuleService.listAndCountAttributeTemplates(
+    {},
+    {
+      take: limit,
+      skip: offset,
+    }
   );
-
-  const limit = parseInt(req.query["limit"] as string) || 20;
-  const offset = parseInt(req.query["offset"] as string) || 0;
-
-  const [templates, count] =
-    await productAttributesModuleService.listAndCountAttributeTemplates(
-      {},
-      {
-        take: limit,
-        skip: offset,
-      }
-    );
 
   res.json({
     attribute_templates: templates,
@@ -53,49 +50,44 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 };
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const productAttributesModuleService = req.scope.resolve(
-    PRODUCT_ATTRIBUTES_MODULE
-  );
+  const productAttributesModuleService = req.scope.resolve(PRODUCT_ATTRIBUTES_MODULE);
 
   try {
     const body = req.body as CreateAttributeTemplateRequest;
 
     // Validate required fields
-    if (!body.name || body.name.trim() === "") {
+    if (!body.name || body.name.trim() === '') {
       res.status(400).json({
-        error: "Validation Error",
-        details: "Template name is required",
+        error: 'Validation Error',
+        details: 'Template name is required',
       });
       return;
     }
 
-    if (!body.code || body.code.trim() === "") {
+    if (!body.code || body.code.trim() === '') {
       res.status(400).json({
-        error: "Validation Error",
-        details: "Template code is required",
+        error: 'Validation Error',
+        details: 'Template code is required',
       });
       return;
     }
 
-    const attributeTemplate =
-      await productAttributesModuleService.createAttributeTemplates({
-        name: body.name.trim(),
-        code: body.code.trim(),
-        description: body.description,
-        attribute_definitions: (body.attribute_definitions ||
-          []) as unknown as Record<string, unknown>,
-        is_active: body.is_active ?? true,
-      });
+    const attributeTemplate = await productAttributesModuleService.createAttributeTemplates({
+      name: body.name.trim(),
+      code: body.code.trim(),
+      description: body.description,
+      attribute_definitions: (body.attribute_definitions || []) as unknown as Record<string, unknown>,
+      is_active: body.is_active ?? true,
+    });
 
     res.status(201).json({
       attribute_template: attributeTemplate,
     });
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
     res.status(500).json({
-      error: "Failed to create attribute template",
+      error: 'Failed to create attribute template',
       details: errorMessage,
     });
   }

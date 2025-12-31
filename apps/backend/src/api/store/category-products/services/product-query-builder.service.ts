@@ -1,11 +1,6 @@
 import { QueryContext } from '@medusajs/framework/utils';
 import { TagFilter } from '../filters/tag-filter';
-import type {
-  ApiFilters,
-  ProductProcessingContext,
-  QueryFilters,
-  SortOrder,
-} from '../types/category-products.types';
+import type { ApiFilters, ProductProcessingContext, QueryFilters, SortOrder } from '../types/category-products.types';
 
 const MAX_QUERY_LIMIT = 1000;
 
@@ -65,21 +60,10 @@ export function buildSortOrder(orderBy: string): SortOrder {
   return sortOrder;
 }
 
-export function buildGraphQuery(
-  queryFilters: QueryFilters,
-  sortOrder: SortOrder,
-  context: ProductProcessingContext
-) {
+export function buildGraphQuery(queryFilters: QueryFilters, sortOrder: SortOrder, context: ProductProcessingContext) {
   return {
     entity: 'product' as const,
-    fields: [
-      '*',
-      'variants.*',
-      'variants.calculated_price.*',
-      'categories.*',
-      'tags.*',
-      'images.*',
-    ],
+    fields: ['*', 'variants.*', 'variants.calculated_price.*', 'categories.*', 'tags.*', 'images.*'],
     filters: queryFilters,
     pagination: {
       skip: 0,

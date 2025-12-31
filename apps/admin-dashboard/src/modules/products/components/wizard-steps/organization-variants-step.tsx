@@ -14,11 +14,7 @@ import type { SelectOption } from '../../../shared/components/ui/form-input/form
 import { FormSelect } from '../../../shared/components/ui/form-input/form-select';
 import { FormSwitch } from '../../../shared/components/ui/form-input/form-switch';
 import { LoadingIcon } from '../../../shared/components/ui/loading-icon';
-import {
-  productSchema,
-  ProductWithBrand,
-  type ProductSchemaType,
-} from '../../types';
+import { productSchema, ProductWithBrand, type ProductSchemaType } from '../../types';
 import { VariantList } from './organization-variants-step/variant-list';
 
 interface OrganizationVariantsStepProps {
@@ -42,12 +38,7 @@ const getFormDefaultValues = (
   defaultCurrencyCode: string
 ): Partial<ProductSchemaType> => ({
   title: initialValues?.title,
-  status:
-    (initialValues?.status as
-      | 'draft'
-      | 'proposed'
-      | 'published'
-      | 'rejected') || 'published',
+  status: (initialValues?.status as 'draft' | 'proposed' | 'published' | 'rejected') || 'published',
   category_ids: initialValues?.categories?.map((cat) => cat.id) || [],
   sales_channels: defaultSalesChannelId ? [{ id: defaultSalesChannelId }] : [],
   additional_data: {
@@ -73,9 +64,12 @@ const getFormDefaultValues = (
     })) || [],
 });
 
-export const OrganizationVariantsStep: React.FC<
-  OrganizationVariantsStepProps
-> = ({ product, brand, onNext, isEditMode = false }) => {
+export const OrganizationVariantsStep: React.FC<OrganizationVariantsStepProps> = ({
+  product,
+  brand,
+  onNext,
+  isEditMode = false,
+}) => {
   const toast = useToast();
   const queryClient = useQueryClient();
   const { defaultSalesChannelId, defaultCurrencyCode } = useStores();
@@ -83,12 +77,7 @@ export const OrganizationVariantsStep: React.FC<
   const { control, handleSubmit, setValue } = useForm<ProductSchemaType>({
     resolver: zodResolver(productSchema),
     mode: 'onBlur',
-    defaultValues: getFormDefaultValues(
-      product,
-      brand,
-      defaultSalesChannelId,
-      defaultCurrencyCode
-    ),
+    defaultValues: getFormDefaultValues(product, brand, defaultSalesChannelId, defaultCurrencyCode),
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -157,9 +146,7 @@ export const OrganizationVariantsStep: React.FC<
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
-          Options & Variants
-        </h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Options & Variants</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
@@ -200,9 +187,7 @@ export const OrganizationVariantsStep: React.FC<
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-medium text-gray-900">
-                Product Variants
-              </h3>
+              <h3 className="text-base font-medium text-gray-900">Product Variants</h3>
             </div>
 
             <div className="border border-gray-200 rounded-lg p-4 min-h-[200px]">
@@ -223,9 +208,7 @@ export const OrganizationVariantsStep: React.FC<
               disabled={!product || updateProductMutation.isPending}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
             >
-              {updateProductMutation.isPending && (
-                <LoadingIcon size="sm" color="white" className="mr-2" />
-              )}
+              {updateProductMutation.isPending && <LoadingIcon size="sm" color="white" className="mr-2" />}
               {isEditMode ? 'Save Changes' : 'Save & Continue'}
             </button>
           </div>

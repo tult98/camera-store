@@ -1,13 +1,7 @@
 import { cn } from '@modules/shared/utils/cn';
 import React from 'react';
 import { Control, FieldValues, Path, useController, useFormState } from 'react-hook-form';
-import Select, {
-  ActionMeta,
-  MultiValue,
-  SelectInstance,
-  SingleValue,
-  StylesConfig,
-} from 'react-select';
+import Select, { ActionMeta, MultiValue, SelectInstance, SingleValue, StylesConfig } from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 
 export interface SelectOption {
@@ -67,11 +61,7 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
       minHeight: '38px',
       height: 'auto',
       padding: '0',
-      border: showErrorState
-        ? '1px solid #ef4444'
-        : state.isFocused
-        ? '1px solid transparent'
-        : '1px solid #e5e7eb',
+      border: showErrorState ? '1px solid #ef4444' : state.isFocused ? '1px solid transparent' : '1px solid #e5e7eb',
       borderRadius: '8px',
       backgroundColor: disabled ? '#f9fafb' : '#ffffff',
       boxShadow: state.isFocused ? '0 0 0 2px #3b82f6' : 'none',
@@ -148,8 +138,7 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
       ...provided,
       borderRadius: '8px',
       border: '1px solid #e5e7eb',
-      boxShadow:
-        '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
       zIndex: 9999,
     }),
     menuList: (provided) => ({
@@ -158,11 +147,7 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected
-        ? '#3b82f6'
-        : state.isFocused
-        ? '#eff6ff'
-        : 'transparent',
+      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'transparent',
       color: state.isSelected ? '#ffffff' : '#111827',
       padding: '8px 12px',
       borderRadius: '4px',
@@ -182,9 +167,7 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
           label: val,
         }));
       }
-      return (field.value || [])
-        .map((val: string) => options.find((option) => option.value === val))
-        .filter(Boolean);
+      return (field.value || []).map((val: string) => options.find((option) => option.value === val)).filter(Boolean);
     }
     if (isCreatable && field.value) {
       return { value: field.value, label: field.value };
@@ -193,17 +176,13 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
   };
 
   const handleSelectChange = (
-    newValue:
-      | MultiValue<SelectOption | undefined>
-      | SingleValue<SelectOption | undefined>,
+    newValue: MultiValue<SelectOption | undefined> | SingleValue<SelectOption | undefined>,
     _actionMeta: ActionMeta<SelectOption | undefined>
   ) => {
     if (isMulti) {
       const values = newValue as MultiValue<SelectOption | undefined>;
       field.onChange(
-        values
-          .filter((option): option is SelectOption => option !== undefined)
-          .map((option) => option.value)
+        values.filter((option): option is SelectOption => option !== undefined).map((option) => option.value)
       );
     } else {
       const value = newValue as SingleValue<SelectOption | undefined>;
@@ -239,19 +218,13 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
         styles={customStyles}
         aria-invalid={showErrorState}
         aria-describedby={showErrorState ? `${name}-error` : undefined}
-        menuPortalTarget={
-          typeof document !== 'undefined' ? document.body : null
-        }
+        menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
         menuPosition="fixed"
       />
 
       {showErrorState && (
         <div className="mt-1">
-          <span
-            id={`${name}-error`}
-            className="input-error-message"
-            role="alert"
-          >
+          <span id={`${name}-error`} className="input-error-message" role="alert">
             {error?.message}
           </span>
         </div>
@@ -263,9 +236,7 @@ const FormSelectInner = <TFormData extends FieldValues = FieldValues>(
 const _FormSelect = React.forwardRef(FormSelectInner);
 _FormSelect.displayName = 'FormSelect';
 
-export const FormSelect = _FormSelect as <
-  TFormData extends FieldValues = FieldValues
->(
+export const FormSelect = _FormSelect as <TFormData extends FieldValues = FieldValues>(
   props: FormSelectProps<TFormData> & {
     ref?: React.Ref<SelectInstance<SelectOption>>;
   }

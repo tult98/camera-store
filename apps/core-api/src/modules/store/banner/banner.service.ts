@@ -1,18 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { banner } from 'src/generated/prisma/client.js';
-import {
-  PaginatedData,
-  PaginationParams,
-} from '../../../common/types/pagination.types.js';
+import { PaginatedData, PaginationParams } from '../../../common/types/pagination.types.js';
 import { PrismaService } from '../../../database/prisma.service.js';
 
 @Injectable()
 export class BannerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findActiveBanners(
-    pagination: PaginationParams
-  ): Promise<PaginatedData<banner>> {
+  async findActiveBanners(pagination: PaginationParams): Promise<PaginatedData<banner>> {
     const { offset, limit } = pagination;
 
     const where = {

@@ -1,6 +1,9 @@
 "use client"
 
-import { ChevronDownIcon, Bars3BottomLeftIcon } from "@heroicons/react/24/outline"
+import {
+  ChevronDownIcon,
+  Bars3BottomLeftIcon,
+} from "@heroicons/react/24/outline"
 import { SortOption } from "@modules/store/store/category-filter-store"
 
 interface SortDropdownProps {
@@ -8,22 +11,49 @@ interface SortDropdownProps {
   onSortChange: (sortBy: SortOption) => void
 }
 
-const sortOptions: { value: SortOption; label: string; description?: string }[] = [
-  { value: "price_asc", label: "Price: Low to High", description: "Budget-friendly first" },
-  { value: "price_desc", label: "Price: High to Low", description: "Premium equipment first" },
-  { value: "newest", label: "Latest Arrivals", description: "Newest products first" },
-  { value: "name_asc", label: "Name: A to Z", description: "Alphabetical order" },
-  { value: "name_desc", label: "Name: Z to A", description: "Reverse alphabetical" },
+const sortOptions: {
+  value: SortOption
+  label: string
+  description?: string
+}[] = [
+  {
+    value: "price_asc",
+    label: "Price: Low to High",
+    description: "Budget-friendly first",
+  },
+  {
+    value: "price_desc",
+    label: "Price: High to Low",
+    description: "Premium equipment first",
+  },
+  {
+    value: "newest",
+    label: "Latest Arrivals",
+    description: "Newest products first",
+  },
+  {
+    value: "name_asc",
+    label: "Name: A to Z",
+    description: "Alphabetical order",
+  },
+  {
+    value: "name_desc",
+    label: "Name: Z to A",
+    description: "Reverse alphabetical",
+  },
 ]
 
-export default function SortDropdown({ sortBy, onSortChange }: SortDropdownProps) {
-  const currentSort = sortOptions.find(option => option.value === sortBy)
+export default function SortDropdown({
+  sortBy,
+  onSortChange,
+}: SortDropdownProps) {
+  const currentSort = sortOptions.find((option) => option.value === sortBy)
 
   return (
     <div className="dropdown lg:dropdown-end">
-      <div 
-        tabIndex={0} 
-        role="button" 
+      <div
+        tabIndex={0}
+        role="button"
         className="btn btn-outline btn-primary hover:btn-primary transition-all duration-200 gap-2 min-w-[120px] sm:min-w-[200px] justify-between max-w-full"
         aria-label="Sort products"
         aria-haspopup="true"
@@ -40,7 +70,9 @@ export default function SortDropdown({ sortBy, onSortChange }: SortDropdownProps
       </div>
       <div className="dropdown-content z-50 bg-base-100 shadow-xl rounded-2xl border border-base-300 p-2 mt-2 w-full sm:w-72 max-w-sm">
         <div className="p-2 border-b border-base-300 mb-2">
-          <h3 className="font-semibold text-sm text-base-content/80">Sort Products By</h3>
+          <h3 className="font-semibold text-sm text-base-content/80">
+            Sort Products By
+          </h3>
         </div>
         <ul className="space-y-1">
           {sortOptions.map((option) => (
@@ -48,8 +80,8 @@ export default function SortDropdown({ sortBy, onSortChange }: SortDropdownProps
               <button
                 onClick={() => onSortChange(option.value)}
                 className={`w-full text-left p-3 rounded-xl transition-all duration-200 hover:bg-base-200 ${
-                  sortBy === option.value 
-                    ? "bg-primary/10 text-primary border border-primary/20" 
+                  sortBy === option.value
+                    ? "bg-primary/10 text-primary border border-primary/20"
                     : "hover:bg-base-200/70"
                 }`}
               >

@@ -72,7 +72,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
     if (preview && preview.startsWith('blob:')) {
       URL.revokeObjectURL(preview);
     }
-    
+
     // Clear preview after cleanup
     setPreview('');
   }, [field, preview]);
@@ -96,9 +96,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
       // Validate file type
       const allowedTypes = accept.split(',').map((type) => type.trim());
       if (!allowedTypes.includes(file.type)) {
-        setValidationError(
-          'Please select a valid image file (SVG, PNG, JPG, or GIF)'
-        );
+        setValidationError('Please select a valid image file (SVG, PNG, JPG, or GIF)');
         return;
       }
 
@@ -165,13 +163,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
   );
 
   const handleClick = useCallback(() => {
-    if (
-      !disabled &&
-      !uploadMutation.isPending &&
-      ref &&
-      'current' in ref &&
-      ref.current
-    ) {
+    if (!disabled && !uploadMutation.isPending && ref && 'current' in ref && ref.current) {
       ref.current.click();
     }
   }, [disabled, uploadMutation.isPending, ref]);
@@ -214,9 +206,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
         >
           <CloudArrowUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-600 font-medium mb-2">{placeholder}</p>
-          <p className="text-sm text-gray-500">
-            SVG, PNG, JPG or GIF ({maxDimensions})
-          </p>
+          <p className="text-sm text-gray-500">SVG, PNG, JPG or GIF ({maxDimensions})</p>
         </div>
       ) : (
         <div className="border border-gray-200 rounded-lg p-4 bg-white relative">
@@ -228,24 +218,16 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               {preview && (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-12 h-12 object-contain rounded border border-gray-200"
-                />
+                <img src={preview} alt="Preview" className="w-12 h-12 object-contain rounded border border-gray-200" />
               )}
               <div>
                 <p className="text-sm font-medium text-gray-900">
                   {selectedFile ? selectedFile.name : 'Current image'}
                 </p>
                 {selectedFile ? (
-                  <p className="text-xs text-gray-500">
-                    {formatFileSize(selectedFile.size)}
-                  </p>
+                  <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
                 ) : (
-                  <p className="text-xs text-gray-500">
-                    Existing image
-                  </p>
+                  <p className="text-xs text-gray-500">Existing image</p>
                 )}
               </div>
             </div>
@@ -273,11 +255,7 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
 
       {showErrorState && (
         <div className="mt-1">
-          <span
-            id={`${name}-error`}
-            className="input-error-message"
-            role="alert"
-          >
+          <span id={`${name}-error`} className="input-error-message" role="alert">
             {error?.message}
           </span>
         </div>
@@ -297,8 +275,6 @@ const FormImageUploadInner = <TFormData extends FieldValues = FieldValues>(
 const _FormImageUpload = React.forwardRef(FormImageUploadInner);
 _FormImageUpload.displayName = 'FormImageUpload';
 
-export const FormImageUpload = _FormImageUpload as <
-  TFormData extends FieldValues = FieldValues
->(
+export const FormImageUpload = _FormImageUpload as <TFormData extends FieldValues = FieldValues>(
   props: FormImageUploadProps<TFormData> & { ref?: React.Ref<HTMLInputElement> }
 ) => React.ReactElement;

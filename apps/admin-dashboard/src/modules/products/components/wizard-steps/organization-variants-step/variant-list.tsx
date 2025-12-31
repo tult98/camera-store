@@ -36,9 +36,7 @@ export const VariantList: React.FC<VariantListProps> = ({
           <PlusIcon className="w-4 h-4" />
           Add Variant
         </button>
-        <p className="text-sm text-gray-500 text-center">
-          Add product variants with different prices
-        </p>
+        <p className="text-sm text-gray-500 text-center">Add product variants with different prices</p>
       </div>
     );
   }

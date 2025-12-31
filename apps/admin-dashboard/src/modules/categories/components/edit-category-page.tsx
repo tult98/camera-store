@@ -71,16 +71,10 @@ export const EditCategoryPage: React.FC = () => {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit Category</h1>
-        <p className="text-gray-600">
-          Update the category information and settings.
-        </p>
+        <p className="text-gray-600">Update the category information and settings.</p>
       </div>
 
-      <CategoryForm
-        initialData={initialData}
-        isEditMode={true}
-        categoryId={id!}
-      />
+      <CategoryForm initialData={initialData} isEditMode={true} categoryId={id!} />
     </div>
   );
 };

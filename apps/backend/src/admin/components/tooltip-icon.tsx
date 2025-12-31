@@ -1,43 +1,36 @@
-import { InformationCircle } from "@medusajs/icons";
-import { Tooltip } from "@medusajs/ui";
+import { InformationCircle } from '@medusajs/icons';
+import { Tooltip } from '@medusajs/ui';
 
 export interface TooltipIconProps {
   content: string;
-  color: "blue" | "purple";
+  color: 'blue' | 'purple';
   examples?: Record<string, string> | string;
   comparison?: string;
   guidance?: string;
   note?: string;
 }
 
-export const TooltipIcon = ({ 
-  content, 
-  color, 
-  examples, 
-  comparison, 
-  guidance, 
-  note 
-}: TooltipIconProps) => {
+export const TooltipIcon = ({ content, color, examples, comparison, guidance, note }: TooltipIconProps) => {
   const colorClasses = {
-    blue: "text-blue-600 hover:text-blue-700",
-    purple: "text-purple-600 hover:text-purple-700",
+    blue: 'text-blue-600 hover:text-blue-700',
+    purple: 'text-purple-600 hover:text-purple-700',
   };
 
   const tooltipContent = (
     <div className="space-y-2 max-w-xs">
       <p className="text-sm">{content}</p>
-      
+
       {comparison && (
         <div className="border-t pt-2">
           <p className="text-xs text-gray-600 font-medium">Note:</p>
           <p className="text-xs text-gray-600">{comparison}</p>
         </div>
       )}
-      
+
       {examples && (
         <div className="border-t pt-2">
           <p className="text-xs text-gray-600 font-medium">Examples:</p>
-          {typeof examples === "string" ? (
+          {typeof examples === 'string' ? (
             <p className="text-xs text-gray-600">{examples}</p>
           ) : (
             <div className="space-y-1">
@@ -51,14 +44,14 @@ export const TooltipIcon = ({
           )}
         </div>
       )}
-      
+
       {guidance && (
         <div className="border-t pt-2">
           <p className="text-xs text-gray-600 font-medium">Guidance:</p>
           <p className="text-xs text-gray-600">{guidance}</p>
         </div>
       )}
-      
+
       {note && (
         <div className="border-t pt-2">
           <p className="text-xs text-gray-600">{note}</p>
@@ -81,12 +74,7 @@ interface FieldWithTooltipProps {
   required?: boolean;
 }
 
-export const FieldWithTooltip = ({ 
-  label, 
-  tooltip, 
-  field, 
-  required = false 
-}: FieldWithTooltipProps) => {
+export const FieldWithTooltip = ({ label, tooltip, field, required = false }: FieldWithTooltipProps) => {
   return (
     <div>
       <div className="flex items-center">
@@ -96,9 +84,7 @@ export const FieldWithTooltip = ({
         </label>
         <TooltipIcon {...tooltip} />
       </div>
-      <div className="mt-1">
-        {field}
-      </div>
+      <div className="mt-1">{field}</div>
     </div>
   );
 };

@@ -10,11 +10,11 @@ type ToastProps = {
   duration?: number
 }
 
-export default function Toast({ 
-  message, 
-  type = "info", 
+export default function Toast({
+  message,
+  type = "info",
   onClose,
-  duration = 5000 
+  duration = 5000,
 }: ToastProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -28,14 +28,14 @@ export default function Toast({
     success: "alert-success",
     error: "alert-error",
     warning: "alert-warning",
-    info: "alert-info"
+    info: "alert-info",
   }
 
   return (
     <div className="toast toast-bottom toast-end z-50">
       <div className={`alert ${alertStyles[type]} shadow-lg`}>
         <span>{message}</span>
-        <button 
+        <button
           className="btn btn-ghost btn-xs btn-circle"
           onClick={onClose}
           aria-label="Close"

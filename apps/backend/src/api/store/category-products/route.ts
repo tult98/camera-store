@@ -7,20 +7,12 @@ import { getProductsByCategoryFn } from './services/category-product.service';
 import type { CategoryProductsParams, CategoryProductsRequest } from './types/category-products.types';
 import { CategoryProductsValidator } from './validation/category-products.validator';
 
-export async function POST(
-  req: MedusaRequest<CategoryProductsRequest>,
-  res: MedusaResponse
-) {
+export async function POST(req: MedusaRequest<CategoryProductsRequest>, res: MedusaResponse) {
   const requestData = req.validatedBody as CategoryProductsRequest;
-  const { regionId, currencyCode } = getRegionAndCurrencyFromHeaders(
-    req.headers
-  );
+  const { regionId, currencyCode } = getRegionAndCurrencyFromHeaders(req.headers);
 
   if (!regionId || !currencyCode) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      'region_id and currency_code headers are required'
-    );
+    throw new MedusaError(MedusaError.Types.INVALID_DATA, 'region_id and currency_code headers are required');
   }
 
   const {
@@ -33,8 +25,7 @@ export async function POST(
     brand_id,
   } = requestData;
 
-  const sanitizedSearchQuery =
-    CategoryProductsValidator.sanitizeSearchQuery(search_query);
+  const sanitizedSearchQuery = CategoryProductsValidator.sanitizeSearchQuery(search_query);
 
   const params: CategoryProductsParams = {
     category_id,

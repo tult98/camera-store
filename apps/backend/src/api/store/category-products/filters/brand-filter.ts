@@ -4,10 +4,7 @@ interface ProductBrandData {
   product_id: string;
 }
 
-export const getProductIdsByBrand = async (
-  query: QueryInstance,
-  brandId: string
-) => {
+export const getProductIdsByBrand = async (query: QueryInstance, brandId: string) => {
   const { data } = await query.graph({
     entity: 'product_brand',
     fields: ['product_id'],

@@ -22,10 +22,7 @@ export function ToastContainer() {
       aria-label="Notifications"
     >
       {toasts.map((toast) => (
-        <div
-          key={toast.id}
-          className="pointer-events-auto animate-in slide-in-from-right-full duration-300"
-        >
+        <div key={toast.id} className="pointer-events-auto animate-in slide-in-from-right-full duration-300">
           <Toast toast={toast} onClose={hideToast} />
         </div>
       ))}

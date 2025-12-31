@@ -1,7 +1,4 @@
-import {
-  ContainerRegistrationKeys,
-  MedusaError,
-} from '@medusajs/framework/utils';
+import { ContainerRegistrationKeys, MedusaError } from '@medusajs/framework/utils';
 
 interface ProductCategory {
   id: string;
@@ -31,10 +28,7 @@ export interface QueryInstance {
  * Get all category IDs including child categories recursively
  * Used for hierarchical product queries to include products from subcategories
  */
-export async function getAllCategoryIds(
-  query: QueryInstance,
-  categoryId: string
-): Promise<string[]> {
+export async function getAllCategoryIds(query: QueryInstance, categoryId: string): Promise<string[]> {
   // Get the main category and all its children recursively (up to 5 levels deep)
   // This balances performance with completeness for most e-commerce category structures
   const result = await query.graph({

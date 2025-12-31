@@ -61,27 +61,24 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
   const hasError = !!error;
   const showErrorState = hasError && (isTouched || isSubmitted);
 
-  const debouncePromise = React.useCallback(
-    (fn: (inputValue: string) => Promise<SelectOption[]>, time: number) => {
-      let timeoutId: NodeJS.Timeout;
+  const debouncePromise = React.useCallback((fn: (inputValue: string) => Promise<SelectOption[]>, time: number) => {
+    let timeoutId: NodeJS.Timeout;
 
-      return (inputValue: string): Promise<SelectOption[]> => {
-        return new Promise((resolve) => {
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(async () => {
-            try {
-              const results = await fn(inputValue);
-              resolve(results);
-            } catch (error) {
-              console.error('Error loading options:', error);
-              resolve([]);
-            }
-          }, time);
-        });
-      };
-    },
-    []
-  );
+    return (inputValue: string): Promise<SelectOption[]> => {
+      return new Promise((resolve) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(async () => {
+          try {
+            const results = await fn(inputValue);
+            resolve(results);
+          } catch (error) {
+            console.error('Error loading options:', error);
+            resolve([]);
+          }
+        }, time);
+      });
+    };
+  }, []);
 
   const debouncedLoadOptions = React.useMemo(
     () => debouncePromise(loadOptions, debounceTime),
@@ -94,11 +91,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
       minHeight: 'auto',
       height: 'auto',
       padding: '2px 4px',
-      border: showErrorState
-        ? '1px solid #ef4444'
-        : state.isFocused
-        ? '1px solid transparent'
-        : '1px solid #e5e7eb',
+      border: showErrorState ? '1px solid #ef4444' : state.isFocused ? '1px solid transparent' : '1px solid #e5e7eb',
       borderRadius: '8px',
       backgroundColor: disabled ? '#f9fafb' : '#ffffff',
       boxShadow: state.isFocused ? '0 0 0 2px #3b82f6' : 'none',
@@ -148,8 +141,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
       ...provided,
       borderRadius: '8px',
       border: '1px solid #e5e7eb',
-      boxShadow:
-        '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
       zIndex: 9999,
     }),
     menuList: (provided) => ({
@@ -158,11 +150,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     }),
     option: (provided, state) => ({
       ...provided,
-      backgroundColor: state.isSelected
-        ? '#3b82f6'
-        : state.isFocused
-        ? '#eff6ff'
-        : 'transparent',
+      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#eff6ff' : 'transparent',
       color: state.isSelected ? '#ffffff' : '#111827',
       padding: '8px 12px',
       borderRadius: '4px',
@@ -222,9 +210,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
     [debouncedLoadOptions]
   );
 
-  const [currentValue, setCurrentValue] = React.useState<
-    SelectOption | SelectOption[] | null
-  >(null);
+  const [currentValue, setCurrentValue] = React.useState<SelectOption | SelectOption[] | null>(null);
 
   useEffect(() => {
     const loadCurrentValue = async () => {
@@ -233,17 +219,11 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
           const options = await loadOptions('');
 
           if (isMulti) {
-            const values = Array.isArray(field.value)
-              ? field.value
-              : [field.value];
-            const selectedOptions = options.filter((opt) =>
-              (values as string[]).includes(opt.value)
-            );
+            const values = Array.isArray(field.value) ? field.value : [field.value];
+            const selectedOptions = options.filter((opt) => (values as string[]).includes(opt.value));
             setCurrentValue(selectedOptions);
           } else {
-            const foundOption = options.find(
-              (opt) => opt.value === field.value
-            );
+            const foundOption = options.find((opt) => opt.value === field.value);
             if (foundOption) {
               setCurrentValue(foundOption);
             }
@@ -277,15 +257,11 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
         value={currentValue}
         onChange={(selectedOption) => {
           if (isMulti) {
-            const values = Array.isArray(selectedOption)
-              ? selectedOption.map((opt) => opt.value)
-              : [];
+            const values = Array.isArray(selectedOption) ? selectedOption.map((opt) => opt.value) : [];
             field.onChange(values);
             setCurrentValue((selectedOption as SelectOption[] | null) || []);
           } else {
-            field.onChange(
-              (selectedOption as SelectOption | null)?.value || ''
-            );
+            field.onChange((selectedOption as SelectOption | null)?.value || '');
             setCurrentValue(selectedOption as SelectOption | null);
           }
         }}
@@ -297,31 +273,17 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
         isDisabled={disabled}
         isMulti={isMulti}
         styles={customStyles}
-        loadingMessage={
-          typeof loadingMessage === 'function'
-            ? loadingMessage
-            : () => loadingMessage
-        }
-        noOptionsMessage={
-          typeof noOptionsMessage === 'function'
-            ? noOptionsMessage
-            : () => noOptionsMessage
-        }
+        loadingMessage={typeof loadingMessage === 'function' ? loadingMessage : () => loadingMessage}
+        noOptionsMessage={typeof noOptionsMessage === 'function' ? noOptionsMessage : () => noOptionsMessage}
         aria-invalid={showErrorState}
         aria-describedby={showErrorState ? `${name}-error` : undefined}
-        menuPortalTarget={
-          typeof document !== 'undefined' ? document.body : null
-        }
+        menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
         menuPosition="fixed"
       />
 
       {showErrorState && (
         <div className="mt-1">
-          <span
-            id={`${name}-error`}
-            className="input-error-message"
-            role="alert"
-          >
+          <span id={`${name}-error`} className="input-error-message" role="alert">
             {error?.message}
           </span>
         </div>
@@ -333,9 +295,7 @@ const FormAsyncSelectInner = <TFormData extends FieldValues = FieldValues>(
 const _FormAsyncSelect = React.forwardRef(FormAsyncSelectInner);
 _FormAsyncSelect.displayName = 'FormAsyncSelect';
 
-export const FormAsyncSelect = _FormAsyncSelect as <
-  TFormData extends FieldValues = FieldValues
->(
+export const FormAsyncSelect = _FormAsyncSelect as <TFormData extends FieldValues = FieldValues>(
   props: FormAsyncSelectProps<TFormData> & {
     ref?: React.Ref<HTMLSelectElement>;
   }

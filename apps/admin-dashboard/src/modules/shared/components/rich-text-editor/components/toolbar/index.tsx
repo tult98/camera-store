@@ -26,10 +26,7 @@ interface ToolbarProps {
   onError?: (error: string) => void;
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({
-  editor,
-  disabled = false,
-}) => {
+export const Toolbar: React.FC<ToolbarProps> = ({ editor, disabled = false }) => {
   const [showLinkModal, setShowLinkModal] = useState(false);
 
   const handleLinkClick = () => {
@@ -50,22 +47,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
     if (selectedText) {
       // Update existing selection with link
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange('link')
-        .setLink({ href: url })
-        .run();
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
     } else {
       // Insert new link with text
       editor
         .chain()
         .focus()
-        .insertContent(
-          `<a href="${url}" target="_blank" rel="noopener noreferrer">${
-            text || url
-          }</a>`
-        )
+        .insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${text || url}</a>`)
         .run();
     }
     setShowLinkModal(false);
@@ -176,14 +164,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           {/* Alignment Group */}
           <ToolbarButton
             icon={() => (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="17" y1="10" x2="3" y2="10"></line>
                 <line x1="21" y1="6" x2="3" y2="6"></line>
                 <line x1="21" y1="14" x2="3" y2="14"></line>
@@ -191,18 +172,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </svg>
             )}
             title="Align Left"
-            isActive={
-              editor.isActive({ textAlign: 'left' }) ||
-              editor.isActive('image', { align: 'left' })
-            }
+            isActive={editor.isActive({ textAlign: 'left' }) || editor.isActive('image', { align: 'left' })}
             disabled={disabled}
             onClick={() => {
               if (editor.isActive('image')) {
-                editor
-                  .chain()
-                  .focus()
-                  .updateAttributes('image', { align: 'left' })
-                  .run();
+                editor.chain().focus().updateAttributes('image', { align: 'left' }).run();
               } else {
                 editor.chain().focus().setTextAlign('left').run();
               }
@@ -210,14 +184,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
           <ToolbarButton
             icon={() => (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="18" y1="10" x2="6" y2="10"></line>
                 <line x1="21" y1="6" x2="3" y2="6"></line>
                 <line x1="21" y1="14" x2="3" y2="14"></line>
@@ -225,18 +192,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </svg>
             )}
             title="Align Center"
-            isActive={
-              editor.isActive({ textAlign: 'center' }) ||
-              editor.isActive('image', { align: 'center' })
-            }
+            isActive={editor.isActive({ textAlign: 'center' }) || editor.isActive('image', { align: 'center' })}
             disabled={disabled}
             onClick={() => {
               if (editor.isActive('image')) {
-                editor
-                  .chain()
-                  .focus()
-                  .updateAttributes('image', { align: 'center' })
-                  .run();
+                editor.chain().focus().updateAttributes('image', { align: 'center' }).run();
               } else {
                 editor.chain().focus().setTextAlign('center').run();
               }
@@ -244,14 +204,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
           <ToolbarButton
             icon={() => (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="21" y1="10" x2="7" y2="10"></line>
                 <line x1="21" y1="6" x2="3" y2="6"></line>
                 <line x1="21" y1="14" x2="3" y2="14"></line>
@@ -259,18 +212,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </svg>
             )}
             title="Align Right"
-            isActive={
-              editor.isActive({ textAlign: 'right' }) ||
-              editor.isActive('image', { align: 'right' })
-            }
+            isActive={editor.isActive({ textAlign: 'right' }) || editor.isActive('image', { align: 'right' })}
             disabled={disabled}
             onClick={() => {
               if (editor.isActive('image')) {
-                editor
-                  .chain()
-                  .focus()
-                  .updateAttributes('image', { align: 'right' })
-                  .run();
+                editor.chain().focus().updateAttributes('image', { align: 'right' }).run();
               } else {
                 editor.chain().focus().setTextAlign('right').run();
               }
@@ -278,14 +224,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           />
           <ToolbarButton
             icon={() => (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="21" y1="10" x2="3" y2="10"></line>
                 <line x1="21" y1="6" x2="3" y2="6"></line>
                 <line x1="21" y1="14" x2="3" y2="14"></line>
@@ -293,18 +232,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </svg>
             )}
             title="Justify"
-            isActive={
-              editor.isActive({ textAlign: 'justify' }) ||
-              editor.isActive('image', { align: 'justify' })
-            }
+            isActive={editor.isActive({ textAlign: 'justify' }) || editor.isActive('image', { align: 'justify' })}
             disabled={disabled}
             onClick={() => {
               if (editor.isActive('image')) {
-                editor
-                  .chain()
-                  .focus()
-                  .updateAttributes('image', { align: 'justify' })
-                  .run();
+                editor.chain().focus().updateAttributes('image', { align: 'justify' }).run();
               } else {
                 editor.chain().focus().setTextAlign('justify').run();
               }

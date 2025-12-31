@@ -14,15 +14,11 @@ export interface CreateProductPayload {
   options: AdminCreateProductOption[];
 }
 
-export const transformFormDataToPayload = (
-  formData: ProductSchemaType
-): CreateProductPayload => {
+export const transformFormDataToPayload = (formData: ProductSchemaType): CreateProductPayload => {
   const options =
     formData?.options && formData.options.length > 0
       ? formData.options
-      : ([
-          { title: 'Default option', values: ['Default option value'] },
-        ] as AdminCreateProductOption[]);
+      : ([{ title: 'Default option', values: ['Default option value'] }] as AdminCreateProductOption[]);
 
   return {
     ...formData,
@@ -31,9 +27,7 @@ export const transformFormDataToPayload = (
   };
 };
 
-export const transformDataToUpdateProductPayload = (
-  formData: ProductSchemaType
-) => {
+export const transformDataToUpdateProductPayload = (formData: ProductSchemaType) => {
   return {
     categories: formData.category_ids?.map((id) => ({ id })),
     status: formData.status,
@@ -58,10 +52,7 @@ export const createProduct = async (formData: ProductSchemaType) => {
   return await sdk.admin.product.create(payload);
 };
 
-export const updateProduct = async (
-  productId: string,
-  formData: ProductSchemaType
-) => {
+export const updateProduct = async (productId: string, formData: ProductSchemaType) => {
   const payload = {
     title: formData.title,
     subtitle: formData.subtitle,
@@ -105,9 +96,6 @@ export const deleteProduct = async (id: string) => {
   return { id };
 };
 
-export const updateProductMetadata = async (
-  productId: string,
-  metadata: Record<string, unknown>
-) => {
+export const updateProductMetadata = async (productId: string, metadata: Record<string, unknown>) => {
   return await sdk.admin.product.update(productId, { metadata });
 };

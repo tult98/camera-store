@@ -44,7 +44,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
       createdAt: Date.now(),
     };
 
-    setToasts(prev => [...prev, toast]);
+    setToasts((prev) => [...prev, toast]);
 
     // Auto-remove toast after duration
     if (toast.autoClose) {
@@ -57,7 +57,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
   }, []);
 
   const hideToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
   const clearAllToasts = useCallback(() => {
@@ -71,11 +71,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
     clearAllToasts,
   };
 
-  return (
-    <ToastContext.Provider value={value}>
-      {children}
-    </ToastContext.Provider>
-  );
+  return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
 }
 
 export function useToastContext() {

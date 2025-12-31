@@ -87,8 +87,7 @@ export class ProductCrawlProcessor extends WorkerHost {
         const htmlDescription = this.generateHtmlDescription(productData);
         productData.seoDescription = htmlDescription;
       } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error occurred';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         this.logger.warn(`HTML description generation failed: ${errorMessage}`);
       }
 
@@ -115,8 +114,7 @@ export class ProductCrawlProcessor extends WorkerHost {
       if (browser) {
         await browser.close();
       }
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(`Product crawl failed: ${errorMessage}`, errorStack);
       throw error;
@@ -130,10 +128,7 @@ export class ProductCrawlProcessor extends WorkerHost {
 
   @OnWorkerEvent('failed')
   onFailed(job: Job, error: Error) {
-    this.logger.error(
-      `Job ${job.id} failed with error: ${error.message}`,
-      error.stack
-    );
+    this.logger.error(`Job ${job.id} failed with error: ${error.message}`, error.stack);
   }
 
   private delay(ms: number): Promise<void> {
@@ -200,34 +195,22 @@ export class ProductCrawlProcessor extends WorkerHost {
     return page;
   }
 
-  private async extractProductData(
-    page: Page
-  ): Promise<Omit<ProductData, 'url'>> {
+  private async extractProductData(page: Page): Promise<Omit<ProductData, 'url'>> {
     return await page.evaluate(() => {
-      const titleElement = document.querySelector(
-        'h1[data-selenium="productTitle"]'
-      );
+      const titleElement = document.querySelector('h1[data-selenium="productTitle"]');
       const title = titleElement?.textContent?.trim() || '';
 
       const extractKeySpecs = (): Record<string, string> => {
         const specs: Record<string, string> = {};
 
-        const specsTable = document.querySelector(
-          'table[data-selenium="specsItemGroupTable"]'
-        );
+        const specsTable = document.querySelector('table[data-selenium="specsItemGroupTable"]');
         if (!specsTable) return specs;
 
-        const keySpecRows = specsTable.querySelectorAll(
-          'tr[class*="keySpec_"]'
-        );
+        const keySpecRows = specsTable.querySelectorAll('tr[class*="keySpec_"]');
 
         keySpecRows.forEach((row) => {
-          const labelCell = row.querySelector(
-            'td[data-selenium="specsItemGroupTableColumnLabel"]'
-          );
-          const valueCell = row.querySelector(
-            'td[data-selenium="specsItemGroupTableColumnValue"]'
-          );
+          const labelCell = row.querySelector('td[data-selenium="specsItemGroupTableColumnLabel"]');
+          const valueCell = row.querySelector('td[data-selenium="specsItemGroupTableColumnValue"]');
 
           if (!labelCell || !valueCell) return;
 
@@ -260,19 +243,13 @@ export class ProductCrawlProcessor extends WorkerHost {
       const parseDescriptionFeatures = (containerElement: Element): BrowserDescriptionFeature[] => {
         const features: BrowserDescriptionFeature[] = [];
 
-        const wrapperDiv = containerElement.querySelector(
-          'div[class*="feature_"]'
-        );
+        const wrapperDiv = containerElement.querySelector('div[class*="feature_"]');
         if (!wrapperDiv) return features;
 
-        const featureBlocks = wrapperDiv.querySelectorAll(
-          ':scope > div[class*="feature_"]'
-        );
+        const featureBlocks = wrapperDiv.querySelectorAll(':scope > div[class*="feature_"]');
 
         featureBlocks.forEach((block) => {
-          const headerElement = block.querySelector(
-            'div[class*="featureHeader_"] div[class*="sizeTitle"]'
-          );
+          const headerElement = block.querySelector('div[class*="featureHeader_"] div[class*="sizeTitle"]');
           if (!headerElement) return;
 
           const header = headerElement.textContent?.trim() || '';
@@ -284,16 +261,13 @@ export class ProductCrawlProcessor extends WorkerHost {
             ? 4
             : 2;
 
-          const contentElements = block.querySelectorAll(
-            'div[class*="js-injected-html"][class*="text_"]'
-          );
+          const contentElements = block.querySelectorAll('div[class*="js-injected-html"][class*="text_"]');
           let content = '';
           contentElements.forEach((el) => {
             const htmlContent = el.innerHTML.trim();
             if (htmlContent && !el.closest('div[class*="featureHeader_"]')) {
               const nestedFeatureParent = el.closest('div[class*="feature_"]');
-              const isInNestedFeature =
-                nestedFeatureParent && nestedFeatureParent !== block;
+              const isInNestedFeature = nestedFeatureParent && nestedFeatureParent !== block;
 
               if (!isInNestedFeature) {
                 content += (content ? '\n\n' : '') + htmlContent;
@@ -304,25 +278,18 @@ export class ProductCrawlProcessor extends WorkerHost {
           let media: any = null;
           const mediaContainer = block.querySelector('div[class*="media_"]');
           if (mediaContainer) {
-            const mediaFeatureParent = mediaContainer.closest(
-              'div[class*="feature_"]'
-            );
-            const isMediaInNestedFeature =
-              mediaFeatureParent && mediaFeatureParent !== block;
+            const mediaFeatureParent = mediaContainer.closest('div[class*="feature_"]');
+            const isMediaInNestedFeature = mediaFeatureParent && mediaFeatureParent !== block;
 
             if (!isMediaInNestedFeature) {
-              const parentDiv = mediaContainer.closest(
-                'div[class*="hasRightMedia_"], div[class*="hasLeftMedia_"]'
-              );
+              const parentDiv = mediaContainer.closest('div[class*="hasRightMedia_"], div[class*="hasLeftMedia_"]');
               const position = parentDiv?.className.includes('hasRightMedia_')
                 ? 'right'
                 : parentDiv?.className.includes('hasLeftMedia_')
                 ? 'left'
                 : 'inline';
 
-              const videoIframe = mediaContainer.querySelector(
-                'iframe[src*="youtube.com"]'
-              );
+              const videoIframe = mediaContainer.querySelector('iframe[src*="youtube.com"]');
               if (videoIframe) {
                 const src = videoIframe.getAttribute('src');
                 if (src) {
@@ -337,9 +304,7 @@ export class ProductCrawlProcessor extends WorkerHost {
                 if (img) {
                   const src = img.getAttribute('src');
                   if (src) {
-                    const fullSrc = src.startsWith('http')
-                      ? src
-                      : `https:${src}`;
+                    const fullSrc = src.startsWith('http') ? src : `https:${src}`;
                     media = {
                       type: 'image',
                       url: fullSrc,
@@ -352,13 +317,9 @@ export class ProductCrawlProcessor extends WorkerHost {
           }
 
           const subFeatures: any[] = [];
-          const nestedFeatures = block.querySelectorAll(
-            ':scope > div[class*="feature_"]'
-          );
+          const nestedFeatures = block.querySelectorAll(':scope > div[class*="feature_"]');
           nestedFeatures.forEach((nested) => {
-            const nestedHeader = nested.querySelector(
-              'div[class*="featureHeader_"] div[class*="sizeTitle"]'
-            );
+            const nestedHeader = nested.querySelector('div[class*="featureHeader_"] div[class*="sizeTitle"]');
 
             const nestedHeaderText = nestedHeader?.textContent?.trim() || '';
             const nestedHeaderLevel = nestedHeader
@@ -369,18 +330,13 @@ export class ProductCrawlProcessor extends WorkerHost {
                 : 3
               : 3;
 
-            const nestedContentElements = nested.querySelectorAll(
-              'div[class*="js-injected-html"][class*="text_"]'
-            );
+            const nestedContentElements = nested.querySelectorAll('div[class*="js-injected-html"][class*="text_"]');
             let nestedContent = '';
             nestedContentElements.forEach((el) => {
               const htmlContent = el.innerHTML.trim();
               if (htmlContent && !el.closest('div[class*="featureHeader_"]')) {
-                const deeperFeatureParent = el.closest(
-                  'div[class*="feature_"]'
-                );
-                const isInDeeperFeature =
-                  deeperFeatureParent && deeperFeatureParent !== nested;
+                const deeperFeatureParent = el.closest('div[class*="feature_"]');
+                const isInDeeperFeature = deeperFeatureParent && deeperFeatureParent !== nested;
 
                 if (!isInDeeperFeature) {
                   nestedContent += (nestedContent ? '\n\n' : '') + htmlContent;
@@ -389,15 +345,10 @@ export class ProductCrawlProcessor extends WorkerHost {
             });
 
             let nestedMedia: any = null;
-            const nestedMediaContainer = nested.querySelector(
-              'div[class*="media_"]'
-            );
+            const nestedMediaContainer = nested.querySelector('div[class*="media_"]');
             if (nestedMediaContainer) {
-              const mediaFeatureParent = nestedMediaContainer.closest(
-                'div[class*="feature_"]'
-              );
-              const isMediaInDeeperFeature =
-                mediaFeatureParent && mediaFeatureParent !== nested;
+              const mediaFeatureParent = nestedMediaContainer.closest('div[class*="feature_"]');
+              const isMediaInDeeperFeature = mediaFeatureParent && mediaFeatureParent !== nested;
 
               if (!isMediaInDeeperFeature) {
                 const parentDiv = nestedMediaContainer.closest(
@@ -409,9 +360,7 @@ export class ProductCrawlProcessor extends WorkerHost {
                   ? 'left'
                   : 'inline';
 
-                const videoIframe = nestedMediaContainer.querySelector(
-                  'iframe[src*="youtube.com"]'
-                );
+                const videoIframe = nestedMediaContainer.querySelector('iframe[src*="youtube.com"]');
                 if (videoIframe) {
                   const src = videoIframe.getAttribute('src');
                   if (src) {
@@ -426,9 +375,7 @@ export class ProductCrawlProcessor extends WorkerHost {
                   if (img) {
                     const src = img.getAttribute('src');
                     if (src) {
-                      const fullSrc = src.startsWith('http')
-                        ? src
-                        : `https:${src}`;
+                      const fullSrc = src.startsWith('http') ? src : `https:${src}`;
                       nestedMedia = {
                         type: 'image',
                         url: fullSrc,
@@ -462,9 +409,7 @@ export class ProductCrawlProcessor extends WorkerHost {
       };
 
       const descElement = document.querySelector('article');
-      const description = descElement
-        ? parseDescriptionFeatures(descElement)
-        : [];
+      const description = descElement ? parseDescriptionFeatures(descElement) : [];
 
       const specs = extractKeySpecs();
 
@@ -518,19 +463,11 @@ export class ProductCrawlProcessor extends WorkerHost {
   private createS3ConfigFromEnv(): S3UploadConfig {
     const endpoint = this.configService.get<string>('S3_ENDPOINT');
     const accessKeyId = this.configService.get<string>('S3_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>(
-      'S3_SECRET_ACCESS_KEY'
-    );
+    const secretAccessKey = this.configService.get<string>('S3_SECRET_ACCESS_KEY');
     const bucketName = this.configService.get<string>('S3_BUCKET');
     const publicUrl = this.configService.get<string>('S3_FILE_URL');
 
-    if (
-      !endpoint ||
-      !accessKeyId ||
-      !secretAccessKey ||
-      !bucketName ||
-      !publicUrl
-    ) {
+    if (!endpoint || !accessKeyId || !secretAccessKey || !bucketName || !publicUrl) {
       throw new Error(
         'Missing required S3 environment variables: S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET, S3_FILE_URL'
       );
@@ -546,17 +483,11 @@ export class ProductCrawlProcessor extends WorkerHost {
     };
   }
 
-  private async uploadImageFromUrl(
-    s3Client: S3Client,
-    config: S3UploadConfig,
-    imageUrl: string
-  ): Promise<string> {
+  private async uploadImageFromUrl(s3Client: S3Client, config: S3UploadConfig, imageUrl: string): Promise<string> {
     const response = await fetch(imageUrl);
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to download image: ${imageUrl} (status: ${response.status})`
-      );
+      throw new Error(`Failed to download image: ${imageUrl} (status: ${response.status})`);
     }
 
     const buffer = Buffer.from(await response.arrayBuffer());
@@ -582,18 +513,10 @@ export class ProductCrawlProcessor extends WorkerHost {
     return publicUrl;
   }
 
-  private async processFeature(
-    feature: DescriptionFeature,
-    s3Client: S3Client,
-    config: S3UploadConfig
-  ): Promise<void> {
+  private async processFeature(feature: DescriptionFeature, s3Client: S3Client, config: S3UploadConfig): Promise<void> {
     if (feature.media) {
       if (feature.media.type === 'image') {
-        const newUrl = await this.uploadImageFromUrl(
-          s3Client,
-          config,
-          feature.media.url
-        );
+        const newUrl = await this.uploadImageFromUrl(s3Client, config, feature.media.url);
         feature.media.url = newUrl;
       }
     }
@@ -648,10 +571,7 @@ export class ProductCrawlProcessor extends WorkerHost {
 
   private renderFeature(feature: DescriptionFeature): string {
     const headingTag = `h${feature.headerLevel}`;
-    const headerClass =
-      feature.headerLevel === 2
-        ? 'product-description-header'
-        : 'product-description-subheader';
+    const headerClass = feature.headerLevel === 2 ? 'product-description-header' : 'product-description-subheader';
 
     const contentClass = feature.media
       ? `product-description-content-${feature.media.position}`
@@ -699,12 +619,8 @@ export class ProductCrawlProcessor extends WorkerHost {
 </section>`;
   }
 
-  private generateHtmlDescription(
-    productData: Pick<ProductData, 'description'>
-  ): string {
-    const featuresHtml = productData.description
-      .map((f) => this.renderFeature(f))
-      .join('\n');
+  private generateHtmlDescription(productData: Pick<ProductData, 'description'>): string {
+    const featuresHtml = productData.description.map((f) => this.renderFeature(f)).join('\n');
 
     return `<article class='product-description'>
   ${featuresHtml}

@@ -1,9 +1,4 @@
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  XCircleIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/solid';
+import { CheckCircleIcon, ExclamationCircleIcon, XCircleIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import { Toast as ToastType } from '@modules/shared/providers/toast-provider';
 import { cn } from '@modules/shared/utils/cn';
 

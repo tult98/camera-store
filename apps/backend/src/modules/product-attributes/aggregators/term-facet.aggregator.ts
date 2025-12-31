@@ -1,5 +1,5 @@
-import type { FacetConfig } from "../models/attribute-template";
-import type { FacetAggregation } from "../types/facet.types";
+import type { FacetConfig } from '../models/attribute-template';
+import type { FacetAggregation } from '../types/facet.types';
 
 /**
  * Aggregates term-based facets (categorical values like brand, color, etc.)
@@ -44,7 +44,7 @@ export function aggregateTermFacet(
   return {
     facet_key: key,
     facet_label: label,
-    aggregation_type: "term",
+    aggregation_type: 'term',
     display_type: config.display_type,
     values,
     ui_config: {

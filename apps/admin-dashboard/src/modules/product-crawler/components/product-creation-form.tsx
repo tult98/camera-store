@@ -8,10 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import {
-  createProductFromCrawl,
-  updateProductFromCrawl,
-} from '../apiCalls/products';
+import { createProductFromCrawl, updateProductFromCrawl } from '../apiCalls/products';
 import type { ProductData } from '../types/crawler.types';
 
 interface ProductCreationFormProps {
@@ -38,9 +35,7 @@ const productCreationSchema = z
 
 type FormData = z.infer<typeof productCreationSchema>;
 
-export const ProductCreationForm: React.FC<ProductCreationFormProps> = ({
-  productData,
-}) => {
+export const ProductCreationForm: React.FC<ProductCreationFormProps> = ({ productData }) => {
   const { success, error: showError } = useToast();
   const queryClient = useQueryClient();
   const { control, handleSubmit, watch } = useForm<FormData>({
@@ -62,10 +57,7 @@ export const ProductCreationForm: React.FC<ProductCreationFormProps> = ({
       success('Product created successfully');
     },
     onError: (error: Error) => {
-      showError(
-        'Failed to create product',
-        error.message || 'Please try again.'
-      );
+      showError('Failed to create product', error.message || 'Please try again.');
     },
   });
 
@@ -77,10 +69,7 @@ export const ProductCreationForm: React.FC<ProductCreationFormProps> = ({
       success('Product updated successfully');
     },
     onError: (error: Error) => {
-      showError(
-        'Failed to update product',
-        error.message || 'Please try again.'
-      );
+      showError('Failed to update product', error.message || 'Please try again.');
     },
   });
 
@@ -124,9 +113,7 @@ export const ProductCreationForm: React.FC<ProductCreationFormProps> = ({
         )}
 
         <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">
-            Crawled Product Data (Preview)
-          </h3>
+          <h3 className="text-sm font-medium text-gray-700 mb-2">Crawled Product Data (Preview)</h3>
           <JsonView
             src={productData}
             collapsed={true}
@@ -148,9 +135,7 @@ export const ProductCreationForm: React.FC<ProductCreationFormProps> = ({
             disabled={isLoading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
-            {isLoading && (
-              <LoadingIcon size="md" color="white" className="mr-2" />
-            )}
+            {isLoading && <LoadingIcon size="md" color="white" className="mr-2" />}
             {isLoading
               ? mode === 'create'
                 ? 'Creating...'

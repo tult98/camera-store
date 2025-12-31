@@ -1,14 +1,7 @@
-import { Input, Label, Switch, Textarea } from "@medusajs/ui";
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormRegister,
-  UseFormSetValue,
-  UseFormWatch,
-} from "react-hook-form";
-import { useEffect } from "react";
-import { AttributeTemplateFormData } from "../../schemas/attribute-template.schema";
+import { Input, Label, Switch, Textarea } from '@medusajs/ui';
+import { Control, Controller, FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { useEffect } from 'react';
+import { AttributeTemplateFormData } from '../../schemas/attribute-template.schema';
 
 interface BasicInformationSectionProps {
   register: UseFormRegister<AttributeTemplateFormData>;
@@ -33,12 +26,12 @@ export const BasicInformationSection = ({
   setValue,
   watch,
 }: BasicInformationSectionProps) => {
-  const templateName = watch("name");
+  const templateName = watch('name');
 
   useEffect(() => {
     if (templateName) {
       const generatedCode = generateCodeFromName(templateName);
-      setValue("code", generatedCode);
+      setValue('code', generatedCode);
     }
   }, [templateName, setValue]);
   return (
@@ -50,16 +43,10 @@ export const BasicInformationSection = ({
           <Label htmlFor="name">
             Template Name <span className="text-red-500">*</span>
           </Label>
-          <Input
-            id="name"
-            {...register("name")}
-            placeholder="e.g., Camera Attributes"
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-          )}
+          <Input id="name" {...register('name')} placeholder="e.g., Camera Attributes" />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
           <div className="text-xs text-gray-500 mt-1">
-            Generated key:{" "}
+            Generated key:{' '}
             <code className="bg-gray-100 px-1 rounded">
               {templateName ? generateCodeFromName(templateName) : 'e.g., camera_attributes'}
             </code>
@@ -70,13 +57,7 @@ export const BasicInformationSection = ({
           <Controller
             name="is_active"
             control={control}
-            render={({ field }) => (
-              <Switch
-                id="is_active"
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            )}
+            render={({ field }) => <Switch id="is_active" checked={field.value} onCheckedChange={field.onChange} />}
           />
           <Label htmlFor="is_active">Active</Label>
         </div>
@@ -84,11 +65,7 @@ export const BasicInformationSection = ({
 
       <div className="mt-4">
         <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          {...register("description")}
-          placeholder="Optional description for this template"
-        />
+        <Textarea id="description" {...register('description')} placeholder="Optional description for this template" />
       </div>
     </div>
   );

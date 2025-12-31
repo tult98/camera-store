@@ -8,19 +8,18 @@ export async function apiClient<T = any>(
   options?: FetchOptions
 ): Promise<T> {
   const region = await getDefaultRegion()
-  
+
   const headers: Record<string, string> = {
-    ...(options?.headers as Record<string, string> || {}),
+    ...((options?.headers as Record<string, string>) || {}),
   }
-  
+
   if (region) {
     headers["region_id"] = region.id
     headers["currency_code"] = region.currency_code
   }
-  
+
   return sdk.client.fetch<T>(path, {
     ...options,
     headers,
   })
 }
-

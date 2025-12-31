@@ -3,15 +3,19 @@ import { FacetAggregation, ApiFilters } from "../../types"
 interface ToggleFilterProps {
   facet: FacetAggregation
   filters: ApiFilters
-  onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  onToggleFilter: (
+    filterType: keyof ApiFilters,
+    key: string,
+    value?: string
+  ) => void
   facetsLoading?: boolean
 }
 
-export default function ToggleFilter({ 
-  facet, 
-  filters, 
+export default function ToggleFilter({
+  facet,
+  filters,
   onToggleFilter,
-  facetsLoading = false
+  facetsLoading = false,
 }: ToggleFilterProps) {
   if (!Array.isArray(facet.values)) return null
 

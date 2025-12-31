@@ -25,14 +25,7 @@ export function toPaginatedResponse<T>(params: {
   dataKey?: string;
   estimate_count?: number;
 }): PaginatedResponse<Record<string, T[]>> {
-  const {
-    data,
-    count,
-    limit,
-    offset,
-    dataKey = 'items',
-    estimate_count,
-  } = params;
+  const { data, count, limit, offset, dataKey = 'items', estimate_count } = params;
 
   return {
     [dataKey]: data,

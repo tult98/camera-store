@@ -37,11 +37,7 @@ export const ToolbarButton: React.FC<ToolbarButtonProps> = ({
       )}
       aria-pressed={isActive}
     >
-      {typeof Icon === 'function' && Icon.length === 0 ? (
-        <Icon />
-      ) : (
-        <Icon className="w-4 h-4" />
-      )}
+      {typeof Icon === 'function' && Icon.length === 0 ? <Icon /> : <Icon className="w-4 h-4" />}
     </button>
   );
 };

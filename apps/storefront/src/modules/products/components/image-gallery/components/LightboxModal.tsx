@@ -1,9 +1,13 @@
 import Image from "next/image"
-import { Swiper, SwiperSlide } from 'swiper/react'
+import { Swiper, SwiperSlide } from "swiper/react"
 import { XMarkIcon } from "@heroicons/react/24/outline"
-import { LightboxModalProps } from '../types'
-import { SWIPER_MODULES, LIGHTBOX_SWIPER_CONFIG } from '../constants'
-import { useKeyboardNavigation, useBodyScrollLock, useSwiperRefs } from '../hooks'
+import { LightboxModalProps } from "../types"
+import { SWIPER_MODULES, LIGHTBOX_SWIPER_CONFIG } from "../constants"
+import {
+  useKeyboardNavigation,
+  useBodyScrollLock,
+  useSwiperRefs,
+} from "../hooks"
 
 export const LightboxModal = ({
   isOpen,
@@ -12,13 +16,13 @@ export const LightboxModal = ({
   onClose,
 }: LightboxModalProps) => {
   const { lightboxSwiperRef } = useSwiperRefs()
-  
+
   useKeyboardNavigation({
     isActive: isOpen,
     onClose,
     swiperRef: lightboxSwiperRef,
   })
-  
+
   useBodyScrollLock(isOpen)
 
   if (!isOpen) return null
@@ -53,7 +57,10 @@ export const LightboxModal = ({
           className="w-full h-full"
         >
           {images.map((image, index) => (
-            <SwiperSlide key={`lightbox-${image.id}`} className="flex items-center justify-center">
+            <SwiperSlide
+              key={`lightbox-${image.id}`}
+              className="flex items-center justify-center"
+            >
               <div className="swiper-zoom-container">
                 {image.url && (
                   <Image

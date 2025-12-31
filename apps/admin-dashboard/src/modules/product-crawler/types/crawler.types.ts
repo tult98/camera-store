@@ -38,15 +38,7 @@ export interface JobResult {
 
 export interface JobStatusResponse {
   id: string;
-  state:
-    | 'waiting'
-    | 'active'
-    | 'completed'
-    | 'failed'
-    | 'delayed'
-    | 'waiting-children'
-    | 'prioritized'
-    | 'unknown';
+  state: 'waiting' | 'active' | 'completed' | 'failed' | 'delayed' | 'waiting-children' | 'prioritized' | 'unknown';
   result?: JobResult;
   failedReason?: string;
 }

@@ -21,18 +21,14 @@ interface FetchAttributeTemplatesResponse {
   offset: number;
 }
 
-export const fetchAttributeTemplates =
-  async (): Promise<FetchAttributeTemplatesResponse> => {
-    const response = await sdk.client.fetch<FetchAttributeTemplatesResponse>(
-      '/admin/attribute-templates',
-      {
-        method: 'GET',
-        query: {
-          limit: 100,
-          offset: 0,
-        },
-      }
-    );
+export const fetchAttributeTemplates = async (): Promise<FetchAttributeTemplatesResponse> => {
+  const response = await sdk.client.fetch<FetchAttributeTemplatesResponse>('/admin/attribute-templates', {
+    method: 'GET',
+    query: {
+      limit: 100,
+      offset: 0,
+    },
+  });
 
-    return response;
-  };
+  return response;
+};

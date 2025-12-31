@@ -34,11 +34,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
         {/* Logo Section */}
         <div className="h-16 border-b border-gray-200 flex items-center px-6">
-          <img
-            src="/logo.png"
-            alt="PH Camera - Admin Dashboard"
-            className="h-10 w-auto object-contain"
-          />
+          <img src="/logo.png" alt="PH Camera - Admin Dashboard" className="h-10 w-auto object-contain" />
         </div>
 
         {/* Navigation Area */}
@@ -49,16 +45,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 const isExactMatch = item.path && location.pathname === item.path;
                 const isChildActive = item.children?.some(
                   (child) =>
-                    child.path && (location.pathname === child.path ||
-                    location.pathname.startsWith(child.path + '/'))
+                    child.path && (location.pathname === child.path || location.pathname.startsWith(child.path + '/'))
                 );
-                return (
-                  <NavigationItem
-                    key={item.id}
-                    item={item}
-                    isActive={Boolean(isExactMatch || isChildActive)}
-                  />
-                );
+                return <NavigationItem key={item.id} item={item} isActive={Boolean(isExactMatch || isChildActive)} />;
               })}
             </div>
           </nav>
@@ -75,11 +64,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               {isLoading ? (
                 <div className="w-full h-full bg-gray-200 animate-pulse" />
               ) : user?.avatar_url ? (
-                <img
-                  src={user.avatar_url}
-                  alt={user.first_name || 'User'}
-                  className="w-full h-full object-cover"
-                />
+                <img src={user.avatar_url} alt={user.first_name || 'User'} className="w-full h-full object-cover" />
               ) : (
                 <UserIcon className="w-full h-full text-gray-600" />
               )}
@@ -94,22 +79,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </>
               ) : (
                 <>
-                  <div className="text-sm font-medium text-gray-900">
-                    {getFullName(user)}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {user?.email || 'Loading...'}
-                  </div>
+                  <div className="text-sm font-medium text-gray-900">{getFullName(user)}</div>
+                  <div className="text-xs text-gray-500">{user?.email || 'Loading...'}</div>
                 </>
               )}
             </div>
           </button>
 
           {/* Dropdown Menu */}
-          <UserProfileDropdown
-            isOpen={dropdownOpen}
-            onClose={() => setDropdownOpen(false)}
-          />
+          <UserProfileDropdown isOpen={dropdownOpen} onClose={() => setDropdownOpen(false)} />
         </div>
       </div>
 

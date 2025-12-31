@@ -13,10 +13,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   });
 };
 
-export const PUT = async (
-  req: MedusaRequest<PutUpdateBrandType>,
-  res: MedusaResponse
-) => {
+export const PUT = async (req: MedusaRequest<PutUpdateBrandType>, res: MedusaResponse) => {
   const brandModuleService = req.scope.resolve(BRAND_MODULE);
   const { id } = req.params;
 

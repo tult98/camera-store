@@ -38,9 +38,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
         subtitle: initialData.subtitle || '',
         handle: initialData.handle || '',
         description: initialData.description || '',
-        images:
-          initialData.images?.map((img) => ({ id: img.id, url: img.url })) ||
-          [],
+        images: initialData.images?.map((img) => ({ id: img.id, url: img.url })) || [],
         thumbnail: initialData.thumbnail || '',
         options:
           initialData.options?.map((opt) => ({
@@ -87,14 +85,10 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     onSuccess: (response) => {
       setProduct(response.product);
       queryClient.invalidateQueries({ queryKey: ['products'] });
-      toast.success(
-        `Product created`,
-        `"${title}" has been created successfully`
-      );
+      toast.success(`Product created`, `"${title}" has been created successfully`);
     },
     onError: (error) => {
-      const errorMessage =
-        error.message || 'Failed to create product. Please try again.';
+      const errorMessage = error.message || 'Failed to create product. Please try again.';
       toast.error('Error', errorMessage);
     },
   });
@@ -104,18 +98,14 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     onSuccess: (response) => {
       setProduct({
         categories: initialData?.categories,
-        ...response.product
+        ...response.product,
       });
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', productId] });
-      toast.success(
-        `Product updated`,
-        `"${title}" has been updated successfully`
-      );
+      toast.success(`Product updated`, `"${title}" has been updated successfully`);
     },
     onError: (error) => {
-      const errorMessage =
-        error.message || 'Failed to update product. Please try again.';
+      const errorMessage = error.message || 'Failed to update product. Please try again.';
       toast.error('Error', errorMessage);
     },
   });
@@ -129,9 +119,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
     setValue('handle', generateHandle(title));
   }, [title, setValue]);
 
-  const handleImagesUpdate = (
-    updatedImages: Array<{ id?: string; url: string }>
-  ) => {
+  const handleImagesUpdate = (updatedImages: Array<{ id?: string; url: string }>) => {
     setValue('images', updatedImages);
   };
 
@@ -140,9 +128,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
   };
 
   const handleDeleteImages = (imageIds: string[]) => {
-    const updatedImages = images?.filter(
-      (img) => !imageIds.includes(img.id || img.url)
-    );
+    const updatedImages = images?.filter((img) => !imageIds.includes(img.id || img.url));
     setValue('images', updatedImages || []);
   };
 
@@ -158,9 +144,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
-          Product Basics & Media
-        </h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Product Basics & Media</h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -173,13 +157,7 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
               required={true}
             />
 
-            <FormInput
-              name="handle"
-              control={control}
-              type="text"
-              label="Handle"
-              disabled={isSubmitting}
-            />
+            <FormInput name="handle" control={control} type="text" label="Handle" disabled={isSubmitting} />
           </div>
 
           <FormInput
@@ -207,19 +185,14 @@ export const ProductBasicsStep: React.FC<ProductBasicsStepProps> = ({
             onMakeThumbnail={handleThumbnailUpdate}
             onDeleteImages={handleDeleteImages}
           />
-          <ProductOptionsSection
-            control={control}
-            isSubmitting={isSubmitting}
-          />
+          <ProductOptionsSection control={control} isSubmitting={isSubmitting} />
           <div className="flex justify-end items-center pt-6 mt-6 border-t border-gray-200">
             <button
               type="submit"
               disabled={isSubmitting}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              {isSubmitting && (
-                <LoadingIcon size="sm" color="white" className="mr-2" />
-              )}
+              {isSubmitting && <LoadingIcon size="sm" color="white" className="mr-2" />}
               {isEditMode ? 'Save Changes' : 'Save & Continue'}
             </button>
           </div>

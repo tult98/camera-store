@@ -1,14 +1,9 @@
-import { Input, Label, Select } from "@medusajs/ui";
-import { useEffect, useState } from "react";
-import {
-  Control,
-  Controller,
-  UseFormSetValue,
-  UseFormWatch,
-} from "react-hook-form";
-import { AttributeTemplateFormData } from "../../schemas/attribute-template.schema";
-import { FieldWithTooltip } from "../../../../components/tooltip-icon";
-import { ATTRIBUTE_TOOLTIPS } from "../../../../constants/tooltip-content";
+import { Input, Label, Select } from '@medusajs/ui';
+import { useEffect, useState } from 'react';
+import { Control, Controller, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { AttributeTemplateFormData } from '../../schemas/attribute-template.schema';
+import { FieldWithTooltip } from '../../../../components/tooltip-icon';
+import { ATTRIBUTE_TOOLTIPS } from '../../../../constants/tooltip-content';
 
 interface OptionGroup {
   id: string;
@@ -22,17 +17,11 @@ interface CustomOptionsInputProps {
   placeholder: string;
 }
 
-const CustomOptionsInput = ({
-  value,
-  onChange,
-  placeholder,
-}: CustomOptionsInputProps) => {
-  const [inputValue, setInputValue] = useState(
-    Array.isArray(value) ? value.join(", ") : ""
-  );
+const CustomOptionsInput = ({ value, onChange, placeholder }: CustomOptionsInputProps) => {
+  const [inputValue, setInputValue] = useState(Array.isArray(value) ? value.join(', ') : '');
 
   useEffect(() => {
-    setInputValue(Array.isArray(value) ? value.join(", ") : "");
+    setInputValue(Array.isArray(value) ? value.join(', ') : '');
   }, [value]);
 
   return (
@@ -43,7 +32,7 @@ const CustomOptionsInput = ({
       }}
       onBlur={(e) => {
         const options = e.target.value
-          .split(",")
+          .split(',')
           .map((s) => s.trim())
           .filter(Boolean);
         onChange(options.length > 0 ? options : undefined);
@@ -61,14 +50,8 @@ interface SelectOptionsSectionProps {
   optionGroups: OptionGroup[];
 }
 
-export const SelectOptionsSection = ({
-  index,
-  control,
-  watch,
-  setValue,
-  optionGroups,
-}: SelectOptionsSectionProps) => {
-  if (watch(`attribute_definitions.${index}.type`) !== "select") {
+export const SelectOptionsSection = ({ index, control, watch, setValue, optionGroups }: SelectOptionsSectionProps) => {
+  if (watch(`attribute_definitions.${index}.type`) !== 'select') {
     return null;
   }
 
@@ -76,7 +59,7 @@ export const SelectOptionsSection = ({
     <div className="mt-4 space-y-3">
       <FieldWithTooltip
         label="Option Source"
-        tooltip={{ ...ATTRIBUTE_TOOLTIPS["options"], color: "blue" }}
+        tooltip={{ ...ATTRIBUTE_TOOLTIPS['options'], color: 'blue' }}
         field={
           <div className="flex gap-4">
             <label className="flex items-center space-x-2">
@@ -90,10 +73,7 @@ export const SelectOptionsSection = ({
                     checked={!field.value}
                     onChange={() => {
                       field.onChange(null);
-                      setValue(
-                        `attribute_definitions.${index}.options`,
-                        undefined
-                      );
+                      setValue(`attribute_definitions.${index}.options`, undefined);
                     }}
                   />
                 )}
@@ -110,11 +90,8 @@ export const SelectOptionsSection = ({
                     name={`option_source_${index}`}
                     checked={!!field.value}
                     onChange={() => {
-                      field.onChange("__placeholder__");
-                      setValue(
-                        `attribute_definitions.${index}.options`,
-                        undefined
-                      );
+                      field.onChange('__placeholder__');
+                      setValue(`attribute_definitions.${index}.options`, undefined);
                     }}
                   />
                 )}
@@ -132,21 +109,13 @@ export const SelectOptionsSection = ({
             name={`attribute_definitions.${index}.option_group`}
             control={control}
             render={({ field }) => (
-              <Select
-                value={
-                  field.value === "__placeholder__" ? "" : field.value || ""
-                }
-                onValueChange={field.onChange}
-              >
+              <Select value={field.value === '__placeholder__' ? '' : field.value || ''} onValueChange={field.onChange}>
                 <Select.Trigger>
                   <Select.Value placeholder="Choose an option group" />
                 </Select.Trigger>
                 <Select.Content>
                   {optionGroups.map((group: OptionGroup) => (
-                    <Select.Item
-                      key={group.id}
-                      value={group.group_name}
-                    >
+                    <Select.Item key={group.id} value={group.group_name}>
                       {group.group_name} ({group.options.length} options)
                     </Select.Item>
                   ))}
@@ -155,17 +124,12 @@ export const SelectOptionsSection = ({
             )}
           />
           {watch(`attribute_definitions.${index}.option_group`) &&
-            watch(`attribute_definitions.${index}.option_group`) !==
-              "__placeholder__" && (
+            watch(`attribute_definitions.${index}.option_group`) !== '__placeholder__' && (
               <div className="mt-2 text-sm text-gray-600">
-                Options:{" "}
+                Options:{' '}
                 {optionGroups
-                  .find(
-                    (g: OptionGroup) =>
-                      g.group_name ===
-                      watch(`attribute_definitions.${index}.option_group`)
-                  )
-                  ?.options.join(", ") || "No options available"}
+                  .find((g: OptionGroup) => g.group_name === watch(`attribute_definitions.${index}.option_group`))
+                  ?.options.join(', ') || 'No options available'}
               </div>
             )}
         </div>

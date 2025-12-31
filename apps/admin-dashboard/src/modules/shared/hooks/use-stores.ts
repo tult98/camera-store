@@ -10,8 +10,7 @@ export const useStores = () => {
   });
 
   const defaultStore = data?.stores?.[0] || null;
-  const defaultCurrencyCode =
-    defaultStore?.supported_currencies?.[0]?.currency_code || 'php';
+  const defaultCurrencyCode = defaultStore?.supported_currencies?.[0]?.currency_code || 'php';
   const defaultSalesChannelId = defaultStore?.default_sales_channel_id || null;
 
   return {

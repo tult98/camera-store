@@ -16,17 +16,16 @@ const ProductInfo = ({ product, selectedVariant }: ProductInfoProps) => {
   return (
     <div id="product-info">
       <div className="flex flex-col gap-y-6">
-        
         <h1
           className="text-2xl lg:text-3xl font-bold text-base-content leading-tight"
           data-testid="product-title"
         >
           {product.title}
         </h1>
-        
+
         <div className="bg-base-100/80 rounded-lg p-3">
-          <ProductPrice 
-            product={product} 
+          <ProductPrice
+            product={product}
             variant={selectedVariant}
             mode={selectedVariant ? "single" : "range"}
           />

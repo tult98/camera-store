@@ -9,20 +9,18 @@ export function AppRouter() {
   return (
     <Routes>
       {/* Public routes mapped from constants */}
-      {PUBLIC_ROUTES.map(path => (
-        <Route 
-          key={path} 
-          path={path} 
+      {PUBLIC_ROUTES.map((path) => (
+        <Route
+          key={path}
+          path={path}
           element={
             <PublicGuard>
-              <PublicLayout>
-                {getPublicPageComponent(path)}
-              </PublicLayout>
+              <PublicLayout>{getPublicPageComponent(path)}</PublicLayout>
             </PublicGuard>
-          } 
+          }
         />
       ))}
-      
+
       {/* Everything else is protected */}
       <Route path="/*" element={<ProtectedRoutes />} />
     </Routes>

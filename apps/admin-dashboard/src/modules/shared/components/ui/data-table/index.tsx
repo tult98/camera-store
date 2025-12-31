@@ -8,7 +8,7 @@ import {
   getSortedRowModel,
   PaginationState,
   SortingState,
-  useReactTable
+  useReactTable,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import { LoadingIcon } from '../loading-icon';
@@ -71,16 +71,12 @@ export function DataTable<T>({
     onExpandedChange: setExpanded,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: enableSorting ? getSortedRowModel() : undefined,
-    getPaginationRowModel: enablePagination
-      ? getPaginationRowModel()
-      : undefined,
+    getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
     getExpandedRowModel: enableExpanding ? getExpandedRowModel() : undefined,
     getSubRows: enableExpanding ? getSubRows : undefined,
     manualPagination,
     manualSorting: false,
-    pageCount: manualPagination && totalCount !== undefined
-      ? Math.ceil(totalCount / pageSize)
-      : undefined,
+    pageCount: manualPagination && totalCount !== undefined ? Math.ceil(totalCount / pageSize) : undefined,
   });
 
   return (
@@ -93,17 +89,10 @@ export function DataTable<T>({
                 <th key={header.id} scope="col" className="px-6 py-3">
                   {header.isPlaceholder ? null : (
                     <div
-                      className={
-                        header.column.getCanSort()
-                          ? 'flex items-center cursor-pointer select-none'
-                          : ''
-                      }
+                      className={header.column.getCanSort() ? 'flex items-center cursor-pointer select-none' : ''}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      {flexRender(header.column.columnDef.header, header.getContext())}
                       {header.column.getCanSort() && (
                         <svg
                           className="w-3 h-3 ms-1.5"
@@ -141,53 +130,43 @@ export function DataTable<T>({
             </tr>
           ) : (
             table.getRowModel().rows.map((row, index) => (
-            <tr
-              key={row.id}
-              onClick={() => onRowClick?.(row.original)}
-              className={`bg-white border-b border-gray-200 ${
-                onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''
-              } ${
-                index === table.getRowModel().rows.length - 1
-                  ? 'border-b-0'
-                  : ''
-              }`}
-            >
-              {row.getVisibleCells().map((cell, cellIndex) => (
-                <td
-                  key={cell.id}
-                  className={`px-6 py-4 ${
-                    cellIndex === 0
-                      ? 'font-medium text-gray-900 whitespace-nowrap'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-center">
-                    {cellIndex === 0 && enableExpanding && (
-                      <>
-                        {row.depth > 0 && (
-                          <span style={{ marginLeft: `${row.depth * 2}rem` }} />
-                        )}
-                        {row.getCanExpand() ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              row.toggleExpanded();
-                            }}
-                            className="mr-2 text-gray-500 hover:text-gray-700"
-                          >
-                            {row.getIsExpanded() ? '▼' : '▶'}
-                          </button>
-                        ) : (
-                          row.depth === 0 && <span className="w-4 mr-2" />
-                        )}
-                      </>
-                    )}
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </div>
-                </td>
-              ))}
-            </tr>
-          ))
+              <tr
+                key={row.id}
+                onClick={() => onRowClick?.(row.original)}
+                className={`bg-white border-b border-gray-200 ${onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''} ${
+                  index === table.getRowModel().rows.length - 1 ? 'border-b-0' : ''
+                }`}
+              >
+                {row.getVisibleCells().map((cell, cellIndex) => (
+                  <td
+                    key={cell.id}
+                    className={`px-6 py-4 ${cellIndex === 0 ? 'font-medium text-gray-900 whitespace-nowrap' : ''}`}
+                  >
+                    <div className="flex items-center">
+                      {cellIndex === 0 && enableExpanding && (
+                        <>
+                          {row.depth > 0 && <span style={{ marginLeft: `${row.depth * 2}rem` }} />}
+                          {row.getCanExpand() ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                row.toggleExpanded();
+                              }}
+                              className="mr-2 text-gray-500 hover:text-gray-700"
+                            >
+                              {row.getIsExpanded() ? '▼' : '▶'}
+                            </button>
+                          ) : (
+                            row.depth === 0 && <span className="w-4 mr-2" />
+                          )}
+                        </>
+                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </div>
+                  </td>
+                ))}
+              </tr>
+            ))
           )}
         </tbody>
       </table>

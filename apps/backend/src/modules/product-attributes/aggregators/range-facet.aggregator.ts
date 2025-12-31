@@ -1,6 +1,6 @@
-import type { FacetConfig } from "../models/attribute-template";
-import type { FacetAggregation } from "../types/facet.types";
-import { calculateStep } from "../utils/facet-calculators";
+import type { FacetConfig } from '../models/attribute-template';
+import type { FacetAggregation } from '../types/facet.types';
+import { calculateStep } from '../utils/facet-calculators';
 
 /**
  * Aggregates range-based facets (numeric values like weight, dimensions, etc.)
@@ -22,7 +22,7 @@ export function aggregateRangeFacet(
     return {
       facet_key: key,
       facet_label: label,
-      aggregation_type: "range",
+      aggregation_type: 'range',
       display_type: config.display_type,
       values: [],
       range: { min: 0, max: 100, step: 1 },
@@ -37,7 +37,7 @@ export function aggregateRangeFacet(
   return {
     facet_key: key,
     facet_label: label,
-    aggregation_type: "range",
+    aggregation_type: 'range',
     display_type: config.display_type,
     values: [], // Range facets typically use range object instead of discrete values
     range: { min, max, step },

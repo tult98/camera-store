@@ -15,10 +15,7 @@ interface ProductWizardFormProps {
   productId?: string;
 }
 
-export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
-  isEditMode = false,
-  productId,
-}) => {
+export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({ isEditMode = false, productId }) => {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState(1);
   const [product, setProduct] = useState<ProductWithBrand | null>(null);
@@ -40,15 +37,15 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
   const tabs = [
     {
       label: 'Product Basics',
-      disabled: false
+      disabled: false,
     },
     {
       label: 'Attribute Template',
-      disabled: !isEditMode && !product
+      disabled: !isEditMode && !product,
     },
     {
       label: 'Organization & Variants',
-      disabled: !isEditMode && !product
+      disabled: !isEditMode && !product,
     },
   ];
 
@@ -79,13 +76,7 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
           />
         );
       case 2:
-        return (
-          <AttributeTemplateStep
-            product={product}
-            onNext={handleNext}
-            isEditMode={isEditMode}
-          />
-        );
+        return <AttributeTemplateStep product={product} onNext={handleNext} isEditMode={isEditMode} />;
       case 3:
         return (
           <OrganizationVariantsStep
@@ -110,13 +101,7 @@ export const ProductWizardForm: React.FC<ProductWizardFormProps> = ({
 
   return (
     <div className="w-full">
-      <TabNavigation
-        currentTab={currentTab}
-        totalTabs={3}
-        tabs={tabs}
-        onTabClick={handleTabClick}
-        className="mb-8"
-      />
+      <TabNavigation currentTab={currentTab} totalTabs={3} tabs={tabs} onTabClick={handleTabClick} className="mb-8" />
 
       <div className="bg-white shadow-sm border border-gray-200 rounded-lg">
         <div className="p-6">{renderCurrentTab()}</div>

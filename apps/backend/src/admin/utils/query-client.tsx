@@ -1,5 +1,5 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ComponentType } from "react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ComponentType } from 'react';
 
 // Create a QueryClient instance with optimized defaults
 export const queryClient = new QueryClient({
@@ -17,9 +17,7 @@ export const queryClient = new QueryClient({
 });
 
 // HOC to wrap components with QueryClientProvider
-export function withQueryClientProvider<P extends object>(
-  Component: ComponentType<P>
-): ComponentType<P> {
+export function withQueryClientProvider<P extends object>(Component: ComponentType<P>): ComponentType<P> {
   const WrappedComponent = (props: P) => {
     return (
       <QueryClientProvider client={queryClient}>

@@ -14,9 +14,7 @@ import { AttributeTemplateInput } from './attribute-template-step/attribute-temp
 
 const attributeTemplateSchema = z.object({
   template_id: z.string().optional(),
-  attribute_values: z
-    .record(z.string(), z.union([z.string(), z.boolean(), z.number()]))
-    .optional(),
+  attribute_values: z.record(z.string(), z.union([z.string(), z.boolean(), z.number()])).optional(),
 });
 
 type AttributeTemplateSchemaType = z.infer<typeof attributeTemplateSchema>;
@@ -56,10 +54,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
     mode: 'onBlur',
     defaultValues: {
       template_id: attribute_template_id,
-      attribute_values: attributeValuesFromMetadata as Record<
-        string,
-        string | boolean
-      >,
+      attribute_values: attributeValuesFromMetadata as Record<string, string | boolean>,
     },
   });
 
@@ -73,17 +68,14 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
       if (selectedAttributeTemplate) {
         setValue(
           'attribute_values',
-          selectedAttributeTemplate.attribute_definitions.reduce(
-            (acc, attr) => {
-              if (attr.type === 'boolean') {
-                acc[attr.key] = false;
-              } else {
-                acc[attr.key] = '';
-              }
-              return acc;
-            },
-            {} as Record<string, string | boolean>
-          )
+          selectedAttributeTemplate.attribute_definitions.reduce((acc, attr) => {
+            if (attr.type === 'boolean') {
+              acc[attr.key] = false;
+            } else {
+              acc[attr.key] = '';
+            }
+            return acc;
+          }, {} as Record<string, string | boolean>)
         );
       }
     }
@@ -94,13 +86,8 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   );
 
   const updateMetadataMutation = useMutation({
-    mutationFn: ({
-      productId,
-      metadata,
-    }: {
-      productId: string;
-      metadata: Record<string, unknown>;
-    }) => updateProductMetadata(productId, metadata),
+    mutationFn: ({ productId, metadata }: { productId: string; metadata: Record<string, unknown> }) =>
+      updateProductMetadata(productId, metadata),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['product', product?.id] });
@@ -139,9 +126,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <h2 className="text-lg font-medium text-gray-900 mb-4">
-          Attribute Template & Custom Attributes
-        </h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Attribute Template & Custom Attributes</h2>
 
         <div className="space-y-6">
           <AttributeTemplateInput
@@ -159,9 +144,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
 
           {selectedAttributeTemplate && (
             <div key={selectedAttributeTemplate.id} className="space-y-4 mt-6">
-              <h3 className="text-base font-medium text-gray-700">
-                Attribute Values
-              </h3>
+              <h3 className="text-base font-medium text-gray-700">Attribute Values</h3>
               {selectedAttributeTemplate.attribute_definitions
                 .sort((a, b) => {
                   if (a.type === 'boolean' && b.type !== 'boolean') return -1;
@@ -202,9 +185,7 @@ export const AttributeTemplateStep: React.FC<AttributeTemplateStepProps> = ({
           disabled={isPending || !selectedAttributeTemplate}
           className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {isPending && (
-            <LoadingIcon size="sm" color="white" className="mr-2" />
-          )}
+          {isPending && <LoadingIcon size="sm" color="white" className="mr-2" />}
           {isEditMode ? 'Save Changes' : 'Save & Continue'}
         </button>
       </div>

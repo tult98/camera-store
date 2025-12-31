@@ -1,9 +1,4 @@
-import {
-  MagnifyingGlassIcon,
-  PencilIcon,
-  TrashIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -22,9 +17,7 @@ interface ProductDisplay {
   variantsCount: number;
 }
 
-type ProductFromAPI = Awaited<
-  ReturnType<typeof fetchProducts>
->['products'][number];
+type ProductFromAPI = Awaited<ReturnType<typeof fetchProducts>>['products'][number];
 
 export const ProductsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -55,12 +48,7 @@ export const ProductsPage: React.FC = () => {
   const offset = pagination.pageIndex * pagination.pageSize;
 
   const { data: productsData, isLoading } = useQuery({
-    queryKey: [
-      'products',
-      debouncedSearchQuery,
-      pagination.pageIndex,
-      pagination.pageSize,
-    ],
+    queryKey: ['products', debouncedSearchQuery, pagination.pageIndex, pagination.pageSize],
     queryFn: () => fetchProducts(debouncedSearchQuery, limit, offset),
   });
 
@@ -72,17 +60,11 @@ export const ProductsPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       setDeleteModalOpen(false);
-      success(
-        'Product deleted',
-        `"${productToDelete?.title}" has been deleted successfully`
-      );
+      success('Product deleted', `"${productToDelete?.title}" has been deleted successfully`);
       setProductToDelete(null);
     },
     onError: (err: Error) => {
-      error(
-        'Failed to delete product',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to delete product', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -120,11 +102,7 @@ export const ProductsPage: React.FC = () => {
       cell: ({ getValue }) => {
         const thumbnail = getValue() as string | undefined;
         return thumbnail ? (
-          <img
-            src={thumbnail}
-            alt="Product"
-            className="w-12 h-12 object-cover rounded"
-          />
+          <img src={thumbnail} alt="Product" className="w-12 h-12 object-cover rounded" />
         ) : (
           <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
             <span className="text-gray-400 text-xs">No image</span>
@@ -159,9 +137,7 @@ export const ProductsPage: React.FC = () => {
     {
       accessorKey: 'variantsCount',
       header: 'Variants',
-      cell: ({ getValue }) => (
-        <span className="text-gray-700">{getValue() as number}</span>
-      ),
+      cell: ({ getValue }) => <span className="text-gray-700">{getValue() as number}</span>,
     },
     {
       id: 'actions',

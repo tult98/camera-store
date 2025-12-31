@@ -1,9 +1,5 @@
 import { FetchError } from '@medusajs/js-sdk';
-import {
-  AdminPaymentProvider,
-  AdminRegion,
-  AdminRegionCountry,
-} from '@medusajs/types';
+import { AdminPaymentProvider, AdminRegion, AdminRegionCountry } from '@medusajs/types';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 import { useParams } from 'react-router-dom';
@@ -61,22 +57,15 @@ export const EditRegionPage: React.FC = () => {
   const initialData: RegionSchemaType = {
     name: region.name,
     currency_code: region.currency_code,
-    countries:
-      region.countries?.map((country: AdminRegionCountry) => country.iso_2!) ||
-      [],
-    payment_providers:
-      region.payment_providers?.map(
-        (provider: AdminPaymentProvider) => provider.id
-      ) || [],
+    countries: region.countries?.map((country: AdminRegionCountry) => country.iso_2!) || [],
+    payment_providers: region.payment_providers?.map((provider: AdminPaymentProvider) => provider.id) || [],
   };
 
   return (
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit Region</h1>
-        <p className="text-gray-600">
-          Update the region information and settings.
-        </p>
+        <p className="text-gray-600">Update the region information and settings.</p>
       </div>
 
       <RegionForm initialData={initialData} isEditMode={true} regionId={id!} />

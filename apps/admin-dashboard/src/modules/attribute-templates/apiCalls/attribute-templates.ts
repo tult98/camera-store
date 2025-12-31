@@ -12,39 +12,28 @@ interface CreateAttributeTemplateResponse {
   attribute_template: AttributeTemplate;
 }
 
-export const fetchAttributeTemplates =
-  async (): Promise<AttributeTemplate[]> => {
-    const response = await sdk.client.fetch<FetchAttributeTemplatesResponse>(
-      '/admin/attribute-templates',
-      {
-        method: 'GET',
-        query: {
-          limit: 100,
-          offset: 0,
-        },
-      }
-    );
+export const fetchAttributeTemplates = async (): Promise<AttributeTemplate[]> => {
+  const response = await sdk.client.fetch<FetchAttributeTemplatesResponse>('/admin/attribute-templates', {
+    method: 'GET',
+    query: {
+      limit: 100,
+      offset: 0,
+    },
+  });
 
-    return response.attribute_templates || [];
-  };
+  return response.attribute_templates || [];
+};
 
-export const createAttributeTemplate = async (
-  data: AttributeTemplateSchemaType
-): Promise<AttributeTemplate> => {
-  const response = await sdk.client.fetch<CreateAttributeTemplateResponse>(
-    '/admin/attribute-templates',
-    {
-      method: 'POST',
-      body: data,
-    }
-  );
+export const createAttributeTemplate = async (data: AttributeTemplateSchemaType): Promise<AttributeTemplate> => {
+  const response = await sdk.client.fetch<CreateAttributeTemplateResponse>('/admin/attribute-templates', {
+    method: 'POST',
+    body: data,
+  });
 
   return response.attribute_template;
 };
 
-export const fetchAttributeTemplateById = async (
-  id: string
-): Promise<AttributeTemplate> => {
+export const fetchAttributeTemplateById = async (id: string): Promise<AttributeTemplate> => {
   const response = await sdk.client.fetch<{ attribute_template: AttributeTemplate }>(
     `/admin/attribute-templates/${id}`,
     {

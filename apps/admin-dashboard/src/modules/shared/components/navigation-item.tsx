@@ -10,18 +10,16 @@ interface NavigationItemProps {
   depth?: number;
 }
 
-const NavigationItemComponent: React.FC<NavigationItemProps> = ({
-  item,
-  isActive,
-  depth = 0,
-}) => {
+const NavigationItemComponent: React.FC<NavigationItemProps> = ({ item, isActive, depth = 0 }) => {
   const Icon = item.icon;
   const location = useLocation();
   const hasChildren = item.children && item.children.length > 0;
 
-  const isAnyChildActive = hasChildren && item.children?.some(
-    (child) => child.path && (location.pathname === child.path || location.pathname.startsWith(child.path + '/'))
-  );
+  const isAnyChildActive =
+    hasChildren &&
+    item.children?.some(
+      (child) => child.path && (location.pathname === child.path || location.pathname.startsWith(child.path + '/'))
+    );
 
   const [isExpanded, setIsExpanded] = useState(isAnyChildActive || false);
 
@@ -43,9 +41,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       className={cn(
         'flex items-center px-3 py-2 rounded-md text-sm font-medium',
         'transition-colors duration-150',
-        isActive || isAnyChildActive
-          ? 'bg-blue-50 text-blue-600'
-          : 'text-gray-700 hover:bg-gray-100',
+        isActive || isAnyChildActive ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100',
         hasChildren && 'cursor-pointer'
       )}
       style={{ paddingLeft: `${depth * 12 + 12}px` }}
@@ -53,9 +49,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       <Icon className="w-5 h-5 mr-3" />
       <span>{item.label}</span>
       {item.badge && (
-        <span className="ml-auto bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
-          {item.badge}
-        </span>
+        <span className="ml-auto bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">{item.badge}</span>
       )}
       {hasChildren && (
         <span className="ml-auto">
@@ -72,19 +66,21 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
   return (
     <div>
       {hasChildren || !item.path ? (
-        <div onClick={handleClick} role="button" tabIndex={0} onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setIsExpanded(!isExpanded);
-          }
-        }}>
+        <div
+          onClick={handleClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsExpanded(!isExpanded);
+            }
+          }}
+        >
           {itemContent}
         </div>
       ) : (
-        <Link
-          to={item.path}
-          aria-current={isActive ? 'page' : undefined}
-        >
+        <Link to={item.path} aria-current={isActive ? 'page' : undefined}>
           {itemContent}
         </Link>
       )}

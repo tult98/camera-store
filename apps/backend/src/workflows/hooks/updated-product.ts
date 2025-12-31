@@ -11,8 +11,7 @@ updateProductsWorkflow.hooks.productsUpdated(
       return new StepResponse([], []);
     }
 
-    const brandModuleService: BrandModuleService =
-      container.resolve(BRAND_MODULE);
+    const brandModuleService: BrandModuleService = container.resolve(BRAND_MODULE);
     const link = container.resolve('link');
     const logger = container.resolve('logger');
     const query = container.resolve('query');

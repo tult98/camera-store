@@ -6,14 +6,8 @@ import type {
 } from '../types/category-products.types';
 
 export class PriceFilter {
-  static apply(
-    products: Product[],
-    priceFilter: PriceFilterOptions | undefined
-  ): FilterResult {
-    if (
-      !priceFilter ||
-      (priceFilter.min === undefined && priceFilter.max === undefined)
-    ) {
+  static apply(products: Product[], priceFilter: PriceFilterOptions | undefined): FilterResult {
+    if (!priceFilter || (priceFilter.min === undefined && priceFilter.max === undefined)) {
       return {
         products,
         totalCount: products.length,
@@ -46,16 +40,10 @@ export class PriceFilter {
   static sort(products: Product[], descending: boolean = false): Product[] {
     return [...products].sort((a: Product, b: Product) => {
       const aPrice = Math.min(
-        ...(a.variants || []).map(
-          (v: ProductVariant) =>
-            v.calculated_price?.calculated_amount || Infinity
-        )
+        ...(a.variants || []).map((v: ProductVariant) => v.calculated_price?.calculated_amount || Infinity)
       );
       const bPrice = Math.min(
-        ...(b.variants || []).map(
-          (v: ProductVariant) =>
-            v.calculated_price?.calculated_amount || Infinity
-        )
+        ...(b.variants || []).map((v: ProductVariant) => v.calculated_price?.calculated_amount || Infinity)
       );
 
       if (aPrice === Infinity && bPrice === Infinity) return 0;

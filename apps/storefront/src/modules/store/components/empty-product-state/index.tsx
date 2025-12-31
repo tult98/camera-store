@@ -1,6 +1,10 @@
 "use client"
 
-import { FunnelIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline"
+import {
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline"
 
 interface EmptyProductStateProps {
   hasActiveFilters: boolean
@@ -71,7 +75,12 @@ export default function EmptyProductState({
                 aria-label="Clear all filters and search"
               >
                 <XMarkIcon className="w-5 h-5" />
-                Clear {hasSearchQuery && hasActiveFilters ? "Search & Filters" : hasSearchQuery ? "Search" : "Filters"}
+                Clear{" "}
+                {hasSearchQuery && hasActiveFilters
+                  ? "Search & Filters"
+                  : hasSearchQuery
+                  ? "Search"
+                  : "Filters"}
               </button>
             </div>
           )}

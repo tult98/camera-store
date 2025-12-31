@@ -1,11 +1,5 @@
 import { useToast } from '@/modules/shared/hooks/use-toast';
-import {
-  BookmarkIcon,
-  CheckIcon,
-  CloudArrowUpIcon,
-  PhotoIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import { BookmarkIcon, CheckIcon, CloudArrowUpIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { LoadingIcon } from '@modules/shared/components/ui/loading-icon';
 import { cn } from '@modules/shared/utils/cn';
 import { useMutation } from '@tanstack/react-query';
@@ -58,9 +52,7 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
         const tempItems = prev.filter((item) => !item.url);
         return prev.map((item) => {
           if (!item.url) {
-            const index = tempItems.findIndex(
-              (tempItem) => tempItem.id === item.id
-            );
+            const index = tempItems.findIndex((tempItem) => tempItem.id === item.id);
             if (index !== -1 && uploadedFiles[index]) {
               if (item.preview.startsWith('blob:')) {
                 URL.revokeObjectURL(item.preview);
@@ -78,8 +70,7 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
       });
     },
     onError: (error) => {
-      const errorMessage =
-        error.message || 'Failed to upload images. Please try again.';
+      const errorMessage = error.message || 'Failed to upload images. Please try again.';
       toast.error(errorMessage);
     },
   });
@@ -87,19 +78,12 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
   const handleFileSelect = useCallback(
     async (files: File[]) => {
       const validFiles = files.filter((file) => {
-        const validTypes = [
-          'image/jpeg',
-          'image/png',
-          'image/gif',
-          'image/svg+xml',
-        ];
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
         return validTypes.includes(file.type);
       });
 
       if (validFiles.length === 0) {
-        setValidationError(
-          'Please select valid image files (JPG, PNG, GIF, SVG)'
-        );
+        setValidationError('Please select valid image files (JPG, PNG, GIF, SVG)');
         return;
       }
 
@@ -205,9 +189,7 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
 
   const handleCancel = () => {
     if (uploadMutation.isPending) {
-      toast.warning(
-        'Images are still uploading. You cannot cancel the upload.'
-      );
+      toast.warning('Images are still uploading. You cannot cancel the upload.');
       return;
     }
     onClose();
@@ -222,10 +204,7 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      <div
-        className="fixed inset-0 bg-gray-200 opacity-50"
-        onClick={handleCancel}
-      />
+      <div className="fixed inset-0 bg-gray-200 opacity-50" onClick={handleCancel} />
 
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all w-full max-w-7xl">
@@ -277,11 +256,7 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
                         )}
                         onClick={() => toggleImageSelection(item.id)}
                       >
-                        <img
-                          src={item.preview}
-                          alt=""
-                          className="w-full h-48 object-cover"
-                        />
+                        <img src={item.preview} alt="" className="w-full h-48 object-cover" />
 
                         {item.url === thumbnail && (
                           <div className="absolute top-2 left-2 bg-green-600 text-white p-1.5 rounded-full shadow-lg">
@@ -292,14 +267,10 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
                         <div
                           className={cn(
                             'absolute top-2 right-2 w-6 h-6 rounded border-2 bg-white',
-                            selectedIds.has(item.id)
-                              ? 'border-blue-500 bg-blue-500'
-                              : 'border-gray-300'
+                            selectedIds.has(item.id) ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
                           )}
                         >
-                          {selectedIds.has(item.id) && (
-                            <CheckIcon className="w-full h-full text-white" />
-                          )}
+                          {selectedIds.has(item.id) && <CheckIcon className="w-full h-full text-white" />}
                         </div>
                       </div>
                     ))}
@@ -311,9 +282,7 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
                 <div
                   className={cn(
                     'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
-                    dragActive
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+                    dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 bg-gray-50'
                   )}
                   onDrop={handleDrop}
                   onDragOver={handleDragOver}
@@ -321,17 +290,11 @@ export const ProductImageModal: React.FC<ProductImageModalProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <CloudArrowUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 font-medium mb-2">
-                    Upload Images
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Drag and drop images here or click to upload
-                  </p>
+                  <p className="text-gray-600 font-medium mb-2">Upload Images</p>
+                  <p className="text-xs text-gray-500">Drag and drop images here or click to upload</p>
                 </div>
 
-                {validationError && (
-                  <p className="text-red-500 text-sm mt-2">{validationError}</p>
-                )}
+                {validationError && <p className="text-red-500 text-sm mt-2">{validationError}</p>}
 
                 <input
                   ref={fileInputRef}

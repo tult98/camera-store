@@ -1,9 +1,7 @@
 import { FormSelect } from '@/modules/shared/components/ui/form-input/form-select';
 import { Control, FieldValues, Path } from 'react-hook-form';
 
-interface AttributeTemplateInputProps<
-  TFormData extends FieldValues = FieldValues
-> {
+interface AttributeTemplateInputProps<TFormData extends FieldValues = FieldValues> {
   name: Path<TFormData>;
   control: Control<TFormData>;
   label?: string;
@@ -13,9 +11,7 @@ interface AttributeTemplateInputProps<
   options: { value: string; label: string }[];
 }
 
-export const AttributeTemplateInput = <
-  TFormData extends FieldValues = FieldValues
->({
+export const AttributeTemplateInput = <TFormData extends FieldValues = FieldValues>({
   name,
   control,
   label = 'Select Template',

@@ -1,5 +1,5 @@
-import { useRef } from 'react'
-import type { Swiper as SwiperType } from 'swiper'
+import { useRef } from "react"
+import type { Swiper as SwiperType } from "swiper"
 
 export const useSwiperRefs = () => {
   const mainSwiperRef = useRef<SwiperType | null>(null)

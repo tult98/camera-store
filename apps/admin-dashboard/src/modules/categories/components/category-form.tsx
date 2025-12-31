@@ -11,12 +11,7 @@ import { FormTextarea } from '../../shared/components/ui/form-input/form-textare
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { useToast } from '../../shared/hooks/use-toast';
 import { generateHandle } from '../../shared/utils/formatters';
-import {
-  createCategory,
-  fetchCategories,
-  searchCategories,
-  updateCategory,
-} from '../apiCalls/categories';
+import { createCategory, fetchCategories, searchCategories, updateCategory } from '../apiCalls/categories';
 import { categorySchema, type CategorySchemaType } from '../types';
 
 interface CategoryFormProps {
@@ -25,11 +20,7 @@ interface CategoryFormProps {
   categoryId?: string;
 }
 
-export const CategoryForm: React.FC<CategoryFormProps> = ({
-  initialData,
-  isEditMode = false,
-  categoryId,
-}) => {
+export const CategoryForm: React.FC<CategoryFormProps> = ({ initialData, isEditMode = false, categoryId }) => {
   const {
     control,
     handleSubmit,
@@ -110,10 +101,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       queryClient.invalidateQueries({ queryKey: ['categories'] });
 
       // Show success toast
-      success(
-        'Category created',
-        `"${newCategory.name}" has been created successfully`
-      );
+      success('Category created', `"${newCategory.name}" has been created successfully`);
 
       // Reset form
       reset();
@@ -123,10 +111,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     },
     onError: (err: Error) => {
       // Show error toast
-      error(
-        'Failed to create category',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to create category', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -138,17 +123,11 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
       queryClient.invalidateQueries({ queryKey: ['category', categoryId] });
 
       // Show success toast
-      success(
-        'Category updated',
-        `"${updatedCategory.name}" has been updated successfully`
-      );
+      success('Category updated', `"${updatedCategory.name}" has been updated successfully`);
     },
     onError: (err: Error) => {
       // Show error toast
-      error(
-        'Failed to update category',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to update category', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -174,11 +153,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           control={control}
           type="text"
           label="Title"
-          disabled={
-            isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending
-          }
+          disabled={isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending}
           required={true}
         />
 
@@ -187,11 +162,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           control={control}
           type="text"
           label="Handle"
-          disabled={
-            isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending
-          }
+          disabled={isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending}
         />
       </div>
 
@@ -207,9 +178,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         debounceTime={500}
         loadingMessage="Loading categories..."
         noOptionsMessage={(obj) =>
-          obj.inputValue
-            ? `No categories found for "${obj.inputValue}"`
-            : 'No categories available'
+          obj.inputValue ? `No categories found for "${obj.inputValue}"` : 'No categories available'
         }
       />
 
@@ -227,33 +196,21 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
           name="is_active"
           control={control}
           label="Active"
-          disabled={
-            isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending
-          }
+          disabled={isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending}
         />
 
         <FormSwitch
           name="is_internal"
           control={control}
           label="Internal"
-          disabled={
-            isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending
-          }
+          disabled={isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending}
         />
 
         <FormSwitch
           name="metadata.is_featured"
           control={control}
           label="Featured"
-          disabled={
-            isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending
-          }
+          disabled={isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending}
         />
       </div>
 
@@ -270,26 +227,16 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         <button
           type="button"
           className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          disabled={
-            isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending
-          }
+          disabled={isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending}
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={
-            isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending
-          }
+          disabled={isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {(isSubmitting ||
-            createCategoryMutation.isPending ||
-            updateCategoryMutation.isPending) && (
+          {(isSubmitting || createCategoryMutation.isPending || updateCategoryMutation.isPending) && (
             <LoadingIcon size="md" color="white" className="mr-2" />
           )}
           {isEditMode

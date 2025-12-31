@@ -7,23 +7,19 @@ interface FilterHeaderProps {
   onToggle: () => void
 }
 
-export default function FilterHeader({ 
-  facet, 
-  filters, 
-  isCollapsed, 
-  onToggle 
+export default function FilterHeader({
+  facet,
+  filters,
+  isCollapsed,
+  onToggle,
 }: FilterHeaderProps) {
   const getActiveFilterInfo = () => {
     let hasActiveFilter = false
     let activeCount = 0
 
-    if (
-      facet.display_type === "slider" ||
-      facet.aggregation_type === "range"
-    ) {
+    if (facet.display_type === "slider" || facet.aggregation_type === "range") {
       hasActiveFilter =
-        filters.price?.min !== undefined ||
-        filters.price?.max !== undefined
+        filters.price?.min !== undefined || filters.price?.max !== undefined
     } else if (facet.facet_key === "tags") {
       activeCount = filters.tags?.length || 0
       hasActiveFilter = activeCount > 0

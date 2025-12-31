@@ -40,17 +40,11 @@ export const CategoriesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setDeleteModalOpen(false);
-      success(
-        'Category deleted',
-        `"${categoryToDelete?.name}" has been deleted successfully`
-      );
+      success('Category deleted', `"${categoryToDelete?.name}" has been deleted successfully`);
       setCategoryToDelete(null);
     },
     onError: (err: Error) => {
-      error(
-        'Failed to delete category',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to delete category', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -91,9 +85,7 @@ export const CategoriesPage: React.FC = () => {
     {
       accessorKey: 'handle',
       header: 'Handle',
-      cell: ({ getValue }) => (
-        <span className="text-gray-500">{getValue() as string}</span>
-      ),
+      cell: ({ getValue }) => <span className="text-gray-500">{getValue() as string}</span>,
     },
     {
       accessorKey: 'status',

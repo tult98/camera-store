@@ -19,10 +19,12 @@ export interface Product {
 }
 
 export interface ProductAttributesService {
-  listProductAttributes(params: { product_id: string[] }): Promise<Array<{
-    product_id: string;
-    attribute_values: Record<string, unknown>;
-  }>>;
+  listProductAttributes(params: { product_id: string[] }): Promise<
+    Array<{
+      product_id: string;
+      attribute_values: Record<string, unknown>;
+    }>
+  >;
 }
 
 export interface QueryFilters {
@@ -37,7 +39,7 @@ export interface QueryFilters {
 }
 
 export interface SortOrder {
-  [key: string]: "asc" | "desc" | SortOrder;
+  [key: string]: 'asc' | 'desc' | SortOrder;
 }
 
 export interface PriceFilter {

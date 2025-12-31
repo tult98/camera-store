@@ -112,10 +112,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      <div
-        className="fixed inset-0 bg-gray-200 opacity-50"
-        onClick={handleBackdropClick}
-      />
+      <div className="fixed inset-0 bg-gray-200 opacity-50" onClick={handleBackdropClick} />
 
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
@@ -127,16 +124,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                   iconStyles.bg
                 )}
               >
-                <ExclamationTriangleIcon
-                  className={cn('h-6 w-6', iconStyles.icon)}
-                  aria-hidden="true"
-                />
+                <ExclamationTriangleIcon className={cn('h-6 w-6', iconStyles.icon)} aria-hidden="true" />
               </div>
               <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                <h3
-                  className="text-base font-semibold leading-6 text-gray-900"
-                  id="modal-title"
-                >
+                <h3 className="text-base font-semibold leading-6 text-gray-900" id="modal-title">
                   {title}
                 </h3>
                 <div className="mt-2">

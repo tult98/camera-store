@@ -70,14 +70,7 @@ describe('Button', () => {
   });
 
   it('should combine multiple props correctly', () => {
-    render(
-      <Button
-        text="Save"
-        variant="outlined"
-        intent="primary"
-        size="large"
-      />
-    );
+    render(<Button text="Save" variant="outlined" intent="primary" size="large" />);
     const button = screen.getByRole('button');
     expect(button).toHaveClass('btn', 'btn-outline', 'btn-primary', 'btn-lg');
     expect(button).toHaveTextContent('Save');

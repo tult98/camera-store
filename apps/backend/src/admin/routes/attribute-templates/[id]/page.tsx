@@ -1,18 +1,18 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { defineRouteConfig } from "@medusajs/admin-sdk";
-import { ArrowUturnLeft } from "@medusajs/icons";
-import { Button, Container, Heading, toast } from "@medusajs/ui";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { withQueryClientProvider } from "../../../utils/query-client";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { defineRouteConfig } from '@medusajs/admin-sdk';
+import { ArrowUturnLeft } from '@medusajs/icons';
+import { Button, Container, Heading, toast } from '@medusajs/ui';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { SubmitHandler, useFieldArray, useForm } from 'react-hook-form';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { withQueryClientProvider } from '../../../utils/query-client';
 import {
   AttributeTemplateFormData,
   AttributeTemplateSchema,
   defaultAttributeDefinition,
   defaultAttributeTemplate,
-} from "../schemas/attribute-template.schema";
+} from '../schemas/attribute-template.schema';
 
 // Interface for template data coming from server
 interface ServerTemplateData {
@@ -44,20 +44,20 @@ interface ServerTemplateData {
     };
   }>;
 }
-import { AttributeDefinitionsSection } from "./components/AttributeDefinitionsSection";
-import { BasicInformationSection } from "./components/BasicInformationSection";
+import { AttributeDefinitionsSection } from './components/AttributeDefinitionsSection';
+import { BasicInformationSection } from './components/BasicInformationSection';
 
 const AttributeTemplateFormCore = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const isEditing = id !== "new";
+  const isEditing = id !== 'new';
 
   const form = useForm({
     resolver: zodResolver(AttributeTemplateSchema),
     defaultValues: defaultAttributeTemplate,
-    mode: "onBlur",
-    reValidateMode: "onBlur",
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
   });
 
   const {
@@ -75,7 +75,7 @@ const AttributeTemplateFormCore = () => {
     remove: removeAttribute,
   } = useFieldArray({
     control,
-    name: "attribute_definitions",
+    name: 'attribute_definitions',
   });
 
   // React Query for fetching template data
@@ -84,11 +84,11 @@ const AttributeTemplateFormCore = () => {
     isLoading: templateLoading,
     error: templateError,
   } = useQuery({
-    queryKey: ["attribute-template", id],
+    queryKey: ['attribute-template', id],
     queryFn: async () => {
       const response = await fetch(`/admin/attribute-templates/${id}`);
       if (!response.ok) {
-        throw new Error("Failed to fetch template");
+        throw new Error('Failed to fetch template');
       }
       const data = await response.json();
       return { ...data.attribute_template, id };
@@ -102,11 +102,11 @@ const AttributeTemplateFormCore = () => {
     isLoading: optionGroupsLoading,
     error: optionGroupsError,
   } = useQuery({
-    queryKey: ["attribute-groups"],
+    queryKey: ['attribute-groups'],
     queryFn: async () => {
-      const response = await fetch("/admin/attribute-options");
+      const response = await fetch('/admin/attribute-options');
       if (!response.ok) {
-        throw new Error("Failed to fetch attribute groups");
+        throw new Error('Failed to fetch attribute groups');
       }
       const data = await response.json();
       return data.attribute_groups || [];
@@ -120,13 +120,15 @@ const AttributeTemplateFormCore = () => {
       const mergedData: AttributeTemplateFormData = {
         ...templateData,
         attribute_definitions:
-          templateData.attribute_definitions?.map((def: NonNullable<ServerTemplateData['attribute_definitions']>[number]) => ({
-            ...def,
-            facet_config: {
-              ...defaultAttributeDefinition.facet_config,
-              ...(def.facet_config || {}),
-            },
-          })) || [],
+          templateData.attribute_definitions?.map(
+            (def: NonNullable<ServerTemplateData['attribute_definitions']>[number]) => ({
+              ...def,
+              facet_config: {
+                ...defaultAttributeDefinition.facet_config,
+                ...(def.facet_config || {}),
+              },
+            })
+          ) || [],
       };
       reset(mergedData);
     }
@@ -135,66 +137,55 @@ const AttributeTemplateFormCore = () => {
   // Handle fetch errors
   useEffect(() => {
     if (templateError) {
-      toast.error("Failed to fetch template");
+      toast.error('Failed to fetch template');
     }
     if (optionGroupsError) {
-      toast.error("Failed to fetch option groups");
+      toast.error('Failed to fetch option groups');
     }
   }, [templateError, optionGroupsError]);
 
   // React Query mutation for saving template
   const saveTemplateMutation = useMutation({
     mutationFn: async (data: AttributeTemplateFormData) => {
-      const url = isEditing
-        ? `/admin/attribute-templates/${id}`
-        : "/admin/attribute-templates";
+      const url = isEditing ? `/admin/attribute-templates/${id}` : '/admin/attribute-templates';
 
       // Clean up placeholder values before submission
       const cleanedData = {
         ...data,
         attribute_definitions: data.attribute_definitions.map((def) => ({
           ...def,
-          option_group:
-            def.option_group === "__placeholder__"
-              ? undefined
-              : def.option_group,
+          option_group: def.option_group === '__placeholder__' ? undefined : def.option_group,
         })),
       };
 
       const response = await fetch(url, {
-        method: isEditing ? "PUT" : "POST",
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(cleanedData),
       });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const errorMessage =
-          errorData.details || errorData.message || "Failed to save template";
+        const errorMessage = errorData.details || errorData.message || 'Failed to save template';
         throw new Error(errorMessage);
       }
 
       return response.json();
     },
     onSuccess: (_, data) => {
-      const actionText = isEditing ? "updated" : "created";
-      toast.success(
-        `Attribute template "${data.name}" has been ${actionText} successfully.`
-      );
-      queryClient.invalidateQueries({ queryKey: ["attribute-templates"] });
-      queryClient.invalidateQueries({ queryKey: ["attribute-template", id] });
-      navigate("/attribute-templates");
+      const actionText = isEditing ? 'updated' : 'created';
+      toast.success(`Attribute template "${data.name}" has been ${actionText} successfully.`);
+      queryClient.invalidateQueries({ queryKey: ['attribute-templates'] });
+      queryClient.invalidateQueries({ queryKey: ['attribute-template', id] });
+      navigate('/attribute-templates');
     },
     onError: (error) => {
-      const actionText = isEditing ? "update" : "create";
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
+      const actionText = isEditing ? 'update' : 'create';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
-      toast.error(
-        `Failed to ${actionText} attribute template: ${errorMessage}`
-      );
+      toast.error(`Failed to ${actionText} attribute template: ${errorMessage}`);
     },
   });
 
@@ -213,9 +204,7 @@ const AttributeTemplateFormCore = () => {
   const isLoading = templateLoading || optionGroupsLoading;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">Loading...</div>
-    );
+    return <div className="flex items-center justify-center p-8">Loading...</div>;
   }
 
   return (
@@ -227,9 +216,7 @@ const AttributeTemplateFormCore = () => {
               <ArrowUturnLeft className="w-4 h-4" />
             </Button>
           </Link>
-          <Heading level="h1">
-            {isEditing ? "Edit Template" : "Create Template"}
-          </Heading>
+          <Heading level="h1">{isEditing ? 'Edit Template' : 'Create Template'}</Heading>
         </div>
 
         <div className="max-w-4xl space-y-6">
@@ -260,11 +247,7 @@ const AttributeTemplateFormCore = () => {
               </Button>
             </Link>
             <Button type="submit" disabled={saveTemplateMutation.isPending}>
-              {saveTemplateMutation.isPending
-                ? "Saving..."
-                : isEditing
-                ? "Update"
-                : "Create"}
+              {saveTemplateMutation.isPending ? 'Saving...' : isEditing ? 'Update' : 'Create'}
             </Button>
           </div>
         </div>
@@ -274,11 +257,9 @@ const AttributeTemplateFormCore = () => {
 };
 
 export const config = defineRouteConfig({
-  label: "Attribute Template",
+  label: 'Attribute Template',
 });
 
-const AttributeTemplateForm = withQueryClientProvider(
-  AttributeTemplateFormCore
-);
+const AttributeTemplateForm = withQueryClientProvider(AttributeTemplateFormCore);
 
 export default AttributeTemplateForm;

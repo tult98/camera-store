@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Button, Input, Label, Select, Text } from "@medusajs/ui";
-import { X } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Button, Input, Label, Select, Text } from '@medusajs/ui';
+import { X } from 'lucide-react';
 
 interface LinkInputModalProps {
   isOpen: boolean;
@@ -14,8 +14,8 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  initialUrl = "",
-  initialText = "",
+  initialUrl = '',
+  initialText = '',
 }) => {
   const [type, setType] = useState<'link' | 'video'>('link');
   const [url, setUrl] = useState(initialUrl);
@@ -27,13 +27,12 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
       setUrl(initialUrl);
       setText(initialText);
       setError(null);
-      
+
       // Auto-detect video URL
-      if (initialUrl && (
-        initialUrl.includes('youtube.com') || 
-        initialUrl.includes('youtu.be') || 
-        initialUrl.includes('vimeo.com')
-      )) {
+      if (
+        initialUrl &&
+        (initialUrl.includes('youtube.com') || initialUrl.includes('youtu.be') || initialUrl.includes('vimeo.com'))
+      ) {
         setType('video');
       }
     }
@@ -41,21 +40,21 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
 
   const validateUrl = (urlString: string): boolean => {
     if (!urlString) return false;
-    
+
     try {
       const urlObj = new URL(urlString);
-      
+
       if (type === 'video') {
         // Validate video URLs
         const isYoutube = urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be');
         const isVimeo = urlObj.hostname.includes('vimeo.com');
-        
+
         if (!isYoutube && !isVimeo) {
           setError('Please enter a valid YouTube or Vimeo URL');
           return false;
         }
       }
-      
+
       return true;
     } catch {
       setError('Please enter a valid URL');
@@ -65,7 +64,7 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateUrl(url)) {
       return;
     }
@@ -80,8 +79,8 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
   };
 
   const handleClose = () => {
-    setUrl("");
-    setText("");
+    setUrl('');
+    setText('');
     setType('link');
     setError(null);
     onClose();
@@ -91,13 +90,9 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
     const newUrl = e.target.value;
     setUrl(newUrl);
     setError(null);
-    
+
     // Auto-detect video URL
-    if (newUrl && (
-      newUrl.includes('youtube.com') || 
-      newUrl.includes('youtu.be') || 
-      newUrl.includes('vimeo.com')
-    )) {
+    if (newUrl && (newUrl.includes('youtube.com') || newUrl.includes('youtu.be') || newUrl.includes('vimeo.com'))) {
       setType('video');
     }
   };
@@ -154,11 +149,7 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
                 type="url"
                 value={url}
                 onChange={handleUrlChange}
-                placeholder={
-                  type === 'video' 
-                    ? "https://www.youtube.com/watch?v=..." 
-                    : "https://example.com"
-                }
+                placeholder={type === 'video' ? 'https://www.youtube.com/watch?v=...' : 'https://example.com'}
                 required
               />
               {type === 'video' && (
@@ -194,11 +185,7 @@ export const LinkInputModal: React.FC<LinkInputModalProps> = ({
           </div>
 
           <div className="flex justify-end gap-2 mt-6">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleClose}
-            >
+            <Button type="button" variant="secondary" onClick={handleClose}>
               Cancel
             </Button>
             <Button type="submit" variant="primary">

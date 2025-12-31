@@ -25,11 +25,7 @@ export const useBreadcrumb = () => {
     }
 
     for (const navItem of navigationItems) {
-      if (
-        !navItem.path ||
-        navItem.path === '/' ||
-        navItem.breadcrumbConfig?.showInBreadcrumb === false
-      ) {
+      if (!navItem.path || navItem.path === '/' || navItem.breadcrumbConfig?.showInBreadcrumb === false) {
         continue;
       }
 
@@ -41,10 +37,7 @@ export const useBreadcrumb = () => {
         });
 
         if (navItem.breadcrumbConfig?.children) {
-          const childMatch = findMatchingChild(
-            currentPath,
-            navItem.breadcrumbConfig.children
-          );
+          const childMatch = findMatchingChild(currentPath, navItem.breadcrumbConfig.children);
 
           if (childMatch) {
             breadcrumbs.push({
@@ -68,10 +61,7 @@ export const useBreadcrumb = () => {
   };
 };
 
-const findMatchingChild = (
-  currentPath: string,
-  children: BreadcrumbChild[]
-) => {
+const findMatchingChild = (currentPath: string, children: BreadcrumbChild[]) => {
   for (const child of children) {
     if (child.dynamic) {
       const pattern = child.path.replace(/:\w+/g, '[^/]+');

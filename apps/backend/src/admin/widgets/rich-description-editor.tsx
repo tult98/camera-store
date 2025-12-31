@@ -1,13 +1,13 @@
-import { defineWidgetConfig } from "@medusajs/admin-sdk";
-import { Container, Label } from "@medusajs/ui";
-import { useRef } from "react";
-import { RichTextEditor } from "../components/rich-text-editor";
-import { EditorHeader } from "./components/EditorHeader";
-import { DescriptionDisplay } from "./components/DescriptionDisplay";
-import { StatusMessages } from "./components/StatusMessages";
-import { useProductDescription } from "./hooks/useProductDescription";
-import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { richTextDisplayStyles } from "./styles/rich-text-display";
+import { defineWidgetConfig } from '@medusajs/admin-sdk';
+import { Container, Label } from '@medusajs/ui';
+import { useRef } from 'react';
+import { RichTextEditor } from '../components/rich-text-editor';
+import { EditorHeader } from './components/EditorHeader';
+import { DescriptionDisplay } from './components/DescriptionDisplay';
+import { StatusMessages } from './components/StatusMessages';
+import { useProductDescription } from './hooks/useProductDescription';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { richTextDisplayStyles } from './styles/rich-text-display';
 
 interface Product {
   id: string;
@@ -57,7 +57,7 @@ const RichDescriptionWidget = ({ data }: RichDescriptionWidgetProps) => {
   return (
     <Container className="divide-y p-0">
       <style>{richTextDisplayStyles}</style>
-      
+
       <EditorHeader
         isEditing={isEditing}
         isSaving={isSaving}
@@ -76,18 +76,12 @@ const RichDescriptionWidget = ({ data }: RichDescriptionWidgetProps) => {
               </Label>
               {isEditing && (
                 <div className="text-xs text-gray-500">
-                  <kbd className="px-1 py-0.5 bg-gray-100 border rounded text-xs">
-                    Ctrl+S
-                  </kbd>{" "}
-                  to save •{" "}
-                  <kbd className="px-1 py-0.5 bg-gray-100 border rounded text-xs">
-                    Esc
-                  </kbd>{" "}
-                  to cancel
+                  <kbd className="px-1 py-0.5 bg-gray-100 border rounded text-xs">Ctrl+S</kbd> to save •{' '}
+                  <kbd className="px-1 py-0.5 bg-gray-100 border rounded text-xs">Esc</kbd> to cancel
                 </div>
               )}
             </div>
-            
+
             {isEditing ? (
               <div ref={editorRef}>
                 <RichTextEditor
@@ -116,7 +110,7 @@ const RichDescriptionWidget = ({ data }: RichDescriptionWidgetProps) => {
 };
 
 export const config = defineWidgetConfig({
-  zone: "product.details.after",
+  zone: 'product.details.after',
 });
 
 export default RichDescriptionWidget;

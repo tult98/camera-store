@@ -6,16 +6,15 @@ interface PaginationProps {
   page: number
   totalPages: number
   onPageChange: (page: number) => void
-  'data-testid'?: string
+  "data-testid"?: string
 }
 
 export function Pagination({
   page,
   totalPages,
   onPageChange,
-  'data-testid': dataTestid
+  "data-testid": dataTestid,
 }: PaginationProps) {
-
   // Helper function to generate an array of numbers within a range
   const arrayRange = (start: number, stop: number) =>
     Array.from({ length: stop - start + 1 }, (_, index) => start + index)
@@ -107,7 +106,9 @@ export function Pagination({
   // Render the component
   return (
     <div className="flex justify-center w-full mt-12">
-      <div className="flex gap-3 items-end" data-testid={dataTestid}>{renderPageButtons()}</div>
+      <div className="flex gap-3 items-end" data-testid={dataTestid}>
+        {renderPageButtons()}
+      </div>
     </div>
   )
 }

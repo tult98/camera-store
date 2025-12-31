@@ -1,10 +1,6 @@
 import { Editor } from '@tiptap/react';
 import { useCallback, useRef, useState } from 'react';
-import {
-  SUPPORTED_IMAGE_TYPES,
-  validateImageFile,
-  validateImageUrl
-} from '../utils/editor-utils';
+import { SUPPORTED_IMAGE_TYPES, validateImageFile, validateImageUrl } from '../utils/editor-utils';
 
 interface UseImageUploadProps {
   editor: Editor | null;
@@ -65,9 +61,7 @@ export const useImageUpload = ({ editor, onError }: UseImageUploadProps) => {
         }
       } catch (uploadError) {
         const errorMessage =
-          uploadError instanceof Error
-            ? uploadError.message
-            : 'Failed to upload image. Please try again.';
+          uploadError instanceof Error ? uploadError.message : 'Failed to upload image. Please try again.';
         onError(errorMessage);
       } finally {
         setIsUploading(false);

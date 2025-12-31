@@ -11,10 +11,7 @@ interface ProductOptionsSectionProps {
   isSubmitting: boolean;
 }
 
-export const ProductOptionsSection: React.FC<ProductOptionsSectionProps> = ({
-  control,
-  isSubmitting,
-}) => {
+export const ProductOptionsSection: React.FC<ProductOptionsSectionProps> = ({ control, isSubmitting }) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'options',
@@ -37,9 +34,7 @@ export const ProductOptionsSection: React.FC<ProductOptionsSectionProps> = ({
               <PlusIcon className="w-4 h-4" />
               Add Option
             </button>
-            <p className="text-sm text-gray-500 text-center">
-              Default option will be created if no options are added
-            </p>
+            <p className="text-sm text-gray-500 text-center">Default option will be created if no options are added</p>
           </div>
         ) : (
           <div className="space-y-4">

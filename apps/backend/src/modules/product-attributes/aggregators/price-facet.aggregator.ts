@@ -1,10 +1,7 @@
-import {
-  ContainerRegistrationKeys,
-  QueryContext,
-} from "@medusajs/framework/utils";
-import { Logger } from "@medusajs/framework/types";
-import type { FacetAggregation } from "../types/facet.types";
-import { calculatePriceStep } from "../utils/facet-calculators";
+import { ContainerRegistrationKeys, QueryContext } from '@medusajs/framework/utils';
+import { Logger } from '@medusajs/framework/types';
+import type { FacetAggregation } from '../types/facet.types';
+import { calculatePriceStep } from '../utils/facet-calculators';
 
 /**
  * Aggregates price facet from product variant pricing data
@@ -27,8 +24,8 @@ export async function aggregatePriceFacet(
     const productIds = products.map((p) => p.id);
 
     const result = await query.graph({
-      entity: "product",
-      fields: ["id", "variants.*", "variants.calculated_price.*"],
+      entity: 'product',
+      fields: ['id', 'variants.*', 'variants.calculated_price.*'],
       filters: {
         id: productIds,
       },
@@ -70,10 +67,10 @@ export async function aggregatePriceFacet(
     const maxPriceDollars = Math.ceil(maxPrice);
 
     return {
-      facet_key: "price",
-      facet_label: "Price",
-      aggregation_type: "range",
-      display_type: "slider",
+      facet_key: 'price',
+      facet_label: 'Price',
+      aggregation_type: 'range',
+      display_type: 'slider',
       values: [], // For range facets, values array can be empty
       range: {
         min: minPriceDollars,

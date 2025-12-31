@@ -1,5 +1,5 @@
-import { Button } from "@medusajs/ui";
-import { Plus } from "@medusajs/icons";
+import { Button } from '@medusajs/ui';
+import { Plus } from '@medusajs/icons';
 import {
   Control,
   FieldArrayWithId,
@@ -7,9 +7,9 @@ import {
   UseFormRegister,
   UseFormSetValue,
   UseFormWatch,
-} from "react-hook-form";
-import { AttributeTemplateFormData } from "../../schemas/attribute-template.schema";
-import { AttributeDefinitionItem } from "./AttributeDefinitionItem";
+} from 'react-hook-form';
+import { AttributeTemplateFormData } from '../../schemas/attribute-template.schema';
+import { AttributeDefinitionItem } from './AttributeDefinitionItem';
 
 interface OptionGroup {
   id: string;
@@ -18,11 +18,7 @@ interface OptionGroup {
 }
 
 interface AttributeDefinitionsSectionProps {
-  attributeFields: FieldArrayWithId<
-    AttributeTemplateFormData,
-    "attribute_definitions",
-    "id"
-  >[];
+  attributeFields: FieldArrayWithId<AttributeTemplateFormData, 'attribute_definitions', 'id'>[];
   register: UseFormRegister<AttributeTemplateFormData>;
   control: Control<AttributeTemplateFormData>;
   errors: FieldErrors<AttributeTemplateFormData>;
@@ -74,12 +70,7 @@ export const AttributeDefinitionsSection = ({
       )}
 
       <div className="mt-6 flex justify-center">
-        <Button
-          variant="secondary"
-          size="small"
-          onClick={onAddAttribute}
-          type="button"
-        >
+        <Button variant="secondary" size="small" onClick={onAddAttribute} type="button">
           <Plus className="w-4 h-4" />
           Add Attribute
         </Button>

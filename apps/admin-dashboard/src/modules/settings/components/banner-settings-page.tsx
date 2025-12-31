@@ -62,30 +62,20 @@ export const BannerSettingsPage: React.FC = () => {
     mutationFn: saveBanner,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['banner'] });
-      toast.success(
-        'Banner updated',
-        'Banner settings have been saved successfully'
-      );
+      toast.success('Banner updated', 'Banner settings have been saved successfully');
     },
     onError: (err: Error) => {
-      toast.error(
-        'Failed to save banner',
-        err.message || 'An unexpected error occurred'
-      );
+      toast.error('Failed to save banner', err.message || 'An unexpected error occurred');
     },
   });
 
-  const handleImagesUpdate = (
-    updatedImages: Array<{ id?: string; url: string }>
-  ) => {
+  const handleImagesUpdate = (updatedImages: Array<{ id?: string; url: string }>) => {
     const currentImages = images || [];
     setValue('images', [...currentImages, ...updatedImages]);
   };
 
   const handleDeleteImages = (imageIds: string[]) => {
-    const updatedImages = images?.filter(
-      (img) => !imageIds.includes(img.id || img.url)
-    );
+    const updatedImages = images?.filter((img) => !imageIds.includes(img.id || img.url));
     setValue('images', updatedImages || []);
   };
 
@@ -117,20 +107,12 @@ export const BannerSettingsPage: React.FC = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Banner Settings
-        </h1>
-        <p className="text-gray-600">
-          Manage your store banner images and visibility.
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Banner Settings</h1>
+        <p className="text-gray-600">Manage your store banner images and visibility.</p>
       </div>
 
       <form className="space-y-6 max-w-4xl" onSubmit={handleSubmit(onSubmit)}>
-        <BannerUploadSection
-          images={images}
-          onSave={handleImagesUpdate}
-          onDeleteImages={handleDeleteImages}
-        />
+        <BannerUploadSection images={images} onSave={handleImagesUpdate} onDeleteImages={handleDeleteImages} />
 
         <FormSwitch
           name="is_active"
@@ -146,9 +128,7 @@ export const BannerSettingsPage: React.FC = () => {
             disabled={isSubmitting || saveMutation.isPending}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
-            {(isSubmitting || saveMutation.isPending) && (
-              <LoadingIcon size="md" color="white" className="mr-2" />
-            )}
+            {(isSubmitting || saveMutation.isPending) && <LoadingIcon size="md" color="white" className="mr-2" />}
             {saveMutation.isPending ? 'Saving...' : 'Save Changes'}
           </button>
         </div>

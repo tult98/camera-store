@@ -8,10 +8,7 @@ interface HeadingDropdownProps {
   disabled?: boolean;
 }
 
-export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({
-  editor,
-  disabled = false,
-}) => {
+export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({ editor, disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -63,10 +60,7 @@ export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({
       >
         <span className="min-w-0 truncate">{getCurrentHeading()}</span>
         <ChevronDownIcon
-          className={cn(
-            'w-3 h-3 transition-transform duration-150',
-            isOpen ? 'rotate-180' : 'rotate-0'
-          )}
+          className={cn('w-3 h-3 transition-transform duration-150', isOpen ? 'rotate-180' : 'rotate-0')}
         />
       </button>
 
@@ -80,14 +74,11 @@ export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({
                 option.command();
                 setIsOpen(false);
               }}
-              className={cn(
-                'w-full px-3 py-2 text-sm text-left hover:bg-gray-100 transition-colors duration-150',
-                {
-                  'bg-gray-100': 
-                    (option.level === 0 && !editor.isActive('heading')) ||
-                    (option.level > 0 && editor.isActive('heading', { level: option.level }))
-                }
-              )}
+              className={cn('w-full px-3 py-2 text-sm text-left hover:bg-gray-100 transition-colors duration-150', {
+                'bg-gray-100':
+                  (option.level === 0 && !editor.isActive('heading')) ||
+                  (option.level > 0 && editor.isActive('heading', { level: option.level })),
+              })}
             >
               {option.label}
             </button>

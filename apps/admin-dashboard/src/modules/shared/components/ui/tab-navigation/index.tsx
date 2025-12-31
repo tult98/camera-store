@@ -46,29 +46,20 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
               aria-disabled={isDisabled}
               onClick={() => handleTabClick(tabNumber)}
               disabled={isDisabled}
-              className={cn(
-                'flex-1 px-6 py-3 text-sm font-medium transition-colors',
-                'border-b-2 focus:outline-none',
-                {
-                  'border-blue-600 text-blue-600': isActive && !isDisabled,
-                  'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300':
-                    !isActive && !isDisabled,
-                  'border-transparent text-gray-300 cursor-not-allowed':
-                    isDisabled,
-                  'cursor-pointer': !isDisabled,
-                }
-              )}
+              className={cn('flex-1 px-6 py-3 text-sm font-medium transition-colors', 'border-b-2 focus:outline-none', {
+                'border-blue-600 text-blue-600': isActive && !isDisabled,
+                'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': !isActive && !isDisabled,
+                'border-transparent text-gray-300 cursor-not-allowed': isDisabled,
+                'cursor-pointer': !isDisabled,
+              })}
             >
               <div className="flex items-center justify-center gap-2">
                 <span
-                  className={cn(
-                    'w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold',
-                    {
-                      'bg-blue-600 text-white': isActive && !isDisabled,
-                      'bg-gray-200 text-gray-600': !isActive && !isDisabled,
-                      'bg-gray-100 text-gray-300': isDisabled,
-                    }
-                  )}
+                  className={cn('w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold', {
+                    'bg-blue-600 text-white': isActive && !isDisabled,
+                    'bg-gray-200 text-gray-600': !isActive && !isDisabled,
+                    'bg-gray-100 text-gray-300': isDisabled,
+                  })}
                 >
                   {tabNumber}
                 </span>

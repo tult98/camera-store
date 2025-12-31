@@ -62,16 +62,10 @@ export const EditBrandPage: React.FC = () => {
     <div className="p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit Brand</h1>
-        <p className="text-gray-600">
-          Update the brand information and settings.
-        </p>
+        <p className="text-gray-600">Update the brand information and settings.</p>
       </div>
 
-      <BrandForm
-        initialData={initialData}
-        isEditMode={true}
-        brandId={id!}
-      />
+      <BrandForm initialData={initialData} isEditMode={true} brandId={id!} />
     </div>
   );
 };

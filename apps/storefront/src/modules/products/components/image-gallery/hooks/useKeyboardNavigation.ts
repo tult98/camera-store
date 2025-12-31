@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import type { Swiper as SwiperType } from 'swiper'
+import { useEffect } from "react"
+import type { Swiper as SwiperType } from "swiper"
 
 interface UseKeyboardNavigationProps {
   isActive: boolean
@@ -17,19 +17,19 @@ export const useKeyboardNavigation = ({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
-        case 'Escape':
+        case "Escape":
           onClose()
           break
-        case 'ArrowLeft':
+        case "ArrowLeft":
           swiperRef.current?.slidePrev()
           break
-        case 'ArrowRight':
+        case "ArrowRight":
           swiperRef.current?.slideNext()
           break
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
   }, [isActive, onClose, swiperRef])
 }

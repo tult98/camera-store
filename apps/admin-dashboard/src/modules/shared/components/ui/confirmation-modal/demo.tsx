@@ -17,7 +17,7 @@ export const ConfirmationModalDemo = () => {
   return (
     <div className="p-8">
       <h2 className="text-2xl font-bold mb-6">Confirmation Modal Demo</h2>
-      
+
       <div className="space-y-4">
         <div className="space-x-4">
           <button
@@ -29,7 +29,7 @@ export const ConfirmationModalDemo = () => {
           >
             Open Danger Modal
           </button>
-          
+
           <button
             onClick={() => {
               setVariant('warning');
@@ -39,7 +39,7 @@ export const ConfirmationModalDemo = () => {
           >
             Open Warning Modal
           </button>
-          
+
           <button
             onClick={() => {
               setVariant('info');
@@ -57,7 +57,7 @@ export const ConfirmationModalDemo = () => {
         onClose={() => setIsOpen(false)}
         onConfirm={handleConfirm}
         title={
-          variant === 'danger' 
+          variant === 'danger'
             ? 'Deactivate account'
             : variant === 'warning'
             ? 'Warning: This action requires attention'

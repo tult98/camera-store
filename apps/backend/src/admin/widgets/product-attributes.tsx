@@ -1,23 +1,13 @@
-import { defineWidgetConfig } from "@medusajs/admin-sdk";
-import {
-  Container,
-  Heading,
-  Button,
-  Select,
-  Input,
-  Label,
-  Switch,
-  Toaster,
-  toast,
-} from "@medusajs/ui";
-import { useState, useMemo, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { withQueryClientProvider } from "../utils/query-client";
+import { defineWidgetConfig } from '@medusajs/admin-sdk';
+import { Container, Heading, Button, Select, Input, Label, Switch, Toaster, toast } from '@medusajs/ui';
+import { useState, useMemo, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { withQueryClientProvider } from '../utils/query-client';
 
 type AttributeDefinition = {
   key: string;
   label: string;
-  type: "text" | "number" | "select" | "boolean";
+  type: 'text' | 'number' | 'select' | 'boolean';
   options?: string[];
   option_group?: string;
   required: boolean;
@@ -35,34 +25,27 @@ type AttributeTemplate = {
 };
 
 const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<AttributeTemplate | null>(null);
-  const [attributeValues, setAttributeValues] = useState<Record<string, string | number | boolean>>(
-    {}
-  );
+  const [selectedTemplate, setSelectedTemplate] = useState<AttributeTemplate | null>(null);
+  const [attributeValues, setAttributeValues] = useState<Record<string, string | number | boolean>>({});
   const queryClient = useQueryClient();
 
   const productId = data.id;
 
   // Fetch templates
   const { data: templatesData, isLoading: templatesLoading } = useQuery({
-    queryKey: ["attribute-templates"],
+    queryKey: ['attribute-templates'],
     queryFn: async () => {
-      const response = await fetch("/admin/attribute-templates");
+      const response = await fetch('/admin/attribute-templates');
       const data = await response.json();
-      return (
-        data.attribute_templates?.filter(
-          (t: AttributeTemplate) => t.is_active
-        ) || []
-      );
+      return data.attribute_templates?.filter((t: AttributeTemplate) => t.is_active) || [];
     },
   });
 
   // Fetch option groups
   const { data: optionGroupsData } = useQuery({
-    queryKey: ["attribute-option-groups"],
+    queryKey: ['attribute-option-groups'],
     queryFn: async () => {
-      const response = await fetch("/admin/attribute-options");
+      const response = await fetch('/admin/attribute-options');
       const data = await response.json();
 
       // Convert array to lookup object by group_name
@@ -70,22 +53,21 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
       data.attribute_groups?.forEach((group: { group_name: string; options: string[] }) => {
         groupsMap[group.group_name] = group;
       });
-      
+
       return groupsMap;
     },
   });
 
   // Fetch product metadata
-  const { data: productData, isLoading: productAttributesLoading } =
-    useQuery({
-      queryKey: ["product", productId],
-      queryFn: async () => {
-        const response = await fetch(`/admin/products/${productId}`);
-        const data = await response.json();
-        return data.product || null;
-      },
-      enabled: !!productId,
-    });
+  const { data: productData, isLoading: productAttributesLoading } = useQuery({
+    queryKey: ['product', productId],
+    queryFn: async () => {
+      const response = await fetch(`/admin/products/${productId}`);
+      const data = await response.json();
+      return data.product || null;
+    },
+    enabled: !!productId,
+  });
 
   // Resolve options from templates and option groups
   const resolvedOptions = useMemo(() => {
@@ -94,15 +76,13 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
     const resolved: Record<string, { value: string; label: string }[]> = {};
 
     selectedTemplate.attribute_definitions.forEach((attr) => {
-      if (attr.type === "select") {
+      if (attr.type === 'select') {
         if (attr.option_group && optionGroupsData[attr.option_group]) {
-          const groupOptions =
-            optionGroupsData[attr.option_group].options || [];
-          resolved[attr.key] = groupOptions
-            .map((opt) => ({
-              value: opt,
-              label: opt,
-            }));
+          const groupOptions = optionGroupsData[attr.option_group].options || [];
+          resolved[attr.key] = groupOptions.map((opt) => ({
+            value: opt,
+            label: opt,
+          }));
         } else if (attr.options && Array.isArray(attr.options)) {
           resolved[attr.key] = attr.options.map((opt) => ({
             value: opt,
@@ -124,9 +104,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
     if (productMetadata && templates.length > 0 && !selectedTemplate) {
       const templateId = productMetadata.attribute_template_id;
       if (templateId) {
-        const template = templates.find(
-          (t: AttributeTemplate) => t.id === templateId
-        );
+        const template = templates.find((t: AttributeTemplate) => t.id === templateId);
         if (template) {
           setSelectedTemplate(template);
           const { attribute_template_id: _attribute_template_id, ...attributeValues } = productMetadata;
@@ -149,15 +127,15 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
       };
 
       const response = await fetch(`/admin/products/${payload.product_id}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ metadata }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save attributes");
+        throw new Error('Failed to save attributes');
       }
 
       return response.json();
@@ -165,15 +143,15 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
     onSuccess: () => {
       // Invalidate and refetch product data
       queryClient.invalidateQueries({
-        queryKey: ["product", productId],
+        queryKey: ['product', productId],
       });
-      toast.success("Success", {
-        description: "Product attributes saved successfully!",
+      toast.success('Success', {
+        description: 'Product attributes saved successfully!',
       });
     },
     onError: (_error: Error) => {
-      toast.error("Error", {
-        description: "Failed to save attributes. Please try again.",
+      toast.error('Error', {
+        description: 'Failed to save attributes. Please try again.',
       });
     },
   });
@@ -218,46 +196,29 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
   };
 
   const renderAttributeInput = (attr: AttributeDefinition) => {
-    const value = attributeValues[attr.key] || "";
+    const value = attributeValues[attr.key] || '';
 
     switch (attr.type) {
-      case "text":
-        return (
-          <Input
-            value={String(value)}
-            onChange={(e) =>
-              handleAttributeValueChange(attr.key, e.target.value)
-            }
-          />
-        );
+      case 'text':
+        return <Input value={String(value)} onChange={(e) => handleAttributeValueChange(attr.key, e.target.value)} />;
 
-      case "number":
+      case 'number':
         return (
           <div className="flex items-center space-x-2">
             <Input
               type="number"
               value={String(value)}
-              onChange={(e) =>
-                handleAttributeValueChange(
-                  attr.key,
-                  parseFloat(e.target.value) || 0
-                )
-              }
+              onChange={(e) => handleAttributeValueChange(attr.key, parseFloat(e.target.value) || 0)}
             />
-            {attr.unit && (
-              <span className="text-sm text-gray-500">{attr.unit}</span>
-            )}
+            {attr.unit && <span className="text-sm text-gray-500">{attr.unit}</span>}
           </div>
         );
 
-      case "select": {
+      case 'select': {
         const options = resolvedOptions[attr.key] || [];
 
         return (
-          <Select
-            value={String(value) || undefined}
-            onValueChange={(val) => handleAttributeValueChange(attr.key, val)}
-          >
+          <Select value={String(value) || undefined} onValueChange={(val) => handleAttributeValueChange(attr.key, val)}>
             <Select.Trigger>
               <Select.Value placeholder="Select an option" />
             </Select.Trigger>
@@ -278,16 +239,14 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
         );
       }
 
-      case "boolean":
+      case 'boolean':
         return (
           <div className="flex items-center space-x-2">
             <Switch
               checked={Boolean(value)}
-              onCheckedChange={(checked) =>
-                handleAttributeValueChange(attr.key, checked)
-              }
+              onCheckedChange={(checked) => handleAttributeValueChange(attr.key, checked)}
             />
-            <span className="text-sm">{value ? "Yes" : "No"}</span>
+            <span className="text-sm">{value ? 'Yes' : 'No'}</span>
           </div>
         );
 
@@ -309,13 +268,8 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
         <div className="flex items-center justify-between">
           <Heading level="h3">Product Attributes</Heading>
           {selectedTemplate && (
-            <Button
-              onClick={handleSave}
-              disabled={saveAttributesMutation.isPending}
-            >
-              {saveAttributesMutation.isPending
-                ? "Saving..."
-                : "Save Attributes"}
+            <Button onClick={handleSave} disabled={saveAttributesMutation.isPending}>
+              {saveAttributesMutation.isPending ? 'Saving...' : 'Save Attributes'}
             </Button>
           )}
         </div>
@@ -323,10 +277,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
         {/* Template Selection */}
         <div>
           <Label htmlFor="template">Attribute Template</Label>
-          <Select
-            value={selectedTemplate?.id || undefined}
-            onValueChange={handleTemplateChange}
-          >
+          <Select value={selectedTemplate?.id || undefined} onValueChange={handleTemplateChange}>
             <Select.Trigger>
               <Select.Value placeholder="Select a template" />
             </Select.Trigger>
@@ -352,9 +303,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
                   <div className="flex items-center space-x-2">
                     <Label htmlFor={attr.key}>
                       {attr.label}
-                      {attr.required && (
-                        <span className="text-red-500 ml-1">*</span>
-                      )}
+                      {attr.required && <span className="text-red-500 ml-1">*</span>}
                     </Label>
                   </div>
 
@@ -367,9 +316,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
         {templates.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <p>No attribute templates available.</p>
-            <p className="text-sm">
-              Create templates to start adding attributes to products.
-            </p>
+            <p className="text-sm">Create templates to start adding attributes to products.</p>
           </div>
         )}
       </div>
@@ -381,7 +328,7 @@ const ProductAttributesWidgetCore = ({ data }: { data: { id: string } }) => {
 const ProductAttributesWidget = withQueryClientProvider(ProductAttributesWidgetCore);
 
 export const config = defineWidgetConfig({
-  zone: "product.details.after",
+  zone: 'product.details.after',
 });
 
 export default ProductAttributesWidget;

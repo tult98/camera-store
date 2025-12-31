@@ -1,4 +1,4 @@
-import { cn } from './utils/cn';
+import { cn } from '../utils/cn';
 
 interface ButtonProps {
   text: string;
@@ -9,6 +9,14 @@ interface ButtonProps {
   disabled?: boolean;
   type?: 'button' | 'submit' | 'reset';
   onClick?: () => void;
+  /** Adds extra horizontal padding (btn-wide) */
+  wide?: boolean;
+  /** Makes button take full container width (btn-block) */
+  block?: boolean;
+  /** Makes button 1:1 aspect ratio (btn-square) */
+  square?: boolean;
+  /** Makes button 1:1 aspect ratio with rounded corners (btn-circle) */
+  circle?: boolean;
 }
 
 export function Button({
@@ -20,6 +28,10 @@ export function Button({
   disabled = false,
   type = 'button',
   onClick,
+  wide = false,
+  block = false,
+  square = false,
+  circle = false,
 }: ButtonProps) {
   const baseClass = 'btn';
 
@@ -45,7 +57,16 @@ export function Button({
 
   const loadingClass = loading ? 'loading loading-spinner loading-xs' : '';
 
-  const classes = cn(baseClass, variantClass, intentClass, sizeClass);
+  const classes = cn(
+    baseClass,
+    variantClass,
+    intentClass,
+    sizeClass,
+    wide && 'btn-wide',
+    block && 'btn-block',
+    square && 'btn-square',
+    circle && 'btn-circle'
+  );
 
   return (
     <button className={classes} disabled={disabled || loading} type={type} onClick={onClick}>

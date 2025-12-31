@@ -37,12 +37,7 @@ export default [
             },
             {
               sourceTag: 'type:app',
-              onlyDependOnLibsWithTags: [
-                'type:lib',
-                'type:util',
-                'type:types',
-                'type:client',
-              ],
+              onlyDependOnLibsWithTags: ['type:lib', 'type:util', 'type:types', 'type:client'],
             },
           ],
         },

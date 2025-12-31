@@ -3,6 +3,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import js from '@eslint/js';
 import nxEslintPlugin from '@nx/eslint-plugin';
+import eslintPluginPrettier from 'eslint-plugin-prettier';
 
 const compat = new FlatCompat({
   baseDirectory: dirname(fileURLToPath(import.meta.url)),
@@ -13,7 +14,13 @@ export default [
   {
     ignores: ['**/dist'],
   },
-  { plugins: { '@nx': nxEslintPlugin } },
+  { plugins: { '@nx': nxEslintPlugin, prettier: eslintPluginPrettier } },
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
+    rules: {
+      'prettier/prettier': 'error',
+    },
+  },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {

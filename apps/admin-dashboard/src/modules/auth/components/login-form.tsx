@@ -49,13 +49,21 @@ export const LoginForm: React.FC = () => {
                 {loginMutation.error.message || 'Login failed. Please check your credentials and try again.'}
               </div>
             )}
-            <TextInput name="email" type="email" label="Email" placeholder="Enter your email" autoComplete="email" />
+            <TextInput
+              name="email"
+              type="email"
+              label="Email"
+              placeholder="Enter your email"
+              autoComplete="email"
+              disabled={loginMutation.isPending}
+            />
             <TextInput
               name="password"
               type="password"
               label="Password"
               placeholder="Enter your password"
               autoComplete="current-password"
+              disabled={loginMutation.isPending}
             />
             <Button
               block

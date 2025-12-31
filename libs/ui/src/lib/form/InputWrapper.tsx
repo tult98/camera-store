@@ -5,12 +5,13 @@ interface InputWrapperProps {
   error?: string;
   required?: boolean;
   children: ReactNode;
+  name?: string;
 }
 
-export function InputWrapper({ label, error, required, children }: InputWrapperProps) {
+export function InputWrapper({ label, error, required, children, name }: InputWrapperProps) {
   return (
     <div className="w-full flex flex-col">
-      <label className="flex flex-col space-y-1">
+      <label htmlFor={name} className="flex flex-col space-y-1">
         {label && (
           <span>
             {label}
@@ -19,7 +20,11 @@ export function InputWrapper({ label, error, required, children }: InputWrapperP
         )}
         {children}
       </label>
-      {error && <span className="text-sm text-error">{error}</span>}
+      {error && (
+        <span id={name ? `${name}-error` : undefined} className="text-sm text-error" role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 }

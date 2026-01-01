@@ -31,11 +31,11 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Run lint on affected projects
-        run: yarn nx run-many --target=lint --parallel=3
+        run: yarn nx affected -t lint --base=origin/${{ github.base_ref }}
         env:
           NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: 'sample_key_for_linting_purposes_only'
 
       - name: Run type-check on affected projects
-        run: yarn nx run-many --target=type-check --parallel=3
+        run: yarn nx affected -t type-check --base=origin/${{ github.base_ref }}
         env:
           DATABASE_URL: 'postgresql://user:password@localhost:5432/dummy_db'

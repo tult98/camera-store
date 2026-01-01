@@ -15,7 +15,6 @@ concurrency:
 jobs:
   chromatic:
     runs-on: ubuntu-latest
-    environment: staging
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,3 +41,4 @@ jobs:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           storybookBuildDir: libs/ui/storybook-static
           exitOnceUploaded: true
+          autoAcceptChanges: 'development'

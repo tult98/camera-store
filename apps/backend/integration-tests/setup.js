@@ -1,4 +1,4 @@
 /* global require */
-const { MetadataStorage } = require("@mikro-orm/core")
+const { MetadataStorage } = require('@mikro-orm/core');
 
-MetadataStorage.clear()
+MetadataStorage.clear();

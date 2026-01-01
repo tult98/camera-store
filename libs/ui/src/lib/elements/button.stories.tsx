@@ -118,6 +118,9 @@ export const Loading: Story = {
     intent: 'primary',
     loading: true,
   },
+  parameters: {
+    chromatic: { pauseAnimationAtEnd: false },
+  },
 };
 
 export const Disabled: Story = {
@@ -199,6 +202,9 @@ export const States: Story = {
       <Button text="Disabled" intent="primary" disabled />
     </div>
   ),
+  parameters: {
+    chromatic: { pauseAnimationAtEnd: false },
+  },
 };
 
 export const ShapeModifiers: Story = {

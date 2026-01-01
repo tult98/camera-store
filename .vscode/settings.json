@@ -1,3 +1,4 @@
 {
   "jest.runMode": "on-demand",
+  "editor.formatOnSave": true
 }

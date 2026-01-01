@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from './button';
+import { Button } from './Button';
 
 const meta: Meta<typeof Button> = {
   component: Button,
-  title: 'UI/Button',
+  title: 'Elements/Button',
   tags: ['autodocs'],
   argTypes: {
     variant: {
@@ -18,10 +18,26 @@ const meta: Meta<typeof Button> = {
       control: 'radio',
       options: ['small', 'medium', 'large'],
     },
+    type: {
+      control: 'radio',
+      options: ['button', 'submit', 'reset'],
+    },
     loading: {
       control: 'boolean',
     },
     disabled: {
+      control: 'boolean',
+    },
+    wide: {
+      control: 'boolean',
+    },
+    block: {
+      control: 'boolean',
+    },
+    square: {
+      control: 'boolean',
+    },
+    circle: {
       control: 'boolean',
     },
   },
@@ -112,6 +128,38 @@ export const Disabled: Story = {
   },
 };
 
+export const Wide: Story = {
+  args: {
+    text: 'Wide Button',
+    intent: 'primary',
+    wide: true,
+  },
+};
+
+export const Block: Story = {
+  args: {
+    text: 'Block Button',
+    intent: 'primary',
+    block: true,
+  },
+};
+
+export const Square: Story = {
+  args: {
+    text: '✓',
+    intent: 'primary',
+    square: true,
+  },
+};
+
+export const Circle: Story = {
+  args: {
+    text: '✓',
+    intent: 'primary',
+    circle: true,
+  },
+};
+
 export const AllVariants: Story = {
   render: () => (
     <div className="flex flex-col gap-4">
@@ -149,6 +197,26 @@ export const States: Story = {
       <Button text="Normal" intent="primary" />
       <Button text="Loading" intent="primary" loading />
       <Button text="Disabled" intent="primary" disabled />
+    </div>
+  ),
+};
+
+export const ShapeModifiers: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <Button text="Default" intent="primary" />
+        <Button text="Wide" intent="primary" wide />
+      </div>
+      <div>
+        <Button text="Block (full width)" intent="primary" block />
+      </div>
+      <div className="flex items-center gap-2">
+        <Button text="✓" intent="primary" square />
+        <Button text="✓" intent="primary" circle />
+        <Button text="+" intent="success" circle />
+        <Button text="×" intent="danger" circle />
+      </div>
     </div>
   ),
 };

@@ -1,7 +1,7 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { PrismaService } from '../../database/prisma.service';
-import { hashPassword } from './utils/password.util';
+import { PrismaService } from '../../database/prisma.service.js';
+import { hashPassword } from './utils/password.util.js';
 
 export interface CreateUserInput {
   email: string;
@@ -17,12 +17,23 @@ export interface CreatedUser {
   lastName: string | null;
 }
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_PASSWORD_LENGTH = 8;
+
 @Injectable()
 export class AuthService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createUser(input: CreateUserInput): Promise<CreatedUser> {
     const { email, password, firstName, lastName } = input;
+
+    if (!EMAIL_REGEX.test(email)) {
+      throw new Error('Invalid email format');
+    }
+
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+    }
 
     const existingUser = await this.prisma.user.findFirst({
       where: { email, deleted_at: null },

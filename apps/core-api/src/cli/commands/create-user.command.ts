@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { AuthService } from '../../modules/auth/auth.service';
+import { AuthService } from '../../modules/auth/auth.service.js';
 
 interface CreateUserOptions {
   email: string;

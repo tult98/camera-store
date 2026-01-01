@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from '../database/database.module';
-import { AuthModule } from '../modules/auth/auth.module';
-import { CreateUserCommand } from './commands/create-user.command';
+import { AuthModule } from '../modules/auth/auth.module.js';
+import { CreateUserCommand } from './commands/create-user.command.js';
 
 @Module({
   imports: [
@@ -10,7 +9,6 @@ import { CreateUserCommand } from './commands/create-user.command';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    DatabaseModule,
     AuthModule,
   ],
   providers: [CreateUserCommand],

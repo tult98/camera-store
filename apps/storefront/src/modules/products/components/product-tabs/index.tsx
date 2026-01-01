@@ -15,13 +15,18 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
 
   // Extract technical specifications from product_attributes
   const getTechnicalSpecs = () => {
-    if (!product.product_attributes || Object.keys(product.product_attributes).length === 0)
+    if (
+      !product.product_attributes ||
+      Object.keys(product.product_attributes).length === 0
+    )
       return null
 
-    const specs = Object.entries(product.product_attributes).map(([key, value]) => ({
-      label: key,
-      value: value,
-    }))
+    const specs = Object.entries(product.product_attributes).map(
+      ([key, value]) => ({
+        label: key,
+        value: value,
+      })
+    )
 
     return specs.length > 0 ? specs : null
   }
@@ -88,10 +93,11 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
                             <CheckCircleIcon className="w-5 h-5 text-success" />
                           ) : spec.value === false ? (
                             <XCircleIcon className="w-5 h-5 text-error" />
-                          ) : typeof spec.value === 'object' && spec.value !== null ? (
+                          ) : typeof spec.value === "object" &&
+                            spec.value !== null ? (
                             JSON.stringify(spec.value)
                           ) : (
-                            String(spec.value || '')
+                            String(spec.value || "")
                           )}
                         </td>
                       </tr>

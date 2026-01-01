@@ -7,11 +7,7 @@ interface JobStateMessageProps {
   showIcon?: boolean;
 }
 
-export const JobStateMessage: React.FC<JobStateMessageProps> = ({
-  variant,
-  message,
-  showIcon = false,
-}) => {
+export const JobStateMessage: React.FC<JobStateMessageProps> = ({ variant, message, showIcon = false }) => {
   const getVariantClasses = () => {
     switch (variant) {
       case 'yellow':

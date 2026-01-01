@@ -1,5 +1,5 @@
-import type { FacetConfig } from "../models/attribute-template";
-import type { FacetAggregation } from "../types/facet.types";
+import type { FacetConfig } from '../models/attribute-template';
+import type { FacetAggregation } from '../types/facet.types';
 
 /**
  * Aggregates boolean-based facets (true/false values like "has wifi", "weather sealed", etc.)
@@ -18,9 +18,9 @@ export function aggregateBooleanFacet(
 
   for (const pa of baseProductAttributes) {
     const value = pa.attribute_values[key];
-    if (value === true || value === "true") {
+    if (value === true || value === 'true') {
       hasTrue = true;
-    } else if (value === false || value === "false") {
+    } else if (value === false || value === 'false') {
       hasFalse = true;
     }
   }
@@ -31,9 +31,9 @@ export function aggregateBooleanFacet(
 
   for (const pa of filteredProductAttributes) {
     const value = pa.attribute_values[key];
-    if (value === true || value === "true") {
+    if (value === true || value === 'true') {
       trueCount++;
-    } else if (value === false || value === "false") {
+    } else if (value === false || value === 'false') {
       falseCount++;
     }
   }
@@ -41,16 +41,16 @@ export function aggregateBooleanFacet(
   // Always show both options in consistent order: Yes first, then No
   const values = [];
   if (hasTrue) {
-    values.push({ value: true, label: "Yes", count: trueCount });
+    values.push({ value: true, label: 'Yes', count: trueCount });
   }
   if (hasFalse) {
-    values.push({ value: false, label: "No", count: falseCount });
+    values.push({ value: false, label: 'No', count: falseCount });
   }
 
   return {
     facet_key: key,
     facet_label: label,
-    aggregation_type: "boolean",
+    aggregation_type: 'boolean',
     display_type: config.display_type,
     values,
     ui_config: {

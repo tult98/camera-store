@@ -1,13 +1,10 @@
-import {
-  ContainerRegistrationKeys,
-  QueryContext,
-} from "@medusajs/framework/utils";
-import { Logger } from "@medusajs/framework/types";
-import { getAllCategoryIds } from "../../../utils/category-hierarchy";
-import { PRODUCT_ATTRIBUTES_MODULE } from "../index";
+import { ContainerRegistrationKeys, QueryContext } from '@medusajs/framework/utils';
+import { Logger } from '@medusajs/framework/types';
+import { getAllCategoryIds } from '../../../utils/category-hierarchy';
+import { PRODUCT_ATTRIBUTES_MODULE } from '../index';
 
-const DEFAULT_REGION_ID = "reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK";
-const DEFAULT_CURRENCY_CODE = "usd";
+const DEFAULT_REGION_ID = 'reg_01J9K0FDQZ8X3N8Q9NBXD5EKPK';
+const DEFAULT_CURRENCY_CODE = 'usd';
 
 export class ProductFilterService {
   protected logger_: Logger | Console;
@@ -40,18 +37,17 @@ export class ProductFilterService {
 
     // Get all products in category and child categories with pricing data
     const result = await query.graph({
-      entity: "product",
-      fields: ["*", "variants.*", "variants.calculated_price.*"],
+      entity: 'product',
+      fields: ['*', 'variants.*', 'variants.calculated_price.*'],
       filters: {
         categories: { id: categoryIds },
-        status: "published",
+        status: 'published',
       },
       context: {
         variants: {
           calculated_price: QueryContext({
             region_id: pricingContext?.region_id || DEFAULT_REGION_ID,
-            currency_code:
-              pricingContext?.currency_code || DEFAULT_CURRENCY_CODE,
+            currency_code: pricingContext?.currency_code || DEFAULT_CURRENCY_CODE,
           }),
         },
       },
@@ -69,16 +65,10 @@ export class ProductFilterService {
     container: any,
     pricingContext?: { region_id: string; currency_code: string }
   ) {
-    const productAttributesService = container.resolve(
-      PRODUCT_ATTRIBUTES_MODULE
-    );
+    const productAttributesService = container.resolve(PRODUCT_ATTRIBUTES_MODULE);
 
     // Get base products first
-    let products = await this.getBaseProducts(
-      categoryId,
-      container,
-      pricingContext
-    );
+    let products = await this.getBaseProducts(categoryId, container, pricingContext);
 
     // If no filters applied, return all products
     if (Object.keys(appliedFilters).length === 0) {
@@ -86,36 +76,25 @@ export class ProductFilterService {
     }
 
     // Handle price filter (system facet) in memory
-    const priceFilter = appliedFilters["price"] as
-      | { min?: number; max?: number }
-      | undefined;
+    const priceFilter = appliedFilters['price'] as { min?: number; max?: number } | undefined;
     if (priceFilter) {
       products = this.filterByPrice(products, priceFilter);
     }
 
     // Handle attribute filters
-    const attributeFilters = Object.entries(appliedFilters).filter(
-      ([key]) => key !== "price"
-    );
+    const attributeFilters = Object.entries(appliedFilters).filter(([key]) => key !== 'price');
 
     if (attributeFilters.length === 0) {
       return products;
     }
 
-    return await this.filterByAttributes(
-      products,
-      attributeFilters,
-      productAttributesService
-    );
+    return await this.filterByAttributes(products, attributeFilters, productAttributesService);
   }
 
   /**
    * Filter products by price range
    */
-  private filterByPrice(
-    products: any[],
-    priceFilter: { min?: number; max?: number }
-  ): any[] {
+  private filterByPrice(products: any[], priceFilter: { min?: number; max?: number }): any[] {
     return products.filter((product: any) => {
       // Check if any variant matches the price filter
       return product.variants?.some((variant: any) => {

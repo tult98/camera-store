@@ -10,7 +10,7 @@ interface CategorySubcategoriesSectionProps {
 }
 
 export default function CategorySubcategoriesSection({
-  subcategories
+  subcategories,
 }: CategorySubcategoriesSectionProps) {
   if (!subcategories || subcategories.length === 0) {
     return null

@@ -34,11 +34,5 @@ export const JobStatusBadge: React.FC<JobStatusBadgeProps> = ({ state }) => {
     return state.charAt(0).toUpperCase() + state.slice(1);
   };
 
-  return (
-    <span
-      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClasses()}`}
-    >
-      {getStatusLabel()}
-    </span>
-  );
+  return <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClasses()}`}>{getStatusLabel()}</span>;
 };

@@ -7,14 +7,8 @@ import { z } from 'zod';
 import { LoadingIcon } from '../../shared/components/ui/loading-icon';
 import { useToast } from '../../shared/hooks/use-toast';
 import { generateHandle } from '../../shared/utils/formatters';
-import {
-  createAttributeTemplate,
-  updateAttributeTemplate,
-} from '../apiCalls/attribute-templates';
-import {
-  attributeTemplateSchema,
-  type AttributeTemplateSchemaType,
-} from '../types';
+import { createAttributeTemplate, updateAttributeTemplate } from '../apiCalls/attribute-templates';
+import { attributeTemplateSchema, type AttributeTemplateSchemaType } from '../types';
 import { AttributeDefinitionsSection } from './attribute-template-form/attribute-definitions-section';
 import { BasicInformationSection } from './attribute-template-form/basic-information-section';
 
@@ -70,39 +64,26 @@ export const AttributeTemplateForm: React.FC<AttributeTemplateFormProps> = ({
     mutationFn: createAttributeTemplate,
     onSuccess: (newTemplate) => {
       queryClient.invalidateQueries({ queryKey: ['attribute-templates'] });
-      success(
-        'Template created',
-        `"${newTemplate.name}" has been created successfully`
-      );
+      success('Template created', `"${newTemplate.name}" has been created successfully`);
       navigate('/attribute-templates');
     },
     onError: (err: Error) => {
-      error(
-        'Failed to create template',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to create template', err.message || 'An unexpected error occurred');
     },
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: AttributeTemplateSchemaType) =>
-      updateAttributeTemplate(templateId!, data),
+    mutationFn: (data: AttributeTemplateSchemaType) => updateAttributeTemplate(templateId!, data),
     onSuccess: (updatedTemplate) => {
       queryClient.invalidateQueries({ queryKey: ['attribute-templates'] });
       queryClient.invalidateQueries({
         queryKey: ['attribute-template', templateId],
       });
-      success(
-        'Template updated',
-        `"${updatedTemplate.name}" has been updated successfully`
-      );
+      success('Template updated', `"${updatedTemplate.name}" has been updated successfully`);
       navigate('/attribute-templates');
     },
     onError: (err: Error) => {
-      error(
-        'Failed to update template',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to update template', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -114,8 +95,7 @@ export const AttributeTemplateForm: React.FC<AttributeTemplateFormProps> = ({
     }
   };
 
-  const isDisabled =
-    isSubmitting || createMutation.isPending || updateMutation.isPending;
+  const isDisabled = isSubmitting || createMutation.isPending || updateMutation.isPending;
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -144,9 +124,7 @@ export const AttributeTemplateForm: React.FC<AttributeTemplateFormProps> = ({
           disabled={isDisabled}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {isDisabled && (
-            <LoadingIcon size="md" color="white" className="mr-2" />
-          )}
+          {isDisabled && <LoadingIcon size="md" color="white" className="mr-2" />}
           {isEditMode ? 'Update' : 'Create'}
         </button>
       </div>

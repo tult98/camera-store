@@ -50,8 +50,7 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
                     {
                       'bg-blue-600 text-white': isActive,
                       'bg-green-500 text-white': isCompleted && !isActive,
-                      'border-2 border-gray-300 text-gray-500 bg-white':
-                        !isActive && !isCompleted,
+                      'border-2 border-gray-300 text-gray-500 bg-white': !isActive && !isCompleted,
                       'cursor-pointer hover:border-gray-400': isClickable,
                       'cursor-default': !isClickable,
                     }
@@ -60,11 +59,7 @@ export const WizardNavigation: React.FC<WizardNavigationProps> = ({
                   aria-current={isActive ? 'step' : undefined}
                 >
                   {isCompleted && !isActive ? (
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"

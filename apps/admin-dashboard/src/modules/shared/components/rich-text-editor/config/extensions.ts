@@ -20,8 +20,7 @@ export const editorExtensions = (placeholder: string) => [
     },
     codeBlock: {
       HTMLAttributes: {
-        class:
-          'bg-gray-100 border border-gray-200 rounded p-4 font-mono text-sm',
+        class: 'bg-gray-100 border border-gray-200 rounded p-4 font-mono text-sm',
       },
     },
     code: {
@@ -61,8 +60,7 @@ export const editorExtensions = (placeholder: string) => [
         },
         align: {
           default: 'center',
-          parseHTML: (element) =>
-            element.getAttribute('data-align') || 'center',
+          parseHTML: (element) => element.getAttribute('data-align') || 'center',
           renderHTML: (attributes) => {
             return {
               'data-align': attributes.align,

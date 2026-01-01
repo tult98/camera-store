@@ -1,3 +1,3 @@
-export { ThumbnailGallery } from './ThumbnailGallery'
-export { MainImageSwiper } from './MainImageSwiper'
-export { LightboxModal } from './LightboxModal'
+export { ThumbnailGallery } from "./ThumbnailGallery"
+export { MainImageSwiper } from "./MainImageSwiper"
+export { LightboxModal } from "./LightboxModal"

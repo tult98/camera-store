@@ -1,8 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  PaginatedData,
-  PaginationParams,
-} from '../../../common/types/pagination.types.js';
+import { PaginatedData, PaginationParams } from '../../../common/types/pagination.types.js';
 import { PrismaService } from '../../../database/prisma.service.js';
 import {
   Product,
@@ -18,10 +15,7 @@ import {
 export class StoreProductService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private async getVariantPrices(
-    variantIds: string[],
-    currencyCode: string
-  ): Promise<Map<string, VariantPrice>> {
+  private async getVariantPrices(variantIds: string[], currencyCode: string): Promise<Map<string, VariantPrice>> {
     if (variantIds.length === 0) {
       return new Map();
     }
@@ -81,10 +75,7 @@ export class StoreProductService {
     return variantPriceMap;
   }
 
-  private transformProduct(
-    rawProduct: any,
-    variantPrices?: Map<string, VariantPrice>
-  ): Product {
+  private transformProduct(rawProduct: any, variantPrices?: Map<string, VariantPrice>): Product {
     const categories: ProductCategory[] = rawProduct.product_category_product
       ? rawProduct.product_category_product.map((pcp: any) => ({
           ...pcp.product_category,
@@ -95,18 +86,14 @@ export class StoreProductService {
       ? rawProduct.product_tags.map((pt: any) => ({ ...pt.product_tag }))
       : [];
 
-    const images: ProductImage[] = rawProduct.image
-      ? rawProduct.image.map((img: any) => ({ ...img }))
-      : [];
+    const images: ProductImage[] = rawProduct.image ? rawProduct.image.map((img: any) => ({ ...img })) : [];
 
     const options: ProductOption[] = rawProduct.product_option
       ? rawProduct.product_option.map((opt: any) => {
           const { product_option_value, ...cleanOption } = opt;
           return {
             ...cleanOption,
-            values: product_option_value
-              ? product_option_value.map((val: any) => ({ ...val }))
-              : [],
+            values: product_option_value ? product_option_value.map((val: any) => ({ ...val })) : [],
           };
         })
       : [];
@@ -133,12 +120,7 @@ export class StoreProductService {
         })
       : [];
 
-    const {
-      product_type,
-      product_collection,
-      metadata,
-      ...cleanProduct
-    } = rawProduct;
+    const { product_type, product_collection, metadata, ...cleanProduct } = rawProduct;
 
     return {
       ...cleanProduct,
@@ -153,10 +135,7 @@ export class StoreProductService {
     };
   }
 
-  async findAll(
-    pagination: PaginationParams,
-    currencyCode: string = 'USD'
-  ): Promise<PaginatedData<Product>> {
+  async findAll(pagination: PaginationParams, currencyCode: string = 'USD'): Promise<PaginatedData<Product>> {
     const { offset, limit } = pagination;
 
     const where = {
@@ -211,14 +190,9 @@ export class StoreProductService {
       product.product_variant ? product.product_variant.map((v) => v.id) : []
     );
 
-    const variantPrices = await this.getVariantPrices(
-      allVariantIds,
-      currencyCode
-    );
+    const variantPrices = await this.getVariantPrices(allVariantIds, currencyCode);
 
-    const transformedProducts = rawProducts.map((product) =>
-      this.transformProduct(product, variantPrices)
-    );
+    const transformedProducts = rawProducts.map((product) => this.transformProduct(product, variantPrices));
 
     return { data: transformedProducts, count };
   }
@@ -285,22 +259,14 @@ export class StoreProductService {
       product.product_variant ? product.product_variant.map((v) => v.id) : []
     );
 
-    const variantPrices = await this.getVariantPrices(
-      allVariantIds,
-      currencyCode
-    );
+    const variantPrices = await this.getVariantPrices(allVariantIds, currencyCode);
 
-    const transformedProducts = rawProducts.map((product) =>
-      this.transformProduct(product, variantPrices)
-    );
+    const transformedProducts = rawProducts.map((product) => this.transformProduct(product, variantPrices));
 
     return { data: transformedProducts, count };
   }
 
-  async findByHandle(
-    handle: string,
-    currencyCode: string = 'USD'
-  ): Promise<Product> {
+  async findByHandle(handle: string, currencyCode: string = 'USD'): Promise<Product> {
     const rawProduct = await this.prisma.product.findFirst({
       where: {
         handle,
@@ -342,9 +308,7 @@ export class StoreProductService {
       throw new NotFoundException(`Product with handle "${handle}" not found`);
     }
 
-    const variantIds = rawProduct.product_variant
-      ? rawProduct.product_variant.map((v) => v.id)
-      : [];
+    const variantIds = rawProduct.product_variant ? rawProduct.product_variant.map((v) => v.id) : [];
 
     const variantPrices = await this.getVariantPrices(variantIds, currencyCode);
 

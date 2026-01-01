@@ -1,6 +1,6 @@
-import { XMarkIcon } from "@heroicons/react/20/solid";
-import { Input, Label } from "@medusajs/ui";
-import { useState } from "react";
+import { XMarkIcon } from '@heroicons/react/20/solid';
+import { Input, Label } from '@medusajs/ui';
+import { useState } from 'react';
 
 type CreatableValuesInputProps = {
   values: string[];
@@ -12,16 +12,16 @@ type CreatableValuesInputProps = {
 export const CreatableValuesInput = ({
   values,
   onChange,
-  label = "Values",
-  placeholder = "Type value and press Enter",
+  label = 'Values',
+  placeholder = 'Type value and press Enter',
 }: CreatableValuesInputProps) => {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
 
   const addValue = () => {
     const trimmedValue = inputValue.trim();
     if (trimmedValue && !values.includes(trimmedValue)) {
       onChange([...values, trimmedValue]);
-      setInputValue("");
+      setInputValue('');
     }
   };
 
@@ -30,7 +30,7 @@ export const CreatableValuesInput = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault();
       addValue();
     }
@@ -69,9 +69,7 @@ export const CreatableValuesInput = ({
       )}
 
       {values.length === 0 && (
-        <div className="text-ui-fg-muted text-sm mt-2">
-          No values added yet. Type above and press Enter to add.
-        </div>
+        <div className="text-ui-fg-muted text-sm mt-2">No values added yet. Type above and press Enter to add.</div>
       )}
     </div>
   );

@@ -23,31 +23,31 @@ export default function ProductPrice({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className="text-xl font-semibold text-primary">
-              {priceRange.hasRange ? (
-                <>
-                  <span
-                    data-testid="min-price"
-                    data-value={priceRange.minPrice.calculated_price_number}
-                  >
-                    {priceRange.minPrice.calculated_price}
-                  </span>
-                  <span className="text-primary mx-2">-</span>
-                  <span
-                    data-testid="max-price"
-                    data-value={priceRange.maxPrice.calculated_price_number}
-                  >
-                    {priceRange.maxPrice.calculated_price}
-                  </span>
-                </>
-              ) : (
+            {priceRange.hasRange ? (
+              <>
                 <span
-                  data-testid="single-price"
+                  data-testid="min-price"
                   data-value={priceRange.minPrice.calculated_price_number}
                 >
                   {priceRange.minPrice.calculated_price}
                 </span>
-              )}
-            </span>
+                <span className="text-primary mx-2">-</span>
+                <span
+                  data-testid="max-price"
+                  data-value={priceRange.maxPrice.calculated_price_number}
+                >
+                  {priceRange.maxPrice.calculated_price}
+                </span>
+              </>
+            ) : (
+              <span
+                data-testid="single-price"
+                data-value={priceRange.minPrice.calculated_price_number}
+              >
+                {priceRange.minPrice.calculated_price}
+              </span>
+            )}
+          </span>
           {priceRange.hasSalePrice && priceRange.percentage_diff && (
             <span className="badge badge-secondary text-xs">
               -{priceRange.percentage_diff}%

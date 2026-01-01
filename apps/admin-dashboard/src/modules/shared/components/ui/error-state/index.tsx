@@ -42,13 +42,9 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
   return (
     <div className="flex items-center justify-center px-4 flex-1">
       <div className="text-center max-w-md mx-auto">
-        {code && (
-          <div className="text-6xl font-bold text-blue-600 mb-6">{code}</div>
-        )}
+        {code && <div className="text-6xl font-bold text-blue-600 mb-6">{code}</div>}
 
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          {displayTitle}
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">{displayTitle}</h1>
 
         <p className="text-gray-600 text-lg mb-8">{message}</p>
 

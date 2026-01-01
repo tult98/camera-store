@@ -1,23 +1,23 @@
-import { Heading, Button, Text } from "@medusajs/ui";
-import React from "react";
-import { Link, LinkProps } from "react-router-dom";
-import { ActionMenu, ActionMenuProps } from "./action-menu";
+import { Heading, Button, Text } from '@medusajs/ui';
+import React from 'react';
+import { Link, LinkProps } from 'react-router-dom';
+import { ActionMenu, ActionMenuProps } from './action-menu';
 
 export type HeadingProps = {
   title: string;
   subtitle?: string;
   actions?: (
     | {
-        type: "button";
+        type: 'button';
         props: React.ComponentProps<typeof Button>;
         link?: LinkProps;
       }
     | {
-        type: "action-menu";
+        type: 'action-menu';
         props: ActionMenuProps;
       }
     | {
-        type: "custom";
+        type: 'custom';
         children: React.ReactNode;
       }
   )[];
@@ -38,22 +38,16 @@ export const Header = ({ title, subtitle, actions = [] }: HeadingProps) => {
         <div className="flex items-center justify-center gap-x-2">
           {actions.map((action, index) => (
             <>
-              {action.type === "button" && (
-                <Button
-                  {...action.props}
-                  size={action.props.size || "small"}
-                  key={index}
-                >
+              {action.type === 'button' && (
+                <Button {...action.props} size={action.props.size || 'small'} key={index}>
                   <>
                     {action.props.children}
                     {action.link && <Link {...action.link} />}
                   </>
                 </Button>
               )}
-              {action.type === "action-menu" && (
-                <ActionMenu {...action.props} />
-              )}
-              {action.type === "custom" && action.children}
+              {action.type === 'action-menu' && <ActionMenu {...action.props} />}
+              {action.type === 'custom' && action.children}
             </>
           ))}
         </div>

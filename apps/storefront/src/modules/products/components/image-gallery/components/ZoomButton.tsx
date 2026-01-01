@@ -1,5 +1,5 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline"
-import { ZoomButtonProps } from '../types'
+import { ZoomButtonProps } from "../types"
 
 export const ZoomButton = ({ onClick }: ZoomButtonProps) => {
   return (

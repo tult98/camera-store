@@ -1,9 +1,4 @@
-import {
-  createStep,
-  createWorkflow,
-  StepResponse,
-  WorkflowResponse,
-} from '@medusajs/framework/workflows-sdk';
+import { createStep, createWorkflow, StepResponse, WorkflowResponse } from '@medusajs/framework/workflows-sdk';
 import { BANNER_MODULE } from 'src/modules/banner';
 import BannerModuleService from 'src/modules/banner/service';
 
@@ -23,26 +18,18 @@ type PreviousBannerState = {
   previousData?: BannerData;
 };
 
-export const getExistingBannerStep = createStep(
-  'get-existing-banner-step',
-  async (_input: void, { container }) => {
-    const bannerModuleService: BannerModuleService =
-      container.resolve(BANNER_MODULE);
+export const getExistingBannerStep = createStep('get-existing-banner-step', async (_input: void, { container }) => {
+  const bannerModuleService: BannerModuleService = container.resolve(BANNER_MODULE);
 
-    const [banners] = await bannerModuleService.listAndCountBanners({}, { take: 1 });
+  const [banners] = await bannerModuleService.listAndCountBanners({}, { take: 1 });
 
-    return new StepResponse(banners[0] || null);
-  }
-);
+  return new StepResponse(banners[0] || null);
+});
 
 export const updateOrCreateBannerStep = createStep(
   'update-or-create-banner-step',
-  async (
-    input: { bannerInput: CreateBannerStepInput; existingBanner: BannerData | null },
-    { container }
-  ) => {
-    const bannerModuleService: BannerModuleService =
-      container.resolve(BANNER_MODULE);
+  async (input: { bannerInput: CreateBannerStepInput; existingBanner: BannerData | null }, { container }) => {
+    const bannerModuleService: BannerModuleService = container.resolve(BANNER_MODULE);
 
     if (input.existingBanner) {
       const updated = await bannerModuleService.updateBanners({
@@ -69,8 +56,7 @@ export const updateOrCreateBannerStep = createStep(
   async (previousState: PreviousBannerState | undefined, { container }) => {
     if (!previousState) return;
 
-    const bannerModuleService: BannerModuleService =
-      container.resolve(BANNER_MODULE);
+    const bannerModuleService: BannerModuleService = container.resolve(BANNER_MODULE);
 
     if (previousState.existed && previousState.previousData) {
       await bannerModuleService.updateBanners({
@@ -87,15 +73,12 @@ export const updateOrCreateBannerStep = createStep(
   }
 );
 
-export const createBannerWorkflow = createWorkflow(
-  'create-banner',
-  (input: CreateBannerStepInput) => {
-    const existingBanner = getExistingBannerStep();
-    const banner = updateOrCreateBannerStep({
-      bannerInput: input,
-      existingBanner
-    });
+export const createBannerWorkflow = createWorkflow('create-banner', (input: CreateBannerStepInput) => {
+  const existingBanner = getExistingBannerStep();
+  const banner = updateOrCreateBannerStep({
+    bannerInput: input,
+    existingBanner,
+  });
 
-    return new WorkflowResponse(banner);
-  }
-);
+  return new WorkflowResponse(banner);
+});

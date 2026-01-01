@@ -9,14 +9,10 @@ export const NotFoundPage: React.FC = () => {
         <div className="text-6xl font-bold text-blue-600 mb-6">404</div>
 
         {/* Main heading */}
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Page not found
-        </h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Page not found</h1>
 
         {/* Description */}
-        <p className="text-gray-600 text-lg mb-8">
-          Sorry, we couldn't find the page you're looking for.
-        </p>
+        <p className="text-gray-600 text-lg mb-8">Sorry, we couldn't find the page you're looking for.</p>
 
         {/* Go back home button */}
         <Link

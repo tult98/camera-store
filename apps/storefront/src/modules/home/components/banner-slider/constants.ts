@@ -1,4 +1,4 @@
-import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import { Autoplay, Navigation, Pagination } from "swiper/modules"
 
 export const BANNER_SWIPER_MODULES = [Autoplay, Pagination, Navigation]
 

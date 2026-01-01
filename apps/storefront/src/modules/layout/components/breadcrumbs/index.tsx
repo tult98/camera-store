@@ -4,4 +4,3 @@ export interface BreadcrumbItem {
   icon?: React.ReactNode
   isActive?: boolean
 }
-

@@ -10,6 +10,4 @@ export const PostCategoryProductsSchema = z.object({
   brand_id: z.string().optional(),
 });
 
-export type PostCategoryProductsSchemaType = z.infer<
-  typeof PostCategoryProductsSchema
->;
+export type PostCategoryProductsSchemaType = z.infer<typeof PostCategoryProductsSchema>;

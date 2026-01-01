@@ -1,8 +1,4 @@
-import {
-  BookmarkIcon,
-  CheckIcon,
-  CloudArrowUpIcon,
-} from '@heroicons/react/24/outline';
+import { BookmarkIcon, CheckIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { LoadingIcon } from '@modules/shared/components/ui/loading-icon';
 import { useToast } from '@modules/shared/hooks/use-toast';
 import { cn } from '@modules/shared/utils/cn';
@@ -42,8 +38,7 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
       onSave?.(newImages);
     },
     onError: (error: Error) => {
-      const errorMessage =
-        error.message || 'Failed to upload images. Please try again.';
+      const errorMessage = error.message || 'Failed to upload images. Please try again.';
       toast.error(errorMessage);
     },
   });
@@ -51,19 +46,12 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
   const handleFileSelect = useCallback(
     async (files: File[]) => {
       const validFiles = files.filter((file) => {
-        const validTypes = [
-          'image/jpeg',
-          'image/png',
-          'image/gif',
-          'image/svg+xml',
-        ];
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
         return validTypes.includes(file.type);
       });
 
       if (validFiles.length === 0) {
-        setValidationError(
-          'Please select valid image files (JPG, PNG, GIF, SVG)'
-        );
+        setValidationError('Please select valid image files (JPG, PNG, GIF, SVG)');
         return;
       }
 
@@ -123,9 +111,7 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
 
   const handleMakeThumbnail = () => {
     const selectedId = Array.from(selectedIds)[0];
-    const selectedImage = images.find(
-      (img) => (img.id || img.url) === selectedId
-    );
+    const selectedImage = images.find((img) => (img.id || img.url) === selectedId);
     if (selectedImage?.url) {
       onMakeThumbnail(selectedImage.url);
     }
@@ -155,9 +141,7 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
           <div
             className={cn(
               'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
-              dragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+              dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 bg-gray-50'
             )}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -166,14 +150,10 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
           >
             <CloudArrowUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 font-medium mb-2">Upload Images</p>
-            <p className="text-xs text-gray-500">
-              Drag and drop images here or click to upload
-            </p>
+            <p className="text-xs text-gray-500">Drag and drop images here or click to upload</p>
           </div>
 
-          {validationError && (
-            <p className="text-red-500 text-sm">{validationError}</p>
-          )}
+          {validationError && <p className="text-red-500 text-sm">{validationError}</p>}
 
           <input
             ref={fileInputRef}
@@ -203,11 +183,7 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
                     )}
                     onClick={() => toggleImageSelection(imageId)}
                   >
-                    <img
-                      src={image.url}
-                      alt=""
-                      className="w-full aspect-square object-cover"
-                    />
+                    <img src={image.url} alt="" className="w-full aspect-square object-cover" />
 
                     {image.url === thumbnail && (
                       <div className="absolute top-2 left-2 bg-green-600 text-white p-1.5 rounded-full shadow-lg">
@@ -218,14 +194,10 @@ export const MediaUploadSection: React.FC<MediaUploadSectionProps> = ({
                     <div
                       className={cn(
                         'absolute top-2 right-2 w-6 h-6 rounded border-2 bg-white',
-                        selectedIds.has(imageId)
-                          ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
+                        selectedIds.has(imageId) ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
                       )}
                     >
-                      {selectedIds.has(imageId) && (
-                        <CheckIcon className="w-full h-full text-white" />
-                      )}
+                      {selectedIds.has(imageId) && <CheckIcon className="w-full h-full text-white" />}
                     </div>
                   </div>
                 );

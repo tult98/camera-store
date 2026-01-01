@@ -44,9 +44,7 @@ export const AttributeDefinitionsSection: React.FC<AttributeDefinitionsSectionPr
   return (
     <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-gray-900">
-          Attribute Definitions
-        </h2>
+        <h2 className="text-lg font-semibold text-gray-900">Attribute Definitions</h2>
       </div>
 
       <div className="border border-gray-200 rounded-lg p-4 min-h-[200px]">
@@ -61,8 +59,7 @@ export const AttributeDefinitionsSection: React.FC<AttributeDefinitionsSectionPr
               Add Attribute
             </button>
             <p className="text-sm text-gray-500 text-center">
-              No attributes defined yet. Add your first attribute to get
-              started.
+              No attributes defined yet. Add your first attribute to get started.
             </p>
           </div>
         ) : (

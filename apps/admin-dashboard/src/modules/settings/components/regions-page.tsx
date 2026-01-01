@@ -5,10 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ColumnDef } from '@tanstack/react-table';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-  ActionDropdown,
-  ActionItem,
-} from '../../shared/components/ui/action-dropdown';
+import { ActionDropdown, ActionItem } from '../../shared/components/ui/action-dropdown';
 import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
 import { DataTable } from '../../shared/components/ui/data-table';
 import { ErrorState } from '../../shared/components/ui/error-state';
@@ -49,22 +46,14 @@ export const RegionsPage: React.FC = () => {
       setRegionToDelete(null);
     },
     onError: (err: Error) => {
-      showError(
-        'Failed to delete region',
-        err.message || 'An unexpected error occurred'
-      );
+      showError('Failed to delete region', err.message || 'An unexpected error occurred');
     },
   });
 
   const transformRegion = (region: AdminRegion): RegionDisplay => {
-    const countries =
-      region.countries
-        ?.map((country) => country.display_name || country.name)
-        .join(', ') || '-';
+    const countries = region.countries?.map((country) => country.display_name || country.name).join(', ') || '-';
 
-    const paymentProviders =
-      region.payment_providers?.map((provider) => provider.id).join(', ') ||
-      '-';
+    const paymentProviders = region.payment_providers?.map((provider) => provider.id).join(', ') || '-';
 
     return {
       id: region.id,
@@ -84,16 +73,12 @@ export const RegionsPage: React.FC = () => {
     {
       accessorKey: 'countries',
       header: 'Countries',
-      cell: ({ getValue }) => (
-        <span className="text-gray-700">{getValue() as string}</span>
-      ),
+      cell: ({ getValue }) => <span className="text-gray-700">{getValue() as string}</span>,
     },
     {
       accessorKey: 'paymentProviders',
       header: 'Payment Providers',
-      cell: ({ getValue }) => (
-        <span className="text-gray-700">{getValue() as string}</span>
-      ),
+      cell: ({ getValue }) => <span className="text-gray-700">{getValue() as string}</span>,
     },
     {
       id: 'actions',
@@ -110,8 +95,7 @@ export const RegionsPage: React.FC = () => {
           {
             icon: TrashIcon,
             label: 'Delete',
-            onClick: () =>
-              setRegionToDelete({ id: region.id, name: region.name }),
+            onClick: () => setRegionToDelete({ id: region.id, name: region.name }),
             variant: 'danger',
           },
         ];

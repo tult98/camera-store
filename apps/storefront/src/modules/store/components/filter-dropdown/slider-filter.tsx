@@ -12,7 +12,7 @@ interface SliderFilterProps {
 export default function SliderFilter({
   facet,
   filters,
-  onSetPriceRange
+  onSetPriceRange,
 }: SliderFilterProps) {
   const [priceMin, setPriceMin] = useState<number>(0)
   const [priceMax, setPriceMax] = useState<number>(0)
@@ -130,9 +130,7 @@ export default function SliderFilter({
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-base-content/60 text-lg font-medium">
-            -
-          </span>
+          <span className="text-base-content/60 text-lg font-medium">-</span>
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60 text-sm">
               $

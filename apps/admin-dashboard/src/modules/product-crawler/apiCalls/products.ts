@@ -11,16 +11,12 @@ export interface CreateProductFromCrawlPayload {
   metadata?: Record<string, unknown>;
 }
 
-export const transformProductDataToPayload = (
-  productData: ProductData
-): CreateProductFromCrawlPayload => {
+export const transformProductDataToPayload = (productData: ProductData): CreateProductFromCrawlPayload => {
   return {
     title: productData.title,
     description: productData.seoDescription!,
     handle: generateHandle(productData.title),
-    options: [
-      { title: 'Default option', values: ['Default option value'] },
-    ] as AdminCreateProductOption[],
+    options: [{ title: 'Default option', values: ['Default option value'] }] as AdminCreateProductOption[],
     metadata: {
       ...productData.specs,
     },
@@ -32,10 +28,7 @@ export const createProductFromCrawl = async (productData: ProductData) => {
   return await sdk.admin.product.create(payload);
 };
 
-export const updateProductFromCrawl = async (
-  productId: string,
-  productData: ProductData
-) => {
+export const updateProductFromCrawl = async (productId: string, productData: ProductData) => {
   const payload = transformProductDataToPayload(productData);
   return await sdk.admin.product.update(productId, {
     description: payload.description,

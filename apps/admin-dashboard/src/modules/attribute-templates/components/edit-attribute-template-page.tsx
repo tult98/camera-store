@@ -66,19 +66,11 @@ export const EditAttributeTemplatePage: React.FC = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Edit Attribute Template
-        </h1>
-        <p className="text-gray-600">
-          Update the template information and attribute definitions.
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit Attribute Template</h1>
+        <p className="text-gray-600">Update the template information and attribute definitions.</p>
       </div>
 
-      <AttributeTemplateForm
-        initialData={initialData}
-        isEditMode={true}
-        templateId={id!}
-      />
+      <AttributeTemplateForm initialData={initialData} isEditMode={true} templateId={id!} />
     </div>
   );
 };

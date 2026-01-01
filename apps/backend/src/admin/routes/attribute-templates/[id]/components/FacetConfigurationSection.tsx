@@ -1,15 +1,9 @@
-import { Input, Select, Switch } from "@medusajs/ui";
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormRegister,
-  UseFormWatch,
-} from "react-hook-form";
-import { AttributeTemplateFormData } from "../../schemas/attribute-template.schema";
-import { FieldWithTooltip } from "../../../../components/tooltip-icon";
-import { FACET_TOOLTIPS } from "../../../../constants/tooltip-content";
-import { RangeConfigurationSection } from "./RangeConfigurationSection";
+import { Input, Select, Switch } from '@medusajs/ui';
+import { Control, Controller, FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form';
+import { AttributeTemplateFormData } from '../../schemas/attribute-template.schema';
+import { FieldWithTooltip } from '../../../../components/tooltip-icon';
+import { FACET_TOOLTIPS } from '../../../../constants/tooltip-content';
+import { RangeConfigurationSection } from './RangeConfigurationSection';
 
 interface FacetConfigurationSectionProps {
   index: number;
@@ -27,11 +21,8 @@ export const FacetConfigurationSection = ({
   register,
 }: FacetConfigurationSectionProps) => {
   const isFacet = watch(`attribute_definitions.${index}.facet_config.is_facet`);
-  const aggregationType = watch(
-    `attribute_definitions.${index}.facet_config.aggregation_type`
-  );
-  const showRangeConfig =
-    aggregationType === "range" || aggregationType === "histogram";
+  const aggregationType = watch(`attribute_definitions.${index}.facet_config.aggregation_type`);
+  const showRangeConfig = aggregationType === 'range' || aggregationType === 'histogram';
 
   return (
     <div className="border rounded-lg p-6">
@@ -40,8 +31,8 @@ export const FacetConfigurationSection = ({
         <FieldWithTooltip
           label=""
           tooltip={{
-            content: "These settings control how customers filter products",
-            color: "purple",
+            content: 'These settings control how customers filter products',
+            color: 'purple',
           }}
           field={<span />}
         />
@@ -50,17 +41,12 @@ export const FacetConfigurationSection = ({
       <div className="grid grid-cols-2 gap-4">
         <FieldWithTooltip
           label="Use as Filter"
-          tooltip={{ ...FACET_TOOLTIPS["is_facet"], color: "purple" }}
+          tooltip={{ ...FACET_TOOLTIPS['is_facet'], color: 'purple' }}
           field={
             <Controller
               name={`attribute_definitions.${index}.facet_config.is_facet`}
               control={control}
-              render={({ field }) => (
-                <Switch
-                  checked={field.value || false}
-                  onCheckedChange={field.onChange}
-                />
-              )}
+              render={({ field }) => <Switch checked={field.value || false} onCheckedChange={field.onChange} />}
             />
           }
         />
@@ -68,17 +54,12 @@ export const FacetConfigurationSection = ({
         {isFacet && (
           <FieldWithTooltip
             label="Show Count"
-            tooltip={{ ...FACET_TOOLTIPS["show_count"], color: "purple" }}
+            tooltip={{ ...FACET_TOOLTIPS['show_count'], color: 'purple' }}
             field={
               <Controller
                 name={`attribute_definitions.${index}.facet_config.show_count`}
                 control={control}
-                render={({ field }) => (
-                  <Switch
-                    checked={field.value ?? true}
-                    onCheckedChange={field.onChange}
-                  />
-                )}
+                render={({ field }) => <Switch checked={field.value ?? true} onCheckedChange={field.onChange} />}
               />
             }
           />
@@ -89,27 +70,22 @@ export const FacetConfigurationSection = ({
             <FieldWithTooltip
               label="Filter Priority"
               tooltip={{
-                ...FACET_TOOLTIPS["display_priority"],
-                color: "purple",
+                ...FACET_TOOLTIPS['display_priority'],
+                color: 'purple',
               }}
               field={
                 <div>
                   <Input
                     type="number"
                     min="1"
-                    {...register(
-                      `attribute_definitions.${index}.facet_config.display_priority`,
-                      { valueAsNumber: true }
-                    )}
+                    {...register(`attribute_definitions.${index}.facet_config.display_priority`, {
+                      valueAsNumber: true,
+                    })}
                     placeholder="1"
                   />
-                  {errors.attribute_definitions?.[index]?.facet_config
-                    ?.display_priority && (
+                  {errors.attribute_definitions?.[index]?.facet_config?.display_priority && (
                     <p className="text-red-500 text-sm mt-1">
-                      {
-                        errors.attribute_definitions[index]?.facet_config
-                          ?.display_priority?.message
-                      }
+                      {errors.attribute_definitions[index]?.facet_config?.display_priority?.message}
                     </p>
                   )}
                 </div>
@@ -119,8 +95,8 @@ export const FacetConfigurationSection = ({
             <FieldWithTooltip
               label="Aggregation Type"
               tooltip={{
-                ...FACET_TOOLTIPS["aggregation_type"],
-                color: "purple",
+                ...FACET_TOOLTIPS['aggregation_type'],
+                color: 'purple',
               }}
               field={
                 <div>
@@ -128,10 +104,7 @@ export const FacetConfigurationSection = ({
                     name={`attribute_definitions.${index}.facet_config.aggregation_type`}
                     control={control}
                     render={({ field }) => (
-                      <Select
-                        value={field.value || "term"}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value || 'term'} onValueChange={field.onChange}>
                         <Select.Trigger>
                           <Select.Value />
                         </Select.Trigger>
@@ -144,13 +117,9 @@ export const FacetConfigurationSection = ({
                       </Select>
                     )}
                   />
-                  {errors.attribute_definitions?.[index]?.facet_config
-                    ?.aggregation_type && (
+                  {errors.attribute_definitions?.[index]?.facet_config?.aggregation_type && (
                     <p className="text-red-500 text-sm mt-1">
-                      {
-                        errors.attribute_definitions[index]?.facet_config
-                          ?.aggregation_type?.message
-                      }
+                      {errors.attribute_definitions[index]?.facet_config?.aggregation_type?.message}
                     </p>
                   )}
                 </div>
@@ -159,17 +128,14 @@ export const FacetConfigurationSection = ({
 
             <FieldWithTooltip
               label="Display Type"
-              tooltip={{ ...FACET_TOOLTIPS["display_type"], color: "purple" }}
+              tooltip={{ ...FACET_TOOLTIPS['display_type'], color: 'purple' }}
               field={
                 <div>
                   <Controller
                     name={`attribute_definitions.${index}.facet_config.display_type`}
                     control={control}
                     render={({ field }) => (
-                      <Select
-                        value={field.value || "checkbox"}
-                        onValueChange={field.onChange}
-                      >
+                      <Select value={field.value || 'checkbox'} onValueChange={field.onChange}>
                         <Select.Trigger>
                           <Select.Value />
                         </Select.Trigger>
@@ -183,13 +149,9 @@ export const FacetConfigurationSection = ({
                       </Select>
                     )}
                   />
-                  {errors.attribute_definitions?.[index]?.facet_config
-                    ?.display_type && (
+                  {errors.attribute_definitions?.[index]?.facet_config?.display_type && (
                     <p className="text-red-500 text-sm mt-1">
-                      {
-                        errors.attribute_definitions[index]?.facet_config
-                          ?.display_type?.message
-                      }
+                      {errors.attribute_definitions[index]?.facet_config?.display_type?.message}
                     </p>
                   )}
                 </div>
@@ -199,8 +161,8 @@ export const FacetConfigurationSection = ({
             <FieldWithTooltip
               label="Max Display Items"
               tooltip={{
-                ...FACET_TOOLTIPS["max_display_items"],
-                color: "purple",
+                ...FACET_TOOLTIPS['max_display_items'],
+                color: 'purple',
               }}
               field={
                 <div>
@@ -208,39 +170,26 @@ export const FacetConfigurationSection = ({
                     type="number"
                     min="1"
                     max="100"
-                    {...register(
-                      `attribute_definitions.${index}.facet_config.max_display_items`,
-                      { 
-                        valueAsNumber: true,
-                        validate: (value) => {
-                          if (value && value < 1) return "Must be at least 1";
-                          if (value && value > 100) return "Cannot exceed 100 items";
-                          return true;
-                        }
-                      }
-                    )}
+                    {...register(`attribute_definitions.${index}.facet_config.max_display_items`, {
+                      valueAsNumber: true,
+                      validate: (value) => {
+                        if (value && value < 1) return 'Must be at least 1';
+                        if (value && value > 100) return 'Cannot exceed 100 items';
+                        return true;
+                      },
+                    })}
                     placeholder="5"
                   />
-                  {errors.attribute_definitions?.[index]?.facet_config
-                    ?.max_display_items && (
+                  {errors.attribute_definitions?.[index]?.facet_config?.max_display_items && (
                     <p className="text-red-500 text-sm mt-1">
-                      {
-                        errors.attribute_definitions[index]?.facet_config
-                          ?.max_display_items?.message
-                      }
+                      {errors.attribute_definitions[index]?.facet_config?.max_display_items?.message}
                     </p>
                   )}
                 </div>
               }
             />
 
-            {showRangeConfig && (
-              <RangeConfigurationSection
-                index={index}
-                control={control}
-                errors={errors}
-              />
-            )}
+            {showRangeConfig && <RangeConfigurationSection index={index} control={control} errors={errors} />}
           </>
         )}
       </div>

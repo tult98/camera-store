@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
 
 interface Product {
   id: string;
@@ -16,10 +16,10 @@ interface ApiResponse {
 }
 
 export const useProductDescription = (product: Product | undefined) => {
-  const [description, setDescription] = useState<string>("");
+  const [description, setDescription] = useState<string>('');
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [savedDescription, setSavedDescription] = useState<string>("");
+  const [savedDescription, setSavedDescription] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export const useProductDescription = (product: Product | undefined) => {
 
   const handleSave = useCallback(async () => {
     if (!product?.id) {
-      setError("Product ID is missing");
+      setError('Product ID is missing');
       return;
     }
 
@@ -45,19 +45,17 @@ export const useProductDescription = (product: Product | undefined) => {
       };
 
       const response = await fetch(`/admin/products/${product.id}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `Failed to update product: ${response.status} ${errorText}`
-        );
+        throw new Error(`Failed to update product: ${response.status} ${errorText}`);
       }
 
       const result: ApiResponse = await response.json();
@@ -67,13 +65,12 @@ export const useProductDescription = (product: Product | undefined) => {
         setIsEditing(false);
         setError(null);
       } else {
-        throw new Error(result.message || "Failed to save description");
+        throw new Error(result.message || 'Failed to save description');
       }
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "An unexpected error occurred";
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       setError(errorMessage);
-      console.error("Save error:", err);
+      console.error('Save error:', err);
     } finally {
       setIsSaving(false);
     }

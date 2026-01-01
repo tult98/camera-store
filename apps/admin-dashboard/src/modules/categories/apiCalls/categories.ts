@@ -1,10 +1,7 @@
 import { sdk } from '@modules/shared/api/medusa-client';
 import type { CategorySchemaType } from '../types';
 
-export const fetchCategories = async (
-  query: string = '',
-  parentCategoryId?: string | null
-) => {
+export const fetchCategories = async (query: string = '', parentCategoryId?: string | null) => {
   const params: Parameters<typeof sdk.admin.productCategory.list>[0] = {
     q: query,
     limit: 100,

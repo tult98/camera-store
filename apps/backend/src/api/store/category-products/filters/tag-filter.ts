@@ -1,11 +1,11 @@
-import type { Product, FilterResult } from "../types/category-products.types";
+import type { Product, FilterResult } from '../types/category-products.types';
 
 export class TagFilter {
   static apply(products: Product[], tagValues: string[] | undefined): FilterResult {
     if (!tagValues || tagValues.length === 0) {
       return {
         products,
-        totalCount: products.length
+        totalCount: products.length,
       };
     }
 
@@ -14,12 +14,12 @@ export class TagFilter {
         return false;
       }
 
-      return product.tags.some(tag => tagValues.includes(tag.value));
+      return product.tags.some((tag) => tagValues.includes(tag.value));
     });
 
     return {
       products: filteredProducts,
-      totalCount: filteredProducts.length
+      totalCount: filteredProducts.length,
     };
   }
 
@@ -29,7 +29,7 @@ export class TagFilter {
     }
 
     return {
-      value: tagValues
+      value: tagValues,
     };
   }
 }

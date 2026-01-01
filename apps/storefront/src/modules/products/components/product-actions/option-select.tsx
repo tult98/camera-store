@@ -26,11 +26,11 @@ const OptionSelect: React.FC<OptionSelectProps> = ({
       <span className="text-sm font-medium text-base-content">
         Select {title}
       </span>
-      
+
       <div className="flex flex-wrap gap-3" data-testid={dataTestId}>
         {options.map((value) => {
           const isSelected = value === current
-          
+
           return (
             <button
               key={value}

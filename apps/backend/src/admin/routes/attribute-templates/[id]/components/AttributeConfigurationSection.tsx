@@ -1,15 +1,8 @@
-import { Input, Select, Switch } from "@medusajs/ui";
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormRegister,
-  UseFormSetValue,
-  UseFormWatch,
-} from "react-hook-form";
-import { FieldWithTooltip } from "../../../../components/tooltip-icon";
-import { ATTRIBUTE_TOOLTIPS } from "../../../../constants/tooltip-content";
-import { AttributeTemplateFormData } from "../../schemas/attribute-template.schema";
+import { Input, Select, Switch } from '@medusajs/ui';
+import { Control, Controller, FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { FieldWithTooltip } from '../../../../components/tooltip-icon';
+import { ATTRIBUTE_TOOLTIPS } from '../../../../constants/tooltip-content';
+import { AttributeTemplateFormData } from '../../schemas/attribute-template.schema';
 
 interface AttributeConfigurationSectionProps {
   index: number;
@@ -31,9 +24,9 @@ export const AttributeConfigurationSection = ({
   const generateKeyFromLabel = (label: string): string => {
     return label
       .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, "")
-      .replace(/\s+/g, "_")
-      .replace(/^_+|_+$/g, "")
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '_')
+      .replace(/^_+|_+$/g, '')
       .substring(0, 50);
   };
 
@@ -44,8 +37,8 @@ export const AttributeConfigurationSection = ({
         <FieldWithTooltip
           label=""
           tooltip={{
-            content: "These settings control how admins enter product data",
-            color: "blue",
+            content: 'These settings control how admins enter product data',
+            color: 'blue',
           }}
           field={<span />}
         />
@@ -56,10 +49,10 @@ export const AttributeConfigurationSection = ({
           label="Label"
           required
           tooltip={{
-            content: "Display name shown to admins in product forms",
-            examples: "Sensor Type, Resolution, Brand",
-            note: "Key will be auto-generated from this label",
-            color: "blue",
+            content: 'Display name shown to admins in product forms',
+            examples: 'Sensor Type, Resolution, Brand',
+            note: 'Key will be auto-generated from this label',
+            color: 'blue',
           }}
           field={
             <div>
@@ -69,21 +62,16 @@ export const AttributeConfigurationSection = ({
                 onChange={(e) => {
                   const generatedKey = generateKeyFromLabel(e.target.value);
                   setValue(`attribute_definitions.${index}.key`, generatedKey);
-                  setValue(
-                    `attribute_definitions.${index}.label`,
-                    e.target.value
-                  );
+                  setValue(`attribute_definitions.${index}.label`, e.target.value);
                 }}
               />
               {errors.attribute_definitions?.[index]?.label && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.attribute_definitions[index]?.label?.message}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.attribute_definitions[index]?.label?.message}</p>
               )}
               <div className="text-xs text-gray-500 mt-1">
-                Generated key:{" "}
+                Generated key:{' '}
                 <code className="bg-gray-100 px-1 rounded">
-                  {watch(`attribute_definitions.${index}.key`) || "auto_generated"}
+                  {watch(`attribute_definitions.${index}.key`) || 'auto_generated'}
                 </code>
               </div>
             </div>
@@ -92,7 +80,7 @@ export const AttributeConfigurationSection = ({
 
         <FieldWithTooltip
           label="Input Type"
-          tooltip={{ ...ATTRIBUTE_TOOLTIPS["type"], color: "blue" }}
+          tooltip={{ ...ATTRIBUTE_TOOLTIPS['type'], color: 'blue' }}
           field={
             <Controller
               name={`attribute_definitions.${index}.type`}
@@ -116,24 +104,19 @@ export const AttributeConfigurationSection = ({
 
         <FieldWithTooltip
           label="Required"
-          tooltip={{ ...ATTRIBUTE_TOOLTIPS["required"], color: "blue" }}
+          tooltip={{ ...ATTRIBUTE_TOOLTIPS['required'], color: 'blue' }}
           field={
             <Controller
               name={`attribute_definitions.${index}.required`}
               control={control}
-              render={({ field }) => (
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              )}
+              render={({ field }) => <Switch checked={field.value} onCheckedChange={field.onChange} />}
             />
           }
         />
 
         <FieldWithTooltip
           label="Display Order"
-          tooltip={{ ...ATTRIBUTE_TOOLTIPS["display_order"], color: "blue" }}
+          tooltip={{ ...ATTRIBUTE_TOOLTIPS['display_order'], color: 'blue' }}
           field={
             <div>
               <Input
@@ -153,10 +136,7 @@ export const AttributeConfigurationSection = ({
         />
       </div>
 
-      <input
-        type="hidden"
-        {...register(`attribute_definitions.${index}.key`)}
-      />
+      <input type="hidden" {...register(`attribute_definitions.${index}.key`)} />
     </div>
   );
 };

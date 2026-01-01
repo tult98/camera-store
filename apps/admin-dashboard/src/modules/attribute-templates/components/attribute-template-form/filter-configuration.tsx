@@ -16,12 +16,7 @@ interface FilterConfigurationProps {
   ) => void;
 }
 
-export const FilterConfiguration: React.FC<FilterConfigurationProps> = ({
-  control,
-  index,
-  isDisabled,
-  setValue,
-}) => {
+export const FilterConfiguration: React.FC<FilterConfigurationProps> = ({ control, index, isDisabled, setValue }) => {
   const attributeType = useWatch({
     control,
     name: `attribute_definitions.${index}.type`,
@@ -32,22 +27,14 @@ export const FilterConfiguration: React.FC<FilterConfigurationProps> = ({
       const aggregationType = attributeType === 'boolean' ? 'boolean' : 'term';
       const displayType = attributeType === 'boolean' ? 'toggle' : 'checkbox';
 
-      setValue(
-        `attribute_definitions.${index}.facet_config.aggregation_type`,
-        aggregationType
-      );
-      setValue(
-        `attribute_definitions.${index}.facet_config.display_type`,
-        displayType
-      );
+      setValue(`attribute_definitions.${index}.facet_config.aggregation_type`, aggregationType);
+      setValue(`attribute_definitions.${index}.facet_config.display_type`, displayType);
     }
   }, [attributeType, index, setValue]);
 
   return (
     <div className="mt-4 pt-4 border-t border-gray-200">
-      <h4 className="text-sm font-medium text-gray-700 mb-3">
-        Filter Configuration
-      </h4>
+      <h4 className="text-sm font-medium text-gray-700 mb-3">Filter Configuration</h4>
 
       <div className="space-y-3">
         <FormSwitch

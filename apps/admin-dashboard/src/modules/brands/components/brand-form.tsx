@@ -12,10 +12,7 @@ import { createBrand, updateBrand } from '../apiCalls/brands';
 import type { BrandSchemaType } from '../types';
 
 const brandSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Brand name is required')
-    .max(255, 'Brand name must be less than 255 characters'),
+  name: z.string().min(1, 'Brand name is required').max(255, 'Brand name must be less than 255 characters'),
   image_url: z.string().url('Must be a valid URL').or(z.literal('')),
 });
 
@@ -25,11 +22,7 @@ interface BrandFormProps {
   brandId?: string;
 }
 
-export const BrandForm: React.FC<BrandFormProps> = ({
-  initialData,
-  isEditMode = false,
-  brandId,
-}) => {
+export const BrandForm: React.FC<BrandFormProps> = ({ initialData, isEditMode = false, brandId }) => {
   const {
     control,
     handleSubmit,
@@ -54,20 +47,14 @@ export const BrandForm: React.FC<BrandFormProps> = ({
     onSuccess: (newBrand) => {
       queryClient.invalidateQueries({ queryKey: ['brands'] });
 
-      success(
-        'Brand created',
-        `"${newBrand.name}" has been created successfully`
-      );
+      success('Brand created', `"${newBrand.name}" has been created successfully`);
 
       reset();
 
       navigate('/brands');
     },
     onError: (err: Error) => {
-      error(
-        'Failed to create brand',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to create brand', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -77,18 +64,12 @@ export const BrandForm: React.FC<BrandFormProps> = ({
       queryClient.invalidateQueries({ queryKey: ['brands'] });
       queryClient.invalidateQueries({ queryKey: ['brand', brandId] });
 
-      success(
-        'Brand updated',
-        `"${updatedBrand.name}" has been updated successfully`
-      );
+      success('Brand updated', `"${updatedBrand.name}" has been updated successfully`);
 
       navigate('/brands');
     },
     onError: (err: Error) => {
-      error(
-        'Failed to update brand',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to update brand', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -116,11 +97,7 @@ export const BrandForm: React.FC<BrandFormProps> = ({
         type="text"
         label="Brand Name"
         placeholder="Enter brand name"
-        disabled={
-          isSubmitting ||
-          createBrandMutation.isPending ||
-          updateBrandMutation.isPending
-        }
+        disabled={isSubmitting || createBrandMutation.isPending || updateBrandMutation.isPending}
         required={true}
       />
 
@@ -137,27 +114,17 @@ export const BrandForm: React.FC<BrandFormProps> = ({
         <button
           type="button"
           className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-          disabled={
-            isSubmitting ||
-            createBrandMutation.isPending ||
-            updateBrandMutation.isPending
-          }
+          disabled={isSubmitting || createBrandMutation.isPending || updateBrandMutation.isPending}
           onClick={handleCancel}
         >
           Cancel
         </button>
         <button
           type="submit"
-          disabled={
-            isSubmitting ||
-            createBrandMutation.isPending ||
-            updateBrandMutation.isPending
-          }
+          disabled={isSubmitting || createBrandMutation.isPending || updateBrandMutation.isPending}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
         >
-          {(isSubmitting ||
-            createBrandMutation.isPending ||
-            updateBrandMutation.isPending) && (
+          {(isSubmitting || createBrandMutation.isPending || updateBrandMutation.isPending) && (
             <LoadingIcon size="md" color="white" className="mr-2" />
           )}
           {isEditMode

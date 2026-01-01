@@ -1,6 +1,6 @@
-import { MedusaService } from "@medusajs/framework/utils";
-import { AttributeGroup, AttributeTemplate, ProductAttribute } from "./models";
-import FacetAggregationService from "./services/facet-aggregation.service";
+import { MedusaService } from '@medusajs/framework/utils';
+import { AttributeGroup, AttributeTemplate, ProductAttribute } from './models';
+import FacetAggregationService from './services/facet-aggregation.service';
 
 class ProductAttributesModuleService extends MedusaService({
   AttributeTemplate,

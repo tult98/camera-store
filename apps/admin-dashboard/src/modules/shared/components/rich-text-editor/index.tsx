@@ -58,12 +58,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   if (!editor) {
     return (
-      <div
-        className={cn(
-          'border border-gray-300 rounded-lg overflow-hidden',
-          className
-        )}
-      >
+      <div className={cn('border border-gray-300 rounded-lg overflow-hidden', className)}>
         <div className="bg-gray-50 border-b border-gray-200 p-2">
           <div className="flex items-center gap-1 opacity-50">
             <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
@@ -86,11 +81,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div
-      className={cn(
-        'border border-gray-300 rounded-lg overflow-hidden bg-white',
-        disabled && 'opacity-60',
-        className
-      )}
+      className={cn('border border-gray-300 rounded-lg overflow-hidden bg-white', disabled && 'opacity-60', className)}
       style={
         {
           '--editor-min-height': `${minHeight}px`,
@@ -103,11 +94,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       <div className="relative">
         <EditorContent
           editor={editor}
-          className={cn(
-            'prose prose-sm max-w-none',
-            'focus-within:outline-none',
-            disabled && 'pointer-events-none'
-          )}
+          className={cn('prose prose-sm max-w-none', 'focus-within:outline-none', disabled && 'pointer-events-none')}
         />
       </div>
     </div>

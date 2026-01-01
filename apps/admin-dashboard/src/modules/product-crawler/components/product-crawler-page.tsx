@@ -14,10 +14,7 @@ const crawlerFormSchema = z.object({
     .string()
     .min(1, 'Product URL is required')
     .url('Must be a valid URL')
-    .refine(
-      (url) => url.includes('bhphotovideo.com'),
-      'URL must be from bhphotovideo.com'
-    ),
+    .refine((url) => url.includes('bhphotovideo.com'), 'URL must be from bhphotovideo.com'),
 });
 
 type CrawlerFormData = z.infer<typeof crawlerFormSchema>;
@@ -42,26 +39,21 @@ export const ProductCrawlerPage: React.FC = () => {
     mutationFn: crawlProduct,
   });
 
-  const { data: jobStatus, isLoading: isLoadingStatus } =
-    useQuery<JobStatusResponse>({
-      queryKey: ['job', jobId],
-      queryFn: () => {
-        if (!jobId) throw new Error('Job ID is required');
-        return getJobStatus(jobId);
-      },
-      refetchInterval: (query) => {
-        const data = query.state.data;
-        if (
-          data?.state === 'completed' ||
-          data?.state === 'failed' ||
-          data?.state === 'unknown'
-        ) {
-          return false;
-        }
-        return 2000;
-      },
-      enabled: !!jobId,
-    });
+  const { data: jobStatus, isLoading: isLoadingStatus } = useQuery<JobStatusResponse>({
+    queryKey: ['job', jobId],
+    queryFn: () => {
+      if (!jobId) throw new Error('Job ID is required');
+      return getJobStatus(jobId);
+    },
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (data?.state === 'completed' || data?.state === 'failed' || data?.state === 'unknown') {
+        return false;
+      }
+      return 2000;
+    },
+    enabled: !!jobId,
+  });
 
   const handleFormSubmit = async (data: CrawlerFormData) => {
     crawlMutation.mutate(data.url, {
@@ -77,9 +69,7 @@ export const ProductCrawlerPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Product Crawler</h1>
-          <p className="text-sm text-gray-600 mt-1">
-            Crawl product information from B&H Photo Video
-          </p>
+          <p className="text-sm text-gray-600 mt-1">Crawl product information from B&H Photo Video</p>
         </div>
       </div>
 
@@ -94,9 +84,7 @@ export const ProductCrawlerPage: React.FC = () => {
             disabled={isSubmitting || crawlMutation.isPending}
             required={true}
           />
-          <p className="text-xs text-gray-500 -mt-2">
-            Enter a product URL from bhphotovideo.com
-          </p>
+          <p className="text-xs text-gray-500 -mt-2">Enter a product URL from bhphotovideo.com</p>
 
           <div className="flex justify-end">
             <button
@@ -104,9 +92,7 @@ export const ProductCrawlerPage: React.FC = () => {
               disabled={crawlMutation.isPending || isSubmitting}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
-              {crawlMutation.isPending && (
-                <LoadingIcon size="md" color="white" />
-              )}
+              {crawlMutation.isPending && <LoadingIcon size="md" color="white" />}
               Start Crawl
             </button>
           </div>
@@ -114,32 +100,21 @@ export const ProductCrawlerPage: React.FC = () => {
           {crawlMutation.isError && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-800">
-                Error:{' '}
-                {(crawlMutation.error as Error)?.message ||
-                  'Failed to submit crawl job'}
+                Error: {(crawlMutation.error as Error)?.message || 'Failed to submit crawl job'}
               </p>
             </div>
           )}
 
           {crawlMutation.isSuccess && jobId && (
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-800 font-medium mb-1">
-                Crawl job submitted successfully!
-              </p>
-              <p className="text-xs text-green-700 font-mono">
-                Job ID: {jobId}
-              </p>
+              <p className="text-sm text-green-800 font-medium mb-1">Crawl job submitted successfully!</p>
+              <p className="text-xs text-green-700 font-mono">Job ID: {jobId}</p>
             </div>
           )}
         </form>
       </div>
 
-      {jobId && (
-        <JobStatusCard
-          jobStatus={jobStatus}
-          isLoadingStatus={isLoadingStatus}
-        />
-      )}
+      {jobId && <JobStatusCard jobStatus={jobStatus} isLoadingStatus={isLoadingStatus} />}
     </div>
   );
 };

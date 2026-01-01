@@ -3,17 +3,25 @@ import { FacetAggregation, ApiFilters } from "../../types"
 interface DropdownFilterProps {
   facet: FacetAggregation
   filters: ApiFilters
-  onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
-  onRemoveFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  onToggleFilter: (
+    filterType: keyof ApiFilters,
+    key: string,
+    value?: string
+  ) => void
+  onRemoveFilter: (
+    filterType: keyof ApiFilters,
+    key: string,
+    value?: string
+  ) => void
   facetsLoading?: boolean
 }
 
-export default function DropdownFilter({ 
-  facet, 
-  filters, 
+export default function DropdownFilter({
+  facet,
+  filters,
   onToggleFilter,
   onRemoveFilter,
-  facetsLoading = false
+  facetsLoading = false,
 }: DropdownFilterProps) {
   if (!Array.isArray(facet.values)) return null
 
@@ -32,19 +40,27 @@ export default function DropdownFilter({
       if (value === "") {
         if (facet.facet_key === "tags" || facet.facet_key === "availability") {
           const currentValues = filters[facet.facet_key] || []
-          currentValues.forEach(val => onRemoveFilter(facet.facet_key as keyof ApiFilters, val))
+          currentValues.forEach((val) =>
+            onRemoveFilter(facet.facet_key as keyof ApiFilters, val)
+          )
         } else {
           const currentValues = filters.metadata?.[facet.facet_key] || []
-          currentValues.forEach(val => onRemoveFilter("metadata" as keyof ApiFilters, facet.facet_key, val))
+          currentValues.forEach((val) =>
+            onRemoveFilter("metadata" as keyof ApiFilters, facet.facet_key, val)
+          )
         }
       } else {
         if (facet.facet_key === "tags" || facet.facet_key === "availability") {
           const currentValues = filters[facet.facet_key] || []
-          currentValues.forEach(val => onRemoveFilter(facet.facet_key as keyof ApiFilters, val))
+          currentValues.forEach((val) =>
+            onRemoveFilter(facet.facet_key as keyof ApiFilters, val)
+          )
           onToggleFilter(facet.facet_key as keyof ApiFilters, value)
         } else {
           const currentValues = filters.metadata?.[facet.facet_key] || []
-          currentValues.forEach(val => onRemoveFilter("metadata" as keyof ApiFilters, facet.facet_key, val))
+          currentValues.forEach((val) =>
+            onRemoveFilter("metadata" as keyof ApiFilters, facet.facet_key, val)
+          )
           onToggleFilter("metadata" as keyof ApiFilters, facet.facet_key, value)
         }
       }
@@ -63,7 +79,7 @@ export default function DropdownFilter({
         <option value="">All {facet.facet_label}</option>
         {facet.values.map((option) => (
           <option key={String(option.value)} value={String(option.value)}>
-            {option.label} ({facetsLoading ? '...' : option.count})
+            {option.label} ({facetsLoading ? "..." : option.count})
           </option>
         ))}
       </select>

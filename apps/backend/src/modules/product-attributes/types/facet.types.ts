@@ -1,4 +1,4 @@
-import type { FacetConfig } from "../models/attribute-template";
+import type { FacetConfig } from '../models/attribute-template';
 
 /**
  * Response structure for facet configuration data
@@ -51,12 +51,12 @@ export interface FacetsResponse {
  */
 export interface SystemFacet {
   key: string;
-  type: "price" | "availability" | "rating";
+  type: 'price' | 'availability' | 'rating';
   aggregation_source: string;
   config: {
     display_priority: number;
-    display_type: "slider" | "checkbox" | "range";
+    display_type: 'slider' | 'checkbox' | 'range';
     show_count: boolean;
-    aggregation_type: "range" | "term";
+    aggregation_type: 'range' | 'term';
   };
 }

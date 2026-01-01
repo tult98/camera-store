@@ -65,9 +65,7 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
     return isNaN(numValue) ? 0 : numValue;
   };
 
-  const displayValue = formatNumber && type === 'number'
-    ? formatNumberValue(field.value)
-    : field.value;
+  const displayValue = formatNumber && type === 'number' ? formatNumberValue(field.value) : field.value;
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formatNumber && type === 'number') {
@@ -107,9 +105,7 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
 
       <div className="relative">
         {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-            {prefix}
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">{prefix}</span>
         )}
         <input
           {...field}
@@ -133,22 +129,14 @@ const FormInputInner = <TFormData extends FieldValues = FieldValues>(
             className="absolute inset-y-0 right-0 px-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
-            {showPassword ? (
-              <EyeSlashIcon className="w-5 h-5" />
-            ) : (
-              <EyeIcon className="w-5 h-5" />
-            )}
+            {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
           </button>
         )}
       </div>
 
       {showErrorState && (
         <div className="mt-1">
-          <span
-            id={`${name}-error`}
-            className="input-error-message"
-            role="alert"
-          >
+          <span id={`${name}-error`} className="input-error-message" role="alert">
             {error?.message}
           </span>
         </div>

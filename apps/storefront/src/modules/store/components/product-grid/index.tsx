@@ -12,7 +12,6 @@ export default function ProductGrid({
   products,
   viewMode = "grid",
 }: ProductGridProps) {
-
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -21,7 +20,8 @@ export default function ProductGrid({
           No products found
         </h3>
         <p className="text-base-content/50 text-center max-w-sm">
-          Try adjusting your filters or search terms to find what you&apos;re looking for.
+          Try adjusting your filters or search terms to find what you&apos;re
+          looking for.
         </p>
       </div>
     )
@@ -44,4 +44,3 @@ export default function ProductGrid({
     </div>
   )
 }
-

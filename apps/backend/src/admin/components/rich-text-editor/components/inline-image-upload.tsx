@@ -10,10 +10,7 @@ interface InlineImageUploadProps {
   editor: any;
 }
 
-export const InlineImageUpload: React.FC<InlineImageUploadProps> = ({
-  deleteNode,
-  editor,
-}) => {
+export const InlineImageUpload: React.FC<InlineImageUploadProps> = ({ deleteNode, editor }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -118,10 +115,7 @@ export const InlineImageUpload: React.FC<InlineImageUploadProps> = ({
     e.stopPropagation();
 
     // Only set dragOver to false if we're actually leaving the dropzone
-    if (
-      dropzoneRef.current &&
-      !dropzoneRef.current.contains(e.relatedTarget as Node)
-    ) {
+    if (dropzoneRef.current && !dropzoneRef.current.contains(e.relatedTarget as Node)) {
       setIsDragOver(false);
     }
   }, []);
@@ -170,8 +164,7 @@ export const InlineImageUpload: React.FC<InlineImageUploadProps> = ({
             'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
             {
               'border-blue-400 bg-blue-50': isDragOver && !isUploading,
-              'border-gray-300 hover:border-gray-400':
-                !isDragOver && !isUploading,
+              'border-gray-300 hover:border-gray-400': !isDragOver && !isUploading,
               'border-gray-200 bg-gray-50': isUploading,
               'cursor-pointer': !isUploading,
               'cursor-wait': isUploading,
@@ -189,9 +182,7 @@ export const InlineImageUpload: React.FC<InlineImageUploadProps> = ({
           />
 
           {error && (
-            <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
-              {error}
-            </div>
+            <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">{error}</div>
           )}
 
           {isUploading ? (
@@ -200,9 +191,7 @@ export const InlineImageUpload: React.FC<InlineImageUploadProps> = ({
                 <ArrowUpTrayIcon className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-gray-600 font-medium">
-                  Uploading image...
-                </p>
+                <p className="text-sm text-gray-600 font-medium">Uploading image...</p>
                 <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
                   <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -220,20 +209,11 @@ export const InlineImageUpload: React.FC<InlineImageUploadProps> = ({
                   isDragOver ? 'bg-blue-100' : 'bg-gray-100'
                 )}
               >
-                <ArrowUpTrayIcon
-                  className={cn(
-                    'w-5 h-5',
-                    isDragOver ? 'text-blue-600' : 'text-gray-600'
-                  )}
-                />
+                <ArrowUpTrayIcon className={cn('w-5 h-5', isDragOver ? 'text-blue-600' : 'text-gray-600')} />
               </div>
               <div>
-                <p className="text-sm text-gray-900 font-medium">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Press Delete or Backspace to remove
-                </p>
+                <p className="text-sm text-gray-900 font-medium">Click to upload or drag and drop</p>
+                <p className="text-xs text-gray-500 mt-1">Press Delete or Backspace to remove</p>
               </div>
             </div>
           )}

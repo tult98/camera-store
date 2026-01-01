@@ -12,10 +12,12 @@ async function bootstrap() {
     allowedHeaders: ['*'],
   });
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    })
+  );
 
   const port = process.env.PORT || 3001;
 

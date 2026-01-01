@@ -1,14 +1,14 @@
 "use client"
 
 import { useState } from "react"
-import { ImageGalleryProps } from './types'
-import { MainImageSwiper, ThumbnailGallery, LightboxModal } from './components'
-import { useSwiperRefs } from './hooks'
+import { ImageGalleryProps } from "./types"
+import { MainImageSwiper, ThumbnailGallery, LightboxModal } from "./components"
+import { useSwiperRefs } from "./hooks"
 
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
-import 'swiper/css/zoom'
+import "swiper/css"
+import "swiper/css/navigation"
+import "swiper/css/pagination"
+import "swiper/css/zoom"
 
 const ImageGallery = ({ images }: ImageGalleryProps) => {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
@@ -50,7 +50,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           onZoomClick={handleZoomClick}
           swiperRef={mainSwiperRef}
         />
-        
+
         <ThumbnailGallery
           images={images}
           currentSlide={currentSlide}
@@ -69,16 +69,16 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
         .swiper-pagination {
           bottom: 16px !important;
         }
-        
+
         .swiper-pagination-bullet {
           background: rgba(255, 255, 255, 0.5);
           opacity: 1;
         }
-        
+
         .swiper-pagination-bullet-active {
           background: white;
         }
-        
+
         .swiper-button-next,
         .swiper-button-prev {
           color: white;
@@ -87,7 +87,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
           width: 40px;
           height: 40px;
         }
-        
+
         .swiper-button-next:after,
         .swiper-button-prev:after {
           font-size: 16px;

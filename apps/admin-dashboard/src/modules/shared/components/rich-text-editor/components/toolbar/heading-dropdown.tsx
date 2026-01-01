@@ -15,10 +15,7 @@ const headingOptions = [
   { level: 3, label: 'Heading 3', command: 'toggleHeading' },
 ] as const;
 
-export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({
-  editor,
-  disabled = false,
-}) => {
+export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({ editor, disabled = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -45,10 +42,7 @@ export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -83,12 +77,7 @@ export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({
         <span className="min-w-0 truncate max-w-[80px]">
           {currentHeading.level === 0 ? 'P' : `H${currentHeading.level}`}
         </span>
-        <ChevronDownIcon
-          className={cn(
-            'w-3 h-3 transition-transform duration-150',
-            isOpen && 'rotate-180'
-          )}
-        />
+        <ChevronDownIcon className={cn('w-3 h-3 transition-transform duration-150', isOpen && 'rotate-180')} />
       </button>
 
       {isOpen && (
@@ -99,14 +88,10 @@ export const HeadingDropdown: React.FC<HeadingDropdownProps> = ({
                 key={option.level}
                 type="button"
                 onClick={() => handleOptionClick(option)}
-                className={cn(
-                  'w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors duration-150',
-                  {
-                    'bg-blue-50 text-blue-700':
-                      currentHeading.level === option.level,
-                    'text-gray-700': currentHeading.level !== option.level,
-                  }
-                )}
+                className={cn('w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors duration-150', {
+                  'bg-blue-50 text-blue-700': currentHeading.level === option.level,
+                  'text-gray-700': currentHeading.level !== option.level,
+                })}
                 role="option"
                 aria-selected={currentHeading.level === option.level}
               >

@@ -41,9 +41,13 @@ export function getPriceRange(product: HttpTypes.StoreProduct) {
     return null
   }
 
-  const prices = variantsWithPrices.map(v => v?.calculated_price_number).filter(p => p != null) as number[]
-  const originalPrices = variantsWithPrices.map(v => v?.original_price_number).filter(p => p != null) as number[]
-  
+  const prices = variantsWithPrices
+    .map((v) => v?.calculated_price_number)
+    .filter((p) => p != null) as number[]
+  const originalPrices = variantsWithPrices
+    .map((v) => v?.original_price_number)
+    .filter((p) => p != null) as number[]
+
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
   const minOriginalPrice = Math.min(...originalPrices)
@@ -53,7 +57,7 @@ export function getPriceRange(product: HttpTypes.StoreProduct) {
   const hasRange = minPrice !== maxPrice
 
   // Check if any variants have sale pricing
-  const hasSalePrice = variantsWithPrices.some(v => v?.price_type === "sale")
+  const hasSalePrice = variantsWithPrices.some((v) => v?.price_type === "sale")
 
   return {
     hasRange,
@@ -83,7 +87,9 @@ export function getPriceRange(product: HttpTypes.StoreProduct) {
     },
     currency_code: currencyCode,
     hasSalePrice,
-    percentage_diff: hasSalePrice ? getPercentageDiff(minOriginalPrice, minPrice) : null,
+    percentage_diff: hasSalePrice
+      ? getPercentageDiff(minOriginalPrice, minPrice)
+      : null,
   }
 }
 

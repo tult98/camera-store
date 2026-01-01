@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { brand } from 'src/generated/prisma/client.js';
-import {
-  PaginatedData,
-  PaginationParams,
-} from '../../../common/types/pagination.types.js';
+import { PaginatedData, PaginationParams } from '../../../common/types/pagination.types.js';
 import { PrismaService } from '../../../database/prisma.service.js';
 
 @Injectable()

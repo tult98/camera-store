@@ -77,11 +77,7 @@ const FormRichTextEditorInner = <TFormData extends FieldValues = FieldValues>(
 
       {showErrorState && (
         <div className="mt-1">
-          <span
-            id={`${name}-error`}
-            className="input-error-message"
-            role="alert"
-          >
+          <span id={`${name}-error`} className="input-error-message" role="alert">
             {error?.message}
           </span>
         </div>

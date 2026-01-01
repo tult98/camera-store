@@ -10,12 +10,7 @@ interface LinkModalProps {
   currentUrl?: string;
 }
 
-export const LinkModal: React.FC<LinkModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  currentUrl = '',
-}) => {
+export const LinkModal: React.FC<LinkModalProps> = ({ isOpen, onClose, onSubmit, currentUrl = '' }) => {
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
   const [mounted, setMounted] = useState(false);
@@ -75,18 +70,13 @@ export const LinkModal: React.FC<LinkModalProps> = ({
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4">
-        <div
-          className="fixed inset-0 bg-black bg-opacity-25 transition-opacity"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-black bg-opacity-25 transition-opacity" onClick={onClose} />
 
         <div className="relative w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 shadow-xl transition-all">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <LinkIcon className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-medium text-gray-900">
-                {currentUrl ? 'Edit Link' : 'Add Link'}
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900">{currentUrl ? 'Edit Link' : 'Add Link'}</h3>
             </div>
             <button
               type="button"
@@ -99,10 +89,7 @@ export const LinkModal: React.FC<LinkModalProps> = ({
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label
-                htmlFor="url"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-1">
                 URL
               </label>
               <input
@@ -122,10 +109,7 @@ export const LinkModal: React.FC<LinkModalProps> = ({
             </div>
 
             <div>
-              <label
-                htmlFor="text"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="text" className="block text-sm font-medium text-gray-700 mb-1">
                 Link Text (optional)
               </label>
               <input
@@ -140,9 +124,7 @@ export const LinkModal: React.FC<LinkModalProps> = ({
                   'placeholder-gray-400'
                 )}
               />
-              <p className="mt-1 text-xs text-gray-500">
-                If empty, the URL will be used as the link text
-              </p>
+              <p className="mt-1 text-xs text-gray-500">If empty, the URL will be used as the link text</p>
             </div>
 
             <div className="flex gap-3 pt-4">

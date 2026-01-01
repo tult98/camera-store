@@ -71,19 +71,12 @@ const FormSwitchInner = <TFormData extends FieldValues = FieldValues>(
     <div className={cn('w-full', className)}>
       {label && (
         <div className="label-wrapper">
-          <label
-            id={`${name}-label`}
-            className="label-text"
-            htmlFor={name}
-          >
+          <label id={`${name}-label`} className="label-text" htmlFor={name}>
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>
           {description && (
-            <span
-              id={`${name}-description`}
-              className="text-xs text-gray-500 mt-1 block"
-            >
+            <span id={`${name}-description`} className="text-xs text-gray-500 mt-1 block">
               {description}
             </span>
           )}
@@ -109,11 +102,7 @@ const FormSwitchInner = <TFormData extends FieldValues = FieldValues>(
 
       {showErrorState && (
         <div className="mt-1">
-          <span
-            id={`${name}-error`}
-            className="input-error-message"
-            role="alert"
-          >
+          <span id={`${name}-error`} className="input-error-message" role="alert">
             {error?.message}
           </span>
         </div>

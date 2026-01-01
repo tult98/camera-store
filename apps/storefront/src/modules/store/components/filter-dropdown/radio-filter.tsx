@@ -3,17 +3,25 @@ import { FacetAggregation, ApiFilters } from "../../types"
 interface RadioFilterProps {
   facet: FacetAggregation
   filters: ApiFilters
-  onToggleFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
-  onRemoveFilter: (filterType: keyof ApiFilters, key: string, value?: string) => void
+  onToggleFilter: (
+    filterType: keyof ApiFilters,
+    key: string,
+    value?: string
+  ) => void
+  onRemoveFilter: (
+    filterType: keyof ApiFilters,
+    key: string,
+    value?: string
+  ) => void
   facetsLoading?: boolean
 }
 
-export default function RadioFilter({ 
-  facet, 
-  filters, 
+export default function RadioFilter({
+  facet,
+  filters,
   onToggleFilter,
   onRemoveFilter,
-  facetsLoading = false
+  facetsLoading = false,
 }: RadioFilterProps) {
   if (!Array.isArray(facet.values)) return null
 

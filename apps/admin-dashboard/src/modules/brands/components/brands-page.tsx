@@ -40,17 +40,11 @@ export const BrandsPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['brands'] });
       setDeleteModalOpen(false);
-      success(
-        'Brand deleted',
-        `"${brandToDelete?.name}" has been deleted successfully`
-      );
+      success('Brand deleted', `"${brandToDelete?.name}" has been deleted successfully`);
       setBrandToDelete(null);
     },
     onError: (err: Error) => {
-      error(
-        'Failed to delete brand',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to delete brand', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -76,11 +70,7 @@ export const BrandsPage: React.FC = () => {
       cell: ({ getValue }) => {
         const imageUrl = getValue() as string | null;
         return imageUrl ? (
-          <img
-            src={imageUrl}
-            alt="Brand"
-            className="w-10 h-10 object-contain rounded"
-          />
+          <img src={imageUrl} alt="Brand" className="w-10 h-10 object-contain rounded" />
         ) : (
           <span className="text-gray-400 text-sm">No image</span>
         );

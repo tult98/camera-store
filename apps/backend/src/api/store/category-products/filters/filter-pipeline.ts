@@ -1,8 +1,8 @@
-import type { Product, FilterResult, ApiFilters } from "../types/category-products.types";
-import { SearchFilter } from "./search-filter";
-import { PriceFilter } from "./price-filter";
-import { AttributeFilter } from "./attribute-filter";
-import { TagFilter } from "./tag-filter";
+import type { Product, FilterResult, ApiFilters } from '../types/category-products.types';
+import { SearchFilter } from './search-filter';
+import { PriceFilter } from './price-filter';
+import { AttributeFilter } from './attribute-filter';
+import { TagFilter } from './tag-filter';
 
 export interface FilterPipelineOptions {
   searchQuery?: string;
@@ -52,8 +52,8 @@ export class FilterPipeline {
   applySorting(orderBy?: string): FilterPipeline {
     if (!orderBy) return this;
 
-    if (orderBy.includes("price")) {
-      const isPriceDescending = orderBy.includes("-price");
+    if (orderBy.includes('price')) {
+      const isPriceDescending = orderBy.includes('-price');
       this.products = PriceFilter.sort(this.products, isPriceDescending);
     }
 
@@ -68,7 +68,7 @@ export class FilterPipeline {
   getResults(): FilterResult {
     return {
       products: this.products,
-      totalCount: this.totalCount
+      totalCount: this.totalCount,
     };
   }
 

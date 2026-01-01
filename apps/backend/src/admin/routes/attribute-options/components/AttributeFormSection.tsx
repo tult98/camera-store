@@ -1,26 +1,21 @@
-import { Trash } from "@medusajs/icons"
-import { Button, Input, Label } from "@medusajs/ui"
-import { Control, Controller } from "react-hook-form"
-import { CreatableValuesInput } from "./CreatableValuesInput"
+import { Trash } from '@medusajs/icons';
+import { Button, Input, Label } from '@medusajs/ui';
+import { Control, Controller } from 'react-hook-form';
+import { CreatableValuesInput } from './CreatableValuesInput';
 
 type AttributeFormData = {
-  group_name: string
-  options: string[]
-}
+  group_name: string;
+  options: string[];
+};
 
 type AttributeFormSectionProps = {
-  index: number
-  control: Control<{ attributes: AttributeFormData[] }>
-  onRemove: () => void
-  showRemove: boolean
-}
+  index: number;
+  control: Control<{ attributes: AttributeFormData[] }>;
+  onRemove: () => void;
+  showRemove: boolean;
+};
 
-export const AttributeFormSection = ({
-  index,
-  control,
-  onRemove,
-  showRemove
-}: AttributeFormSectionProps) => {
+export const AttributeFormSection = ({ index, control, onRemove, showRemove }: AttributeFormSectionProps) => {
   return (
     <div className="bg-white p-6 rounded-lg border mb-4">
       <div className="flex items-center justify-between mb-4">
@@ -28,7 +23,7 @@ export const AttributeFormSection = ({
         {showRemove && (
           <Button
             type="button"
-            variant="transparent" 
+            variant="transparent"
             size="small"
             onClick={onRemove}
             className="text-red-600 hover:text-red-800"
@@ -44,17 +39,15 @@ export const AttributeFormSection = ({
           <Controller
             name={`attributes.${index}.group_name`}
             control={control}
-            rules={{ required: "Attribute name is required" }}
+            rules={{ required: 'Attribute name is required' }}
             render={({ field, fieldState }) => (
               <div>
                 <Input
                   {...field}
                   placeholder="e.g., Camera Types"
-                  className={fieldState.error ? "border-red-500" : ""}
+                  className={fieldState.error ? 'border-red-500' : ''}
                 />
-                {fieldState.error && (
-                  <p className="text-red-500 text-sm mt-1">{fieldState.error.message}</p>
-                )}
+                {fieldState.error && <p className="text-red-500 text-sm mt-1">{fieldState.error.message}</p>}
               </div>
             )}
           />
@@ -64,9 +57,9 @@ export const AttributeFormSection = ({
           <Controller
             name={`attributes.${index}.options`}
             control={control}
-            rules={{ 
-              required: "At least one option is required",
-              validate: (options) => options.length > 0 || "At least one option is required"
+            rules={{
+              required: 'At least one option is required',
+              validate: (options) => options.length > 0 || 'At least one option is required',
             }}
             render={({ field, fieldState }) => (
               <div>
@@ -76,14 +69,12 @@ export const AttributeFormSection = ({
                   label="Options"
                   placeholder="Type option and press Enter"
                 />
-                {fieldState.error && (
-                  <p className="text-red-500 text-sm mt-1">{fieldState.error.message}</p>
-                )}
+                {fieldState.error && <p className="text-red-500 text-sm mt-1">{fieldState.error.message}</p>}
               </div>
             )}
           />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

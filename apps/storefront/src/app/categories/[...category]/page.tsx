@@ -1,4 +1,7 @@
-import { CategoryProductsResponse, GetCategoryBrandsResponse } from "@modules/store/types"
+import {
+  CategoryProductsResponse,
+  GetCategoryBrandsResponse,
+} from "@modules/store/types"
 import { apiClient } from "@lib/api-client"
 import { getCategoryByHandle } from "@lib/data/categories"
 import SkeletonProductControls from "@modules/skeletons/components/skeleton-product-controls"
@@ -12,7 +15,9 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-async function fetchCategoryProducts(categoryId: string): Promise<CategoryProductsResponse | null> {
+async function fetchCategoryProducts(
+  categoryId: string
+): Promise<CategoryProductsResponse | null> {
   try {
     const productsRequest = {
       category_id: categoryId,
@@ -38,7 +43,9 @@ async function fetchCategoryProducts(categoryId: string): Promise<CategoryProduc
   }
 }
 
-async function fetchCategoryBrands(categoryId: string): Promise<GetCategoryBrandsResponse | null> {
+async function fetchCategoryBrands(
+  categoryId: string
+): Promise<GetCategoryBrandsResponse | null> {
   try {
     const brandsResponse = await apiClient<GetCategoryBrandsResponse>(
       `/store/brands?category_id=${categoryId}`,
@@ -66,7 +73,7 @@ export default async function CategoryPage(props: Props) {
 
   const [initialProductsData, brandsData] = await Promise.all([
     fetchCategoryProducts(category.id),
-    fetchCategoryBrands(category.id)
+    fetchCategoryBrands(category.id),
   ])
 
   const fallbackProducts: CategoryProductsResponse = {

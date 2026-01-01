@@ -1,6 +1,13 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode, useMemo, useCallback } from 'react'
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+  useCallback,
+} from "react"
 import { BreadcrumbItem } from "../breadcrumbs/index"
 
 interface BreadcrumbContextType {
@@ -16,12 +23,16 @@ interface BreadcrumbContextType {
   setMaxItems: (maxItems?: number) => void
 }
 
-const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined)
+const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(
+  undefined
+)
 
 export const useBreadcrumbContext = () => {
   const context = useContext(BreadcrumbContext)
   if (context === undefined) {
-    throw new Error('useBreadcrumbContext must be used within a BreadcrumbProvider')
+    throw new Error(
+      "useBreadcrumbContext must be used within a BreadcrumbProvider"
+    )
   }
   return context
 }
@@ -37,13 +48,17 @@ export const BreadcrumbProvider = ({
   children,
   defaultVariant = "default",
   defaultShowHome = true,
-  defaultMaxItems
+  defaultMaxItems,
 }: BreadcrumbProviderProps) => {
   const [items, setItemsState] = useState<BreadcrumbItem[]>([])
   const [loading, setLoadingState] = useState(false)
-  const [variant, setVariantState] = useState<"default" | "compact" | "minimal">(defaultVariant)
+  const [variant, setVariantState] = useState<
+    "default" | "compact" | "minimal"
+  >(defaultVariant)
   const [showHome, setShowHomeState] = useState(defaultShowHome)
-  const [maxItems, setMaxItemsState] = useState<number | undefined>(defaultMaxItems)
+  const [maxItems, setMaxItemsState] = useState<number | undefined>(
+    defaultMaxItems
+  )
 
   const setItems = useCallback((items: BreadcrumbItem[]) => {
     setItemsState(items)
@@ -53,9 +68,12 @@ export const BreadcrumbProvider = ({
     setLoadingState(loading)
   }, [])
 
-  const setVariant = useCallback((variant: "default" | "compact" | "minimal") => {
-    setVariantState(variant)
-  }, [])
+  const setVariant = useCallback(
+    (variant: "default" | "compact" | "minimal") => {
+      setVariantState(variant)
+    },
+    []
+  )
 
   const setShowHome = useCallback((showHome: boolean) => {
     setShowHomeState(showHome)
@@ -65,29 +83,32 @@ export const BreadcrumbProvider = ({
     setMaxItemsState(maxItems)
   }, [])
 
-  const contextValue = useMemo(() => ({
-    items,
-    setItems,
-    loading,
-    setLoading,
-    variant,
-    setVariant,
-    showHome,
-    setShowHome,
-    maxItems,
-    setMaxItems
-  }), [
-    items,
-    setItems,
-    loading,
-    setLoading,
-    variant,
-    setVariant,
-    showHome,
-    setShowHome,
-    maxItems,
-    setMaxItems
-  ])
+  const contextValue = useMemo(
+    () => ({
+      items,
+      setItems,
+      loading,
+      setLoading,
+      variant,
+      setVariant,
+      showHome,
+      setShowHome,
+      maxItems,
+      setMaxItems,
+    }),
+    [
+      items,
+      setItems,
+      loading,
+      setLoading,
+      variant,
+      setVariant,
+      showHome,
+      setShowHome,
+      maxItems,
+      setMaxItems,
+    ]
+  )
 
   return (
     <BreadcrumbContext.Provider value={contextValue}>

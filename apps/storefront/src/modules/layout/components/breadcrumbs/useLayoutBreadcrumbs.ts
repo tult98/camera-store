@@ -9,7 +9,7 @@ import {
   generateCategoryBreadcrumbs,
   generateCheckoutBreadcrumbs,
   generatePathBreadcrumbs,
-  generateProductBreadcrumbs
+  generateProductBreadcrumbs,
 } from "./utils"
 
 type BreadcrumbContext =
@@ -43,13 +43,8 @@ export const useLayoutBreadcrumbs = (
   options: UseLayoutBreadcrumbsOptions = {}
 ) => {
   const pathname = usePathname()
-  const {
-    setItems,
-    setLoading,
-    setVariant,
-    setShowHome,
-    setMaxItems,
-  } = useBreadcrumbContext()
+  const { setItems, setLoading, setVariant, setShowHome, setMaxItems } =
+    useBreadcrumbContext()
 
   useEffect(() => {
     // Set loading state
@@ -71,7 +66,16 @@ export const useLayoutBreadcrumbs = (
     if (options.maxItems !== undefined) {
       setMaxItems(options.maxItems)
     }
-  }, [options.loading, options.variant, options.showHome, options.maxItems, setLoading, setVariant, setShowHome, setMaxItems])
+  }, [
+    options.loading,
+    options.variant,
+    options.showHome,
+    options.maxItems,
+    setLoading,
+    setVariant,
+    setShowHome,
+    setMaxItems,
+  ])
 
   useEffect(() => {
     // Generate breadcrumb items
@@ -159,10 +163,7 @@ export const useProductBreadcrumbs = (
     () => ({ type: "product" as const, product }),
     [product]
   )
-  const memoizedOptions = useMemo(
-    () => options,
-    [options]
-  )
+  const memoizedOptions = useMemo(() => options, [options])
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }
 
@@ -181,10 +182,7 @@ export const useCategoryBreadcrumbs = (
     }),
     [categoryName, categoryHandle, parentCategories]
   )
-  const memoizedOptions = useMemo(
-    () => options,
-    [options]
-  )
+  const memoizedOptions = useMemo(() => options, [options])
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }
 
@@ -199,9 +197,6 @@ export const useCheckoutBreadcrumbs = (
     }),
     [currentStep]
   )
-  const memoizedOptions = useMemo(
-    () => options,
-    [options]
-  )
+  const memoizedOptions = useMemo(() => options, [options])
   return useLayoutBreadcrumbs(context, memoizedOptions)
 }

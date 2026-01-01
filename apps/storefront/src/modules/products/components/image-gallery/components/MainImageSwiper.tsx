@@ -1,9 +1,9 @@
 import Image from "next/image"
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { MainImageSwiperProps } from '../types'
-import { SWIPER_MODULES, MAIN_SWIPER_CONFIG } from '../constants'
-import { NavigationButton } from './NavigationButton'
-import { ZoomButton } from './ZoomButton'
+import { Swiper, SwiperSlide } from "swiper/react"
+import { MainImageSwiperProps } from "../types"
+import { SWIPER_MODULES, MAIN_SWIPER_CONFIG } from "../constants"
+import { NavigationButton } from "./NavigationButton"
+import { ZoomButton } from "./ZoomButton"
 
 export const MainImageSwiper = ({
   images,

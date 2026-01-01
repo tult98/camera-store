@@ -7,14 +7,8 @@ import { ActionDropdown } from '../../shared/components/ui/action-dropdown';
 import { ConfirmationModal } from '../../shared/components/ui/confirmation-modal';
 import { DataTable } from '../../shared/components/ui/data-table';
 import { useToast } from '../../shared/hooks/use-toast';
-import {
-  deleteAttributeTemplate,
-  fetchAttributeTemplates,
-} from '../apiCalls/attribute-templates';
-import type {
-  AttributeTemplate,
-  AttributeTemplateDisplay,
-} from '../types';
+import { deleteAttributeTemplate, fetchAttributeTemplates } from '../apiCalls/attribute-templates';
+import type { AttributeTemplate, AttributeTemplateDisplay } from '../types';
 
 export const AttributeTemplatesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -36,17 +30,11 @@ export const AttributeTemplatesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['attribute-templates'] });
       setDeleteModalOpen(false);
-      success(
-        'Template deleted',
-        `"${templateToDelete?.name}" has been deleted successfully`
-      );
+      success('Template deleted', `"${templateToDelete?.name}" has been deleted successfully`);
       setTemplateToDelete(null);
     },
     onError: (err: Error) => {
-      error(
-        'Failed to delete template',
-        err.message || 'An unexpected error occurred'
-      );
+      error('Failed to delete template', err.message || 'An unexpected error occurred');
     },
   });
 
@@ -61,9 +49,7 @@ export const AttributeTemplatesPage: React.FC = () => {
     }
   };
 
-  const transformTemplate = (
-    template: AttributeTemplate
-  ): AttributeTemplateDisplay => {
+  const transformTemplate = (template: AttributeTemplate): AttributeTemplateDisplay => {
     return {
       id: template.id,
       name: template.name,
@@ -78,11 +64,7 @@ export const AttributeTemplatesPage: React.FC = () => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ getValue }) => (
-        <span className="font-medium text-gray-900">
-          {getValue() as string}
-        </span>
-      ),
+      cell: ({ getValue }) => <span className="font-medium text-gray-900">{getValue() as string}</span>,
     },
     {
       accessorKey: 'status',
@@ -92,11 +74,7 @@ export const AttributeTemplatesPage: React.FC = () => {
         const isActive = status === 'Active';
         return (
           <div className="flex items-center">
-            <span
-              className={`w-2 h-2 rounded-full mr-2 ${
-                isActive ? 'bg-green-500' : 'bg-gray-400'
-              }`}
-            ></span>
+            <span className={`w-2 h-2 rounded-full mr-2 ${isActive ? 'bg-green-500' : 'bg-gray-400'}`}></span>
             <span className="text-gray-700">{status}</span>
           </div>
         );
@@ -105,9 +83,7 @@ export const AttributeTemplatesPage: React.FC = () => {
     {
       accessorKey: 'attributeDefinitionsCount',
       header: 'Attribute Definitions',
-      cell: ({ getValue }) => (
-        <span className="text-gray-700">{getValue() as number}</span>
-      ),
+      cell: ({ getValue }) => <span className="text-gray-700">{getValue() as number}</span>,
     },
     {
       id: 'actions',
@@ -120,8 +96,7 @@ export const AttributeTemplatesPage: React.FC = () => {
               {
                 icon: PencilIcon,
                 label: 'Edit',
-                onClick: () =>
-                  navigate(`/attribute-templates/${template.id}/edit`),
+                onClick: () => navigate(`/attribute-templates/${template.id}/edit`),
               },
               {
                 icon: TrashIcon,
@@ -139,9 +114,7 @@ export const AttributeTemplatesPage: React.FC = () => {
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Attribute Templates
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">Attribute Templates</h1>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           onClick={() => navigate('/attribute-templates/new')}

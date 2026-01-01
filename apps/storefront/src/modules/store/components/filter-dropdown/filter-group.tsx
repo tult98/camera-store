@@ -15,7 +15,10 @@ interface FilterGroupProps {
   facetsLoading?: boolean
 }
 
-export default function FilterGroup({ facet, facetsLoading = false }: FilterGroupProps) {
+export default function FilterGroup({
+  facet,
+  facetsLoading = false,
+}: FilterGroupProps) {
   const { filters, toggleFilter, removeFilter, setPriceRange } =
     useCategoryFilterStore()
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -100,7 +103,7 @@ export default function FilterGroup({ facet, facetsLoading = false }: FilterGrou
           role="region"
           aria-labelledby={`filter-header-${facet.facet_key}`}
         >
-{renderFilterContent()}
+          {renderFilterContent()}
         </div>
       )}
     </div>

@@ -22,7 +22,7 @@ const optionsAsKeymap = (
 
 export default function ProductDetailsWrapper({
   product,
-  disabled
+  disabled,
 }: ProductDetailsWrapperProps) {
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
 
@@ -35,15 +35,18 @@ export default function ProductDetailsWrapper({
     })
   }, [product.variants, options])
 
-  const handleOptionsChange = useCallback((newOptions: Record<string, string | undefined>) => {
-    setOptions(newOptions)
-  }, [])
+  const handleOptionsChange = useCallback(
+    (newOptions: Record<string, string | undefined>) => {
+      setOptions(newOptions)
+    },
+    []
+  )
 
   return (
     <>
       <ProductInfo product={product} selectedVariant={selectedVariant} />
-      <ProductActions 
-        product={product} 
+      <ProductActions
+        product={product}
         disabled={disabled}
         onOptionsChange={handleOptionsChange}
         initialOptions={options}

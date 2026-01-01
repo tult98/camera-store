@@ -1,8 +1,4 @@
-import {
-  ArrowUpTrayIcon,
-  PhotoIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
+import { ArrowUpTrayIcon, PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { uploadFile } from '@/modules/shared/apiCalls/upload';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -15,12 +11,7 @@ interface ImageUploadModalProps {
   onError?: (error: string) => void;
 }
 
-export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
-  isOpen,
-  onClose,
-  onUpload,
-  onError,
-}) => {
+export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({ isOpen, onClose, onUpload, onError }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -113,10 +104,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
     e.stopPropagation();
 
     // Only set dragOver to false if we're actually leaving the dropzone
-    if (
-      dropzoneRef.current &&
-      !dropzoneRef.current.contains(e.relatedTarget as Node)
-    ) {
+    if (dropzoneRef.current && !dropzoneRef.current.contains(e.relatedTarget as Node)) {
       setIsDragOver(false);
     }
   }, []);
@@ -183,9 +171,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <PhotoIcon className="w-5 h-5 text-blue-600" />
-              <h3 className="text-lg font-medium text-gray-900">
-                Upload Image
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900">Upload Image</h3>
             </div>
             {!isUploading && (
               <button
@@ -210,8 +196,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                 'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50',
                 {
                   'border-blue-400 bg-blue-50': isDragOver && !isUploading,
-                  'border-gray-300 hover:border-gray-400':
-                    !isDragOver && !isUploading,
+                  'border-gray-300 hover:border-gray-400': !isDragOver && !isUploading,
                   'border-gray-200 bg-gray-50': isUploading,
                   'cursor-pointer': !isUploading,
                   'cursor-wait': isUploading,
@@ -241,9 +226,7 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                         style={{ width: `${uploadProgress}%` }}
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {uploadProgress}%
-                    </p>
+                    <p className="text-xs text-gray-500 mt-1">{uploadProgress}%</p>
                   </div>
                 </div>
               ) : (
@@ -254,20 +237,11 @@ export const ImageUploadModal: React.FC<ImageUploadModalProps> = ({
                       isDragOver ? 'bg-blue-100' : 'bg-gray-100'
                     )}
                   >
-                    <ArrowUpTrayIcon
-                      className={cn(
-                        'w-6 h-6',
-                        isDragOver ? 'text-blue-600' : 'text-gray-600'
-                      )}
-                    />
+                    <ArrowUpTrayIcon className={cn('w-6 h-6', isDragOver ? 'text-blue-600' : 'text-gray-600')} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-900 font-medium">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Maximum 3 files, 5MB each
-                    </p>
+                    <p className="text-sm text-gray-900 font-medium">Click to upload or drag and drop</p>
+                    <p className="text-xs text-gray-500 mt-1">Maximum 3 files, 5MB each</p>
                   </div>
                 </div>
               )}

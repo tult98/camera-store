@@ -132,8 +132,8 @@ const OrderSuccessStep = () => {
                   Send Deposit Payment
                 </Text>
                 <Text className="text-xs sm:text-sm text-gray-600">
-                  Click &apos;Send Deposit via Messenger&apos; and share your order ID
-                  with us to complete payment
+                  Click &apos;Send Deposit via Messenger&apos; and share your
+                  order ID with us to complete payment
                 </Text>
               </div>
             </div>
@@ -146,8 +146,8 @@ const OrderSuccessStep = () => {
                   Order Processing & Shipping
                 </Text>
                 <Text className="text-xs sm:text-sm text-gray-600">
-                  Once deposit is received, we&apos;ll prepare and ship your items
-                  with tracking updates
+                  Once deposit is received, we&apos;ll prepare and ship your
+                  items with tracking updates
                 </Text>
               </div>
             </div>

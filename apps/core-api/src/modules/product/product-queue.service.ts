@@ -8,9 +8,7 @@ export interface CrawlJobData {
 
 @Injectable()
 export class ProductQueueService {
-  constructor(
-    @InjectQueue('product-crawl') private readonly crawlQueue: Queue
-  ) {}
+  constructor(@InjectQueue('product-crawl') private readonly crawlQueue: Queue) {}
 
   async addCrawlJob(data: CrawlJobData) {
     const job = await this.crawlQueue.add('crawl', data);

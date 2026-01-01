@@ -13,15 +13,10 @@ interface BasicInformationSectionProps {
   isDisabled: boolean;
 }
 
-export const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({
-  control,
-  isDisabled,
-}) => {
+export const BasicInformationSection: React.FC<BasicInformationSectionProps> = ({ control, isDisabled }) => {
   return (
     <div className="bg-white shadow-sm border border-gray-200 rounded-lg p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Basic Information
-      </h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
 
       <div className="space-y-4">
         <FormInput

@@ -1,6 +1,6 @@
-import React from "react";
-import { Video } from "lucide-react";
-import { MenuButton } from "./MenuButton";
+import React from 'react';
+import { Video } from 'lucide-react';
+import { MenuButton } from './MenuButton';
 
 interface VideoButtonProps {
   onClick: () => void;

@@ -1,8 +1,8 @@
-import type { File } from "multer"
+import type { File } from 'multer';
 
-declare module "@medusajs/framework" {
+declare module '@medusajs/framework' {
   interface MedusaRequest {
-    file?: File
-    files?: File[]
+    file?: File;
+    files?: File[];
   }
 }

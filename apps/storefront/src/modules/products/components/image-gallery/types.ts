@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import type { Swiper as SwiperType } from 'swiper'
+import type { Swiper as SwiperType } from "swiper"
 
 export interface ImageGalleryProps {
   images: HttpTypes.StoreProductImage[]
@@ -14,7 +14,7 @@ export interface MainImageSwiperProps {
 }
 
 export interface NavigationButtonProps {
-  direction: 'prev' | 'next'
+  direction: "prev" | "next"
   isDisabled: boolean
   onClick?: () => void
   className?: string

@@ -13,11 +13,7 @@ interface BannerUploadSectionProps {
   onDeleteImages: (imageIds: string[]) => void;
 }
 
-export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
-  images = [],
-  onSave,
-  onDeleteImages,
-}) => {
+export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({ images = [], onSave, onDeleteImages }) => {
   const toast = useToast();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [dragActive, setDragActive] = useState(false);
@@ -34,8 +30,7 @@ export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
       onSave?.(newImages);
     },
     onError: (error: Error) => {
-      const errorMessage =
-        error.message || 'Failed to upload images. Please try again.';
+      const errorMessage = error.message || 'Failed to upload images. Please try again.';
       toast.error(errorMessage);
     },
   });
@@ -43,19 +38,12 @@ export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
   const handleFileSelect = useCallback(
     async (files: File[]) => {
       const validFiles = files.filter((file) => {
-        const validTypes = [
-          'image/jpeg',
-          'image/png',
-          'image/gif',
-          'image/svg+xml',
-        ];
+        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
         return validTypes.includes(file.type);
       });
 
       if (validFiles.length === 0) {
-        setValidationError(
-          'Please select valid image files (JPG, PNG, GIF, SVG)'
-        );
+        setValidationError('Please select valid image files (JPG, PNG, GIF, SVG)');
         return;
       }
 
@@ -136,9 +124,7 @@ export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
           <div
             className={cn(
               'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
-              dragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 hover:border-gray-400 bg-gray-50'
+              dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400 bg-gray-50'
             )}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
@@ -147,14 +133,10 @@ export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
           >
             <CloudArrowUpIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 font-medium mb-2">Upload Images</p>
-            <p className="text-xs text-gray-500">
-              Drag and drop images here or click to upload
-            </p>
+            <p className="text-xs text-gray-500">Drag and drop images here or click to upload</p>
           </div>
 
-          {validationError && (
-            <p className="text-red-500 text-sm">{validationError}</p>
-          )}
+          {validationError && <p className="text-red-500 text-sm">{validationError}</p>}
 
           <input
             ref={fileInputRef}
@@ -174,29 +156,19 @@ export const BannerUploadSection: React.FC<BannerUploadSectionProps> = ({
                     key={imageId}
                     className={cn(
                       'relative group cursor-pointer rounded-lg overflow-hidden border-2 w-32',
-                      selectedIds.has(imageId)
-                        ? 'border-blue-500'
-                        : 'border-gray-200 hover:border-gray-300'
+                      selectedIds.has(imageId) ? 'border-blue-500' : 'border-gray-200 hover:border-gray-300'
                     )}
                     onClick={() => toggleImageSelection(imageId)}
                   >
-                    <img
-                      src={image.url}
-                      alt=""
-                      className="w-full aspect-square object-cover"
-                    />
+                    <img src={image.url} alt="" className="w-full aspect-square object-cover" />
 
                     <div
                       className={cn(
                         'absolute top-2 right-2 w-6 h-6 rounded border-2 bg-white',
-                        selectedIds.has(imageId)
-                          ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
+                        selectedIds.has(imageId) ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
                       )}
                     >
-                      {selectedIds.has(imageId) && (
-                        <CheckIcon className="w-full h-full text-white" />
-                      )}
+                      {selectedIds.has(imageId) && <CheckIcon className="w-full h-full text-white" />}
                     </div>
                   </div>
                 );

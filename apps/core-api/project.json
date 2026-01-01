@@ -25,8 +25,10 @@
     "dev-cli": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "ts-node apps/core-api/src/index.ts"
-      }
+        "cwd": "apps/core-api",
+        "command": "npx tsx src/index.ts"
+      },
+      "dependsOn": ["prisma:generate"]
     },
     "cli": {
       "executor": "nx:run-commands",

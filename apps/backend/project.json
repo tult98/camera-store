@@ -43,6 +43,13 @@
       },
       "dependsOn": ["build"]
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+        "cwd": "apps/backend"
+      }
+    },
     "test:unit": {
       "executor": "nx:run-commands",
       "options": {

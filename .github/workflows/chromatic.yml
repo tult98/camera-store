@@ -44,7 +44,7 @@ jobs:
             BASE="origin/${{ github.base_ref }}"
           fi
           AFFECTED=$(yarn nx show projects --affected --base=$BASE 2>/dev/null || echo "")
-          if echo "$AFFECTED" | grep -q "^ui$"; then
+          if echo "$AFFECTED" | grep -qw "ui"; then
             echo "affected=true" >> $GITHUB_OUTPUT
           else
             echo "affected=false" >> $GITHUB_OUTPUT

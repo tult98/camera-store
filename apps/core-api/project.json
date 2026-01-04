@@ -67,6 +67,14 @@
         "lintFilePatterns": ["apps/core-api/**/*.{ts,tsx,js,jsx}"]
       }
     },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/coverage"],
+      "options": {
+        "command": "jest",
+        "cwd": "apps/core-api"
+      }
+    },
     "type-check": {
       "executor": "nx:run-commands",
       "options": {

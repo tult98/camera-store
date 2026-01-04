@@ -1,112 +1,140 @@
 ---
 name: pr-create
-description: Creates or updates pull requests by analyzing code changes, creating branches, committing, pushing, and managing PRs with the project template. Use when creating a new PR, updating an existing PR, opening a PR, editing PR details, or preparing code for review.
+description: Creates or updates pull requests by analyzing code changes, creating branches, committing, pushing, and managing PRs with the project template. Use when creating a new PR, updating an existing PR, opening a PR, editing PR details, or preparing code for review. (project)
 ---
 
 # PR Management Skill
 
-## Overview
+Create and update pull requests with automated analysis, conventional commits, and project-aware checks.
 
-This skill handles both creating new pull requests and updating existing ones, guiding you through the complete workflow from code analysis to PR submission.
-
-## Workflow Selection
-
-First, determine if you're creating a new PR or updating an existing one:
+## Quick Start
 
 ```bash
-# Check if current branch has an associated PR
+# Check if PR exists for current branch
+gh pr view 2>/dev/null && echo "PR exists - will update" || echo "No PR - will create"
+
+# View current changes
+git status && git diff --stat
+```
+
+## Instructions
+
+### Step 1: Determine Workflow
+
+First, check if a PR already exists:
+
+```bash
 gh pr view
 ```
 
-- If no PR exists: Follow **Creating a New PR** workflow
-- If PR exists: Follow **Updating an Existing PR** workflow
+- **No PR exists**: Follow "Creating a New PR" workflow
+- **PR exists**: Follow "Updating an Existing PR" workflow
 
 ---
 
 ## Creating a New PR
 
-### Step 1: Analyze Current Changes
+### Step 2: Analyze Changes
 
-First, examine the current state of the repository:
+Run these commands in parallel to understand the current state:
 
 ```bash
-# Check current branch and status
+# Current status
 git status
 
-# View all changes (staged and unstaged)
+# All changes (staged + unstaged)
 git diff HEAD
 
-# View recent commits if on a feature branch
+# Recent commits on this branch
 git log --oneline -10
+
+# Identify affected Nx projects
+yarn nx affected --base=origin/development --head=HEAD --plain
 ```
 
-Identify:
-- What files have been modified, added, or deleted
-- The purpose and scope of the changes
-- Which project(s) are affected (backend, storefront, core-api, admin-dashboard, shared-types)
+**Identify from the output:**
+- Files modified, added, or deleted
+- Purpose and scope of changes
+- Affected projects: `backend`, `storefront`, `core-api`, `admin-dashboard`, `shared-types`
 
-### Step 2: Determine Change Type
+### Step 3: Determine Change Type
 
-Classify the changes into one of these categories:
-- **feat**: New feature (non-breaking)
-- **fix**: Bug fix
-- **refactor**: Code restructuring (no functional changes)
-- **docs**: Documentation updates
-- **ci**: CI/CD or tooling changes
-- **chore**: Maintenance tasks
-- **test**: Adding or updating tests
-- **breaking**: Changes that break existing functionality
+Classify using conventional commit types:
 
-### Step 3: Create Feature Branch
+| Type | Description |
+|------|-------------|
+| `feat` | New feature (non-breaking) |
+| `fix` | Bug fix |
+| `refactor` | Code restructuring (no functional changes) |
+| `docs` | Documentation updates |
+| `ci` | CI/CD or tooling changes |
+| `chore` | Maintenance tasks |
+| `test` | Adding or updating tests |
+| `breaking` | Changes that break existing functionality |
 
-If not already on a feature branch, create one:
+### Step 4: Create Feature Branch (if needed)
+
+If on `development` or `main`, create a feature branch:
 
 ```bash
-# Branch naming convention: <type>/<short-description>
-# Examples:
-#   feat/add-product-search
-#   fix/cart-total-calculation
-#   refactor/user-service-cleanup
-
-git checkout -b <type>/<short-description>
+# Branch naming: <type>/<short-description>
+git checkout -b feat/add-product-search
+git checkout -b fix/cart-total-calculation
+git checkout -b refactor/user-service-cleanup
 ```
 
-### Step 4: Create Commits
+### Step 5: Run Pre-PR Checks
 
-Stage and commit changes with conventional commit messages:
+Run checks on affected projects before committing:
 
 ```bash
-# Stage specific files or all changes
+# Lint affected projects
+yarn nx affected --target=lint --base=origin/development --head=HEAD
+
+# Type check affected projects
+yarn nx affected --target=type-check --base=origin/development --head=HEAD
+
+# Run tests on affected projects
+yarn nx affected --target=test --base=origin/development --head=HEAD
+```
+
+Fix any issues before proceeding.
+
+### Step 6: Stage and Commit
+
+```bash
+# Stage changes
 git add <files>
 # or
 git add .
 
 # Commit with conventional format
-git commit -m "<type>: <description>"
+git commit -m "<type>(<scope>): <description>"
 ```
 
-**Commit message format:**
+**Commit message guidelines:**
 - Use imperative mood: "add feature" not "added feature"
-- Keep subject line under 72 characters
-- Reference issues when applicable: "fix: resolve cart error (#123)"
+- Keep subject under 72 characters
+- Optional scope: `feat(storefront): add product filtering`
+- Reference issues: `fix(backend): resolve cart error (#123)`
 
-For multiple logical changes, create separate commits for each.
+For multiple logical changes, create separate commits.
 
-### Step 5: Push to Remote
+### Step 7: Push to Remote
 
 ```bash
 git push -u origin <branch-name>
 ```
 
-### Step 6: Create Pull Request
+### Step 8: Create Pull Request
 
-Use the GitHub CLI to create the PR with the project template:
+Use this command with the filled template:
 
 ```bash
-gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
+gh pr create --title "<type>(<scope>): <description>" --body "$(cat <<'EOF'
 ## Description
 
-<!-- Summary of what this PR does -->
+<!-- Write 1-2 sentences summarizing the changes -->
 
 ## Type of Change
 
@@ -144,7 +172,7 @@ gh pr create --title "<type>: <description>" --body "$(cat <<'EOF'
 
 ## Related Issues
 
-<!-- Link any related issues: Fixes #123, Closes #456 -->
+<!-- Link issues: Fixes #123, Closes #456 -->
 
 ## Screenshots (if applicable)
 
@@ -153,38 +181,21 @@ EOF
 )"
 ```
 
-## Filling the PR Template
+### Step 9: Fill the Template
 
 When creating the PR body:
 
-1. **Description**: Write a concise summary of the changes and their purpose
-2. **Type of Change**: Check the appropriate box(es) based on Step 2 analysis
-3. **Affected Projects**: Check projects where files were modified
-4. **Testing**: Mark what testing was performed
-5. **Checklist**: Verify each item before submitting
-6. **Related Issues**: Link any GitHub issues this PR addresses
-7. **Screenshots**: Include for any UI changes
-
-## Example
-
-```bash
-# 1. Check current state
-git status
-git diff HEAD
-
-# 2. Create branch (if needed)
-git checkout -b feat/add-product-filtering
-
-# 3. Stage and commit
-git add apps/storefront/src/modules/products/
-git commit -m "feat: add product filtering by category"
-
-# 4. Push
-git push -u origin feat/add-product-filtering
-
-# 5. Create PR
-gh pr create --title "feat: add product filtering by category" --body "..."
-```
+1. **Description**: Summarize the "why" behind the changes
+2. **Type of Change**: Check boxes matching Step 3 classification
+3. **Affected Projects**: Check based on file paths:
+   - `apps/backend/` → backend
+   - `apps/storefront/` → storefront
+   - `apps/core-api/` → core-api
+   - `apps/admin-dashboard/` → admin-dashboard
+   - Other → Root/workspace
+4. **Testing**: Mark what was performed
+5. **Checklist**: Verify each item
+6. **Related Issues**: Link GitHub issues
 
 ---
 
@@ -193,115 +204,163 @@ gh pr create --title "feat: add product filtering by category" --body "..."
 ### Step 1: Check PR Status
 
 ```bash
-# View current PR details
+# View PR details
 gh pr view
 
-# Check PR number and status
-gh pr status
+# Check CI status
+gh pr checks
 ```
 
 ### Step 2: Analyze New Changes
 
 ```bash
-# View changes since last push
+# Changes since last push
 git diff origin/<branch-name>
 
-# Check what commits will be pushed
-git log origin/<branch-name>..HEAD
+# Commits to be pushed
+git log origin/<branch-name>..HEAD --oneline
 ```
 
-### Step 3: Push Additional Commits
+### Step 3: Run Pre-Push Checks
 
 ```bash
-# Stage and commit new changes
-git add <files>
-git commit -m "<type>: <description>"
+yarn nx affected --target=lint --base=origin/development
+yarn nx affected --target=type-check --base=origin/development
+yarn nx affected --target=test --base=origin/development
+```
 
-# Push to update the PR
+### Step 4: Push Updates
+
+```bash
+git add <files>
+git commit -m "<type>(<scope>): <description>"
 git push
 ```
 
-### Step 4: Update PR Details (if needed)
+### Step 5: Update PR Details (if needed)
 
-Update the PR title:
 ```bash
+# Update title
 gh pr edit --title "<new-title>"
-```
 
-Update the PR description:
-```bash
+# Update description
 gh pr edit --body "$(cat <<'EOF'
 ## Description
-
-[Updated description]
+[Updated description with new changes]
 
 ## Type of Change
-[Check appropriate boxes]
+[Updated checkboxes]
 
-## Affected Projects
-[Check affected projects]
-
-## Testing
-[Mark completed tests]
-
-## Checklist
-[Update checklist]
-
-## Related Issues
-[Update issue links]
-
-## Screenshots (if applicable)
-[Add new screenshots]
+...rest of template...
 EOF
 )"
-```
 
-Add a comment to explain the updates:
-```bash
-gh pr comment --body "Updated to address review feedback:
-- Fixed the authentication bug
+# Add comment explaining updates
+gh pr comment --body "Updated PR:
+- Fixed review feedback on authentication
 - Added missing tests
 - Updated documentation"
 ```
 
-### Step 5: Request Re-review (if needed)
+### Step 6: Manage PR State
 
 ```bash
-# Request review from specific reviewers
-gh pr edit --add-reviewer @reviewer-username
-```
-
-### Common Update Scenarios
-
-**Adding fixes from review feedback:**
-```bash
-git add .
-git commit -m "fix: address review feedback on authentication"
-git push
-gh pr comment --body "Addressed review comments"
-```
-
-**Updating PR description:**
-```bash
-gh pr edit --body "$(cat .github/PULL_REQUEST_TEMPLATE.md)"
-# Then fill in the template manually or via editor
-```
-
-**Converting draft to ready:**
-```bash
+# Convert draft to ready
 gh pr ready
-```
 
-**Marking as draft again:**
-```bash
+# Mark as draft again
 gh pr ready --undo
+
+# Request re-review
+gh pr edit --add-reviewer @username
 ```
 
 ---
 
-## Notes
+## Examples
 
-- For breaking changes, clearly document migration steps in the description
-- Use draft PRs (`gh pr create --draft`) for work-in-progress
-- When updating PRs, add comments to explain significant changes
-- Always push commits before updating PR metadata
+### Creating a Feature PR
+
+```bash
+# 1. Analyze
+git status
+git diff HEAD
+yarn nx affected --base=origin/development --plain
+
+# 2. Create branch
+git checkout -b feat/add-product-filtering
+
+# 3. Run checks
+yarn nx affected --target=lint --base=origin/development
+yarn nx affected --target=type-check --base=origin/development
+
+# 4. Commit
+git add apps/storefront/src/modules/products/
+git commit -m "feat(storefront): add product filtering by category"
+
+# 5. Push
+git push -u origin feat/add-product-filtering
+
+# 6. Create PR
+gh pr create --title "feat(storefront): add product filtering by category" \
+  --body "## Description
+Adds category-based filtering to the product listing page.
+
+## Type of Change
+- [x] New feature (non-breaking change that adds functionality)
+
+## Affected Projects
+- [x] \`storefront\` (Next.js)
+
+## Testing
+- [x] Manual testing performed
+
+## Checklist
+- [x] Code follows project conventions
+- [x] Linting passes
+- [x] Type checking passes"
+```
+
+### Updating After Review Feedback
+
+```bash
+# 1. Make fixes
+git add .
+git commit -m "fix(storefront): address review feedback on filtering"
+
+# 2. Run checks
+yarn nx affected --target=lint --base=origin/development
+
+# 3. Push
+git push
+
+# 4. Comment
+gh pr comment --body "Addressed review feedback:
+- Fixed filter state reset issue
+- Added loading indicator"
+```
+
+---
+
+## Best Practices
+
+- **Run checks before pushing**: Use `yarn nx affected` to catch issues early
+- **Use scoped commits**: `feat(storefront):` helps identify affected areas
+- **One PR, one purpose**: Keep PRs focused and reviewable
+- **Draft PRs for WIP**: Use `gh pr create --draft` for incomplete work
+- **Document breaking changes**: Include migration steps in description
+- **Link issues**: Always reference related GitHub issues
+
+## Validation Checklist
+
+Before finalizing the PR:
+
+- [ ] Branch name follows `<type>/<description>` convention
+- [ ] All commits use conventional commit format
+- [ ] `yarn nx affected --target=lint` passes
+- [ ] `yarn nx affected --target=type-check` passes
+- [ ] `yarn nx affected --target=test` passes
+- [ ] PR title matches main commit message
+- [ ] Description explains the "why"
+- [ ] Correct checkboxes selected in template
+- [ ] Related issues are linked

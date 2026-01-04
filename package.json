@@ -126,6 +126,7 @@
     "@mikro-orm/cli": "6.4.3",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
+    "@nestjs/testing": "^11.1.11",
     "@nx/eslint": "21.3.11",
     "@nx/eslint-plugin": "^21.4.0",
     "@nx/js": "21.3.11",

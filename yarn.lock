@@ -2583,6 +2583,7 @@ __metadata:
     "@nestjs/core": ^10.0.0
     "@nestjs/platform-express": ^10.0.0
     "@nestjs/schematics": ^10.0.0
+    "@nestjs/testing": ^11.1.11
     "@nx/eslint": 21.3.11
     "@nx/eslint-plugin": ^21.4.0
     "@nx/js": 21.3.11
@@ -7435,6 +7436,25 @@ __metadata:
   peerDependencies:
     typescript: ">=4.8.2"
   checksum: 975c3b7af27c9f6e5db3e9605e55f88580ff3525818957bd64b72cef4fefe2e6c2d850d96f68fbef9303feb98c8c70a4439ba974a8ddf22fce78d5601d8309f1
+  languageName: node
+  linkType: hard
+
+"@nestjs/testing@npm:^11.1.11":
+  version: 11.1.11
+  resolution: "@nestjs/testing@npm:11.1.11"
+  dependencies:
+    tslib: 2.8.1
+  peerDependencies:
+    "@nestjs/common": ^11.0.0
+    "@nestjs/core": ^11.0.0
+    "@nestjs/microservices": ^11.0.0
+    "@nestjs/platform-express": ^11.0.0
+  peerDependenciesMeta:
+    "@nestjs/microservices":
+      optional: true
+    "@nestjs/platform-express":
+      optional: true
+  checksum: 5f15603826d52b85f8c0fa80d3db101abbef41ce5b1f0da9208f692a22d47adb2afaab9f5c044f05ae6d5c81fe19b9efec39af81767c9379537759c3b73a0bd3
   languageName: node
   linkType: hard
 

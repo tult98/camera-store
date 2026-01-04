@@ -35,10 +35,28 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Check if UI is affected
+        id: check-ui
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            BASE="HEAD~1"
+          else
+            BASE="origin/${{ github.base_ref }}"
+          fi
+          AFFECTED=$(yarn nx show projects --affected --base=$BASE 2>/dev/null || echo "")
+          if echo "$AFFECTED" | grep -q "^ui$"; then
+            echo "affected=true" >> $GITHUB_OUTPUT
+          else
+            echo "affected=false" >> $GITHUB_OUTPUT
+            echo "UI project not affected, skipping Chromatic"
+          fi
+
       - name: Build Storybook
+        if: steps.check-ui.outputs.affected == 'true'
         run: yarn nx run ui:build-storybook
 
       - name: Publish to Chromatic
+        if: steps.check-ui.outputs.affected == 'true'
         uses: chromaui/action@v13
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}

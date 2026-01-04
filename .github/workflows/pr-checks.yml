@@ -42,3 +42,9 @@ jobs:
         run: yarn nx affected -t type-check --base=origin/${{ github.base_ref }}
         env:
           DATABASE_URL: 'postgresql://user:password@localhost:5432/dummy_db'
+
+      - name: Run tests on affected projects
+        run: yarn nx affected -t test --base=origin/${{ github.base_ref }}
+        env:
+          DATABASE_URL: 'postgresql://user:password@localhost:5432/dummy_db'
+          TEST_TYPE: 'unit'

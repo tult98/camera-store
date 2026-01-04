@@ -1,4 +1,18 @@
 {
   "jest.runMode": "on-demand",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "jest.virtualFolders": [
+    {
+      "name": "ui",
+      "rootPath": "libs/ui"
+    },
+    {
+      "name": "core-api",
+      "rootPath": "apps/core-api"
+    },
+    {
+      "name": "backend",
+      "rootPath": "apps/backend"
+    }
+  ]
 }

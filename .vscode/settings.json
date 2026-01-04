@@ -13,6 +13,10 @@
     {
       "name": "backend",
       "rootPath": "apps/backend"
+    },
+    {
+      "name": "storefront",
+      "rootPath": "apps/storefront"
     }
   ]
 }

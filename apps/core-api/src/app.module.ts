@@ -7,7 +7,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { StoreModule } from 'src/modules/store/store.module';
 import { AppController } from './app.controller';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
+import { RedisModule } from './common/redis/redis.module';
 import { DatabaseModule } from './database/database.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { ProductModule } from './modules/product/product.module';
 
 @Module({
@@ -32,6 +34,8 @@ import { ProductModule } from './modules/product/product.module';
     }),
     ProductModule,
     StoreModule,
+    RedisModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

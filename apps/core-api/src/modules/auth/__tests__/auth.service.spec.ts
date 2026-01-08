@@ -1,15 +1,30 @@
+import { UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService, CreateUserInput } from '../auth.service';
-import { PrismaService } from '../../../database/prisma.service';
+
+jest.mock('../../../database/prisma.service', () => ({
+  PrismaService: jest.fn().mockImplementation(() => ({})),
+}));
+
+jest.mock('../../../common/redis/redis.service', () => ({
+  RedisService: jest.fn().mockImplementation(() => ({})),
+}));
 
 jest.mock('../utils/password.util', () => ({
   hashPassword: jest.fn().mockResolvedValue('hashed-password-mock'),
+  verifyPassword: jest.fn(),
 }));
+
+import { RedisService } from '../../../common/redis/redis.service';
+import { PrismaService } from '../../../database/prisma.service';
+import { AuthService, CreateUserInput } from '../auth.service';
+import { verifyPassword } from '../utils/password.util';
 
 type MockPrismaService = {
   user: { findFirst: jest.Mock; create: jest.Mock };
   auth_identity: { create: jest.Mock };
-  provider_identity: { create: jest.Mock };
+  provider_identity: { findFirst: jest.Mock; create: jest.Mock };
   $transaction: jest.Mock;
 };
 
@@ -22,9 +37,26 @@ const mockPrismaService: MockPrismaService = {
     create: jest.fn(),
   },
   provider_identity: {
+    findFirst: jest.fn(),
     create: jest.fn(),
   },
   $transaction: jest.fn((callback: (tx: MockPrismaService) => unknown) => callback(mockPrismaService)),
+};
+
+const mockJwtService = {
+  signAsync: jest.fn(),
+  verifyAsync: jest.fn(),
+};
+
+const mockConfigService = {
+  get: jest.fn().mockReturnValue('test-jwt-secret'),
+};
+
+const mockRedisService = {
+  set: jest.fn(),
+  get: jest.fn(),
+  del: jest.fn(),
+  expire: jest.fn(),
 };
 
 describe('AuthService', () => {
@@ -36,10 +68,10 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        {
-          provide: PrismaService,
-          useValue: mockPrismaService,
-        },
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: JwtService, useValue: mockJwtService },
+        { provide: ConfigService, useValue: mockConfigService },
+        { provide: RedisService, useValue: mockRedisService },
       ],
     }).compile();
 
@@ -86,6 +118,168 @@ describe('AuthService', () => {
       await expect(service.createUser(validInput)).rejects.toThrow(
         `User with email "${validInput.email}" already exists`
       );
+    });
+  });
+
+  describe('login', () => {
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      first_name: 'John',
+      last_name: 'Doe',
+    };
+
+    const mockProviderIdentity = {
+      provider_metadata: { password: 'hashed-password' },
+      auth_identity: {
+        app_metadata: { user_id: 'user-123' },
+      },
+    };
+
+    beforeEach(() => {
+      mockJwtService.signAsync.mockResolvedValue('mock-token');
+    });
+
+    it('should login successfully with valid credentials', async () => {
+      mockPrismaService.provider_identity.findFirst.mockResolvedValue(mockProviderIdentity);
+      mockPrismaService.user.findFirst.mockResolvedValue(mockUser);
+      (verifyPassword as jest.Mock).mockResolvedValue(true);
+
+      const result = await service.login('test@example.com', 'password123');
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result.user).toMatchObject({
+        id: mockUser.id,
+        email: mockUser.email,
+        firstName: mockUser.first_name,
+        lastName: mockUser.last_name,
+      });
+      expect(mockRedisService.set).toHaveBeenCalled();
+    });
+
+    it('should throw UnauthorizedException for non-existent user', async () => {
+      mockPrismaService.provider_identity.findFirst.mockResolvedValue(null);
+
+      await expect(service.login('nonexistent@example.com', 'password123')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for wrong password', async () => {
+      mockPrismaService.provider_identity.findFirst.mockResolvedValue(mockProviderIdentity);
+      (verifyPassword as jest.Mock).mockResolvedValue(false);
+
+      await expect(service.login('test@example.com', 'wrongpassword')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for soft-deleted user', async () => {
+      mockPrismaService.provider_identity.findFirst.mockResolvedValue(mockProviderIdentity);
+      mockPrismaService.user.findFirst.mockResolvedValue(null);
+      (verifyPassword as jest.Mock).mockResolvedValue(true);
+
+      await expect(service.login('test@example.com', 'password123')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should normalize email to lowercase', async () => {
+      mockPrismaService.provider_identity.findFirst.mockResolvedValue(mockProviderIdentity);
+      mockPrismaService.user.findFirst.mockResolvedValue(mockUser);
+      (verifyPassword as jest.Mock).mockResolvedValue(true);
+
+      await service.login('TEST@EXAMPLE.COM', 'password123');
+
+      expect(mockPrismaService.provider_identity.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            entity_id: 'test@example.com',
+          }),
+        })
+      );
+    });
+  });
+
+  describe('refreshTokens', () => {
+    const mockPayload = {
+      sub: 'user-123',
+      jti: 'token-jti-123',
+      type: 'refresh',
+    };
+
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+    };
+
+    beforeEach(() => {
+      mockJwtService.signAsync.mockResolvedValue('new-mock-token');
+    });
+
+    it('should refresh tokens successfully', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
+      mockRedisService.get.mockResolvedValue('1');
+      mockPrismaService.user.findFirst.mockResolvedValue(mockUser);
+
+      const result = await service.refreshTokens('valid-refresh-token');
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(mockRedisService.set).toHaveBeenCalled();
+      expect(mockRedisService.expire).toHaveBeenCalledWith(`refresh:${mockPayload.sub}:${mockPayload.jti}`, 30);
+    });
+
+    it('should throw UnauthorizedException for invalid token', async () => {
+      mockJwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
+
+      await expect(service.refreshTokens('invalid-token')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for revoked token', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
+      mockRedisService.get.mockResolvedValue(null);
+
+      await expect(service.refreshTokens('revoked-token')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for wrong token type', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue({ ...mockPayload, type: 'access' });
+
+      await expect(service.refreshTokens('access-token')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for soft-deleted user', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
+      mockRedisService.get.mockResolvedValue('1');
+      mockPrismaService.user.findFirst.mockResolvedValue(null);
+
+      await expect(service.refreshTokens('valid-token')).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('logout', () => {
+    it('should logout successfully', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue({
+        sub: 'user-123',
+        jti: 'token-jti-123',
+        type: 'refresh',
+      });
+
+      await service.logout('valid-refresh-token');
+
+      expect(mockRedisService.del).toHaveBeenCalledWith('refresh:user-123:token-jti-123');
+    });
+
+    it('should not throw for invalid token (idempotent)', async () => {
+      mockJwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
+
+      await expect(service.logout('invalid-token')).resolves.toBeUndefined();
+    });
+
+    it('should not throw for already logged out token (idempotent)', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue({
+        sub: 'user-123',
+        jti: 'token-jti-123',
+        type: 'refresh',
+      });
+
+      await expect(service.logout('already-logged-out-token')).resolves.toBeUndefined();
     });
   });
 });

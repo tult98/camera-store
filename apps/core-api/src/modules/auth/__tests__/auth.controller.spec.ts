@@ -2,8 +2,13 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import { AuthController } from '../auth.controller';
+import { JwtAuthGuard } from '../auth.guard';
 import { AuthService, LoginResponse } from '../auth.service';
 import { LoginDto } from '../dto/login.dto';
+
+const mockJwtAuthGuard = {
+  canActivate: jest.fn().mockReturnValue(true),
+};
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -18,7 +23,10 @@ describe('AuthController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [{ provide: AuthService, useValue: mockAuthService }],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue(mockJwtAuthGuard)
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
   });

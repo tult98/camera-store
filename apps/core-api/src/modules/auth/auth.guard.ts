@@ -1,15 +1,11 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { JWT_ISSUER } from './constants.js';
 import { SKIP_AUTH_KEY } from './decorators/skip-auth.decorator.js';
-
-interface AccessTokenPayload {
-  sub: string;
-  email: string;
-  type: 'access';
-}
+import { AccessTokenPayload } from './types.js';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -20,10 +16,10 @@ declare global {
   }
 }
 
-const JWT_ISSUER = 'core-api';
-
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+  private readonly logger = new Logger(JwtAuthGuard.name);
+
   constructor(private jwtService: JwtService, private configService: ConfigService, private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -45,7 +41,7 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync<AccessTokenPayload>(token, {
-        secret: this.configService.get('JWT_SECRET'),
+        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
         issuer: JWT_ISSUER,
       });
 
@@ -54,7 +50,8 @@ export class JwtAuthGuard implements CanActivate {
       }
 
       request.user = { userId: payload.sub, email: payload.email };
-    } catch {
+    } catch (error) {
+      this.logger.error(`JWT verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw new UnauthorizedException();
     }
 

@@ -50,10 +50,12 @@ const mockJwtService = {
 
 const mockConfigService = {
   get: jest.fn().mockReturnValue('test-jwt-secret'),
+  getOrThrow: jest.fn().mockReturnValue('test-jwt-secret'),
 };
 
 const mockRedisService = {
   set: jest.fn(),
+  setNx: jest.fn().mockResolvedValue(true),
   get: jest.fn(),
   del: jest.fn(),
   expire: jest.fn(),
@@ -133,6 +135,7 @@ describe('AuthService', () => {
       provider_metadata: { password: 'hashed-password' },
       auth_identity: {
         app_metadata: { user_id: 'user-123' },
+        deleted_at: null,
       },
     };
 

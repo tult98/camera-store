@@ -1,9 +1,17 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { RedisService } from '../../common/redis/redis.service.js';
 import { PrismaService } from '../../database/prisma.service.js';
+import {
+  ACCESS_TOKEN_EXPIRY,
+  GRACE_PERIOD_SECONDS,
+  JWT_ISSUER,
+  REFRESH_TOKEN_EXPIRY,
+  REFRESH_TOKEN_TTL_SECONDS,
+} from './constants.js';
+import { AccessTokenPayload, RefreshTokenPayload, TokenPair } from './types.js';
 import { hashPassword, verifyPassword } from './utils/password.util.js';
 
 export interface CreateUserInput {
@@ -18,24 +26,6 @@ export interface CreatedUser {
   email: string;
   firstName: string | null;
   lastName: string | null;
-}
-
-interface AccessTokenPayload {
-  sub: string;
-  email: string;
-  type: 'access';
-}
-
-interface RefreshTokenPayload {
-  sub: string;
-  jti: string;
-  type: 'refresh';
-}
-
-interface TokenPair {
-  accessToken: string;
-  refreshToken: string;
-  jti: string;
 }
 
 export interface LoginResponse {
@@ -56,14 +46,12 @@ export interface RefreshResponse {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
-const ACCESS_TOKEN_EXPIRY = '15m';
-const REFRESH_TOKEN_EXPIRY = '7d';
-const REFRESH_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
-const GRACE_PERIOD_SECONDS = 30;
-const JWT_ISSUER = 'core-api';
+const REFRESH_LOCK_TTL_SECONDS = 5;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -150,6 +138,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (providerIdentity.auth_identity.deleted_at) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     const providerMetadata = providerIdentity.provider_metadata as { password?: string } | null;
     const storedHash = providerMetadata?.password;
 
@@ -196,45 +188,57 @@ export class AuthService {
   async refreshTokens(refreshToken: string): Promise<RefreshResponse> {
     const payload = await this.validateRefreshToken(refreshToken);
     const oldJti = payload.jti;
+    const lockKey = `refresh_lock:${payload.sub}:${oldJti}`;
 
-    const user = await this.prisma.user.findFirst({
-      where: { id: payload.sub, deleted_at: null },
-    });
-
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+    const acquired = await this.redisService.setNx(lockKey, '1', REFRESH_LOCK_TTL_SECONDS);
+    if (!acquired) {
+      throw new UnauthorizedException('Token refresh in progress');
     }
 
-    const tokens = await this.generateTokens(payload.sub, user.email);
+    try {
+      const user = await this.prisma.user.findFirst({
+        where: { id: payload.sub, deleted_at: null },
+      });
 
-    await this.redisService.set(`refresh:${payload.sub}:${tokens.jti}`, '1', REFRESH_TOKEN_TTL_SECONDS);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    await this.redisService.expire(`refresh:${payload.sub}:${oldJti}`, GRACE_PERIOD_SECONDS);
+      const tokens = await this.generateTokens(payload.sub, user.email);
 
-    return {
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-    };
+      await this.redisService.set(`refresh:${payload.sub}:${tokens.jti}`, '1', REFRESH_TOKEN_TTL_SECONDS);
+
+      await this.redisService.expire(`refresh:${payload.sub}:${oldJti}`, GRACE_PERIOD_SECONDS);
+
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      };
+    } finally {
+      await this.redisService.del(lockKey);
+    }
   }
 
   async logout(refreshToken: string): Promise<void> {
     try {
       const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(refreshToken, {
-        secret: this.configService.get('JWT_SECRET'),
+        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
         issuer: JWT_ISSUER,
       });
 
       if (payload.type === 'refresh' && payload.jti) {
         await this.redisService.del(`refresh:${payload.sub}:${payload.jti}`);
       }
-    } catch {
-      // Silently ignore invalid tokens for idempotent logout
+    } catch (error) {
+      if (error instanceof Error && !error.message.includes('jwt')) {
+        this.logger.error(`Logout error: ${error.message}`);
+      }
     }
   }
 
   private async generateTokens(userId: string, email: string): Promise<TokenPair> {
     const jti = randomUUID();
-    const secret = this.configService.get('JWT_SECRET');
+    const secret = this.configService.getOrThrow<string>('JWT_SECRET');
 
     const accessPayload: AccessTokenPayload = {
       sub: userId,
@@ -269,10 +273,11 @@ export class AuthService {
 
     try {
       payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(refreshToken, {
-        secret: this.configService.get('JWT_SECRET'),
+        secret: this.configService.getOrThrow<string>('JWT_SECRET'),
         issuer: JWT_ISSUER,
       });
-    } catch {
+    } catch (error) {
+      this.logger.error(`Refresh token validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw new UnauthorizedException('Invalid refresh token');
     }
 

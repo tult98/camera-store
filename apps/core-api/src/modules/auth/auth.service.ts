@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
@@ -47,11 +47,11 @@ export class AuthService {
     const normalizedEmail = email.toLowerCase();
 
     if (!EMAIL_REGEX.test(normalizedEmail)) {
-      throw new Error('Invalid email format');
+      throw new BadRequestException('Invalid email format');
     }
 
     if (password.length < MIN_PASSWORD_LENGTH) {
-      throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+      throw new BadRequestException(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
     }
 
     const userId = randomUUID();
@@ -62,11 +62,11 @@ export class AuthService {
 
     await this.prisma.$transaction(async (tx) => {
       const existingUser = await tx.user.findFirst({
-        where: { email: normalizedEmail, deleted_at: null },
+        where: { email: normalizedEmail },
       });
 
       if (existingUser) {
-        throw new Error(`User with email "${normalizedEmail}" already exists`);
+        throw new ConflictException(`User with email "${normalizedEmail}" already exists`);
       }
 
       await tx.user.create({
@@ -111,7 +111,6 @@ export class AuthService {
       where: {
         entity_id: normalizedEmail,
         provider: 'emailpass',
-        deleted_at: null,
       },
       include: {
         auth_identity: true,
@@ -119,10 +118,6 @@ export class AuthService {
     });
 
     if (!providerIdentity) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    if (providerIdentity.auth_identity.deleted_at) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -146,7 +141,7 @@ export class AuthService {
     }
 
     const user = await this.prisma.user.findFirst({
-      where: { id: userId, deleted_at: null },
+      where: { id: userId },
     });
 
     if (!user) {

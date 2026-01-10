@@ -158,9 +158,25 @@ describe('AuthService', () => {
       await expect(service.login('test@example.com', 'wrongpassword')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException for soft-deleted user', async () => {
-      mockPrismaService.provider_identity.findFirst.mockResolvedValue(mockProviderIdentity);
-      mockPrismaService.user.findFirst.mockResolvedValue(null);
+    it('should throw UnauthorizedException for missing password hash', async () => {
+      const identityWithoutPassword = {
+        ...mockProviderIdentity,
+        provider_metadata: {},
+      };
+      mockPrismaService.provider_identity.findFirst.mockResolvedValue(identityWithoutPassword);
+
+      await expect(service.login('test@example.com', 'password123')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should throw UnauthorizedException for missing user_id', async () => {
+      const identityWithoutUserId = {
+        ...mockProviderIdentity,
+        auth_identity: {
+          app_metadata: {},
+          deleted_at: null,
+        },
+      };
+      mockPrismaService.provider_identity.findFirst.mockResolvedValue(identityWithoutUserId);
       (verifyPassword as jest.Mock).mockResolvedValue(true);
 
       await expect(service.login('test@example.com', 'password123')).rejects.toThrow(UnauthorizedException);

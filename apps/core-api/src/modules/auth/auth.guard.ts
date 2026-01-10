@@ -39,8 +39,8 @@ export class JwtAuthGuard implements CanActivate {
       }
 
       request.user = { userId: payload.sub, email: payload.email };
-    } catch (error) {
-      this.logger.error(`JWT verification failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } catch {
+      this.logger.error('JWT verification failed');
       throw new UnauthorizedException();
     }
 

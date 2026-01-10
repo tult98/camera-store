@@ -20,12 +20,18 @@ import { CreateUserCommand } from './commands/create-user.command.js';
   ],
   providers: [
     {
-      provide: AuthService,
-      useFactory: (prisma: PrismaService, config: ConfigService, redis: RedisClientType) => {
-        const tokenStorageService = new TokenStorageService(redis);
-        return new AuthService(prisma, new JwtService(), config, tokenStorageService);
+      provide: TokenStorageService,
+      useFactory: (redis: RedisClientType) => {
+        return new TokenStorageService(redis);
       },
-      inject: [PrismaService, ConfigService, REDIS_CLIENT],
+      inject: [REDIS_CLIENT],
+    },
+    {
+      provide: AuthService,
+      useFactory: (prisma: PrismaService, config: ConfigService, tokenStorage: TokenStorageService) => {
+        return new AuthService(prisma, new JwtService(), config, tokenStorage);
+      },
+      inject: [PrismaService, ConfigService, TokenStorageService],
     },
     CreateUserCommand,
   ],

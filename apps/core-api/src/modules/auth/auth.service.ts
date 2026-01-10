@@ -239,6 +239,7 @@ export class AuthService {
       return payload;
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
+      console.error('Error validating refresh token:', error);
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
@@ -254,10 +255,10 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
-    await this.tokenStorageService.invalidateRefreshToken(payload.sub, payload.jti);
-
     const accessToken = await this.generateAccessToken(user.id, user.email);
     const { token: newRefreshToken, jti: refreshJti } = await this.generateRefreshToken(user.id, userAgent);
+
+    await this.tokenStorageService.invalidateRefreshToken(payload.sub, payload.jti);
 
     return {
       accessToken,

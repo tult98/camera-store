@@ -4,3 +4,9 @@ export interface AccessTokenPayload {
   email: string;
   type: 'access';
 }
+
+export interface RefreshTokenPayload {
+  sub: string;
+  jti: string;
+  type: 'refresh';
+}

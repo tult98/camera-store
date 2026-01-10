@@ -1,7 +1,7 @@
 import { Modules } from '@medusajs/framework/utils';
 import { updateProductsWorkflow } from '@medusajs/medusa/core-flows';
 import { LinkDefinition } from '@medusajs/types';
-import { StepResponse } from '@medusajs/workflows-sdk';
+import { StepResponse } from '@medusajs/framework/workflows-sdk';
 import { BRAND_MODULE } from 'src/modules/brand';
 import BrandModuleService from 'src/modules/brand/service';
 

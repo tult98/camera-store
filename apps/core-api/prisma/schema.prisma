@@ -2130,6 +2130,9 @@ model user {
   created_at DateTime  @default(now()) @db.Timestamptz(6)
   updated_at DateTime  @default(now()) @db.Timestamptz(6)
   deleted_at DateTime? @db.Timestamptz(6)
+
+  @@unique([email, deleted_at], map: "UQ_user_email_deleted_at")
+  @@index([email], map: "IDX_user_email")
 }
 
 model workflow_execution {

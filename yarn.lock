@@ -2584,6 +2584,7 @@ __metadata:
     "@nestjs/platform-express": ^10.0.0
     "@nestjs/schematics": ^10.0.0
     "@nestjs/testing": ^11.1.11
+    "@nestjs/throttler": ^6.5.0
     "@nx/eslint": 21.3.11
     "@nx/eslint-plugin": ^21.4.0
     "@nx/js": 21.3.11
@@ -7455,6 +7456,17 @@ __metadata:
     "@nestjs/platform-express":
       optional: true
   checksum: 5f15603826d52b85f8c0fa80d3db101abbef41ce5b1f0da9208f692a22d47adb2afaab9f5c044f05ae6d5c81fe19b9efec39af81767c9379537759c3b73a0bd3
+  languageName: node
+  linkType: hard
+
+"@nestjs/throttler@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "@nestjs/throttler@npm:6.5.0"
+  peerDependencies:
+    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
+    reflect-metadata: ^0.1.13 || ^0.2.0
+  checksum: 60310fbf4f2d928c87e94fda77be5fc16a6e40d04dadb61ad856ff255fef3fdc35073b88e7ce81872e309ca14e984b719a944063541505d125b70f6a1f967289
   languageName: node
   linkType: hard
 

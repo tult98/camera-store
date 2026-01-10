@@ -14,6 +14,7 @@ jest.mock('../utils/password.util', () => ({
 
 import { PrismaService } from '../../../database/prisma.service';
 import { AuthService, CreateUserInput } from '../auth.service';
+import { TokenStorageService } from '../services/token-storage.service';
 import { verifyPassword } from '../utils/password.util';
 
 type MockPrismaService = {
@@ -40,11 +41,19 @@ const mockPrismaService: MockPrismaService = {
 
 const mockJwtService = {
   signAsync: jest.fn(),
+  verifyAsync: jest.fn(),
 };
 
 const mockConfigService = {
   get: jest.fn().mockReturnValue('test-jwt-secret'),
   getOrThrow: jest.fn().mockReturnValue('test-jwt-secret'),
+};
+
+const mockTokenStorageService = {
+  storeRefreshToken: jest.fn().mockResolvedValue(undefined),
+  isRefreshTokenValid: jest.fn().mockResolvedValue(true),
+  invalidateRefreshToken: jest.fn().mockResolvedValue(undefined),
+  invalidateAllUserTokens: jest.fn().mockResolvedValue(0),
 };
 
 describe('AuthService', () => {
@@ -59,6 +68,7 @@ describe('AuthService', () => {
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: TokenStorageService, useValue: mockTokenStorageService },
       ],
     }).compile();
 
@@ -136,7 +146,8 @@ describe('AuthService', () => {
       const result = await service.login('test@example.com', 'password123');
 
       expect(result).toHaveProperty('accessToken');
-      expect(result).not.toHaveProperty('refreshToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result).toHaveProperty('refreshJti');
       expect(result.user).toMatchObject({
         id: mockUser.id,
         email: mockUser.email,
@@ -196,6 +207,194 @@ describe('AuthService', () => {
           }),
         })
       );
+    });
+  });
+
+  describe('validateRefreshToken', () => {
+    const mockRefreshToken = 'valid-refresh-token';
+    const mockPayload = {
+      sub: 'user-123',
+      jti: 'token-jti',
+      type: 'refresh' as const,
+    };
+
+    beforeEach(() => {
+      mockJwtService.signAsync.mockResolvedValue(mockRefreshToken);
+      mockConfigService.getOrThrow.mockReturnValue('test-refresh-secret');
+    });
+
+    it('should validate a valid refresh token', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
+      mockTokenStorageService.isRefreshTokenValid.mockResolvedValue(true);
+
+      const result = await service.validateRefreshToken(mockRefreshToken);
+
+      expect(result).toEqual(mockPayload);
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(mockRefreshToken, {
+        secret: 'test-refresh-secret',
+        issuer: 'core-api',
+      });
+      expect(mockTokenStorageService.isRefreshTokenValid).toHaveBeenCalledWith('user-123', 'token-jti');
+    });
+
+    it('should throw UnauthorizedException for invalid token type', async () => {
+      const invalidPayload = { ...mockPayload, type: 'access' as const };
+      mockJwtService.verifyAsync.mockResolvedValue(invalidPayload);
+
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow('Invalid token type');
+    });
+
+    it('should throw UnauthorizedException for revoked token', async () => {
+      mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
+      mockTokenStorageService.isRefreshTokenValid.mockResolvedValue(false);
+
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow('Token has been revoked');
+    });
+
+    it('should throw UnauthorizedException and log error for JWT verification failure', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockJwtService.verifyAsync.mockRejectedValue(new Error('JWT verification failed'));
+
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow('Invalid refresh token');
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error validating refresh token:', expect.any(Error));
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('should throw UnauthorizedException and log error for Redis errors', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
+      mockTokenStorageService.isRefreshTokenValid.mockRejectedValue(new Error('Redis connection failed'));
+
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow('Invalid refresh token');
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error validating refresh token:', expect.any(Error));
+
+      consoleErrorSpy.mockRestore();
+    });
+  });
+
+  describe('refresh', () => {
+    const mockRefreshToken = 'valid-refresh-token';
+    const mockPayload = {
+      sub: 'user-123',
+      jti: 'old-token-jti',
+      type: 'refresh' as const,
+    };
+    const mockUser = {
+      id: 'user-123',
+      email: 'test@example.com',
+      first_name: 'John',
+      last_name: 'Doe',
+    };
+
+    beforeEach(() => {
+      mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
+      mockTokenStorageService.isRefreshTokenValid.mockResolvedValue(true);
+      mockJwtService.signAsync.mockResolvedValue('new-token');
+      mockConfigService.getOrThrow.mockReturnValue('test-secret');
+    });
+
+    it('should refresh tokens successfully', async () => {
+      mockPrismaService.user.findFirst.mockResolvedValue(mockUser);
+
+      const result = await service.refresh(mockRefreshToken, 'test-user-agent');
+
+      expect(result).toHaveProperty('accessToken');
+      expect(result).toHaveProperty('refreshToken');
+      expect(result).toHaveProperty('refreshJti');
+      expect(mockTokenStorageService.storeRefreshToken).toHaveBeenCalled();
+      expect(mockTokenStorageService.invalidateRefreshToken).toHaveBeenCalledWith('user-123', 'old-token-jti');
+    });
+
+    it('should generate new tokens before invalidating old token', async () => {
+      mockPrismaService.user.findFirst.mockResolvedValue(mockUser);
+      const callOrder: string[] = [];
+
+      mockJwtService.signAsync.mockImplementation(() => {
+        callOrder.push('generateToken');
+        return Promise.resolve('new-token');
+      });
+
+      mockTokenStorageService.storeRefreshToken.mockImplementation(() => {
+        callOrder.push('storeToken');
+        return Promise.resolve();
+      });
+
+      mockTokenStorageService.invalidateRefreshToken.mockImplementation(() => {
+        callOrder.push('invalidateToken');
+        return Promise.resolve();
+      });
+
+      await service.refresh(mockRefreshToken, 'test-user-agent');
+
+      expect(callOrder.indexOf('generateToken')).toBeLessThan(callOrder.indexOf('invalidateToken'));
+      expect(callOrder.indexOf('storeToken')).toBeLessThan(callOrder.indexOf('invalidateToken'));
+    });
+
+    it('should throw UnauthorizedException if user not found', async () => {
+      mockPrismaService.user.findFirst.mockResolvedValue(null);
+
+      await expect(service.refresh(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
+      await expect(service.refresh(mockRefreshToken)).rejects.toThrow('User not found');
+      expect(mockTokenStorageService.invalidateRefreshToken).not.toHaveBeenCalled();
+    });
+
+    it('should throw error if token validation fails', async () => {
+      mockJwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
+
+      await expect(service.refresh(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
+      expect(mockTokenStorageService.invalidateRefreshToken).not.toHaveBeenCalled();
+    });
+
+    it('should not invalidate old token if new token generation fails', async () => {
+      mockPrismaService.user.findFirst.mockResolvedValue(mockUser);
+      mockJwtService.signAsync.mockRejectedValueOnce(new Error('Token generation failed'));
+
+      await expect(service.refresh(mockRefreshToken)).rejects.toThrow();
+      expect(mockTokenStorageService.invalidateRefreshToken).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('logout', () => {
+    it('should invalidate refresh token', async () => {
+      await service.logout('user-123', 'token-jti');
+
+      expect(mockTokenStorageService.invalidateRefreshToken).toHaveBeenCalledWith('user-123', 'token-jti');
+    });
+
+    it('should handle errors from token storage service', async () => {
+      mockTokenStorageService.invalidateRefreshToken.mockRejectedValue(new Error('Redis error'));
+
+      await expect(service.logout('user-123', 'token-jti')).rejects.toThrow('Redis error');
+    });
+  });
+
+  describe('logoutAllDevices', () => {
+    it('should invalidate all user tokens', async () => {
+      mockTokenStorageService.invalidateAllUserTokens.mockResolvedValue(3);
+
+      const result = await service.logoutAllDevices('user-123');
+
+      expect(result).toBe(3);
+      expect(mockTokenStorageService.invalidateAllUserTokens).toHaveBeenCalledWith('user-123');
+    });
+
+    it('should return 0 if no tokens to invalidate', async () => {
+      mockTokenStorageService.invalidateAllUserTokens.mockResolvedValue(0);
+
+      const result = await service.logoutAllDevices('user-123');
+
+      expect(result).toBe(0);
+    });
+
+    it('should handle errors from token storage service', async () => {
+      mockTokenStorageService.invalidateAllUserTokens.mockRejectedValue(new Error('Redis error'));
+
+      await expect(service.logoutAllDevices('user-123')).rejects.toThrow('Redis error');
     });
   });
 });

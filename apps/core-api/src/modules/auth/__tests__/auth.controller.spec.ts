@@ -40,6 +40,8 @@ describe('AuthController', () => {
 
       const expectedResponse: LoginResponse = {
         accessToken: 'mock-access-token',
+        refreshToken: 'mock-refresh-token',
+        refreshJti: 'mock-jti',
         user: {
           id: 'user-123',
           email: 'test@example.com',

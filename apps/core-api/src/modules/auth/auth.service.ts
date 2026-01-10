@@ -3,8 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../../database/prisma.service.js';
-import { ACCESS_TOKEN_EXPIRY, JWT_ISSUER } from './constants.js';
-import { AccessTokenPayload } from './types.js';
+import { ACCESS_TOKEN_EXPIRY, JWT_ISSUER, REFRESH_TOKEN_EXPIRY } from './constants.js';
+import { AccessTokenPayload, RefreshTokenPayload } from './types.js';
+import { RefreshTokenMetadata, TokenStorageService } from './services/token-storage.service.js';
 import { hashPassword, verifyPassword } from './utils/password.util.js';
 
 export interface CreateUserInput {
@@ -21,8 +22,16 @@ export interface CreatedUser {
   lastName: string | null;
 }
 
+export interface TokenPair {
+  accessToken: string;
+  refreshToken: string;
+  refreshJti: string;
+}
+
 export interface LoginResponse {
   accessToken: string;
+  refreshToken: string;
+  refreshJti: string;
   user: {
     id: string;
     email: string;
@@ -39,7 +48,8 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly tokenStorageService: TokenStorageService
   ) {}
 
   async createUser(input: CreateUserInput): Promise<CreatedUser> {
@@ -104,7 +114,7 @@ export class AuthService {
     };
   }
 
-  async login(email: string, password: string): Promise<LoginResponse> {
+  async login(email: string, password: string, userAgent?: string): Promise<LoginResponse> {
     const normalizedEmail = email.toLowerCase();
 
     const providerIdentity = await this.prisma.provider_identity.findFirst({
@@ -149,9 +159,12 @@ export class AuthService {
     }
 
     const accessToken = await this.generateAccessToken(userId, user.email);
+    const { token: refreshToken, jti: refreshJti } = await this.generateRefreshToken(userId, userAgent);
 
     return {
       accessToken,
+      refreshToken,
+      refreshJti,
       user: {
         id: user.id,
         email: user.email,
@@ -175,5 +188,90 @@ export class AuthService {
       expiresIn: ACCESS_TOKEN_EXPIRY,
       issuer: JWT_ISSUER,
     });
+  }
+
+  private async generateRefreshToken(userId: string, userAgent?: string): Promise<{ token: string; jti: string }> {
+    const jti = randomUUID();
+    const secret = this.configService.getOrThrow<string>('JWT_REFRESH_SECRET');
+
+    const payload: RefreshTokenPayload = {
+      sub: userId,
+      jti,
+      type: 'refresh',
+    };
+
+    const token = await this.jwtService.signAsync(payload, {
+      secret,
+      expiresIn: REFRESH_TOKEN_EXPIRY,
+      issuer: JWT_ISSUER,
+    });
+
+    const metadata: RefreshTokenMetadata = {
+      userId,
+      createdAt: Date.now(),
+      userAgent,
+    };
+
+    await this.tokenStorageService.storeRefreshToken(userId, jti, metadata);
+
+    return { token, jti };
+  }
+
+  async validateRefreshToken(token: string): Promise<RefreshTokenPayload> {
+    const secret = this.configService.getOrThrow<string>('JWT_REFRESH_SECRET');
+
+    try {
+      const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(token, {
+        secret,
+        issuer: JWT_ISSUER,
+      });
+
+      if (payload.type !== 'refresh') {
+        throw new UnauthorizedException('Invalid token type');
+      }
+
+      const isValid = await this.tokenStorageService.isRefreshTokenValid(payload.sub, payload.jti);
+
+      if (!isValid) {
+        throw new UnauthorizedException('Token has been revoked');
+      }
+
+      return payload;
+    } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
+      console.error('Error validating refresh token:', error);
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async refresh(refreshToken: string, userAgent?: string): Promise<TokenPair> {
+    const payload = await this.validateRefreshToken(refreshToken);
+
+    const user = await this.prisma.user.findFirst({
+      where: { id: payload.sub },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const accessToken = await this.generateAccessToken(user.id, user.email);
+    const { token: newRefreshToken, jti: refreshJti } = await this.generateRefreshToken(user.id, userAgent);
+
+    await this.tokenStorageService.invalidateRefreshToken(payload.sub, payload.jti);
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+      refreshJti,
+    };
+  }
+
+  async logout(userId: string, refreshJti: string): Promise<void> {
+    await this.tokenStorageService.invalidateRefreshToken(userId, refreshJti);
+  }
+
+  async logoutAllDevices(userId: string): Promise<number> {
+    return this.tokenStorageService.invalidateAllUserTokens(userId);
   }
 }

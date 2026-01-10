@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RedisClientType } from 'redis';
 import { REDIS_CLIENT } from '../../../redis/redis.module';
 import { TokenStorageService } from '../token-storage.service';
 
@@ -11,6 +10,8 @@ const mockRedisClient = {
   sRem: jest.fn(),
   sMembers: jest.fn(),
   expire: jest.fn(),
+  ttl: jest.fn(),
+  eval: jest.fn(),
 };
 
 describe('TokenStorageService', () => {
@@ -33,7 +34,7 @@ describe('TokenStorageService', () => {
   });
 
   describe('storeRefreshToken', () => {
-    it('should store refresh token with metadata in Redis', async () => {
+    it('should store refresh token with metadata in Redis and set TTL if not exists', async () => {
       const userId = 'user-123';
       const jti = 'token-abc';
       const metadata = {
@@ -44,6 +45,7 @@ describe('TokenStorageService', () => {
 
       mockRedisClient.setEx.mockResolvedValue('OK');
       mockRedisClient.sAdd.mockResolvedValue(1);
+      mockRedisClient.ttl.mockResolvedValue(-1);
       mockRedisClient.expire.mockResolvedValue(1);
 
       await service.storeRefreshToken(userId, jti, metadata);
@@ -54,7 +56,40 @@ describe('TokenStorageService', () => {
         JSON.stringify(metadata)
       );
       expect(mockRedisClient.sAdd).toHaveBeenCalledWith('auth:user:user-123:tokens', jti);
+      expect(mockRedisClient.ttl).toHaveBeenCalledWith('auth:user:user-123:tokens');
       expect(mockRedisClient.expire).toHaveBeenCalledWith('auth:user:user-123:tokens', 7 * 24 * 60 * 60);
+    });
+
+    it('should not reset TTL if user tokens set already has TTL', async () => {
+      const userId = 'user-123';
+      const jti = 'token-abc';
+      const metadata = {
+        userId,
+        createdAt: Date.now(),
+        userAgent: 'Chrome/120',
+      };
+
+      mockRedisClient.setEx.mockResolvedValue('OK');
+      mockRedisClient.sAdd.mockResolvedValue(1);
+      mockRedisClient.ttl.mockResolvedValue(300000);
+
+      await service.storeRefreshToken(userId, jti, metadata);
+
+      expect(mockRedisClient.ttl).toHaveBeenCalledWith('auth:user:user-123:tokens');
+      expect(mockRedisClient.expire).not.toHaveBeenCalled();
+    });
+
+    it('should handle Redis setEx errors', async () => {
+      const userId = 'user-123';
+      const jti = 'token-abc';
+      const metadata = {
+        userId,
+        createdAt: Date.now(),
+      };
+
+      mockRedisClient.setEx.mockRejectedValue(new Error('Redis connection error'));
+
+      await expect(service.storeRefreshToken(userId, jti, metadata)).rejects.toThrow('Redis connection error');
     });
   });
 
@@ -103,6 +138,12 @@ describe('TokenStorageService', () => {
 
       expect(result).toBe(false);
     });
+
+    it('should handle Redis get errors', async () => {
+      mockRedisClient.get.mockRejectedValue(new Error('Redis connection error'));
+
+      await expect(service.isRefreshTokenValid('user-123', 'token-abc')).rejects.toThrow('Redis connection error');
+    });
   });
 
   describe('invalidateRefreshToken', () => {
@@ -118,35 +159,57 @@ describe('TokenStorageService', () => {
       expect(mockRedisClient.del).toHaveBeenCalledWith('auth:refresh:token-abc');
       expect(mockRedisClient.sRem).toHaveBeenCalledWith('auth:user:user-123:tokens', jti);
     });
+
+    it('should handle Redis del errors', async () => {
+      mockRedisClient.del.mockRejectedValue(new Error('Redis connection error'));
+
+      await expect(service.invalidateRefreshToken('user-123', 'token-abc')).rejects.toThrow('Redis connection error');
+    });
   });
 
   describe('invalidateAllUserTokens', () => {
-    it('should delete all refresh tokens for a user', async () => {
+    it('should delete all refresh tokens for a user using Lua script', async () => {
       const userId = 'user-123';
-      const jtis = ['token-1', 'token-2', 'token-3'];
 
-      mockRedisClient.sMembers.mockResolvedValue(jtis);
-      mockRedisClient.del.mockResolvedValue(3);
+      mockRedisClient.eval.mockResolvedValue(3);
 
       const result = await service.invalidateAllUserTokens(userId);
 
       expect(result).toBe(3);
-      expect(mockRedisClient.sMembers).toHaveBeenCalledWith('auth:user:user-123:tokens');
-      expect(mockRedisClient.del).toHaveBeenCalledWith([
-        'auth:refresh:token-1',
-        'auth:refresh:token-2',
-        'auth:refresh:token-3',
-      ]);
-      expect(mockRedisClient.del).toHaveBeenCalledWith('auth:user:user-123:tokens');
+      expect(mockRedisClient.eval).toHaveBeenCalledWith(expect.stringContaining('SMEMBERS'), {
+        keys: ['auth:user:user-123:tokens'],
+        arguments: ['auth:refresh'],
+      });
     });
 
     it('should return 0 if user has no tokens', async () => {
-      mockRedisClient.sMembers.mockResolvedValue([]);
+      mockRedisClient.eval.mockResolvedValue(0);
 
       const result = await service.invalidateAllUserTokens('user-123');
 
       expect(result).toBe(0);
-      expect(mockRedisClient.del).not.toHaveBeenCalled();
+    });
+
+    it('should handle string result from Lua script', async () => {
+      mockRedisClient.eval.mockResolvedValue('5');
+
+      const result = await service.invalidateAllUserTokens('user-123');
+
+      expect(result).toBe(5);
+    });
+
+    it('should handle null result from Lua script', async () => {
+      mockRedisClient.eval.mockResolvedValue(null);
+
+      const result = await service.invalidateAllUserTokens('user-123');
+
+      expect(result).toBe(0);
+    });
+
+    it('should handle Redis eval errors', async () => {
+      mockRedisClient.eval.mockRejectedValue(new Error('Redis script error'));
+
+      await expect(service.invalidateAllUserTokens('user-123')).rejects.toThrow('Redis script error');
     });
   });
 });

@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { RedisClientType } from 'redis';
 import { REDIS_CLIENT } from '../../redis/redis.module.js';
 
-interface RefreshTokenMetadata {
+export interface RefreshTokenMetadata {
   userId: string;
   createdAt: number;
   userAgent?: string;
@@ -23,7 +23,11 @@ export class TokenStorageService {
     await this.redis.setEx(refreshKey, this.REFRESH_TTL, JSON.stringify(metadata));
 
     await this.redis.sAdd(userTokensKey, jti);
-    await this.redis.expire(userTokensKey, this.REFRESH_TTL);
+
+    const currentTtl = await this.redis.ttl(userTokensKey);
+    if (currentTtl === -1) {
+      await this.redis.expire(userTokensKey, this.REFRESH_TTL);
+    }
   }
 
   async isRefreshTokenValid(userId: string, jti: string): Promise<boolean> {
@@ -53,17 +57,30 @@ export class TokenStorageService {
   async invalidateAllUserTokens(userId: string): Promise<number> {
     const userTokensKey = `${this.USER_TOKENS_PREFIX}:${userId}:tokens`;
 
-    const jtis = await this.redis.sMembers(userTokensKey);
+    const script = `
+      local userTokensKey = KEYS[1]
+      local refreshPrefix = ARGV[1]
+      local jtis = redis.call('SMEMBERS', userTokensKey)
+      local count = #jtis
+      if count == 0 then
+        return 0
+      end
+      for _, jti in ipairs(jtis) do
+        redis.call('DEL', refreshPrefix .. ':' .. jti)
+      end
+      redis.call('DEL', userTokensKey)
+      return count
+    `;
 
-    if (jtis.length === 0) {
+    const result = (await this.redis.eval(script, {
+      keys: [userTokensKey],
+      arguments: [this.REFRESH_PREFIX],
+    })) as number | string | null;
+
+    if (result === null) {
       return 0;
     }
 
-    const refreshKeys = jtis.map((jti) => `${this.REFRESH_PREFIX}:${jti}`);
-    await this.redis.del(refreshKeys);
-
-    await this.redis.del(userTokensKey);
-
-    return jtis.length;
+    return typeof result === 'number' ? result : Number(result);
   }
 }

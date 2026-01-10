@@ -22,7 +22,6 @@ export class AuthController {
   }
 
   @Post('logout')
-  @SkipAuth()
   @HttpCode(HttpStatus.OK)
   async logout(@Body() dto: RefreshTokenDto): Promise<{ success: boolean }> {
     await this.authService.logout(dto.refreshToken);

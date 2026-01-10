@@ -83,22 +83,27 @@ git checkout -b fix/cart-total-calculation
 git checkout -b refactor/user-service-cleanup
 ```
 
-### Step 5: Run Pre-PR Checks
+### Step 5: Run Quality Validation Checks
 
-Run checks on affected projects before committing:
+**CRITICAL**: Run all quality checks on affected projects before committing. All checks must pass.
 
 ```bash
-# Lint affected projects
-yarn nx affected --target=lint --base=origin/development --head=HEAD
-
 # Type check affected projects
 yarn nx affected --target=type-check --base=origin/development --head=HEAD
+
+# Lint affected projects
+yarn nx affected --target=lint --base=origin/development --head=HEAD
 
 # Run tests on affected projects
 yarn nx affected --target=test --base=origin/development --head=HEAD
 ```
 
-Fix any issues before proceeding.
+**All checks must pass before proceeding.** Fix any issues:
+- TypeScript errors must be resolved (no `any` types)
+- Linting errors must be fixed (follow project conventions)
+- All tests must pass (no failing tests)
+
+If any check fails, do not proceed with commit and PR creation.
 
 ### Step 6: Stage and Commit
 
@@ -221,13 +226,27 @@ git diff origin/<branch-name>
 git log origin/<branch-name>..HEAD --oneline
 ```
 
-### Step 3: Run Pre-Push Checks
+### Step 3: Run Quality Validation Checks
+
+**CRITICAL**: Run all quality checks on affected projects before pushing. All checks must pass.
 
 ```bash
-yarn nx affected --target=lint --base=origin/development
+# Type check affected projects
 yarn nx affected --target=type-check --base=origin/development
+
+# Lint affected projects
+yarn nx affected --target=lint --base=origin/development
+
+# Run tests on affected projects
 yarn nx affected --target=test --base=origin/development
 ```
+
+**All checks must pass before proceeding.** Fix any issues:
+- TypeScript errors must be resolved (no `any` types)
+- Linting errors must be fixed (follow project conventions)
+- All tests must pass (no failing tests)
+
+If any check fails, do not proceed with pushing updates.
 
 ### Step 4: Push Updates
 
@@ -290,9 +309,10 @@ yarn nx affected --base=origin/development --plain
 # 2. Create branch
 git checkout -b feat/add-product-filtering
 
-# 3. Run checks
-yarn nx affected --target=lint --base=origin/development
+# 3. Run quality validation checks
 yarn nx affected --target=type-check --base=origin/development
+yarn nx affected --target=lint --base=origin/development
+yarn nx affected --target=test --base=origin/development
 
 # 4. Commit
 git add apps/storefront/src/modules/products/
@@ -328,8 +348,10 @@ Adds category-based filtering to the product listing page.
 git add .
 git commit -m "fix(storefront): address review feedback on filtering"
 
-# 2. Run checks
+# 2. Run quality validation checks
+yarn nx affected --target=type-check --base=origin/development
 yarn nx affected --target=lint --base=origin/development
+yarn nx affected --target=test --base=origin/development
 
 # 3. Push
 git push
@@ -344,12 +366,14 @@ gh pr comment --body "Addressed review feedback:
 
 ## Best Practices
 
-- **Run checks before pushing**: Use `yarn nx affected` to catch issues early
+- **ALWAYS run quality checks**: Run `type-check`, `lint`, and `test` before every commit and push
+- **All checks must pass**: Never create or update a PR with failing quality checks
 - **Use scoped commits**: `feat(storefront):` helps identify affected areas
 - **One PR, one purpose**: Keep PRs focused and reviewable
 - **Draft PRs for WIP**: Use `gh pr create --draft` for incomplete work
 - **Document breaking changes**: Include migration steps in description
 - **Link issues**: Always reference related GitHub issues
+- **Fix issues immediately**: If quality checks fail, fix them before proceeding
 
 ## Validation Checklist
 

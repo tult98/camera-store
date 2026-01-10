@@ -85,25 +85,36 @@
     "prisma:generate": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/core-api && npx prisma generate"
+        "cwd": "apps/core-api",
+        "command": "npx prisma generate"
+      }
+    },
+    "prisma:migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/core-api",
+        "command": "npx prisma migrate dev"
       }
     },
     "prisma:pull": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/core-api && npx prisma db pull"
+        "cwd": "apps/core-api",
+        "command": "npx prisma db pull"
       }
     },
     "prisma:studio": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/core-api && npx prisma studio"
+        "cwd": "apps/core-api",
+        "command": "npx prisma studio"
       }
     },
     "prisma:format": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd apps/core-api && npx prisma format"
+        "cwd": "apps/core-api",
+        "command": "npx prisma format"
       }
     }
   }

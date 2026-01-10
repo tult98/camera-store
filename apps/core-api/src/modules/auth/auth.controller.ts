@@ -12,12 +12,14 @@ import {
 import { Request } from 'express';
 import { JwtAuthGuard } from './auth.guard.js';
 import { AuthService, LoginResponse } from './auth.service.js';
+import { SkipAuth } from './decorators/skip-auth.decorator.js';
 import { LoginDto } from './dto/login.dto.js';
 
 @Controller('api/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @SkipAuth()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginDto): Promise<LoginResponse> {

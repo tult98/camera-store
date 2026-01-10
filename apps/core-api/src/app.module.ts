@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { StoreModule } from 'src/modules/store/store.module';
 import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
 import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './modules/product/product.module';
@@ -32,6 +33,7 @@ import { ProductModule } from './modules/product/product.module';
     }),
     ProductModule,
     StoreModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

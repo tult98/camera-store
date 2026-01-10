@@ -254,26 +254,26 @@ describe('AuthService', () => {
     });
 
     it('should throw UnauthorizedException and log error for JWT verification failure', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const loggerErrorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
       mockJwtService.verifyAsync.mockRejectedValue(new Error('JWT verification failed'));
 
       await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
       await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow('Invalid refresh token');
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error validating refresh token:', expect.any(Error));
+      expect(loggerErrorSpy).toHaveBeenCalledWith('Error validating refresh token:', expect.any(Error));
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
 
     it('should throw UnauthorizedException and log error for Redis errors', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const loggerErrorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
       mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
       mockTokenStorageService.isRefreshTokenValid.mockRejectedValue(new Error('Redis connection failed'));
 
       await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow(UnauthorizedException);
       await expect(service.validateRefreshToken(mockRefreshToken)).rejects.toThrow('Invalid refresh token');
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error validating refresh token:', expect.any(Error));
+      expect(loggerErrorSpy).toHaveBeenCalledWith('Error validating refresh token:', expect.any(Error));
 
-      consoleErrorSpy.mockRestore();
+      loggerErrorSpy.mockRestore();
     });
   });
 

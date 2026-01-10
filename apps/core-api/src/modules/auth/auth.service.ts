@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
@@ -45,6 +45,8 @@ const MIN_PASSWORD_LENGTH = 8;
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -239,7 +241,7 @@ export class AuthService {
       return payload;
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;
-      console.error('Error validating refresh token:', error);
+      this.logger.error('Error validating refresh token:', error);
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

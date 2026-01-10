@@ -223,6 +223,26 @@ describe('AuthController', () => {
       await expect(controller.logout(mockRequest, mockResponse)).rejects.toThrow(UnauthorizedException);
       await expect(controller.logout(mockRequest, mockResponse)).rejects.toThrow('User not authenticated');
     });
+
+    it('should clear cookie and succeed even when validateRefreshToken throws', async () => {
+      const mockRequest = {
+        user: { userId: 'user-123', email: 'test@example.com' },
+        cookies: { [REFRESH_TOKEN_COOKIE_NAME]: 'invalid-refresh-token' },
+      } as unknown as Request;
+
+      const mockResponse = {
+        clearCookie: jest.fn(),
+      } as unknown as Response;
+
+      mockAuthService.validateRefreshToken.mockRejectedValue(new Error('Token validation failed'));
+
+      const result = await controller.logout(mockRequest, mockResponse);
+
+      expect(result).toEqual({ message: 'Logged out successfully' });
+      expect(mockAuthService.validateRefreshToken).toHaveBeenCalledWith('invalid-refresh-token');
+      expect(mockAuthService.logout).not.toHaveBeenCalled();
+      expect(mockResponse.clearCookie).toHaveBeenCalledWith(REFRESH_TOKEN_COOKIE_NAME, expect.any(Object));
+    });
   });
 
   describe('logout-all', () => {

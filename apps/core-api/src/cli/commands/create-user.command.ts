@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { Command, CommandRunner, Option } from 'nest-commander';
 import { AuthService } from '../../modules/auth/auth.service.js';
 
@@ -14,6 +14,8 @@ interface CreateUserOptions {
   description: 'Create a new admin user',
 })
 export class CreateUserCommand extends CommandRunner {
+  private readonly logger = new Logger(CreateUserCommand.name);
+
   constructor(@Inject(AuthService) private readonly authService: AuthService) {
     super();
   }
@@ -21,8 +23,8 @@ export class CreateUserCommand extends CommandRunner {
   async run(_passedParams: string[], options: CreateUserOptions): Promise<void> {
     try {
       if (!options.email || !options.password) {
-        console.error('Error: Email and password are required');
-        console.log('Usage: create-user -e <email> -p <password> [-f <firstName>] [-l <lastName>]');
+        this.logger.error('Error: Email and password are required');
+        this.logger.log('Usage: create-user -e <email> -p <password> [-f <firstName>] [-l <lastName>]');
         process.exit(1);
       }
 
@@ -33,13 +35,13 @@ export class CreateUserCommand extends CommandRunner {
         lastName: options.lastName,
       });
 
-      console.log('User created successfully:');
-      console.log(`  ID: ${user.id}`);
-      console.log(`  Email: ${user.email}`);
-      if (user.firstName) console.log(`  First Name: ${user.firstName}`);
-      if (user.lastName) console.log(`  Last Name: ${user.lastName}`);
+      this.logger.log('User created successfully:');
+      this.logger.log(`  ID: ${user.id}`);
+      this.logger.log(`  Email: ${user.email}`);
+      if (user.firstName) this.logger.log(`  First Name: ${user.firstName}`);
+      if (user.lastName) this.logger.log(`  Last Name: ${user.lastName}`);
     } catch (error) {
-      console.error('Failed to create user:', (error as Error).message);
+      this.logger.error('Failed to create user:', (error as Error).message);
       process.exit(1);
     }
   }

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Post,
   Req,
   Res,
@@ -20,6 +21,8 @@ import { LoginResponseBody, LogoutAllResponseBody, LogoutResponseBody, RefreshRe
 
 @Controller('api/auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   @SkipAuth()
@@ -76,7 +79,7 @@ export class AuthController {
         const payload = await this.authService.validateRefreshToken(refreshToken);
         await this.authService.logout(req.user.userId, payload.jti);
       } catch (error) {
-        console.error('Error validating refresh token during logout:', error);
+        this.logger.error('Error validating refresh token during logout:', error);
       }
     }
 
@@ -121,11 +124,6 @@ export class AuthController {
   }
 
   private clearRefreshTokenCookie(res: Response): void {
-    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/api/auth',
-    });
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_OPTIONS);
   }
 }

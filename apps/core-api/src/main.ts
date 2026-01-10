@@ -1,10 +1,11 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('Bootstrap');
 
   app.use(cookieParser());
 
@@ -26,7 +27,7 @@ async function bootstrap() {
 
   await app.listen(port);
 
-  console.log(`🚀 NestJS API server is running on: http://localhost:${port}`);
+  logger.log(`🚀 NestJS API server is running on: http://localhost:${port}`);
 }
 
 bootstrap();

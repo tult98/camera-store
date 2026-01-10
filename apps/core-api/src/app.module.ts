@@ -10,6 +10,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ApiKeyGuard } from './common/guards/api-key.guard';
 import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './modules/product/product.module';
+import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ProductModule } from './modules/product/product.module';
       envFilePath: '.env',
     }),
     DatabaseModule,
+    RedisModule,
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

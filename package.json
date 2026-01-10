@@ -107,6 +107,7 @@
     "react-dom": "18.3.1",
     "react-hook-form": "^7.62.0",
     "react-select": "^5.10.2",
+    "redis": "^5.10.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "scrypt-kdf": "^4.0.0",

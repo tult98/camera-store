@@ -4,7 +4,6 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { StoreModule } from 'src/modules/store/store.module';
 import { AppController } from './app.controller';
 import { ApiKeyGuard } from './common/guards/api-key.guard';

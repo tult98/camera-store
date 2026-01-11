@@ -57,13 +57,21 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/admin-dashboard/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/admin-dashboard/**/*.{ts,tsx}"]
       }
     },
     "type-check": {
       "executor": "nx:run-commands",
       "options": {
         "command": "tsc --noEmit",
+        "cwd": "apps/admin-dashboard"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/coverage"],
+      "options": {
+        "command": "jest",
         "cwd": "apps/admin-dashboard"
       }
     }

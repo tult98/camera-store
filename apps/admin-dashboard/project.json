@@ -68,11 +68,17 @@
       }
     },
     "test": {
-      "executor": "nx:run-commands",
-      "outputs": ["{projectRoot}/coverage"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "command": "jest",
-        "cwd": "apps/admin-dashboard"
+        "jestConfig": "apps/admin-dashboard/jest.config.js",
+        "passWithNoTests": false
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
       }
     }
   }

@@ -31,6 +31,7 @@ class MockIntersectionObserver {
   observe = jest.fn();
   disconnect = jest.fn();
   unobserve = jest.fn();
+  takeRecords = jest.fn(() => []);
 }
 Object.defineProperty(window, 'IntersectionObserver', {
   writable: true,

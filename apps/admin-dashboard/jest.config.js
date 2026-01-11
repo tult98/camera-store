@@ -28,9 +28,7 @@ module.exports = {
     '^@camera-store/ui$': '<rootDir>/../../libs/ui/src/index.ts',
   },
   testMatch: [
-    '**/__tests__/**/*.spec.ts',
-    '**/__tests__/**/*.test.ts',
-    '**/__tests__/**/*.spec.tsx',
-    '**/__tests__/**/*.test.tsx',
+    '<rootDir>/src/**/__tests__/**/*.[jt]s?(x)',
+    '<rootDir>/src/**/*(*.)@(spec|test).[jt]s?(x)',
   ],
 };

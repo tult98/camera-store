@@ -57,7 +57,7 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/admin-dashboard/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/admin-dashboard/**/*.{ts,tsx}"]
       }
     },
     "type-check": {
@@ -65,6 +65,20 @@
       "options": {
         "command": "tsc --noEmit",
         "cwd": "apps/admin-dashboard"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/admin-dashboard/jest.config.js",
+        "passWithNoTests": false
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
       }
     }
   }

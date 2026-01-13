@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@camera-store/ui": ["libs/ui/src/index.ts"]
+      "@camera-store/ui": ["libs/ui/src/index.ts"],
+      "@camera-store/api-client": ["libs/api-client/src/index.ts"]
     },
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

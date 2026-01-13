@@ -41,7 +41,7 @@ export interface ApiClient extends AxiosInstance {
   login: (email: string, password: string) => Promise<LoginResponse>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<{ message: string; revokedCount: number }>;
-  getCurrentUser: () => Promise<{ userId: string; email: string }>;
+  getCurrentUser: () => Promise<User>;
 }
 
 export interface QueuedRequest {

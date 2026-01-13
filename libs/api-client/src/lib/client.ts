@@ -1,9 +1,9 @@
 import axios from 'axios';
-import type { ApiClient, ApiClientConfig, LoginResponse } from './types';
+import type { ApiClient, ApiClientConfig, LoginResponse, User } from './types';
 import { DEFAULT_BASE_URL, DEFAULT_TIMEOUT, ENDPOINTS } from './constants';
 import { createRequestInterceptor } from './interceptors/request.interceptor';
 import { createResponseInterceptor } from './interceptors/response.interceptor';
-import { RefreshManager } from './refresh/refresh-manager';
+import { createRefreshManager } from './refresh/refresh-manager';
 
 export function createApiClient(config: ApiClientConfig): ApiClient {
   const {
@@ -26,7 +26,7 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
     },
   });
 
-  const refreshManager = new RefreshManager({
+  const refreshManager = createRefreshManager({
     axiosInstance: instance,
     refreshEndpoint,
     tokenCallbacks,
@@ -59,14 +59,18 @@ export function createApiClient(config: ApiClientConfig): ApiClient {
   };
 
   client.logoutAll = async () => {
-    const response = await instance.post<{ message: string; revokedCount: number }>(ENDPOINTS.LOGOUT_ALL);
-    await tokenCallbacks.setAccessToken(null);
-    authEventCallbacks.onLogout?.();
+    let response;
+    try {
+      response = await instance.post<{ message: string; revokedCount: number }>(ENDPOINTS.LOGOUT_ALL);
+    } finally {
+      await tokenCallbacks.setAccessToken(null);
+      authEventCallbacks.onLogout?.();
+    }
     return response.data;
   };
 
   client.getCurrentUser = async () => {
-    const response = await instance.get<{ userId: string; email: string }>(ENDPOINTS.ME);
+    const response = await instance.get<User>(ENDPOINTS.ME);
     return response.data;
   };
 

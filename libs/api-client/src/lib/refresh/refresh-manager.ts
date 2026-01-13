@@ -1,6 +1,7 @@
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import type { TokenCallbacks, AuthEventCallbacks, RefreshResponse } from '../types';
-import { RequestQueue } from './request-queue';
+import { createRequestQueue } from './request-queue';
+import { updateConfigWithToken } from '../utils/token-utils';
 
 interface RefreshManagerConfig {
   axiosInstance: AxiosInstance;
@@ -9,83 +10,64 @@ interface RefreshManagerConfig {
   authEventCallbacks: AuthEventCallbacks;
 }
 
-export class RefreshManager {
-  private axiosInstance: AxiosInstance;
-  private refreshEndpoint: string;
-  private tokenCallbacks: TokenCallbacks;
-  private authEventCallbacks: AuthEventCallbacks;
-  private requestQueue: RequestQueue;
-  private isRefreshing = false;
-  private refreshPromise: Promise<string> | null = null;
+export function createRefreshManager(config: RefreshManagerConfig) {
+  const { axiosInstance, refreshEndpoint, tokenCallbacks, authEventCallbacks } = config;
+  const requestQueue = createRequestQueue();
+  let isRefreshing = false;
+  let refreshPromise: Promise<string> | null = null;
 
-  constructor(config: RefreshManagerConfig) {
-    this.axiosInstance = config.axiosInstance;
-    this.refreshEndpoint = config.refreshEndpoint;
-    this.tokenCallbacks = config.tokenCallbacks;
-    this.authEventCallbacks = config.authEventCallbacks;
-    this.requestQueue = new RequestQueue();
-  }
+  const executeRefresh = async (): Promise<string> => {
+    const response = await axiosInstance.post<RefreshResponse>(
+      refreshEndpoint,
+      {},
+      {
+        headers: { 'X-Skip-Auth-Retry': 'true' },
+      }
+    );
 
-  async queueRequest(config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
-    if (this.isRefreshing && this.refreshPromise) {
-      return this.waitForRefreshAndRetry(config);
-    }
+    const newToken = response.data.accessToken;
 
-    this.isRefreshing = true;
-    this.refreshPromise = this.executeRefresh();
+    await tokenCallbacks.setAccessToken(newToken);
 
-    try {
-      const newToken = await this.refreshPromise;
+    authEventCallbacks.onTokenRefreshed?.(newToken);
 
-      this.requestQueue.processAll(newToken);
+    return newToken;
+  };
 
-      return this.updateConfigWithToken(config, newToken);
-    } catch (error) {
-      this.requestQueue.rejectAll(error as Error);
-      throw error;
-    } finally {
-      this.isRefreshing = false;
-      this.refreshPromise = null;
-    }
-  }
-
-  private async waitForRefreshAndRetry(config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
+  const waitForRefreshAndRetry = (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
     return new Promise((resolve, reject) => {
-      this.requestQueue.add({
+      requestQueue.add({
         config,
         resolve: (updatedConfig) => resolve(updatedConfig),
         reject,
       });
     });
-  }
+  };
 
-  private async executeRefresh(): Promise<string> {
-    try {
-      const response = await this.axiosInstance.post<RefreshResponse>(
-        this.refreshEndpoint,
-        {},
-        {
-          headers: { 'X-Skip-Auth-Retry': 'true' },
-        }
-      );
+  return {
+    queueRequest: async (config: InternalAxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
+      if (isRefreshing && refreshPromise) {
+        return waitForRefreshAndRetry(config);
+      }
 
-      const newToken = response.data.accessToken;
+      isRefreshing = true;
+      refreshPromise = executeRefresh();
 
-      await this.tokenCallbacks.setAccessToken(newToken);
+      try {
+        const newToken = await refreshPromise;
 
-      this.authEventCallbacks.onTokenRefreshed?.(newToken);
+        requestQueue.processAll(newToken);
 
-      return newToken;
-    } catch (error) {
-      this.authEventCallbacks.onRefreshFailed?.(error as Error);
-      throw error;
-    }
-  }
-
-  private updateConfigWithToken(config: InternalAxiosRequestConfig, token: string): InternalAxiosRequestConfig {
-    const newConfig = { ...config };
-    newConfig.headers = newConfig.headers || {};
-    newConfig.headers.Authorization = `Bearer ${token}`;
-    return newConfig;
-  }
+        return updateConfigWithToken(config, newToken);
+      } catch (error) {
+        requestQueue.rejectAll(error as Error);
+        throw error;
+      } finally {
+        isRefreshing = false;
+        refreshPromise = null;
+      }
+    },
+  };
 }
+
+export type RefreshManager = ReturnType<typeof createRefreshManager>;

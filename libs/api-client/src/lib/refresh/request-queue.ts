@@ -1,40 +1,30 @@
-import type { InternalAxiosRequestConfig } from 'axios';
 import type { QueuedRequest } from '../types';
+import { updateConfigWithToken } from '../utils/token-utils';
 
-export class RequestQueue {
-  private queue: QueuedRequest[] = [];
+export function createRequestQueue() {
+  const queue: QueuedRequest[] = [];
 
-  add(request: QueuedRequest): void {
-    this.queue.push(request);
-  }
-
-  processAll(token: string): void {
-    while (this.queue.length > 0) {
-      const request = this.queue.shift();
-      if (request) {
-        const updatedConfig = this.updateConfigWithToken(request.config, token);
-        request.resolve(updatedConfig);
+  return {
+    add: (request: QueuedRequest): void => {
+      queue.push(request);
+    },
+    processAll: (token: string): void => {
+      while (queue.length > 0) {
+        const request = queue.shift();
+        if (request) {
+          const updatedConfig = updateConfigWithToken(request.config, token);
+          request.resolve(updatedConfig);
+        }
       }
-    }
-  }
-
-  rejectAll(error: Error): void {
-    while (this.queue.length > 0) {
-      const request = this.queue.shift();
-      if (request) {
-        request.reject(error);
+    },
+    rejectAll: (error: Error): void => {
+      while (queue.length > 0) {
+        const request = queue.shift();
+        request?.reject(error);
       }
-    }
-  }
-
-  get length(): number {
-    return this.queue.length;
-  }
-
-  private updateConfigWithToken(config: InternalAxiosRequestConfig, token: string): InternalAxiosRequestConfig {
-    const newConfig = { ...config };
-    newConfig.headers = newConfig.headers || {};
-    newConfig.headers.Authorization = `Bearer ${token}`;
-    return newConfig;
-  }
+    },
+    getLength: (): number => queue.length,
+  };
 }
+
+export type RequestQueue = ReturnType<typeof createRequestQueue>;

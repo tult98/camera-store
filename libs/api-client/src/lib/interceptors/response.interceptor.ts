@@ -26,7 +26,7 @@ export function createResponseInterceptor(
       return Promise.reject(error);
     }
 
-    if (isAuthEndpoint(originalRequest.url)) {
+    if (isAuthEndpoint(originalRequest.url) || originalRequest.headers?.['X-Skip-Auth-Retry']) {
       return Promise.reject(error);
     }
 
@@ -46,6 +46,12 @@ export function createResponseInterceptor(
 
 function isAuthEndpoint(url?: string): boolean {
   if (!url) return false;
-  const authPaths = ['/api/auth/login', '/api/auth/refresh', '/api/auth/logout'];
+  const authPaths = [
+    '/api/auth/login',
+    '/api/auth/refresh',
+    '/api/auth/logout',
+    '/api/auth/logout-all',
+    '/api/auth/me',
+  ];
   return authPaths.some((path) => url.includes(path));
 }

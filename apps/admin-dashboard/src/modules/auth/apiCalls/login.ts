@@ -1,6 +1,6 @@
-import { sdk } from '@modules/shared/api/medusa-client';
+import { coreApiClient } from '@modules/shared/api/core-api-client';
 import type { LoginSchemaType } from '../types';
 
 export const loginUser = async (credentials: LoginSchemaType) => {
-  return await sdk.auth.login('user', 'emailpass', credentials);
+  return await coreApiClient.login(credentials.email, credentials.password);
 };

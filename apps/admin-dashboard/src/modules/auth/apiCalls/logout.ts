@@ -1,5 +1,5 @@
-import { sdk } from '@modules/shared/api/medusa-client';
+import { coreApiClient } from '@modules/shared/api/core-api-client';
 
 export const logoutUser = async () => {
-  return await sdk.auth.logout();
+  return await coreApiClient.logout();
 };

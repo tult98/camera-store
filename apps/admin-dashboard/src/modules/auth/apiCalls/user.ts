@@ -1,5 +1,5 @@
-import { sdk } from '@modules/shared/api/medusa-client';
+import { coreApiClient } from '@modules/shared/api/core-api-client';
 
 export const getCurrentUser = async () => {
-  return await sdk.admin.user.me();
+  return await coreApiClient.getCurrentUser();
 };

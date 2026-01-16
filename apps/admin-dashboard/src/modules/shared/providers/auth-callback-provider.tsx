@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { setOnLogoutCallback } from '../api/core-api-client';
@@ -11,12 +11,17 @@ export const AuthCallbackProvider: React.FC<AuthCallbackProviderProps> = ({ chil
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    setOnLogoutCallback(() => {
-      queryClient.clear();
-      navigate('/login');
-    });
+  const handleLogout = useCallback(() => {
+    queryClient.clear();
+    navigate('/login');
   }, [navigate, queryClient]);
+
+  useEffect(() => {
+    setOnLogoutCallback(handleLogout);
+    return () => {
+      setOnLogoutCallback(null);
+    };
+  }, [handleLogout]);
 
   return <>{children}</>;
 };

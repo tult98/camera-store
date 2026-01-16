@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import * as ReactDOM from 'react-dom/client';
 import { QueryProvider } from './modules/shared/providers/query-provider';
 import { ToastProvider } from './modules/shared/providers/toast-provider';
+import { AuthCallbackProvider } from './modules/shared/providers/auth-callback-provider';
 import { ToastContainer } from './modules/shared/components/ui/toast/toast-container';
 import App from './app/app';
 import './styles/globals.css';
@@ -14,7 +15,9 @@ root.render(
     <QueryProvider>
       <ToastProvider>
         <BrowserRouter basename="/app">
-          <App />
+          <AuthCallbackProvider>
+            <App />
+          </AuthCallbackProvider>
         </BrowserRouter>
         <ToastContainer />
       </ToastProvider>

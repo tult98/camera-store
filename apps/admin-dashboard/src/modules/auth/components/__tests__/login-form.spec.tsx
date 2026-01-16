@@ -94,8 +94,11 @@ describe('LoginForm', () => {
 
   it('submits form with valid credentials', async () => {
     const user = userEvent.setup();
-    mockLoginUser.mockResolvedValue({});
-    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'test@example.com' });
+    mockLoginUser.mockResolvedValue({
+      accessToken: 'mock-token',
+      user: { id: '1', email: 'test@example.com', firstName: null, lastName: null },
+    });
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'test@example.com', firstName: null, lastName: null });
 
     renderLoginForm();
 
@@ -117,8 +120,11 @@ describe('LoginForm', () => {
 
   it('navigates to home page after successful login', async () => {
     const user = userEvent.setup();
-    mockLoginUser.mockResolvedValue({});
-    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'test@example.com' });
+    mockLoginUser.mockResolvedValue({
+      accessToken: 'mock-token',
+      user: { id: '1', email: 'test@example.com', firstName: null, lastName: null },
+    });
+    mockGetCurrentUser.mockResolvedValue({ id: '1', email: 'test@example.com', firstName: null, lastName: null });
 
     renderLoginForm();
 

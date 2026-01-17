@@ -1,4 +1,9 @@
 import '@testing-library/jest-dom';
+import { server } from '@camera-store/msw-handlers';
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

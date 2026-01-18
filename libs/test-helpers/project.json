@@ -1,7 +1,7 @@
 {
-  "name": "msw-handlers",
+  "name": "test-helpers",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/msw-handlers/src",
+  "sourceRoot": "libs/test-helpers/src",
   "projectType": "library",
   "tags": ["type:lib", "scope:testing"]
 }

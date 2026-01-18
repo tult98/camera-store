@@ -27,8 +27,14 @@ const createMockApi = (baseUrl: string) => {
     put: createHandler('put'),
     patch: createHandler('patch'),
     delete: createHandler('delete'),
-    error: (method: HttpMethod, path: string) => {
-      server.use(http[method](`${baseUrl}${path}`, () => HttpResponse.error()));
+    error: (method: HttpMethod, path: string, options?: MockOptions) => {
+      const { delay: delayMs } = options ?? {};
+      server.use(
+        http[method](`${baseUrl}${path}`, async () => {
+          if (delayMs) await delay(delayMs);
+          return HttpResponse.error();
+        })
+      );
     },
   };
 };

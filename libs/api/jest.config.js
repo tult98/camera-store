@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'api-client',
+  displayName: 'api',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
@@ -25,6 +25,6 @@ module.exports = {
     '<rootDir>/src/**/__tests__/**/*.[jt]s',
     '<rootDir>/src/**/*(*.)@(spec|test).[jt]s',
   ],
-  coverageDirectory: '../../coverage/libs/api-client',
+  coverageDirectory: '../../coverage/libs/api',
   maxWorkers: '50%',
 };

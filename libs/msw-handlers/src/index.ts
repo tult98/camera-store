@@ -1,2 +1,2 @@
 export { server } from './server';
-export { mockCoreApi } from './mock-api';
+export { fetchMock } from './fetch-mock';

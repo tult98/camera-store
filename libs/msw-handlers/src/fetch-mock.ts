@@ -33,4 +33,4 @@ const createMockApi = (baseUrl: string) => {
   };
 };
 
-export const mockCoreApi = createMockApi('http://localhost:3001');
+export const fetchMock = createMockApi('http://localhost:3001');

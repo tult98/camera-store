@@ -1,5 +1,5 @@
 ---
-name: pr-review-handler
+name: address-pr-feedback
 description: Fetch and analyze GitHub PR review comments, evaluate their validity, and propose solutions. Use when the user asks to handle PR reviews, address reviewer feedback, check PR comments, or respond to code review suggestions.
 ---
 

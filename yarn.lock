@@ -2722,7 +2722,6 @@ __metadata:
     vite: ^6.0.0
     vitest: ^3.0.0
     webpack: ^5
-    whatwg-fetch: ^3.6.20
     yalc: ^1.0.0-pre.53
     zustand: ^5.0.8
   languageName: unknown
@@ -34653,13 +34652,6 @@ __metadata:
   dependencies:
     iconv-lite: 0.6.3
   checksum: f75a61422421d991e4aec775645705beaf99a16a88294d68404866f65e92441698a4f5b9fa11dd609017b132d7b286c3c1534e2de5b3e800333856325b549e3c
-  languageName: node
-  linkType: hard
-
-"whatwg-fetch@npm:^3.6.20":
-  version: 3.6.20
-  resolution: "whatwg-fetch@npm:3.6.20"
-  checksum: c58851ea2c4efe5c2235f13450f426824cf0253c1d45da28f45900290ae602a20aff2ab43346f16ec58917d5562e159cd691efa368354b2e82918c2146a519c5
   languageName: node
   linkType: hard
 

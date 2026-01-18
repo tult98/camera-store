@@ -13,7 +13,7 @@
       "@providers/*": ["./src/providers/*"],
       "@app/*": ["./src/app/*"],
       "@camera-store/ui": ["../../libs/ui/src/index.ts"],
-      "@camera-store/api-client": ["../../libs/api-client/src/index.ts"]
+      "@camera-store/api": ["../../libs/api/src/index.ts"]
     }
   },
   "files": [],

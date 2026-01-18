@@ -1,4 +1,4 @@
-import { createApiClient, type ApiClient } from '@camera-store/api-client';
+import { createApiClient, type ApiClient } from '@camera-store/api';
 
 const ACCESS_TOKEN_KEY = 'admin_access_token';
 
